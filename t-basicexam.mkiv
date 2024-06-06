@@ -10,6 +10,9 @@
 %D      license=,
 %D          url=]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% upadate: 清除只使用 choice 環境返回 missing number 問題
+%          原因: choice dataset 設置了 questionorder，因爲沒有 question 環境，
+%		        所以爲正確生成 計數器。
 \startmodule[basicexam]
 \unprotect
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -190,10 +193,13 @@ informationalign=center,
 \newif\ifmode_showanswer  \mode_showanswerfalse
 \newif\ifmode_showpoint   \mode_showpointfalse
 \newif\ifenv_question     \env_questionfalse
-\newif\ifenv_toplevel     \env_topleveltrue
-\newif\ifenv_botlevel     \env_botlevelfalse
+\newif\ifenv_problem      \env_problemfalse
+\newif\ifenv_material     \env_materialfalse
+\newif\ifenv_answer       \env_answerfalse
 \newif\ifitem_choice      \item_choicefalse
 \newif\ifitem_pitem       \item_pitemfalse
+\newif\ifenv_toplevel     \env_topleveltrue
+\newif\ifenv_botlevel     \env_botlevelfalse
 \newif\ifcheck_inner_pitem\check_inner_pitemfalse
 \newif\ifchoice_check     \choice_checkfalse
 \newif\ifreset_counter
@@ -252,34 +258,19 @@ informationalign=center,
 \framed[align=flushleft]{\language[en]%
 \hfil {\bf NOTICE: MODE CHECK IS ON}          \hfil\par
 \hfil currentitemgroup:{\bf\currentitemgroup} \hfil\par
-\starttabulate[|rp(.2\textwidth)|lp(.15\textwidth)%
-               |rp(.25\textwidth)|lp(.35\textwidth)|lwlB|]
-\NC {\bf Name}      \NC {\bf Content}           \NC 
-    {\bf info for choice}\NC {\bf Content}                         \NC\NR
+\hfil Notice,{\bf info for choice}only show choice env information \hfil\par
+\starttabulate[|rp(.2\textwidth)|lp(.25\textwidth)%
+               |rp(.2\textwidth)|lp(.25\textwidth)|lwlB|]
+\NC {\bf Name}      \NC {\bf Content}           \NC     {\bf info for choice}\NC {\bf Content}  \NC\NR
 \HL
-\NC currentparen    \NC \currentparentitemgroup \NC 
-    currentmaxiwidth     \NC \the\width_cit_max \NC\NR
-\NC currentitemlevel\NC \currentitemlevel       \NC 
-    currentchoicenumber  \NC \rawcountervalue[currentchoicenumber] \NC\NR
-\NC currentenvname  \NC \currentenvname         \NC 
-    totalchoicenumber    \NC \rawcountervalue[totalchoicenumber]   \NC\NR
-\NC currentorder    \NC \currentorder           \NC 
-    answer               \NC \get_choice_answer                    \NC\NR
-\NC top-mid-bot     \NC \rawcountervalue[Unicode_toplevel]-%
-                        \rawcountervalue[Unicode_midlevel]-%
-                        \rawcountervalue[Unicode_botlevel]
-                                                \NC 
-    answerstatus        \NC \datasetvariable{Choice_collector}{\rawcountervalue[UnicodeChoice]}{answerstatus}\NC\NR
-\NC userorder      \NC  Cur=\currentitemnumber  \NS[2][c] 
-    Notice,{\bf info for choice}only\\ 
-    show choice env information \NC\NR
-\NC level.check    \NC  \ifenv_toplevel <env_toplevel>
-                        \else <toplevelfalse>\fi\\
-                        \ifenv_botlevel <env_botlevel> 
-                        \else <botlevelfalse>\fi\NC\NR
-\NC answer         \NC \get_dataset_answer     \NC\NR
+\NC CUparen    \NC \currentparentitemgroup \NC     CUCmaxwidth   \NC \choice_itemmaxwidth       \NC\NR
+\NC CUitemlevel\NC \currentitemlevel       \NC     CUCnumber     \NC \choice_id                 \NC\NR
+\NC CUorder    \NC \currentorder           \NC     totalCnumber  \NC \choice_totalchoicenumber  \NC\NR
+\NC CUuserorder\NC  Cur=\currentitemnumber \NC     Cavailable    \NC \choice_availablecolumns   \NC\NR
+\NC level.check\NC \level_status           \NC     Canswer       \NC \get_choice_answer         \NC\NR
+\NC answer     \NC \get_dataset_answer     \NC     Canswerstatus \NC \choice_answerstatus       \NC\NR
 \stoptabulate
-}\par}
+}\par} 
 
 \def\dimtonum #1{\number\numexpr \dimexpr #1\relax*635/65536\relax }
 \newcount\cnt_floor
@@ -289,17 +280,30 @@ informationalign=center,
 \def\floorhelphelper#1#2.{\ifnum#2>0%
     \floorhelphelphelper#1\relax\relax\relax\else#1\fi}
 \def\floorhelphelphelper#1#2\relax{%
-  \if-#1\relax-\cnt_floor=0#2\relax\advance\cnt_floor by 1\relax\number\cnt_floor\relax%
-  \else\cnt_floor=0#1#2\relax\number\cnt_floor\relax\fi%
+  \if-#1\relax-\cnt_floor=0#2\relax%
+  \advance\cnt_floor by 1\relax%
+  \number\cnt_floor\relax%
+  \else\cnt_floor=0#1#2\relax%
+  \number\cnt_floor\relax\fi%
 }
+\directlua{MultiAnswerCollector = {}}
+\def\collect#1{%if want show collect,show #1
+    \directlua{table.insert(MultiAnswerCollector, [[#1]])}}
+\def\callcollection{\directlua{
+    tex.sprint(table.concat(MultiAnswerCollector, " "))
+    MultiAnswerCollector = {}
+}}
 
-\def\currentorder{
+\def\level_status{\ifenv_toplevel <env_toplevel> \else <toplevelfalse>\fi%
+                  \ifenv_botlevel <env_botlevel> \else <botlevelfalse>\fi}
+
+\def\currentorder{% get unique order
     \rawcountervalue[Unicode_toplevel]-%
     \rawcountervalue[Unicode_midlevel]-%
     \rawcountervalue[Unicode_botlevel]%
 }
 
-\def\set_currentuserorder[#1]{%
+\def\set_currentuserorder[#1]{% get order that user setted
  \expandafter\newcount\csname #1order\endcsname%
  \ifnum\currentitemnumber=0%
  \csname #1order\endcsname=\rawcountervalue[Unicode_toplevel]\relax%
@@ -308,35 +312,23 @@ informationalign=center,
  \fi%
 }
 
-\def\currentenvname{%
-    \doifincsnameelse{question}{\currentitemgroup}%
-                     {question\env_questiontrue}{\env_questionfalse}%
-    \doifincsnameelse{problem}{\currentitemgroup}%
-                     {problem}{}%
-    \doifincsnameelse{choice}{\currentitemgroup}%
-                     {choice}{}%
-}
+%%% this command can quickly get userorder
+\def\currentuserorder#1{\number\csname #1order\endcsname}
 
-\def\currentcinfos{
-    \ifmode_quickcheck%
-    \rawcountervalue[Unicode]
-    currentitemnumber  :\currentitemnumber\par
-    currentchoicenumber:\rawcountervalue[currentchoicenumber]\par
-    totalchoicenumber  :\rawcountervalue[totalchoicenumber]\par
-    currentmaxiwidth   :\the\width_cit_max\par
-    answerstatus       :\datasetvariable{Choice_collector}{\rawcountervalue[UnicodeChoice]}{answerstatus}\par
-    answer             :\datasetvariable{Choice_collector}{\rawcountervalue[UnicodeChoice]}{answer}\\
-    \else\relax\fi
-   }
+%\def\currentenvname{%
+%    \doifincsnameelse{question}{\currentitemgroup}%
+%                     {\env_questiontrue}{\env_questionfalse}%
+%    \doifincsnameelse{problem}{\currentitemgroup}%
+%                     {\env_problemtrue}{\env_problemfalse}%
+%    \doifincsnameelse{choice}{\currentitemgroup}%
+%                     {\env_choicetrue}{\env_choicefalse}%
+%}
 
 \def\currentenv_check_for_pitem{%
     \doifincsnameelse{question}{\currentitemgroup}%
                      {\env_questiontrue}{\env_questionfalse}%
     \doifincsnameelse{problem:2}{\currentitemgroup}%
                      {\env_questiontrue}{\env_questionfalse}}
-
-\def\currentuserorder#1{\currentenvname{}_\number\csname #1order\endcsname}
-
 
 \def\set_count_envlevel[#1][#2]{%
    \setcounter[Unicode_midlevel][0]
@@ -354,7 +346,8 @@ informationalign=center,
    \currentproblem_botlevel=\rawcountervalue[Unicode_botlevel]\relax%
    \set_currentuserorder[#2]%
    \ifmode_quickcheck\show_check_info\else%
-         \ifmode_check\show_check_infos\else\fi\fi%
+       \ifmode_check\show_check_infos\else\fi%
+   \fi%
 }
 
 \def\set_count_itemlevel[#1][#2]{%
@@ -370,72 +363,9 @@ informationalign=center,
    \currentpitem_midlevel=\rawcountervalue[Unicode_midlevel]\relax%
    \currentpitem_botlevel=\rawcountervalue[Unicode_botlevel]\relax%
    \set_currentuserorder[#2]%
-   \ifmode_quickcheck\show_check_info%
-   \else\ifmode_check\show_check_infos\else\fi\fi%
-}
-
-\def\get_dataset_answer_num#1{%\rawcountervalue[Unicode]
-    \doifelsesomething%
-    {\datasetvariable{Answer_collector}{#1}{answer}}
-    {\datasetvariable{Answer_collector}{#1}{answer}}
-    {\framed[style=\ss,align=flushleft,
-             background=color,backgroundcolor=lightred,
-             foregroundcolor=]{%
-       We didn't get the \color[white]{\tta answer} value. \\
-       Maybe there was an error in the module, \\
-       or maybe you haven't set the \color[white]{\tta answer} value yet}}}
-
-\def\get_dataset_answer{\get_dataset_answer_num{\rawcountervalue[Unicode]}}
-\def\get_dataset_answer_forp{%
-    \newcount\SFPA\SFPA=\numexpr\rawcountervalue[Unicode]-1\relax%
-    %\number\SFPA is special for env_answer which follow item_pitem 
-    \get_dataset_answer_num{\number\SFPA}%
-    \advance\SFPA by 1\relax}
-
-\def\get_choice_answer_num#1{%
-    \doifsomethingelse%
-    {\datasetvariable{Choice_collector}{#1}{answer}}%
-    {\datasetvariable{Choice_collector}{#1}{answer}}%
-    {\doifincsnameelse{choice}{\currentitemgroup}{%
-     \framed[style=\ss,align=flushleft,
-             background=color,backgroundcolor=lightred,
-             foregroundcolor=]{%
-       We didn't get the \color[white]{\tta answer} value. \\
-       Maybe there was an error in the module, \\
-       or maybe you haven't set the \color[white]{\tta answer} value yet}}
-    {There is no value for Choice,Maybe in \WORD{\sc problem} environment}
-   }
-}
-
-\def\get_choice_answer{\get_choice_answer_num{\rawcountervalue[UnicodeChoice]}}
-\let\getanswerfromchoice\get_choice_answer
-
-%%%%% NOTICE : 設定上，可以同時通過選項和 question 環境來直接設定答案，因此，
-%%%%%          如果 question 環境尚未設置值，則自動獲取選項值。否則，則獲取
-%%%%%          用戶主動輸入的值。
-%%%%%          目前，當用戶主動輸入值和選項值發生衝突時，並未設置警告信息!!!!
-\def\getanswer{% used for answer env to auto get answer
-    \doifincsnameelse
-    {problem}{\currentitemgroup}%
-    {\get_dataset_answer_forp}%
-    {\dataset_answer[question]}%
-}
-
-\def\answer_after_check{
-    \ifchoice_check%
-        checked!%
-    \else%
-    	\color[red]{unchecked!}\\
-	    The current answer is auto-generated, \\
-	    please set the answer manually. \\
-	    The concise way to do this is to \\
-	    add \[*\] parameter to {\tt citem} command.\\
-	\fi}
-
-\def\dataset_answer[#1]{% only used follow command: dataset_collector
-	\doifelse{\csname #1parameter\endcsname{answer}}{}%
-	         {\get_choice_answer{\rawcountervalue[Unicode]}}%
-	         {\csname #1parameter\endcsname{answer}}%
+   \ifmode_quickcheck\show_check_info\else%
+        \ifmode_check\show_check_infos\else\fi%
+   \fi%
 }
 
 \def\dataset_collector[#1][#2]{%
@@ -455,6 +385,79 @@ informationalign=center,
                  %totalchoicenumber={\rawcountervalue[totalchoicenumber]},
                  dummytext={anything},
                          ]}
+                         
+\def\dataset_answer[#1]{% only used follow command: dataset_collector
+	\doifincsnameelse{choice}{\currentitemgroup}%
+	         {\get_choice_answer_num{\rawcountervalue[Unicode]}}%
+	         {\check_env_answer[#1]}%
+}
+
+\def\check_env_answer[#1]{
+	\doifelsesomething{\csname #1parameter\endcsname{answer}}{}{%
+	   We didn't get the \color[red]{\tta #1 answer} value. \\
+       Maybe there was an error in the module, \\
+       or maybe you haven't set the \color[red]{\tta #1 answer} value yet%
+    }{%
+       \csname #1parameter\endcsname{answer}}%
+}
+
+\def\check_choice_answer{
+	\doifincsnameelse{choice}{\currentitemgroup}{%
+       We didn't get the \color[red]{\tta answer} value. \\
+       Maybe there was an error in the module, \\
+       or maybe you haven't set the \color[red]{\tta answer} value yet%
+       }{%
+       There is no value for Choice,Maybe in \WORD{\sc problem} environment}
+}
+
+\def\get_dataset_answer_num#1{%\rawcountervalue[Unicode]
+    \datasetvariable{Answer_collector}{#1}{answer}}
+\def\get_dataset_answer{\get_dataset_answer_num{\rawcountervalue[Unicode]}}
+
+\def\get_dataset_answer_forp{%
+    \newcount\SFPA\SFPA=\numexpr\rawcountervalue[Unicode]-1\relax%
+    %\number\SFPA is special for env_answer which follow item_pitem 
+    \get_dataset_answer_num{\number\SFPA}%
+    \advance\SFPA by 1\relax}
+
+\def\get_choice_answer_num#1{%
+    \doifsomethingelse%
+    {\datasetvariable{Choice_collector}{#1}{answer}}%
+    {\datasetvariable{Choice_collector}{#1}{answer}}%
+    {\check_choice_answer}}
+
+\def\get_choice_answer{\get_choice_answer_num{\rawcountervalue[UnicodeChoice]}}
+
+\let\getanswerfrompitem\get_dataset_answer_forp
+\let\getanswerfromchoice\get_choice_answer
+
+%%%%% NOTICE : 設定上，可以同時通過選項和 question 環境來直接設定答案，因此，
+%%%%%          如果 question 環境尚未設置值，則自動獲取選項值。否則，則獲取
+%%%%%          用戶主動輸入的值。
+%%%%%          目前，當用戶主動輸入值和選項值發生衝突時，並未設置警告信息!!!!
+\def\getanswer{% used for answer env to auto get answer
+    \doifincsnameelse
+    {problem}{\currentitemgroup}%
+    {\get_dataset_answer_forp}% get answer from pitem
+    {\dataset_answer[question]}% get answer from choice or get answer from question
+}
+
+\def\choice_id{\datasetvariable{Choice_collector}{\rawcountervalue[UnicodeChoice]}{id}}
+\def\choice_availablecolumns{\datasetvariable{Choice_collector}{\rawcountervalue[UnicodeChoice]}{availablecolumns}}
+\def\choice_itemmaxwidth{\datasetvariable{Choice_collector}{\rawcountervalue[UnicodeChoice]}{itemmaxwidth}}
+\def\choice_totalchoicenumber{\datasetvariable{Choice_collector}{\rawcountervalue[UnicodeChoice]}{totalchoicenumber}}
+\def\choice_answerstatus{\datasetvariable{Choice_collector}{\rawcountervalue[UnicodeChoice]}{answerstatus}}
+
+\def\check_choice_answerstatus{
+    \ifchoice_check%
+        checked!%
+    \else%
+    	\color[red]{unchecked!}\\
+	    The current answer is auto-generated, \\
+	    please set the answer manually. \\
+	    The concise way to do this is to \\
+	    add \[*\] parameter to {\tt citem} command.\\
+	\fi}
 
 \def\show_point_or_answer[#1][#2]{\begingroup%#1 parameter %#2 modename
 	\processaction[\csname #1parameter\endcsname{show#2}][%
@@ -649,11 +652,9 @@ informationalign=center,
     \currentchoicenumber=0\relax%
     \setcounter   [totalchoicenumber] [0]% recalculator when startitemgroup
     \setcounter   [currentchoicenumber] [0]% recalculator when startitemgroup
-    \set_count_envlevel[env_choice:1][choice]%
-    \currentcinfos}
+    \set_count_envlevel[env_choice:1][choice]}
 
 \def\stopchoice{%
-    \currentcinfos%
     \newdimen\width_max_with_label%
     \width_max_with_label = \dimexpr\width_cit_max + %
                             \d_strc_itemgroups_list_width\relax%
@@ -668,13 +669,16 @@ informationalign=center,
     \newcount\tempc\tempc=\rawcountervalue[currentchoicenumber]\relax%
     \newcount\ChoiceOrder\ChoiceOrder=\rawcountervalue[UnicodeChoice]\relax%
     \setdataset [Choice_collector][\rawcountervalue[UnicodeChoice]][%收集選項信息
-                               id={\number\ChoiceOrder},
+                 id={\number\ChoiceOrder},
                  availablecolumns={\number\numexpr \tempa / \tempb\relax},
                  itemmaxwidth={\the\width_cit_max},
                  totalchoicenumber={\number\totalchoicenumber},
-                 answerstatus={\answer_after_check},
-                 answer={\convertnumber{\choiceparameter{numberconversion}}%
-                                       {\tempc}},]%
+                 answerstatus={\check_choice_answerstatus},
+                 answer={\callcollection
+%                         \convertnumber{
+%                         \choiceparameter{numberconversion}}%
+%                         {\tempc}
+                         },]%
     \stopitemgroup%
     \endgroup}
 
@@ -772,6 +776,7 @@ informationalign=center,
            \width_cit_max = \width_cit_max%
     \else  \width_cit_max = \width_cit%
     \fi}%%%% 遞歸計算出最大寬度
+
 \def\startcitem{\dodoubleempty\startcitem_indeed}
 \def\startcitem_indeed[#1][#2]#3{%\par{%
     \ifsecondargument\setupcitem[#2]\fi%
@@ -785,6 +790,10 @@ informationalign=center,
        \setcounter[currentchoicenumber][\currentchoicenumber]%
        \setcounter[totalchoicenumber][\currentchoicenumber]%
        \doif{#1}{*}{\savecounter[currentchoicenumber]}%
+       %if new collect command work well, savecounter can be deleted
+       \doif{#1}{*}{\collect{\convertnumber
+                   {\choiceparameter{numberconversion}}%
+                   {\currentchoicenumber}}}%
     \else%
         \ifnum\currentchoicenumber<1\relax%
         \currentchoicenumber=1\relax%
@@ -798,23 +807,26 @@ informationalign=center,
       \setcounter[totalchoicenumber][\currentchoicenumber]%
       \doifelse{#1}{*}{\correct_choice{#1}%
       {#3\savecounter[currentchoicenumber]}}%
-      {#3}%
+      {#3}%if new collect command work well, savecounter can be deleted
+      \doif{#1}{*}{\collect{\convertnumber
+                  {\choiceparameter{numberconversion}}%
+                  {\currentchoicenumber}}}%
     \fi%
-    \currentcinfos%
-    \stopitem%    
+    \stopitem%
     \advance\currentchoicenumber by 1\relax%
-    \dataset_collector[question][question]%%
+    %% here #2 must be choice to get choice userid
+    \dataset_collector[question][choice]%
 }
 
 \let\stopcitem\relax
 
 \def\pitem{\dosingleempty\pitem_indeed}
 \def\pitem_indeed[#1]#2{
-	\startpitem[#1] {#2} \stoppitem
+	\startpitem[#1]{#2}\stoppitem
 }
 \def\citem{\dosingleempty\citem_indeed}
 \def\citem_indeed[#1]#2{
-	\startcitem[#1] {#2} \stopcitem
+	\startcitem[#1]{#2}\stopcitem
 }
 
 \definedataset[Fillin_collector]
@@ -1021,433 +1033,3 @@ informationalign=center,
 \protect
 \stopmodule
 \endinput
-
-\usemodule[memos]
-    [fontsize=11pt,
-    themecolor=green,
-    layout=moderate,
-    hdrstyle=foemarginalt]
-
-\starttext
-\definecombinedlist[contentswithsub][part,chapter,section,subsection][level=section,criterium=local]
-\setupcombinedlist   [contentswithsub] [list={part,chapter,section,subsection}]
-\setuplist [chapter] [width=3em,distance=1em,margin=1em]
-\setuplist [section] [width=3em,distance=1em,margin=2em]
-\setuplist [subsection] [width=3em,distance=1em,margin=3em,alternative=c]
-
-\placecontentswithsub
-
-\chapter{環境設置}
-
-\section{繪製卷頭}
-\setuptype[lines=hyphenated]
-\setuptyping[space=normal]
-
-下面的命令簡單地展示了如何定義、設定並繪製一個新卷頭。
-\startlists
-\item 通過 \type{\definepapertitle[PaperTitleName]} 命令可以新建卷頭信息，
-\item 通過  \type{\setuppapertitle[PaperTitleName]} 命令可以設定卷頭信息，
-\item 通過   \type{\makepapertitle[PaperTitleName]} 命令可以繪製卷頭結果。
-\stoplists
-
-\startbuffer
-\definepapertitle[newpapertitle]
-\setuppapertitle [\currentpapertitle][
-    n=5,              % 定义需要在试卷标题处需要显示多少元素，
-    typi=secret,      % 同时，自动定义相应数量的元素命令
-    typii=title,      % 使用typi typii typiii typiv ...
-    typiii=subject,   % 定义每个元素的名称，同时自动生成相关样式化命令
-    typiv=information,% X Xstyle Xalign beforeX afterX vspacetypi
-    typv=notice,
-    secretstyle=\ss,
-    titlestyle=\ssa,
-    subjectstyle=\ssb,
-    informationstyle=\ttx,
-    noticestyle=\rm\it,
-    secretalign=flushleft,
-    titlealign=center,
-    subjectalign=center,
-    informationalign=center,
-    noticealign=flushleft,
-    secret={绝密 ★ 启用前},
-    title={\tu{2021 年普通高等学校招生全国统一考试}},
-    subject={日语},
-    information={总分:150 分，考试时间:120 分钟},
-    notice={注意事项：
-      \startitemize[n,packed,joinedup]
-        \item 答题前，务必将自己的姓名、准考证号填写在%
-              答题卡规定的位置上。%
-        \item 答选择題时，必须使用 2B 铅笔将答题卡上对%
-              应题目的答案标号涂黑。如需改动，用橡皮擦%
-              擦干净后，再选涂其它答案标号。答非选择题%
-              时，必须使用 0.5 毫米黑色签字笔，将答案%
-              书写在答题卡规定的位置上。所有題目必须在答%
-              题卡上作答，在试题卷上答题无效。 %
-        \item 考试结束后，将试题卷和答题卡一并交回。
-        \stopitemize},
-    ]
-\stopbuffer
-
-\typebuffer
-
-\framed[width=\textwidth,align=flushleft]{\makepapertitle[\currentpapertitle]}
-
-\section{标题}
-
-默认设定了四级标题。不同于使用 \type{\chapter}、\type{\section} 的传统命令，
-为了创建可分离的目录，同时也为了区分普通文档和试卷文档，我们使用 
-\type{\tu}、\type{\ego}、\type{\isea}、\type{\heu} 来标记各级标题。
-
-默认情况下，设定 \type{\tu} 用于排版试卷标题，
-\type{\ego}、\type{\isea}、\type{\heu} 用来排版试卷内部各级标题。
-
-想要生成目录，可以使用 \type{\placetocexam}。默认只生成试卷标题，内部各级标
-题并不包含在内。想要调整目录样式，使用 \CONTEXT 的目录设置命令即可。
-
-\startbuffer \placetocexam \stopbuffer%%% TODO
-%
-\typebuffer
-
-% \framed[width=\textwidth,align=flushleft]{\placetocexam}
-
-\section{題目設置}
-
-\def\cmd#1{{\tt #1}}
-\def\examplewords{該環境位於 \currentitemgroup 。}
-
-\subsection{question 環境命令}
-
-\cmd{question} 環境命令可以用來設置題幹。
-只需將題幹包裹在 \cmd{startquestion}  \cmd{stopquestion} 命令之間即可。
-
-\startbuffer[eg_question]
-\startquestion
-\examplewords
-\stopquestion
-\startquestion
-\examplewords
-\stopquestion
-\stopbuffer
-
-\typebuffer[eg_question]
-
-\framed[width=\textwidth,align={flushleft,lohi}]{
-\getbuffer[eg_question]
-}
-
-\cmd{question} 環境命令繼承了大部分 \cmd{itemgroup} 環境的選項設置。
-因此，可以像修改 \cmd{itemgroup} 一樣，使用 \cmd{setupquestion} 來修改該環境。
-
-\bgroup
-\startbuffer
-\setupquestion[color=green,style=\ss,start=22]
-\stopbuffer
-
-\typebuffer
-\getbuffer
-
-\framed[width=\textwidth,align={flushleft,lohi}]{
-	\getbuffer[eg_question]}
-\egroup
-
-同時，該環境命令還設置了額外的選項設置，選項功能和名稱相同：
-
-\startpoints[horizontal,three]
-\startitem showpoint   \stopitem \startitem point       \stopitem
-\startitem pointstyle  \stopitem \startitem pointcolor  \stopitem
-\startitem pointlabel  \stopitem \startitem             \stopitem
-\startitem showanswer  \stopitem \startitem answer      \stopitem
-\startitem answerstyle \stopitem \startitem answercolor \stopitem
-\stoppoints
-
-\startbuffer
-\startquestion
-[showpoint=true,point=5,pointlabel={points},
- showanswer=true,answer={new answer},answerstyle={\tt},]
-\examplewords
-\stopquestion
-\stopbuffer
-
-\typebuffer
-
-\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
-
-\subsection{problem 環境命令}
-
-\cmd{problem} 環境命令可以設置多個聚合問題，該環境具有一個特定的子命令 \cmd{pitem} 來列明每個問題。可以用來設置填空、問答等題目。
-
-\startbuffer
-\startproblem
-\startpitem \examplewords \stoppitem
-\startpitem \examplewords \stoppitem
-\startpitem \examplewords \stoppitem
-\stopproblem
-\stopbuffer
-
-\typebuffer
-
-\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
-
-正如 \cmd{question} 環境命令繼承了大部分 \cmd{itemgroup} 環境的選項設置。
-因此，可以像修改 \cmd{setupquestion} 一樣，使用 \cmd{setupproblem} 來修改該環境。但是不同的是，默認情況下，並沒有爲 \cmd{problem} 環境命令設置特別的選項設置。這是因爲在設計該命令時，默認認爲該環境具有一系列的子問題。由於每個問題都會有自己的答案，因此，\cmd{problem} 並不具有特別的選項設置。
-
-出於原本的設計目的，每個問題的答案和分數等選項設計都可以通過 \cmd{pitem} 來設定。
-
-\startbuffer
-\startproblem
-\startpitem[showpoint=true,point=5]         \examplewords \stoppitem
-\startpitem[showanswer=true,answer={newer}] \examplewords \stoppitem
-\startpitem[] \examplewords \stoppitem
-\stopproblem
-\stopbuffer
-
-\typebuffer
-
-\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
-
-不同於 \cmd{question} 環境所有的序號都是連續的，\cmd{problem} 環境每次開始後都是重新進行計數。
-
-如果想要爲 \cmd{problem} 環境添加題幹，可以將 \cmd{problem} 環境放置在 \cmd{question} 環境之中。
-
-\startbuffer
-\startquestion
-  \examplewords
-    \startproblem[left={(},right={)}]
-    \startpitem \examplewords \stoppitem
-    \startpitem \examplewords \stoppitem
-    \startpitem \examplewords \stoppitem
-    \stopproblem
-\stopquestion
-\stopbuffer
-
-\typebuffer
-
-\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
-
-如果想要設置填空題，可以使用 \cmd{fillin} 命令。該命令結合了 \cmd{textnote} 命令和 \cmd{underbar} 命令。主要具有這些選項設置：
-
-\startpoints[horizontal,three]
-\startitem type     \stopitem \startitem n      \stopitem
-\startitem continue \stopitem \startitem empty  \stopitem
-\startitem unit     \stopitem \startitem dy     \stopitem
-\startitem method   \stopitem \startitem max    \stopitem
-\startitem offset   \stopitem \startitem repeat \stopitem
-\startitem left     \stopitem \startitem right  \stopitem
-\startitem color    \stopitem \startitem width  \stopitem
-\startitem order    \stopitem \startitem mp     \stopitem 
-\startitem foregroundcolor \stopitem 
-\startitem foregroundstyle \stopitem
-\startitem rulethickness   \stopitem 
-\stoppoints
-
-上述鍵值中，需要進一步解釋的鍵值主要有：
-
-\startpoints
-\item \type{type}  默認設置了： 
-                   \type{underbar}，
-                   \type{textnote}，
-                   \type{void} 三種樣式；
-\item \type{empty} 默認設置了：
-                   \type{yes}，
-                   \type{no}，
-                   \type{number} 三種樣式；
-\item \type{mp}    的值可以使用系統默認的：
-                   \type{rules:under:dots}，
-               	   \type{rules:under:random}，
-                   \type{rules:under:dash}，
-                   \type{rules:under:wave} 幾種樣式
-\stoppoints
-
-需要注意的是，\type{textnote} 雖然在外觀上沒有特別的違和感，但目前來看，textnote並不會把答案放置在正確的位置，/fillin 命令目前無法完全兼容。
-
-除了上述的鍵值，還提供了一個可以獲取統一環境下答案的命令：\cmd{getanswerfromfillin}。該命令會獲取臨近 \cmd{fillin} 的內容，並輸出爲答案。
-
-\startbuffer
-\startquestion
-  \examplewords 
-    \startproblem[left={(},right={)}]
-    \startpitem 該環境位於 \fillin[env_question:1]。 \stoppitem
-    \startanswer[answer=\getanswerfromfillin]
-    	\input knuthmath
-    \stopanswer
-    \startpitem 該環境位於 \fillin[mp=rules:under:wave][env_question:1]。 \stoppitem
-    \startanswer[answer=\getanswerfromfillin]
-    	\input knuthmath
-    \stopanswer
-    \startpitem 
-    	該環境位於 \fillin[type=textnote,empty=number][env_question:1]。 注意，textnote 並不會把答案放置在正確的位置，\cmd{fillin} 命令目前無法完全兼容。
-    \stoppitem
-    \startanswer[answer=\getanswerfromfillin]
-    	\input knuthmath
-    \stopanswer
-    \startpitem 該環境位於 \fillin[type=void][]。 \stoppitem
-    \startanswer[answer=\getanswerfromfillin]
-    	\input knuthmath
-    \stopanswer
-    \stopproblem
-\stopquestion
-\stopbuffer
-
-\typebuffer
-
-\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
-
-\subsection{material 環境命令}
-
-顧名思義，\cmd{material} 環境用來放置大段文本材料。該環境命令因爲特殊性未繼承任何命令設置選項（\cmd{setupmaterial \[number\]} 標題序號命令繼承了 \cmd{setupcounter} 的設置選項，用來快速調整標題序號），所有選項設置都是特製的。
-
-主要的特殊設置如下：
-
-\startpoints
-\item \cmd{setupmaterial} 可以設置整體環境，具體擁有如下鍵值：
-	\startpoints[horizontal,three]
-      \startitem align       \stopitem
-      \startitem style       \stopitem
-      \startitem color       \stopitem
-      \startitem spacebefore \stopitem
-      \startitem spaceafter  \stopitem
-      \startitem title       \stopitem
-	  \startitem author      \stopitem
-      \startitem source      \stopitem
-      \startitem indicator   \stopitem
-	\stoppoints
-\item \cmd{setupmaterial \[number\]} 可以用來設置標題序號，
-\item \cmd{setupmaterial \[title\]}  可以用來設置標題樣式。
-\item \cmd{setupmaterial \[author\]} 可以用來設置作者樣式，
-\item \cmd{setupmaterial \[source\]} 可以用來設置文章來源樣式。
-\stoppoints
-
-\startbuffer
-\setupmaterial[title][color=green]
-\startmaterial[title={Knuth},author={Mos},source={Yelu}]
-\input knuth
-\stopmaterial
-\stopbuffer
-
-\typebuffer
-
-\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
-
-\subsection{choice   環境命令}
-
-該環境命令只能置於 \cmd{question} 環境之下。該環境的子命令 \cmd{citem} 目前必須使用 
-
-\starttyping
-\startcitem {選項內容} \stopcitem
-\stoptyping
-
-的形式，如此纔可以正確的排版選項\footnote{該命令是通過獲取選項內容長度來計算選項的排版方式。}。
-
-\startbuffer
-\setupquestion[showanswer=true]
-\startquestion[answer=\getanswerfromchoice]
-    \examplewords
-    \startchoice
-        \startcitem{Some Words}\stopcitem 
-        \startcitem{Some Words}\stopcitem
-        \startcitem[*]{Some Words}\stopcitem 
-        \startcitem{Some Words}\stopcitem
-    \stopchoice
-\stopquestion
-\startquestion[answer=\getanswerfromchoice]
-    \examplewords
-    \startchoice
-        \startcitem{Some More Words}\stopcitem 
-        \startcitem{Some More Words}\stopcitem
-        \startcitem{Some More Words}\stopcitem 
-        \startcitem[*]{Some More Words}\stopcitem
-    \stopchoice
-\stopquestion
-\startquestion[answer=\getanswerfromchoice]
-    \examplewords
-    \startchoice
-        \startcitem{Some More More Words}\stopcitem 
-        \startcitem[*]{Some More More Words}\stopcitem
-        \startcitem{Some More More Words}\stopcitem 
-        \startcitem{Some More More Words}\stopcitem
-    \stopchoice
-\stopquestion
-\stopbuffer
-
-\typebuffer
-
-\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
-
-\subsection{answer   環境命令}
-
-\cmd{answer} 是爲師生兩版設置的命令。但目前該命令和相關設置還具有諸多不足之處。只需要將該環境置於題目下方，即可獲取當前題目設定的答案，並可以爲其編寫答案解析。
-
-\startbuffer
-\startquestion[answer={answer for \currentitemgroup }]
-    \examplewords 注意：\cmd{answer} 可以獲取父環境或同級環境的答案而不必再次設置。
-    \startanswer[point=12]
-    \input knuthmath
-    \stopanswer
-\stopquestion
-\startquestion[answer=\getanswerfromchoice]
-    \examplewords 注意：\cmd{answer} 可以獲取父環境或同級環境的答案而不必再次設置。
-    \startchoice
-        \startcitem{Some Words}\stopcitem 
-        \startcitem{Some Words}\stopcitem
-        \startcitem[*]{Some Words}\stopcitem 
-        \startcitem{Some Words}\stopcitem
-    \stopchoice
-    \startanswer[point=1]
-    \input knuthmath
-    \stopanswer
-\stopquestion
-\stopbuffer
-
-\typebuffer
-
-\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
-
-\startbuffer
-\startquestion
-  \examplewords
-    \startproblem[left={(},right={)}]
-    \startpitem[answer={Pitem 1}] \examplewords \stoppitem
-    \startanswer[point=10]
-    \input knuthmath
-    \stopanswer
-    \startpitem[answer={Pitem 2}] \examplewords \stoppitem
-    \startanswer[point=20]
-    \input knuthmath
-    \stopanswer
-    \startpitem[answer={Pitem 3}] \examplewords \stoppitem
-    \startanswer[point=30]
-    \input knuthmath
-    \stopanswer
-    \stopproblem
-\stopquestion
-\stopbuffer
-
-\typebuffer
-
-\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
-
-該環境具有一系列的相關選項設置：
-
-\startpoints[horizontal,three]
-    \startitem showanswer  \stopitem
-    \startitem answer      \stopitem
-    \startitem answerstyle \stopitem
-    \startitem answercolor \stopitem
-    \startitem showpoint   \stopitem
-    \startitem point       \stopitem
-    \startitem pointstyle  \stopitem
-    \startitem pointcolor  \stopitem
-    \startitem label       \stopitem
-    \startitem labelstyle  \stopitem
-    \startitem before      \stopitem
-    \startitem after       \stopitem
-    \startitem afteranswer \stopitem
-\stoppoints
-
-\subsection{繪製作文格}
-
-\makewritingbox
-
-\input{EXAMPLE.tex}
-
-\stoptext
