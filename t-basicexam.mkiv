@@ -1,0 +1,1453 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%D \module
+%D   [     file=t-basicexam,
+%D      version=2024-6-1,
+%D        title=basicexam,
+%D     subtitle=Memoir Ever,
+%D       author=商无辛(Shueng Mosan),
+%D         date=2024-6-1,
+%D    copyright=商无辛(Shueng Mosan),
+%D      license=,
+%D          url=]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\startmodule[basicexam]
+\unprotect
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%   EXAM MODULE   %%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 注意 ⚠️ 
+%% 在定义命令时，参数后不可以直接断行，会导致参数查找失败。
+%%（可能是因为 tex 认为参数后断行，则参数的结束分界符为断行，而非括号）
+%% \def\foo#1{ .. some word ...}   \foo{..} 将正确运行
+%% \def\foo#1
+%%     { .. some word ...}         \foo{..} 将导致失败
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 注意 ⚠️ 
+%% 在 lua 中使用 循环 等结构时，要注意 % 百分比符号的使用。不可以直接在关键字后
+%% 使用。会导致运行出错：'do' expected near 'docontext' 等消息。
+%% for i > 10 do % do 和 % 号之间有空格，  会正常运行
+%% for i > 10 do%  do 和 % 号之间没有空格，会运行错误
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%\newcount\itindexn \itindexn=1
+%%\def\itvariable{\ifcase\itindexn%
+%%                       \or a\or b\or c\or d\or e%
+%%                       \or f\or g\or h\or i\or j%
+%%                       \or k\or l\or m\or n\or o%
+%%                       \or p\or q\or r\or s\or t%
+%%                       \or u\or v\or w\or x\or y\or z
+%%                \fi}
+%% half uni bi tri quart quint sex sept oct deci semi cent
+%% \currentnofitems ** \currentitemnumber ** \curitindex 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\begingroup
+%\catcode`\%=12\relax
+%\gdef\percentchar{%}
+%\endgroup
+%\ctxlua{context(string.format("\percentchar8s",456))}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\defineconversion [hiragana]      [あ,い,う,え,お,か,き,く,け,こ,さ,し,す,せ,そ,
+                                   た,ち,つ,て,と,な,に,ぬ,ね,の,は,ひ,ふ,へ,ほ,
+                                   ま,み,む,め,も,や,ゆ,よ,ら,り,る,れ,ろ,わ,ん]
+\defineconversion [katakana]      [ア,イ,ウ,エ,オ,カ,キ,ク,ケ,コ,サ,シ,ス,セ,ソ,
+                                   タ,チ,ツ,テ,ト,ナ,ニ,ヌ,ネ,ノ,ハ,ヒ,フ,ヘ,ホ,
+                                   マ,ミ,ム,メ,モ,ヤ,ユ,ヨ,ラ,リ,ル,レ,ロ,ワ,ン]
+\defineconversion [hiragana-iroha][い,ろ,は,に,ほ,へ,と,ち,り,ぬ,る,を,わ,か,よ,
+                                   た,れ,そ,つ,ね,な,ら,む,う,ゐ,の,お,く,や,ま,
+                                   け,ふ,こ,え,て,あ,さ,き,ゆ,め,み,し,ゑ,ひ,も,
+                                   せ,す,ん]
+\defineconversion [katakana-iroha][イ,ロ,ハ,ニ,ホ,ヘ,ト,チ,リ,ヌ,ル,ヲ,ワ,カ,ヨ,
+                                   タ,レ,ソ,ツ,ネ,ナ,ラ,ム,ウ,ヰ,ノ,オ,ク,ヤ,マ,
+                                   ケ,フ,コ,エ,テ,ア,サ,キ,ユ,メ,ミ,シ,ヱ,ヒ,モ,
+                                   セ,ス,ン]
+%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% setupinfos 设置试卷抬头信息和格式
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\let\setuppapertitle\setvariables
+\def\definepapertitle[#1]{\edef\currentpapertitle{#1}}
+\definepapertitle[newpapertitle]
+\setuppapertitle [\currentpapertitle][
+               n=5,              % 定义需要在试卷标题处需要显示多少元素，
+            typi=secret,         % 同时，自动定义相应数量的元素命令
+           typii=title,          % 使用typi typii typiii typiv ...
+          typiii=subject,        % 定义每个元素的名称，同时自动生成相关样式化命令
+           typiv=information,    % X Xstyle Xalign beforeX afterX vspacetypi
+            typv=notice,
+     secretstyle=\ss,
+      titlestyle=\ssa,
+    subjectstyle=\ssb,
+informationstyle=\ttx,
+     noticestyle=\rm\it,
+     secretalign=flushleft,
+      titlealign=center,
+    subjectalign=center,
+informationalign=center,
+     noticealign=flushleft,
+          secret={绝密 ★ 启用前},
+           title={2021 年普通高等学校招生全国统一考试},
+         subject={日语},
+     information={总分:150 分，考试时间:120 分钟},
+          notice={注意事项：
+                  \startitemize[n,packed,joinedup]
+                    \item 答题前，务必将自己的姓名、准考证号填写在%
+                          答题卡规定的位置上。%
+                    \item 答选择題时，必须使用 2B 铅笔将答题卡上对%
+                          应题目的答案标号涂黑。如需改动，用橡皮擦%
+                          擦干净后，再选涂其它答案标号。答非选择题%
+                          时，必须使用 0.5 毫米黑色签字笔，将答案%
+                          书写在答题卡规定的位置上。所有題目必须在答%
+                          题卡上作答，在试题卷上答题无效。 %
+                    \item 考试结束后，将试题卷和答题卡一并交回。
+                    \stopitemize},
+]
+\def\doifemptyelsex#1#2{\doifelse{#1}{}{#2}{#1}}
+\def\definevariable[#1][#2]{% #1=namespace #2=element name
+    \doifelse{\getvariable{#1}{#2align}}{}
+             {\setupalign[center]}
+             {\setupalign[\getvariable{#1}{#2align}]}
+    \vskip .1\baselineskip\relax
+    \doifemptyelsex{\getvariable{#1}{before#2}}{}
+    \doifemptyelsex{\getvariable{#1}{#2style}}{}
+    \doifemptyelsex{\getvariable{#1}{#2}}
+                   {\framed[color=red]
+                   {\ss warning: #2 is empty ! please input #2.}}
+    \doifemptyelsex{\getvariable{#1}{after#2}}{}
+    \vskip .1\baselineskip\relax
+}
+\def\makepapertitle[#1]{%
+  \vbox{\newcount\num_element \num_element=1%
+  \doifnot{\getvariable{#1}{title}}{}
+  {\tu{\getvariable{#1}{title}}}%
+  \dorecurse{\getvariable{#1}{n}}%start recurse
+    {\doifemptyelsex{\getvariable{#1}{vspacetyp\romannumeral\num_element}}{}
+    {\definevariable[#1][\getvariable{#1}{typ\romannumeral\num_element}]}
+     \advance\num_element by 1\relax}%stop recurse
+}}
+%% tu=chapter ego==section isea=subsection
+\setuplabeltext [cn] [section={第,部分},subsection={第,节},]
+
+\definehead [tu]   [chapter]       % you latin
+\definehead [ego]  [section]       % me  latin 
+\definehead [isea] [subsection]    % he or she latin
+\definehead [heu]  [subsubsection] % och
+\setuphead  [tu]   [incrementnumber=yes,number=no,placehead=hidden]
+\setuphead  [ego]  [sectionsegments=section,numbercommand=]
+\setupheads [isea] [numbercommand=]
+\setupheads [tu,ego,isea]
+                   [indentnext=yes,
+                   before={\blank[quarterline]}, 
+                   after={\blank[quarterline]},
+                   sectionconversionset=examnum]
+\definestructureconversionset[examnum][chinesenumerals][chinesenumerals]
+\definelist[tu]
+\definecombinedlist [tocexam][tu][level=chapter]
+\setupcombinedlist  [tocexam][list={tu},criterium=all,order=title]
+%%%%%%%
+\installnamespace          {question}
+\installcommandhandler \????question  {question}  \????question
+\installnamespace          {problem}
+\installcommandhandler \????problem   {problem}   \????problem
+\installnamespace          {choice}
+\installcommandhandler \????choice    {choice}    \????choice
+\installnamespace          {answer}
+\installcommandhandler \????answer    {answer}    \????answer
+\installnamespace          {pitem}
+\installcommandhandler \????pitem     {pitem}     \????pitem
+\installnamespace          {citem}
+\installcommandhandler \????citem     {citem}     \????citem
+\installnamespace          {fillin}
+\installcommandhandler \????fillin    {fillin}    \????fillin
+\newcount\currentmaterial
+\installnamespace          {material}
+\installcommandhandler \????material  {material}  \????material
+\installcounterassociation {material}
+\appendtoks
+   \registermaterialcounter\currentmaterial
+   \definecounter[\currentmaterial]%
+\to \everydefinematerial
+\appendtoks
+   \synchronizematerialcounters
+\to \everysetupmaterial
+\definematerial [material]
+\newcount\currentindicator
+\installnamespace          {indicator}
+\installcommandhandler \????indicator {indicator} \????indicator
+\installcounterassociation {indicator}
+\appendtoks
+   \registerindicatorcounter\currentindicator
+   \definecounter[\currentindicator]%
+\to \everydefineindicator
+\appendtoks
+   \synchronizeindicatorcounters
+\to \everysetupindicator
+\defineindicator[indicator]
+\def\currentmaterial{material}
+\def\currentindicator{indicator}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newif\ifmode_quickcheck  \mode_quickcheckfalse
+\newif\ifmode_check       \mode_checkfalse
+\newif\ifmode_showanswer  \mode_showanswerfalse
+\newif\ifmode_showpoint   \mode_showpointfalse
+\newif\ifenv_question     \env_questionfalse
+\newif\ifenv_toplevel     \env_topleveltrue
+\newif\ifenv_botlevel     \env_botlevelfalse
+\newif\ifitem_choice      \item_choicefalse
+\newif\ifitem_pitem       \item_pitemfalse
+\newif\ifcheck_inner_pitem\check_inner_pitemfalse
+\newif\ifchoice_check     \choice_checkfalse
+\newif\ifreset_counter
+%\ifconditional\c_strc_itemgroups_horizontal
+% if horizontal is setted ,mode on
+
+\newdimen\width_cit
+\newdimen\width_cit_max
+
+\newcount\totalchoicenumber%
+\newcount\currentchoicenumber%
+\definecounter[Unicode]      [way=bytext]%only for question:1 or problem:1
+\setcounter   [Unicode]      [1]
+\definecounter[UnicodeChoice][way=bytext]
+\setcounter   [UnicodeChoice][1]
+\definecounter[Unicode_toplevel]%for level 1 : question or problem
+\definecounter[Unicode_midlevel]%for level 2 : problem or level 1 : citem or pitem
+\definecounter[Unicode_botlevel]%for level 3 : only for level 2 : pitem
+\definedataset[Answer_collector]
+\definedataset[Choice_collector]
+\definecounter[totalchoicenumber]       % get total number of choice
+\definecounter[currentchoicenumber]     % get order number of choice
+
+\defineitemgroup   [env_problem] % for choices : ABCD
+\setupitemgroup    [env_problem]  [each] [n,packed,joinedup,nowhite]
+\defineitemgroup   [env_question] % for choices : ABCD
+\setupitemgroup    [env_question] [each] [n,packed,joinedup,nowhite]
+\defineitemgroup   [env_choice] % for choices : ABCD
+\setupitemgroup    [env_choice]   [each] [A,packed,joinedup,nowhite]
+\definedescription [env_answer_descr]
+\definetextbackground[env_answer]
+\definebar         [fillin_text]
+\defineoverlay     [normalframeOL]
+                   [\useMPgraphic{normalframeMP}]
+\startuseMPgraphic{normalframeMP}
+	draw unitsquare xyscaled (\overlaywidth, \overlayheight)
+\stopuseMPgraphic
+\startuseMPgraphic{rules:under:wave}
+    vardef lsin primary x =
+        lua("mp.print(math.sin(" & decimal x & "))")
+    enddef ;
+    draw function(1, "x", "lsin(1.2*x)", 0, RuleWidth, .1pt)
+        shifted (0,RuleFactor*RuleOffset+RuleDepth)
+        withpen pencircle scaled RuleThickness
+        withcolor RuleColor ;
+    setbounds currentpicture to unitsquare xysized(RuleWidth,RuleHeight) ;
+\stopuseMPgraphic
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\mode_checktrue
+%\mode_quickchecktrue
+
+\def\show_check_info{\par\framed[width=\textwidth,align=flushleft]%
+                     {\currentitemgroup\ \currentorder}\par}
+                     
+\def\show_check_infos{\par\leftskip 0pt\relax\noindent%
+\framed[align=flushleft]{\language[en]%
+\hfil {\bf NOTICE: MODE CHECK IS ON}          \hfil\par
+\hfil currentitemgroup:{\bf\currentitemgroup} \hfil\par
+\starttabulate[|rp(.2\textwidth)|lp(.15\textwidth)%
+               |rp(.25\textwidth)|lp(.35\textwidth)|lwlB|]
+\NC {\bf Name}      \NC {\bf Content}           \NC 
+    {\bf info for choice}\NC {\bf Content}                         \NC\NR
+\HL
+\NC currentparen    \NC \currentparentitemgroup \NC 
+    currentmaxiwidth     \NC \the\width_cit_max \NC\NR
+\NC currentitemlevel\NC \currentitemlevel       \NC 
+    currentchoicenumber  \NC \rawcountervalue[currentchoicenumber] \NC\NR
+\NC currentenvname  \NC \currentenvname         \NC 
+    totalchoicenumber    \NC \rawcountervalue[totalchoicenumber]   \NC\NR
+\NC currentorder    \NC \currentorder           \NC 
+    answer               \NC \get_choice_answer                    \NC\NR
+\NC top-mid-bot     \NC \rawcountervalue[Unicode_toplevel]-%
+                        \rawcountervalue[Unicode_midlevel]-%
+                        \rawcountervalue[Unicode_botlevel]
+                                                \NC 
+    answerstatus        \NC \datasetvariable{Choice_collector}{\rawcountervalue[UnicodeChoice]}{answerstatus}\NC\NR
+\NC userorder      \NC  Cur=\currentitemnumber  \NS[2][c] 
+    Notice,{\bf info for choice}only\\ 
+    show choice env information \NC\NR
+\NC level.check    \NC  \ifenv_toplevel <env_toplevel>
+                        \else <toplevelfalse>\fi\\
+                        \ifenv_botlevel <env_botlevel> 
+                        \else <botlevelfalse>\fi\NC\NR
+\NC answer         \NC \get_dataset_answer     \NC\NR
+\stoptabulate
+}\par}
+
+\def\dimtonum #1{\number\numexpr \dimexpr #1\relax*635/65536\relax }
+\newcount\cnt_floor
+\def\floor#1{\floorhelper#1.\relax}
+\def\floorhelper#1.#2\relax{\ifx\relax#2\relax#1%
+    \else\if.#2#1\else\floorhelphelper{#1}#2\fi\fi}
+\def\floorhelphelper#1#2.{\ifnum#2>0%
+    \floorhelphelphelper#1\relax\relax\relax\else#1\fi}
+\def\floorhelphelphelper#1#2\relax{%
+  \if-#1\relax-\cnt_floor=0#2\relax\advance\cnt_floor by 1\relax\number\cnt_floor\relax%
+  \else\cnt_floor=0#1#2\relax\number\cnt_floor\relax\fi%
+}
+
+\def\currentorder{
+    \rawcountervalue[Unicode_toplevel]-%
+    \rawcountervalue[Unicode_midlevel]-%
+    \rawcountervalue[Unicode_botlevel]%
+}
+
+\def\set_currentuserorder[#1]{%
+ \expandafter\newcount\csname #1order\endcsname%
+ \ifnum\currentitemnumber=0%
+ \csname #1order\endcsname=\rawcountervalue[Unicode_toplevel]\relax%
+ \else%
+ \csname #1order\endcsname=\currentitemnumber\relax%
+ \fi%
+}
+
+\def\currentenvname{%
+    \doifincsnameelse{question}{\currentitemgroup}%
+                     {question\env_questiontrue}{\env_questionfalse}%
+    \doifincsnameelse{problem}{\currentitemgroup}%
+                     {problem}{}%
+    \doifincsnameelse{choice}{\currentitemgroup}%
+                     {choice}{}%
+}
+
+\def\currentcinfos{
+    \ifmode_quickcheck%
+    \rawcountervalue[Unicode]
+    currentitemnumber  :\currentitemnumber\par
+    currentchoicenumber:\rawcountervalue[currentchoicenumber]\par
+    totalchoicenumber  :\rawcountervalue[totalchoicenumber]\par
+    currentmaxiwidth   :\the\width_cit_max\par
+    answerstatus       :\datasetvariable{Choice_collector}{\rawcountervalue[UnicodeChoice]}{answerstatus}\par
+    answer             :\datasetvariable{Choice_collector}{\rawcountervalue[UnicodeChoice]}{answer}\\
+    \else\relax\fi
+   }
+
+\def\currentenv_check_for_pitem{%
+    \doifincsnameelse{question}{\currentitemgroup}%
+                     {\env_questiontrue}{\env_questionfalse}%
+    \doifincsnameelse{problem:2}{\currentitemgroup}%
+                     {\env_questiontrue}{\env_questionfalse}}
+
+\def\currentuserorder#1{\currentenvname{}_\number\csname #1order\endcsname}
+
+
+\def\set_count_envlevel[#1][#2]{%
+   \setcounter[Unicode_midlevel][0]
+   \setcounter[Unicode_botlevel][0]
+   \newcount\currentproblem_toplevel%
+   \newcount\currentproblem_midlevel%
+   \newcount\currentproblem_botlevel%
+   \doifincsnameelse{#1}{\currentitemgroup}
+                    {\env_topleveltrue{}}
+                    {\env_toplevelfalse{}}%
+   \ifenv_toplevel\incrementcounter[Unicode_toplevel]%
+             \else\incrementcounter[Unicode_midlevel]\fi%
+   \currentproblem_toplevel=\rawcountervalue[Unicode_toplevel]\relax%
+   \currentproblem_midlevel=\rawcountervalue[Unicode_midlevel]\relax%
+   \currentproblem_botlevel=\rawcountervalue[Unicode_botlevel]\relax%
+   \set_currentuserorder[#2]%
+   \ifmode_quickcheck\show_check_info\else%
+         \ifmode_check\show_check_infos\else\fi\fi%
+}
+
+\def\set_count_itemlevel[#1][#2]{%
+    \newcount\currentpitem_toplevel%
+    \newcount\currentpitem_midlevel%
+    \newcount\currentpitem_botlevel%
+    \doifincsnameelse{#1}{\currentitemgroup}%
+                     {\env_botleveltrue{}}%
+                     {\env_botlevelfalse{}}%
+   \ifenv_botlevel\incrementcounter[Unicode_botlevel]%
+             \else\incrementcounter[Unicode_midlevel]\fi%
+   \currentpitem_toplevel=\rawcountervalue[Unicode_toplevel]\relax%
+   \currentpitem_midlevel=\rawcountervalue[Unicode_midlevel]\relax%
+   \currentpitem_botlevel=\rawcountervalue[Unicode_botlevel]\relax%
+   \set_currentuserorder[#2]%
+   \ifmode_quickcheck\show_check_info%
+   \else\ifmode_check\show_check_infos\else\fi\fi%
+}
+
+\def\get_dataset_answer_num#1{%\rawcountervalue[Unicode]
+    \doifelsesomething%
+    {\datasetvariable{Answer_collector}{#1}{answer}}
+    {\datasetvariable{Answer_collector}{#1}{answer}}
+    {\framed[style=\ss,align=flushleft,
+             background=color,backgroundcolor=lightred,
+             foregroundcolor=]{%
+       We didn't get the \color[white]{\tta answer} value. \\
+       Maybe there was an error in the module, \\
+       or maybe you haven't set the \color[white]{\tta answer} value yet}}}
+
+\def\get_dataset_answer{\get_dataset_answer_num{\rawcountervalue[Unicode]}}
+\def\get_dataset_answer_forp{%
+    \newcount\SFPA\SFPA=\numexpr\rawcountervalue[Unicode]-1\relax%
+    %\number\SFPA is special for env_answer which follow item_pitem 
+    \get_dataset_answer_num{\number\SFPA}%
+    \advance\SFPA by 1\relax}
+
+\def\get_choice_answer_num#1{%
+    \doifsomethingelse%
+    {\datasetvariable{Choice_collector}{#1}{answer}}%
+    {\datasetvariable{Choice_collector}{#1}{answer}}%
+    {\doifincsnameelse{choice}{\currentitemgroup}{%
+     \framed[style=\ss,align=flushleft,
+             background=color,backgroundcolor=lightred,
+             foregroundcolor=]{%
+       We didn't get the \color[white]{\tta answer} value. \\
+       Maybe there was an error in the module, \\
+       or maybe you haven't set the \color[white]{\tta answer} value yet}}
+    {There is no value for Choice,Maybe in \WORD{\sc problem} environment}
+   }
+}
+
+\def\get_choice_answer{\get_choice_answer_num{\rawcountervalue[UnicodeChoice]}}
+\let\getanswerfromchoice\get_choice_answer
+
+%%%%% NOTICE : 設定上，可以同時通過選項和 question 環境來直接設定答案，因此，
+%%%%%          如果 question 環境尚未設置值，則自動獲取選項值。否則，則獲取
+%%%%%          用戶主動輸入的值。
+%%%%%          目前，當用戶主動輸入值和選項值發生衝突時，並未設置警告信息!!!!
+\def\getanswer{% used for answer env to auto get answer
+    \doifincsnameelse
+    {problem}{\currentitemgroup}%
+    {\get_dataset_answer_forp}%
+    {\dataset_answer[question]}%
+}
+
+\def\answer_after_check{
+    \ifchoice_check%
+        checked!%
+    \else%
+    	\color[red]{unchecked!}\\
+	    The current answer is auto-generated, \\
+	    please set the answer manually. \\
+	    The concise way to do this is to \\
+	    add \[*\] parameter to {\tt citem} command.\\
+	\fi}
+
+\def\dataset_answer[#1]{% only used follow command: dataset_collector
+	\doifelse{\csname #1parameter\endcsname{answer}}{}%
+	         {\get_choice_answer{\rawcountervalue[Unicode]}}%
+	         {\csname #1parameter\endcsname{answer}}%
+}
+
+\def\dataset_collector[#1][#2]{%
+    %\ifmode_check @@currentunicode:\rawcountervalue[Unicode]@@ \else\relax\f
+    \newcount\currentunichoice\currentunichoice=\rawcountervalue[Unicode]
+    \setdataset [Answer_collector][\rawcountervalue[Unicode]]%收集答案並在未來展開
+                [id={\number\currentorder},% 當前列表序號(在試卷中的序列)
+                 envid={\currentitemgroup},%當前列表名稱和層數
+                 userid={\currentuserorder{#2}},%當前列表序號(可獲取被start更改後的序號)
+                 answer={\dataset_answer[#1]},
+                 content={K\rawcountervalue[Unicode]},
+                 dummttext={\ifcheck_inner_pitem The primary environment 
+                        of this environment is {\bf problem environment}, 
+                        and the secondary environment is {\bf pitem environment}. 
+                        As a result, the primary environment does not record 
+                        any information related to the answer.\else\relax\fi},
+                 %totalchoicenumber={\rawcountervalue[totalchoicenumber]},
+                 dummytext={anything},
+                         ]}
+
+\def\show_point_or_answer[#1][#2]{\begingroup%#1 parameter %#2 modename
+	\processaction[\csname #1parameter\endcsname{show#2}][%
+	               true=>\csname mode_show#2true\endcsname,%
+	               false=>\csname mode_show#2false\endcsname,]%
+	\doifelse{\csname #1parameter\endcsname{show#2}}{true}
+         	 {\csname mode_show#2true\endcsname%
+            			\csname #1parameter\endcsname{#2style}%
+            			\switchtocolor[\csname #1parameter\endcsname{#2color}]%
+                 	\paren{\csname #1parameter\endcsname{#2}\ %
+                       	   \csname #1parameter\endcsname{#2label}}%
+	 		 }%
+	         {\csname mode_show#2false\endcsname}%
+\endgroup}
+                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\inherit_itemgroup_option[#1]{
+    \setupitemgroup[env_#1][packed,joinedup,nowhite]
+                   [ left=\csname #1parameter\endcsname{left},
+                    right=\csname #1parameter\endcsname{right},
+                  stopper=\csname #1parameter\endcsname{stopper},
+                 distance=\csname #1parameter\endcsname{distance},
+                   before=\csname #1parameter\endcsname{before},
+                    after=\csname #1parameter\endcsname{after},
+                    width=\csname #1parameter\endcsname{width},
+                    align=\csname #1parameter\endcsname{align},
+                indenting=\csname #1parameter\endcsname{indenting},
+                 symalign=\csname #1parameter\endcsname{symalign},
+                   symbol=\csname #1parameter\endcsname{symbol},
+                itemalign=\csname #1parameter\endcsname{itemalign},
+                   option=\csname #1parameter\endcsname{option},
+                    style=\csname #1parameter\endcsname{style},
+                    color=\csname #1parameter\endcsname{color},
+                      way=\csname #1parameter\endcsname{way},
+                      ]
+}
+\def\inherit_itemgroup_option_s[#1]{
+    \setupitemgroup[env_#1] 
+                   [start=\csname #1parameter\endcsname{start},]
+}
+\setupproblem  [      left={},  %%%%% follow is itemize option
+                     right={},
+                   stopper={.~},
+                  distance=.5em,
+                    before=,
+                     after=,
+                     width=.5em,
+                     align=,
+                 indenting=no,
+                  symalign=,
+                    symbol=,
+                 itemalign=,
+                       way=bysection,
+          numberconversion=n,]
+\inherit_itemgroup_option[problem]
+%\inherit_itemgroup_option_s[problem]
+\def\startproblem{\dosingleempty\startproblem_indeed}
+\def\startproblem_indeed[#1]{\begingroup%
+   \iffirstargument\setupproblem[#1]\fi%
+   \ifempty {\problemparameter{start}}% 避免 continue 和 start 属性冲突
+             \startitemgroup[env_problem]%
+                            [\problemparameter{numberconversion},#1]%
+                            [#1]%
+    \else    \startitemgroup[env_problem]%
+                            [\problemparameter{numberconversion},         #1]%
+                            [#1]\fi%
+%   \show_point_or_answer[problem][point]%
+%   \show_point_or_answer[problem][answer]%
+   \set_count_envlevel[env_problem:1][problem]}
+
+\def\stopproblem{\dataset_collector[pitem][pitem]\stopitemgroup\endgroup}
+
+\setupquestion [showpoint=false,
+                    point=,
+               pointstyle=\ttx,
+               pointcolor=,
+               pointlabel={分},
+                    answer=,
+               answerstyle=\ss,
+               answercolor=red,
+                      left={},  %%%%% follow is itemize option
+                     right={},
+                   stopper={.~},
+                  distance=.5em,
+                    before=,
+                     after=,
+                     width=.5em,
+                     align=,
+                 indenting=no,
+                  symalign=,
+                    symbol=,
+                 itemalign=,
+                       way=bysection,
+          numberconversion=n,]
+\inherit_itemgroup_option[question]
+%\inherit_itemgroup_option_s[question]
+\def\startquestion{\dosingleempty\startquestion_indeed}
+\def\startquestion_indeed[#1]{\begingroup%
+    \incrementcounter[Unicode]%
+    \iffirstargument\setupquestion[#1]\fi%
+    \ifempty {\questionparameter{start}}% 避免 continue 和 start 属性冲突
+		\startitemgroup[env_question]%
+                  [\questionparameter{numberconversion},continue,#1]%
+                  [#1]%
+	\else\startitemgroup[env_question]%
+                  [\questionparameter{numberconversion},         #1]%
+                  [start=\questionparameter{start},#1]%
+   \fi\item%
+   \show_point_or_answer[question][point]%
+   \show_point_or_answer[question][answer]%
+   \set_count_envlevel[env_question:1][question]%
+   }
+
+\def\stopquestion{%
+	\dataset_collector[question][question]%
+	\stopitemgroup%
+	\incrementcounter[UnicodeChoice]
+	\endgroup}
+
+
+\setupchoice       [showpoint=true,
+                    point=4,
+               pointstyle=,
+               pointcolor=,
+               pointlabel={分},
+                    answer=\get_choice_answer,
+               answerstyle=\ss\tf,
+               answercolor=red,
+                      left={},  %%%%% follow is itemize option
+                     right={},
+                   stopper={.~},
+                  distance=.5em,
+                    before=,
+                     after=,
+                     width=1em,
+                     start=1,
+                     align=,
+                 indenting=no,
+                  symalign=,
+                    symbol=,
+                 itemalign=,
+                       way=bysection,
+          numberconversion=A,]
+\inherit_itemgroup_option[choice]
+\def\startchoice{\begingroup\dosingleempty\startchoice_indeed}
+\def\startchoice_indeed[#1]{%
+    \doifelsesomething{\datasetvariable{Choice_collector}%
+    	              {\rawcountervalue[UnicodeChoice]}{totalchoicenumber}}% arg_1
+       {\scratchcounter\datasetvariable{Choice_collector}%
+                      {\rawcountervalue[UnicodeChoice]}{totalchoicenumber}}% arg_2
+                      {\scratchcounter\zerocount}% arg_3
+    \newcount\current_total_choice_number% 當前選項 ABCD 總計數
+    \current_total_choice_number=\number\scratchcounter\relax%
+    \doifelsesomething{\datasetvariable{Choice_collector}
+                      {\rawcountervalue[UnicodeChoice]}{availablecolumns}}%
+       {\scratchcounter\datasetvariable{Choice_collector}
+                      {\rawcountervalue[UnicodeChoice]}{availablecolumns}}%
+                      {\scratchcounter\zerocount}%
+    \newcount\current_available_columns%可排版的最多列數
+    \current_available_columns=\number\scratchcounter\relax%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    % if calc_horizontal_num >= tbl_cit_count 
+%    %                                      set horizontal = tbl_cit_count
+%    % if calc_horizontal_num <  tbl_cit_count and tbl_cit_count ~= 1
+%    %                                  set horizontal = two % calc_horizontal_num
+%    % if calc_horizontal_num <  tbl_cit_count and tbl_cit_count == 1
+%    %                                      set horizontal = 1     
+%    % 特别的， 3 选项 且 可排版最大列数为 2 时，排版 1 行                            
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \startluacode
+    tbl_num_temp = {"one","two","three","four",
+                    "five","six","senven","eight","nine"}
+    local   tbl_cit_count         = tex.count['current_total_choice_number']
+    local   available_columns     = tex.count['current_available_columns']
+            available_columns_arg = ""
+    if     (tbl_cit_count == 3) and (available_columns   <  tbl_cit_count)
+    then    available_columns_arg = "one"
+    elseif (tbl_cit_count >  1) and (available_columns   >= tbl_cit_count)
+    then    available_columns_arg = "horizontal," .. tbl_num_temp[tbl_cit_count]
+    elseif (tbl_cit_count >= 1) and (available_columns   <=           1 )
+    then    available_columns_arg = "one"
+    else    available_columns_arg = "horizontal,two"
+    end
+    \stopluacode
+	\iffirstargument\setupchoice[#1]\fi%
+    \startitemgroup[env_choice]%
+                   [\choiceparameter{numberconversion},#1,%
+                   \ctxlua{context(available_columns_arg,"")},]%
+                   [#1]%
+    \totalchoicenumber=0\relax%
+    \currentchoicenumber=0\relax%
+    \setcounter   [totalchoicenumber] [0]% recalculator when startitemgroup
+    \setcounter   [currentchoicenumber] [0]% recalculator when startitemgroup
+    \set_count_envlevel[env_choice:1][choice]%
+    \currentcinfos}
+
+\def\stopchoice{%
+    \currentcinfos%
+    \newdimen\width_max_with_label%
+    \width_max_with_label = \dimexpr\width_cit_max + %
+                            \d_strc_itemgroups_list_width\relax%
+    \currentchoicenumber=\numexpr\currentchoicenumber-1\relax%
+    \ifnum \totalchoicenumber > \currentchoicenumber%
+           \totalchoicenumber = \totalchoicenumber%
+    \else  \totalchoicenumber = \currentchoicenumber%
+    \fi%遞歸出總序號
+    \restorecounter[currentchoicenumber]%恢復答案所在序號
+    \newcount\tempa\tempa=\dimtonum{.83\textwidth}\relax%
+    \newcount\tempb\tempb=\dimtonum{\the\width_max_with_label}\relax%
+    \newcount\tempc\tempc=\rawcountervalue[currentchoicenumber]\relax%
+    \newcount\ChoiceOrder\ChoiceOrder=\rawcountervalue[UnicodeChoice]\relax%
+    \setdataset [Choice_collector][\rawcountervalue[UnicodeChoice]][%收集選項信息
+                               id={\number\ChoiceOrder},
+                 availablecolumns={\number\numexpr \tempa / \tempb\relax},
+                 itemmaxwidth={\the\width_cit_max},
+                 totalchoicenumber={\number\totalchoicenumber},
+                 answerstatus={\answer_after_check},
+                 answer={\convertnumber{\choiceparameter{numberconversion}}%
+                                       {\tempc}},]%
+    \stopitemgroup%
+    \endgroup}
+
+
+%%%%%%%5
+\setupdescription  [env_answer_descr] 
+                   [align=width, width=fit,
+                    indenting=2em,distance=-2em,%hang=margin,
+                    closesymbol=,before=,after=,
+                    closecommand=,]
+\setuptextbackground[env_answer]  [location=paragraph,width=local,
+                    leftoffset=1ex,rightoffset=1ex,
+                    %topoffset=.5ex,bottomoffset=.5ex,
+                    before={\leftskip=0pt\startnarrower
+                            \blank[force,halfline]},
+                    after={\blank[halfline]\stopnarrower},
+                    background=normalframeOL]
+
+\setupanswer[showanswer=true, 
+			 showpoint=true,
+             answer=\getanswer,
+             point=X,
+             pointlabel={分},
+             pointstyle=\answerparameter{style},
+             pointcolor=\answerparameter{color},
+             answerstyle=\answerparameter{style},
+             answercolor=\answerparameter{color},
+             style=\ss,
+             labelstyle=\bi, 
+             label={答案 : },
+             before=,
+             after=,
+             indent={first,always,2em},
+             afteranswer=\crlf\indentation,]
+
+\def\startanswer   {\dosingleempty\dostartanswer}
+\def\dostartanswer[#1]{%
+     \begingroup%\check_questionenv%
+     \iffirstargument\setupanswer[#1]\fi%
+     \answerparameter{before}%
+     \edef\getlabelwidth{\setbox0=\hbox{\answerparameter{labelstyle}%
+                                        \answerparameter{label}}%
+                                  \hskip\wd0\relax}%
+     \startenv_answer%
+     \startenv_answer_descr{\answerparameter{labelstyle}\answerparameter{label}}%
+     \getlabelwidth%
+     \show_point_or_answer[answer][point]%
+     \show_point_or_answer[answer][answer]%
+     \answerparameter{afteranswer}%
+     \useanswerstyleandcolor\c!style\c!color%
+     \setupindenting[\answerparameter{indent}]
+     }
+\def\stopanswer{\stopenv_answer_descr%
+    \stopenv_answer\answerparameter{after}%
+    \endgroup}
+
+
+\setuppitem    [showpoint=false,
+                    point=,
+               pointstyle=\ttx,
+               pointcolor=,
+               pointlabel={分},
+               showanswer=false,
+                    answer=,
+               answerstyle=\ss,
+               answercolor=red,]
+\def\startpitem{\dosingleempty\startpitem_indeed}
+\def\startpitem_indeed[#1]{\begingroup%
+    \currentenv_check_for_pitem%
+    \ifenv_question\check_inner_pitemtrue\else\check_inner_pitemfalse\fi%
+	\iffirstargument\setuppitem[#1]\fi%
+    \startitem%
+        \show_point_or_answer[pitem][point]%
+        \show_point_or_answer[pitem][answer]%
+    \set_count_itemlevel[env_problem:2][pitem]%
+}
+
+\def\stoppitem{%
+	\dataset_collector[pitem][pitem]%
+	\stopitem\incrementcounter[Unicode]%
+	\endgroup}
+
+\def\correct_choice#1#2{%
+    \doif{#1}{*}{%
+	{\doifelse{\choiceparameter{answerstyle}}{}%
+	{\choiceparameter{answerstyle}}%
+    {\questionparameter{answerstyle}}%
+    \doifelse{\choiceparameter{answercolor}}{}%
+    {\switchtocolor[\choiceparameter{answercolor}]}%
+    {\switchtocolor[\questionparameter{answercolor}]}%
+    #2}}}
+\def\get_citem_text[#1]{\setbox0=\hbox{#1}%
+    \width_cit = \the\wd0\relax%relax is neccessary
+    \ifdim \width_cit_max > \width_cit%
+           \width_cit_max = \width_cit_max%
+    \else  \width_cit_max = \width_cit%
+    \fi}%%%% 遞歸計算出最大寬度
+\def\startcitem{\dodoubleempty\startcitem_indeed}
+\def\startcitem_indeed[#1][#2]#3{%\par{%
+    \ifsecondargument\setupcitem[#2]\fi%
+    \get_citem_text[#3]%
+    \set_count_itemlevel[env_choice:2][citem]%
+    \doif{#1}{*}{\choice_checktrue}%
+    \ifconditional\c_strc_itemgroups_horizontal% mode_horizontal
+       \ifnum\currentchoicenumber<1%
+       \currentchoicenumber = 1\relax%
+       \else\relax\fi%
+       \setcounter[currentchoicenumber][\currentchoicenumber]%
+       \setcounter[totalchoicenumber][\currentchoicenumber]%
+       \doif{#1}{*}{\savecounter[currentchoicenumber]}%
+    \else%
+        \ifnum\currentchoicenumber<1\relax%
+        \currentchoicenumber=1\relax%
+        \else\relax\fi%
+    \fi%
+    \startitem%
+    \ifconditional\c_strc_itemgroups_horizontal% mode_horizontal
+		\doifelse{#1}{*}{\correct_choice{#1}{#3}}{#3}%
+    \else%
+      \setcounter[currentchoicenumber][\currentchoicenumber]%
+      \setcounter[totalchoicenumber][\currentchoicenumber]%
+      \doifelse{#1}{*}{\correct_choice{#1}%
+      {#3\savecounter[currentchoicenumber]}}%
+      {#3}%
+    \fi%
+    \currentcinfos%
+    \stopitem%    
+    \advance\currentchoicenumber by 1\relax%
+    \dataset_collector[question][question]%%
+}
+
+\let\stopcitem\relax
+
+\def\pitem{\dosingleempty\pitem_indeed}
+\def\pitem_indeed[#1]#2{
+	\startpitem[#1] {#2} \stoppitem
+}
+\def\citem{\dosingleempty\citem_indeed}
+\def\citem_indeed[#1]#2{
+	\startcitem[#1] {#2} \stopcitem
+}
+
+\definedataset[Fillin_collector]
+\setupbar[fillin_text,\v!textnote:\v!underbar][continue=\fillinparameter{continue},
+                        unit=\fillinparameter{unit},
+                        order=\fillinparameter{order},
+                        rulethickness=\fillinparameter{rulethickness},
+                        method=\fillinparameter{method},
+                        dy=\fillinparameter{dy},
+                        max=\fillinparameter{max},
+                        width=\fillinparameter{width},
+                        left	=\fillinparameter{left},
+                        right=\fillinparameter{right},
+                        repeat=\fillinparameter{repeat},
+                        color=\fillinparameter{color},
+                        foregroundcolor=\fillinparameter{foregroundcolor},
+                        foregroundstyle=\fillinparameter{foregroundstyle},
+                        offset=\fillinparameter{offset},
+                        empty=\fillinparameter{empty},
+                        mp=\fillinparameter{mp}]
+%rules:under:dots    %rules:under:random
+%rules:under:dash    %rules:under:wave
+\setupfillin[type=underbar, n=20,    empty=no,
+			 continue=yes, unit=em,  order=foreground,
+             method=0,     color=,   width=4em,
+             dy=-0.4,      max=3,    offset=-.1,
+             left=,        right=,   repeat=,
+             rulethickness=.05,
+             foregroundcolor=,
+             foregroundstyle=\ss,
+             mp=]
+\definetextnote[textnote]
+\setuptextnote[empty=\rootfillinparameter\c!empty,
+			   n=\rootfillinparameter\c!n]
+\def\showanswer_for_fillin{
+    \doifincsnameelse{question}{\currentitemgroup}%
+                     {\doifelse{\questionparameter{showanswer}}{true}
+                               {\mode_showanswertrue}
+                               {\mode_showanswerfalse}}
+                     {\relax}%
+    \doifincsnameelse{problem}{\currentitemgroup}%
+                     {\doifelse{\pitemparameter{showanswer}}{true}
+                               {\mode_showanswertrue}
+                               {\mode_showanswerfalse}}
+                     {\relax}}
+\def\fillin{\dodoubleempty\dofillin}
+\def\dofillin[#1][#2]{%
+	\ifsecondargument\setupfillin[#1]\fi
+	\showanswer_for_fillin%
+	\processaction[\fillinparameter\c!type][
+  		underbar=>\let\dofillin_temp\dofillin_indeed_text,
+		textnote=>\let\dofillin_temp\dofillin_indeed_textnote,
+	    	void=>\let\dofillin_temp\dofillin_indeed_rule,]
+	\ifsecondargument\setupfillin[#1]
+		\dofillin_temp[#1][#2]
+		\setdataset[Fillin_collector][\rawcountervalue[Unicode]][answer={#2}]
+	\else\dofillin_temp[][#1]
+    	\setdataset[Fillin_collector][\rawcountervalue[Unicode]][answer={#1}]\fi
+	\ifmode_showanswer\setupfillin[empty=no]%
+	\else\setupfillin[empty=yes]\fi%
+}
+\def\dofillin_temp[#1][#2]{#1#2}
+\def\dofillin_indeed_text[#1][#2]{%#1 option #2 contents or answer
+    \fillinparameter{before}%
+    \fillin_text{#2}
+    \fillinparameter{after}
+}
+\def\dofillin_indeed_textnote[#1][#2]{%#1 option #2 contents or answer
+    \fillinparameter{before}%
+    \textnote[n=\fillinparameter\c!n]{#2}
+    \fillinparameter{after}
+}
+\def\dofillin_indeed_rule[#1][#2]{%#1 option #2 contents or answer
+    \fillinparameter{before}%
+    \blackrule[color=\fillinparameter{color},
+     		   width=\fillinparameter{width},
+		   	   alternativevariant=a,
+		       height=0pt,depth=.5pt]
+    \fillinparameter{after}
+}
+\def\getanswerfromfillin{
+  \datasetvariable{Fillin_collector}{\rawcountervalue[Unicode]}{answer}
+}
+
+\setupmaterial [\c!align=center,\c!color=,\c!style=,
+				\c!spacebefore=1em,\c!spaceafter=1em,
+                \c!title=Put title Here or not,
+                \c!author=Author Name Here,
+                \c!source={From Where},
+                \c!indicator=reset,
+                indent={first,always,2em},]
+\setupmaterial [\c!number] [\c!before={(},\c!after={)},
+							\c!prefix=no,\c!start=\plusone,
+                            \c!style=\namedmaterialparameter\c!title\c!style,
+                            \c!color=\namedmaterialparameter\c!title\c!color,
+                            \c!numberconversion=cn,\c!way=\v!by\v!section]
+\setupmaterial [\c!title]  [\c!style=\ss\tfa,\c!color=,\c!align=center,
+							\c!before=,]
+\setupmaterial [\c!author] [\c!style=\tf,\c!color=,\c!align=flushright]
+\setupmaterial [\c!source] [\c!before=\par,\c!align=flushright]
+\def\material_counter_parameter#1%
+  {\begingroup
+    \def\currentmaterial{#1}%
+    \setupalign[\namedmaterialparameter\c!title\c!align]
+    \usematerialstyleandcolor\c!style\c!color
+    \namedmaterialparameter\currentmaterial\c!before
+    \incrementcounter[#1]
+    \ifnum\rawcountervalue[#1]<1
+    \incrementcounter[#1]
+    \else\relax\fi
+    \convertedcounter[#1]
+    \namedmaterialparameter\currentmaterial\c!after
+   \endgroup}
+
+\def\material_parameter#1%creat new element in material
+  {{\begingroup
+    \def\currentmaterial{#1}%
+    \setupalign[\namedmaterialparameter\currentmaterial\c!align]
+    \usematerialstyleandcolor\c!style\c!color
+    \namedmaterialparameter\currentmaterial\c!before
+    \rootmaterialparameter\currentmaterial
+    \namedmaterialparameter\currentmaterial\c!after
+    \par\endgroup}}
+
+\def\startmaterial{\begingroup\dosingleempty\startmaterial_indeed}
+\def\startmaterial_indeed[#1]{%
+    \let\currentmaterial\empty
+    \edef\p_indicator{\rootmaterialparameter\c!indicator}
+    \processaction[\p_indicator][
+    	reset=>\let\indicator_reset_helper\resetindicators,
+		continue=>\let\indicator_reset_helper\relax,]
+	\iffirstargument\setupcurrentmaterial[#1]\fi
+	\indicator_reset_helper
+	\usematerialstyleandcolor\c!style\c!color%
+    \blank[\rootmaterialparameter\c!spacebefore]
+    \startalignment[\rootmaterialparameter\c!align]
+        \material_counter_parameter\c!number
+        \material_parameter\c!title
+        \material_parameter\c!author
+    \stopalignment
+    \blank[\rootmaterialparameter\c!spaceafter]
+    \setupindenting[\rootmaterialparameter{indent}]
+}
+\def\stopmaterial{%
+    \material_parameter\c!source
+    \indicator_reset_helper
+    \endgroup}
+
+\setupindicator [style=\ss\bf,
+                 before={ (~},
+                  after={~) },
+                  prefix=no,
+               numberconversion=cn,%hiragana,
+                  type=line,]
+                  
+\def\indicator {\dosingleempty\doindicator} 
+\def\doindicator[#1]#2{\begingroup%
+    \iffirstargument\setupindicator[#1]\fi%
+    \edef\indicator_type{\indicatorparameter\c!type}%
+    \edef\indicator_reset{\indicatorparameter\c!reset}%
+    \processaction[\indicator_type]%
+              [line=>\let\indicator_type\underbar,%
+               none=>\let\indicator_type\relax]%
+    \useindicatorstyleandcolor\c!style\c!color%
+    \indicator_type{%
+    \indicatorparameter\c!before%
+    \incrementcounter[\currentindicator]%
+    \convertedcounter[\currentindicator]%
+    \indicatorparameter\c!after%
+    #2}\endgroup}
+   
+\def\indicators{\convertedcounter[\currentindicator]
+                \incrementcounter[\currentindicator]}
+\def\resetindicators{\setcounter[\currentindicator][0]}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\installnamespace          {writingbox}
+\installcommandhandler \????writingbox    {writingbox}    \????writingbox
+\setupwritingbox[row=10,column=18,width=2em,height=2em,midheight=1em]
+\newcount \tbl_row
+\newcount \tbl_col
+\def\makewritingbox{\dosingleempty\makewritingbox_indeed}
+\def\makewritingbox_indeed[#1]{\begingroup%
+    \tbl_row=\writingboxparameter{row} % yoko
+    \tbl_col=\writingboxparameter{column} % tate
+    \setupTABLE[split=yes]
+    \setupTABLE[column][width=\writingboxparameter{width}]
+    \setupTABLE[row][odd][height=\writingboxparameter{midheight}]
+    \setupTABLE[row][even][height=\writingboxparameter{height}]
+    \bTABLE
+        \bTR \bTD[nc=\number\tbl_col] {} \eTD \eTR
+        \dorecurse{\number\tbl_row}{
+        \bTR
+            \dorecurse{\number\tbl_col}{\bTD {} \eTD}
+        \eTR
+        \bTR \bTD[nc=\number\tbl_col] {} \eTD \eTR}
+    \eTABLE
+\endgroup}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%   EXAM MODULE   %%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\protect
+\stopmodule
+\endinput
+
+\usemodule[memos]
+    [fontsize=11pt,
+    themecolor=green,
+    layout=moderate,
+    hdrstyle=foemarginalt]
+
+\starttext
+\definecombinedlist[contentswithsub][part,chapter,section,subsection][level=section,criterium=local]
+\setupcombinedlist   [contentswithsub] [list={part,chapter,section,subsection}]
+\setuplist [chapter] [width=3em,distance=1em,margin=1em]
+\setuplist [section] [width=3em,distance=1em,margin=2em]
+\setuplist [subsection] [width=3em,distance=1em,margin=3em,alternative=c]
+
+\placecontentswithsub
+
+\chapter{環境設置}
+
+\section{繪製卷頭}
+\setuptype[lines=hyphenated]
+\setuptyping[space=normal]
+
+下面的命令簡單地展示了如何定義、設定並繪製一個新卷頭。
+\startlists
+\item 通過 \type{\definepapertitle[PaperTitleName]} 命令可以新建卷頭信息，
+\item 通過  \type{\setuppapertitle[PaperTitleName]} 命令可以設定卷頭信息，
+\item 通過   \type{\makepapertitle[PaperTitleName]} 命令可以繪製卷頭結果。
+\stoplists
+
+\startbuffer
+\definepapertitle[newpapertitle]
+\setuppapertitle [\currentpapertitle][
+    n=5,              % 定义需要在试卷标题处需要显示多少元素，
+    typi=secret,      % 同时，自动定义相应数量的元素命令
+    typii=title,      % 使用typi typii typiii typiv ...
+    typiii=subject,   % 定义每个元素的名称，同时自动生成相关样式化命令
+    typiv=information,% X Xstyle Xalign beforeX afterX vspacetypi
+    typv=notice,
+    secretstyle=\ss,
+    titlestyle=\ssa,
+    subjectstyle=\ssb,
+    informationstyle=\ttx,
+    noticestyle=\rm\it,
+    secretalign=flushleft,
+    titlealign=center,
+    subjectalign=center,
+    informationalign=center,
+    noticealign=flushleft,
+    secret={绝密 ★ 启用前},
+    title={\tu{2021 年普通高等学校招生全国统一考试}},
+    subject={日语},
+    information={总分:150 分，考试时间:120 分钟},
+    notice={注意事项：
+      \startitemize[n,packed,joinedup]
+        \item 答题前，务必将自己的姓名、准考证号填写在%
+              答题卡规定的位置上。%
+        \item 答选择題时，必须使用 2B 铅笔将答题卡上对%
+              应题目的答案标号涂黑。如需改动，用橡皮擦%
+              擦干净后，再选涂其它答案标号。答非选择题%
+              时，必须使用 0.5 毫米黑色签字笔，将答案%
+              书写在答题卡规定的位置上。所有題目必须在答%
+              题卡上作答，在试题卷上答题无效。 %
+        \item 考试结束后，将试题卷和答题卡一并交回。
+        \stopitemize},
+    ]
+\stopbuffer
+
+\typebuffer
+
+\framed[width=\textwidth,align=flushleft]{\makepapertitle[\currentpapertitle]}
+
+\section{标题}
+
+默认设定了四级标题。不同于使用 \type{\chapter}、\type{\section} 的传统命令，
+为了创建可分离的目录，同时也为了区分普通文档和试卷文档，我们使用 
+\type{\tu}、\type{\ego}、\type{\isea}、\type{\heu} 来标记各级标题。
+
+默认情况下，设定 \type{\tu} 用于排版试卷标题，
+\type{\ego}、\type{\isea}、\type{\heu} 用来排版试卷内部各级标题。
+
+想要生成目录，可以使用 \type{\placetocexam}。默认只生成试卷标题，内部各级标
+题并不包含在内。想要调整目录样式，使用 \CONTEXT 的目录设置命令即可。
+
+\startbuffer \placetocexam \stopbuffer%%% TODO
+%
+\typebuffer
+
+% \framed[width=\textwidth,align=flushleft]{\placetocexam}
+
+\section{題目設置}
+
+\def\cmd#1{{\tt #1}}
+\def\examplewords{該環境位於 \currentitemgroup 。}
+
+\subsection{question 環境命令}
+
+\cmd{question} 環境命令可以用來設置題幹。
+只需將題幹包裹在 \cmd{startquestion}  \cmd{stopquestion} 命令之間即可。
+
+\startbuffer[eg_question]
+\startquestion
+\examplewords
+\stopquestion
+\startquestion
+\examplewords
+\stopquestion
+\stopbuffer
+
+\typebuffer[eg_question]
+
+\framed[width=\textwidth,align={flushleft,lohi}]{
+\getbuffer[eg_question]
+}
+
+\cmd{question} 環境命令繼承了大部分 \cmd{itemgroup} 環境的選項設置。
+因此，可以像修改 \cmd{itemgroup} 一樣，使用 \cmd{setupquestion} 來修改該環境。
+
+\bgroup
+\startbuffer
+\setupquestion[color=green,style=\ss,start=22]
+\stopbuffer
+
+\typebuffer
+\getbuffer
+
+\framed[width=\textwidth,align={flushleft,lohi}]{
+	\getbuffer[eg_question]}
+\egroup
+
+同時，該環境命令還設置了額外的選項設置，選項功能和名稱相同：
+
+\startpoints[horizontal,three]
+\startitem showpoint   \stopitem \startitem point       \stopitem
+\startitem pointstyle  \stopitem \startitem pointcolor  \stopitem
+\startitem pointlabel  \stopitem \startitem             \stopitem
+\startitem showanswer  \stopitem \startitem answer      \stopitem
+\startitem answerstyle \stopitem \startitem answercolor \stopitem
+\stoppoints
+
+\startbuffer
+\startquestion
+[showpoint=true,point=5,pointlabel={points},
+ showanswer=true,answer={new answer},answerstyle={\tt},]
+\examplewords
+\stopquestion
+\stopbuffer
+
+\typebuffer
+
+\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
+\subsection{problem 環境命令}
+
+\cmd{problem} 環境命令可以設置多個聚合問題，該環境具有一個特定的子命令 \cmd{pitem} 來列明每個問題。可以用來設置填空、問答等題目。
+
+\startbuffer
+\startproblem
+\startpitem \examplewords \stoppitem
+\startpitem \examplewords \stoppitem
+\startpitem \examplewords \stoppitem
+\stopproblem
+\stopbuffer
+
+\typebuffer
+
+\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
+正如 \cmd{question} 環境命令繼承了大部分 \cmd{itemgroup} 環境的選項設置。
+因此，可以像修改 \cmd{setupquestion} 一樣，使用 \cmd{setupproblem} 來修改該環境。但是不同的是，默認情況下，並沒有爲 \cmd{problem} 環境命令設置特別的選項設置。這是因爲在設計該命令時，默認認爲該環境具有一系列的子問題。由於每個問題都會有自己的答案，因此，\cmd{problem} 並不具有特別的選項設置。
+
+出於原本的設計目的，每個問題的答案和分數等選項設計都可以通過 \cmd{pitem} 來設定。
+
+\startbuffer
+\startproblem
+\startpitem[showpoint=true,point=5]         \examplewords \stoppitem
+\startpitem[showanswer=true,answer={newer}] \examplewords \stoppitem
+\startpitem[] \examplewords \stoppitem
+\stopproblem
+\stopbuffer
+
+\typebuffer
+
+\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
+不同於 \cmd{question} 環境所有的序號都是連續的，\cmd{problem} 環境每次開始後都是重新進行計數。
+
+如果想要爲 \cmd{problem} 環境添加題幹，可以將 \cmd{problem} 環境放置在 \cmd{question} 環境之中。
+
+\startbuffer
+\startquestion
+  \examplewords
+    \startproblem[left={(},right={)}]
+    \startpitem \examplewords \stoppitem
+    \startpitem \examplewords \stoppitem
+    \startpitem \examplewords \stoppitem
+    \stopproblem
+\stopquestion
+\stopbuffer
+
+\typebuffer
+
+\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
+如果想要設置填空題，可以使用 \cmd{fillin} 命令。該命令結合了 \cmd{textnote} 命令和 \cmd{underbar} 命令。主要具有這些選項設置：
+
+\startpoints[horizontal,three]
+\startitem type     \stopitem \startitem n      \stopitem
+\startitem continue \stopitem \startitem empty  \stopitem
+\startitem unit     \stopitem \startitem dy     \stopitem
+\startitem method   \stopitem \startitem max    \stopitem
+\startitem offset   \stopitem \startitem repeat \stopitem
+\startitem left     \stopitem \startitem right  \stopitem
+\startitem color    \stopitem \startitem width  \stopitem
+\startitem order    \stopitem \startitem mp     \stopitem 
+\startitem foregroundcolor \stopitem 
+\startitem foregroundstyle \stopitem
+\startitem rulethickness   \stopitem 
+\stoppoints
+
+上述鍵值中，需要進一步解釋的鍵值主要有：
+
+\startpoints
+\item \type{type}  默認設置了： 
+                   \type{underbar}，
+                   \type{textnote}，
+                   \type{void} 三種樣式；
+\item \type{empty} 默認設置了：
+                   \type{yes}，
+                   \type{no}，
+                   \type{number} 三種樣式；
+\item \type{mp}    的值可以使用系統默認的：
+                   \type{rules:under:dots}，
+               	   \type{rules:under:random}，
+                   \type{rules:under:dash}，
+                   \type{rules:under:wave} 幾種樣式
+\stoppoints
+
+需要注意的是，\type{textnote} 雖然在外觀上沒有特別的違和感，但目前來看，textnote並不會把答案放置在正確的位置，/fillin 命令目前無法完全兼容。
+
+除了上述的鍵值，還提供了一個可以獲取統一環境下答案的命令：\cmd{getanswerfromfillin}。該命令會獲取臨近 \cmd{fillin} 的內容，並輸出爲答案。
+
+\startbuffer
+\startquestion
+  \examplewords 
+    \startproblem[left={(},right={)}]
+    \startpitem 該環境位於 \fillin[env_question:1]。 \stoppitem
+    \startanswer[answer=\getanswerfromfillin]
+    	\input knuthmath
+    \stopanswer
+    \startpitem 該環境位於 \fillin[mp=rules:under:wave][env_question:1]。 \stoppitem
+    \startanswer[answer=\getanswerfromfillin]
+    	\input knuthmath
+    \stopanswer
+    \startpitem 
+    	該環境位於 \fillin[type=textnote,empty=number][env_question:1]。 注意，textnote 並不會把答案放置在正確的位置，\cmd{fillin} 命令目前無法完全兼容。
+    \stoppitem
+    \startanswer[answer=\getanswerfromfillin]
+    	\input knuthmath
+    \stopanswer
+    \startpitem 該環境位於 \fillin[type=void][]。 \stoppitem
+    \startanswer[answer=\getanswerfromfillin]
+    	\input knuthmath
+    \stopanswer
+    \stopproblem
+\stopquestion
+\stopbuffer
+
+\typebuffer
+
+\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
+\subsection{material 環境命令}
+
+顧名思義，\cmd{material} 環境用來放置大段文本材料。該環境命令因爲特殊性未繼承任何命令設置選項（\cmd{setupmaterial \[number\]} 標題序號命令繼承了 \cmd{setupcounter} 的設置選項，用來快速調整標題序號），所有選項設置都是特製的。
+
+主要的特殊設置如下：
+
+\startpoints
+\item \cmd{setupmaterial} 可以設置整體環境，具體擁有如下鍵值：
+	\startpoints[horizontal,three]
+      \startitem align       \stopitem
+      \startitem style       \stopitem
+      \startitem color       \stopitem
+      \startitem spacebefore \stopitem
+      \startitem spaceafter  \stopitem
+      \startitem title       \stopitem
+	  \startitem author      \stopitem
+      \startitem source      \stopitem
+      \startitem indicator   \stopitem
+	\stoppoints
+\item \cmd{setupmaterial \[number\]} 可以用來設置標題序號，
+\item \cmd{setupmaterial \[title\]}  可以用來設置標題樣式。
+\item \cmd{setupmaterial \[author\]} 可以用來設置作者樣式，
+\item \cmd{setupmaterial \[source\]} 可以用來設置文章來源樣式。
+\stoppoints
+
+\startbuffer
+\setupmaterial[title][color=green]
+\startmaterial[title={Knuth},author={Mos},source={Yelu}]
+\input knuth
+\stopmaterial
+\stopbuffer
+
+\typebuffer
+
+\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
+\subsection{choice   環境命令}
+
+該環境命令只能置於 \cmd{question} 環境之下。該環境的子命令 \cmd{citem} 目前必須使用 
+
+\starttyping
+\startcitem {選項內容} \stopcitem
+\stoptyping
+
+的形式，如此纔可以正確的排版選項\footnote{該命令是通過獲取選項內容長度來計算選項的排版方式。}。
+
+\startbuffer
+\setupquestion[showanswer=true]
+\startquestion[answer=\getanswerfromchoice]
+    \examplewords
+    \startchoice
+        \startcitem{Some Words}\stopcitem 
+        \startcitem{Some Words}\stopcitem
+        \startcitem[*]{Some Words}\stopcitem 
+        \startcitem{Some Words}\stopcitem
+    \stopchoice
+\stopquestion
+\startquestion[answer=\getanswerfromchoice]
+    \examplewords
+    \startchoice
+        \startcitem{Some More Words}\stopcitem 
+        \startcitem{Some More Words}\stopcitem
+        \startcitem{Some More Words}\stopcitem 
+        \startcitem[*]{Some More Words}\stopcitem
+    \stopchoice
+\stopquestion
+\startquestion[answer=\getanswerfromchoice]
+    \examplewords
+    \startchoice
+        \startcitem{Some More More Words}\stopcitem 
+        \startcitem[*]{Some More More Words}\stopcitem
+        \startcitem{Some More More Words}\stopcitem 
+        \startcitem{Some More More Words}\stopcitem
+    \stopchoice
+\stopquestion
+\stopbuffer
+
+\typebuffer
+
+\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
+\subsection{answer   環境命令}
+
+\cmd{answer} 是爲師生兩版設置的命令。但目前該命令和相關設置還具有諸多不足之處。只需要將該環境置於題目下方，即可獲取當前題目設定的答案，並可以爲其編寫答案解析。
+
+\startbuffer
+\startquestion[answer={answer for \currentitemgroup }]
+    \examplewords 注意：\cmd{answer} 可以獲取父環境或同級環境的答案而不必再次設置。
+    \startanswer[point=12]
+    \input knuthmath
+    \stopanswer
+\stopquestion
+\startquestion[answer=\getanswerfromchoice]
+    \examplewords 注意：\cmd{answer} 可以獲取父環境或同級環境的答案而不必再次設置。
+    \startchoice
+        \startcitem{Some Words}\stopcitem 
+        \startcitem{Some Words}\stopcitem
+        \startcitem[*]{Some Words}\stopcitem 
+        \startcitem{Some Words}\stopcitem
+    \stopchoice
+    \startanswer[point=1]
+    \input knuthmath
+    \stopanswer
+\stopquestion
+\stopbuffer
+
+\typebuffer
+
+\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
+\startbuffer
+\startquestion
+  \examplewords
+    \startproblem[left={(},right={)}]
+    \startpitem[answer={Pitem 1}] \examplewords \stoppitem
+    \startanswer[point=10]
+    \input knuthmath
+    \stopanswer
+    \startpitem[answer={Pitem 2}] \examplewords \stoppitem
+    \startanswer[point=20]
+    \input knuthmath
+    \stopanswer
+    \startpitem[answer={Pitem 3}] \examplewords \stoppitem
+    \startanswer[point=30]
+    \input knuthmath
+    \stopanswer
+    \stopproblem
+\stopquestion
+\stopbuffer
+
+\typebuffer
+
+\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
+該環境具有一系列的相關選項設置：
+
+\startpoints[horizontal,three]
+    \startitem showanswer  \stopitem
+    \startitem answer      \stopitem
+    \startitem answerstyle \stopitem
+    \startitem answercolor \stopitem
+    \startitem showpoint   \stopitem
+    \startitem point       \stopitem
+    \startitem pointstyle  \stopitem
+    \startitem pointcolor  \stopitem
+    \startitem label       \stopitem
+    \startitem labelstyle  \stopitem
+    \startitem before      \stopitem
+    \startitem after       \stopitem
+    \startitem afteranswer \stopitem
+\stoppoints
+
+\subsection{繪製作文格}
+
+\makewritingbox
+
+\input{EXAMPLE.tex}
+
+\stoptext
