@@ -67,8 +67,30 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% setupinfos 设置试卷抬头信息和格式
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\let\setuppapertitle\setvariables
-\def\definepapertitle[#1]{\edef\currentpapertitle{#1}}
+%% tu=chapter ego=section isea=subsection
+\setuplabeltext [cn] [section={第,部分},subsection={第,节},]
+
+\definehead [tu]   [chapter]       % you latin
+\definehead [ego]  [section]       % me  latin 
+\definehead [isea] [subsection]    % he or she latin
+\definehead [heu]  [subsubsection] % och
+\setuphead  [tu]   [incrementnumber=yes,number=no,placehead=no,page=odd]
+\setuphead  [ego]  [sectionsegments=section,numbercommand=]
+\setupheads [isea] [numbercommand=]
+\setupheads [tu,ego,isea]
+                   [indentnext=yes,align=flushleft,
+                   before={\blank[quarterline]}, 
+                   after={\blank[quarterline]},
+                   sectionconversionset=examnum]
+\setuphead  [ego]   [style=\ssa]
+\setuphead  [isea]  [style=\hwa]
+\definestructureconversionset[examnum][chinesenumerals][chinesenumerals]
+\definelist [tu]
+\definecombinedlist [tocexam][tu][level=chapter]
+\setupcombinedlist  [tocexam][list={tu},criterium=all]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\let\setuppapertitle\setgvariables
+\def\definepapertitle[#1]{\gdef\currentpapertitle{#1}}
 \definepapertitle[newpapertitle]
 \setuppapertitle [\currentpapertitle][
                n=5,              % 定义需要在试卷标题处需要显示多少元素，
@@ -118,34 +140,22 @@ informationalign=center,
     \doifemptyelsex{\getvariable{#1}{after#2}}{}
     \vskip .1\baselineskip\relax
 }
+
+\definedataset[papertitle]% use dataset can get tu defined after placetocexam
+\def\currentpapertitletitle#1{
+\setdataset[papertitle][#1][title=\getvariable{#1}{title}]
+\tu{\datasetvariable{papertitle}{#1}{title}}
+}
+
 \def\makepapertitle[#1]{%
   \vbox{\newcount\num_element \num_element=1%
-  \doifnot{\getvariable{#1}{title}}{}
-  {\tu{\getvariable{#1}{title}}}%
+  \doifnot{\getvariable{#1}{title}}{}%
+  {\currentpapertitletitle{#1}}%
   \dorecurse{\getvariable{#1}{n}}%start recurse
     {\doifemptyelsex{\getvariable{#1}{vspacetyp\romannumeral\num_element}}{}
     {\definevariable[#1][\getvariable{#1}{typ\romannumeral\num_element}]}
      \advance\num_element by 1\relax}%stop recurse
 }}
-%% tu=chapter ego==section isea=subsection
-\setuplabeltext [cn] [section={第,部分},subsection={第,节},]
-
-\definehead [tu]   [chapter]       % you latin
-\definehead [ego]  [section]       % me  latin 
-\definehead [isea] [subsection]    % he or she latin
-\definehead [heu]  [subsubsection] % och
-\setuphead  [tu]   [incrementnumber=yes,number=no,placehead=hidden]
-\setuphead  [ego]  [sectionsegments=section,numbercommand=]
-\setupheads [isea] [numbercommand=]
-\setupheads [tu,ego,isea]
-                   [indentnext=yes,
-                   before={\blank[quarterline]}, 
-                   after={\blank[quarterline]},
-                   sectionconversionset=examnum]
-\definestructureconversionset[examnum][chinesenumerals][chinesenumerals]
-\definelist[tu]
-\definecombinedlist [tocexam][tu][level=chapter]
-\setupcombinedlist  [tocexam][list={tu},criterium=all,order=title]
 %%%%%%%
 \installnamespace          {question}
 \installcommandhandler \????question  {question}  \????question
@@ -664,7 +674,7 @@ informationalign=center,
     \else  \totalchoicenumber = \currentchoicenumber%
     \fi%遞歸出總序號
     \restorecounter[currentchoicenumber]%恢復答案所在序號
-    \newcount\tempa\tempa=\dimtonum{.83\textwidth}\relax%
+    \newcount\tempa\tempa=\dimtonum{.8\textwidth}\relax%
     \newcount\tempb\tempb=\dimtonum{\the\width_max_with_label}\relax%
     \newcount\tempc\tempc=\rawcountervalue[currentchoicenumber]\relax%
     \newcount\ChoiceOrder\ChoiceOrder=\rawcountervalue[UnicodeChoice]\relax%
@@ -778,7 +788,7 @@ informationalign=center,
     \fi}%%%% 遞歸計算出最大寬度
 
 \def\startcitem{\dodoubleempty\startcitem_indeed}
-\def\startcitem_indeed[#1][#2]#3{%\par{%
+\def\startcitem_indeed[#1][#2]#3\stopcitem{%\par{%
     \ifsecondargument\setupcitem[#2]\fi%
     \get_citem_text[#3]%
     \set_count_itemlevel[env_choice:2][citem]%
@@ -818,8 +828,6 @@ informationalign=center,
     \dataset_collector[question][choice]%
 }
 
-\let\stopcitem\relax
-
 \def\pitem{\dosingleempty\pitem_indeed}
 \def\pitem_indeed[#1]#2{
 	\startpitem[#1]{#2}\stoppitem
@@ -828,6 +836,12 @@ informationalign=center,
 \def\citem_indeed[#1]#2{
 	\startcitem[#1]{#2}\stopcitem
 }
+
+\def\fragilecitem{\dosingleempty\fragilecitem_indeed}
+\def\fragilecitem_indeed[#1]#2 {
+	\startcitem[#1]{#2}\stopcitem
+}
+
 
 \definedataset[Fillin_collector]
 \setupbar[fillin_text,\v!textnote:\v!underbar][continue=\fillinparameter{continue},
