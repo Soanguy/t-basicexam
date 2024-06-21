@@ -236,7 +236,7 @@ informationalign=center,
 \defineitemgroup   [env_problem] % for choices : ABCD
 \setupitemgroup    [env_problem]  [each] [n,packed,joinedup,nowhite]
 \defineitemgroup   [env_question] % for choices : ABCD
-\setupitemgroup    [env_question] [each] [n,packed,joinedup,nowhite]
+\setupitemgroup    [env_question] [each] [n,packed,joinedup,nowhite,continue]
 \defineitemgroup   [env_choice] % for choices : ABCD
 \setupitemgroup    [env_choice]   [each] [A,packed,joinedup,nowhite]
 \definedescription [env_answer_descr]
@@ -486,7 +486,9 @@ informationalign=center,
                  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \def\inherit_itemgroup_option[#1]{
-    \setupitemgroup[env_#1][packed,joinedup,nowhite]
+	            \setupcounter[itemgroup:env_#1]
+	               [way=\csname #1parameter\endcsname{way}]
+                \setupitemgroup[env_#1]%[packed,joinedup,nowhite]
                    [ left=\csname #1parameter\endcsname{left},
                     right=\csname #1parameter\endcsname{right},
                   stopper=\csname #1parameter\endcsname{stopper},
@@ -502,8 +504,7 @@ informationalign=center,
                    option=\csname #1parameter\endcsname{option},
                     style=\csname #1parameter\endcsname{style},
                     color=\csname #1parameter\endcsname{color},
-                      way=\csname #1parameter\endcsname{way},
-                      ]
+                      ]%
 }
 \def\inherit_itemgroup_option_s[#1]{
     \setupitemgroup[env_#1] 
@@ -553,6 +554,7 @@ informationalign=center,
                      right={},
                    stopper={.~},
                   distance=.5em,
+                  option=continue,
                     before=,
                      after=,
                      width=.5em,
@@ -561,7 +563,7 @@ informationalign=center,
                   symalign=,
                     symbol=,
                  itemalign=,
-                       way=bysection,
+                       way=bysection,%wont work if continue on
           numberconversion=n,]
 \inherit_itemgroup_option[question]
 %\inherit_itemgroup_option_s[question]
@@ -569,9 +571,9 @@ informationalign=center,
 \def\startquestion_indeed[#1]{\begingroup%
     \incrementcounter[Unicode]%
     \iffirstargument\setupquestion[#1]\fi%
-    \ifempty {\questionparameter{start}}% 避免 continue 和 start 属性冲突
+    \ifempty{\questionparameter{start}}% 避免 continue 和 start 属性冲突
 		\startitemgroup[env_question]%
-                  [\questionparameter{numberconversion},continue,#1]%
+                  [\questionparameter{numberconversion},#1]%
                   [#1]%
 	\else\startitemgroup[env_question]%
                   [\questionparameter{numberconversion},         #1]%
@@ -656,7 +658,7 @@ informationalign=center,
 	\iffirstargument\setupchoice[#1]\fi%
     \startitemgroup[env_choice]%
                    [\choiceparameter{numberconversion},#1,%
-                   \ctxlua{context(available_columns_arg,"")},]%
+                    \ctxlua{context(available_columns_arg,"")},]%
                    [#1]%
     \totalchoicenumber=0\relax%
     \currentchoicenumber=0\relax%
@@ -801,7 +803,7 @@ informationalign=center,
        \setcounter[totalchoicenumber][\currentchoicenumber]%
        \doif{#1}{*}{\savecounter[currentchoicenumber]}%
        %if new collect command work well, savecounter can be deleted
-       \doif{#1}{*}{\collect{\convertnumber
+       \doif{#1}{*}{\collect{\convertnumber%
                    {\choiceparameter{numberconversion}}%
                    {\currentchoicenumber}}}%
     \else%
@@ -818,7 +820,7 @@ informationalign=center,
       \doifelse{#1}{*}{\correct_choice{#1}%
       {#3\savecounter[currentchoicenumber]}}%
       {#3}%if new collect command work well, savecounter can be deleted
-      \doif{#1}{*}{\collect{\convertnumber
+      \doif{#1}{*}{\collect{\convertnumber%
                   {\choiceparameter{numberconversion}}%
                   {\currentchoicenumber}}}%
     \fi%
@@ -833,34 +835,38 @@ informationalign=center,
 	\startpitem[#1]{#2}\stoppitem
 }
 \def\citem{\dosingleempty\citem_indeed}
-\def\citem_indeed[#1]#2{
-	\startcitem[#1]{#2}\stopcitem
+\def\citem_indeed[#1]#2{%
+	\startcitem[#1]{#2}\stopcitem%
 }
 
 \def\fragilecitem{\dosingleempty\fragilecitem_indeed}
-\def\fragilecitem_indeed[#1]#2 {
-	\startcitem[#1]{#2}\stopcitem
+\def\fragilecitem_indeed[#1]#2 {%
+	\startcitem[#1]{#2}\stopcitem%
 }
 
 
 \definedataset[Fillin_collector]
-\setupbar[fillin_text,\v!textnote:\v!underbar][continue=\fillinparameter{continue},
-                        unit=\fillinparameter{unit},
-                        order=\fillinparameter{order},
-                        rulethickness=\fillinparameter{rulethickness},
-                        method=\fillinparameter{method},
-                        dy=\fillinparameter{dy},
-                        max=\fillinparameter{max},
-                        width=\fillinparameter{width},
-                        left	=\fillinparameter{left},
-                        right=\fillinparameter{right},
-                        repeat=\fillinparameter{repeat},
-                        color=\fillinparameter{color},
-                        foregroundcolor=\fillinparameter{foregroundcolor},
-                        foregroundstyle=\fillinparameter{foregroundstyle},
-                        offset=\fillinparameter{offset},
-                        empty=\fillinparameter{empty},
-                        mp=\fillinparameter{mp}]
+\definetextnote[textnote]
+\setuptextnote[empty=\rootfillinparameter\c!empty,
+			   n=\rootfillinparameter\c!n]
+\setupbar[fillin_text,\v!textnote:\v!underbar]
+        [continue=\fillinparameter{continue},
+        unit=\fillinparameter{unit},
+        order=\fillinparameter{order},
+        rulethickness=\fillinparameter{rulethickness},
+        method=\fillinparameter{method},
+        dy=\fillinparameter{dy},
+        max=\fillinparameter{max},
+        width=\fillinparameter{width},
+        left=\fillinparameter{left},
+        right=\fillinparameter{right},
+        repeat=\fillinparameter{repeat},
+        color=\fillinparameter{color},
+        foregroundcolor=\fillinparameter{foregroundcolor},
+        foregroundstyle=\fillinparameter{foregroundstyle},
+        offset=\fillinparameter{offset},
+        empty=\fillinparameter{empty},
+        mp=\fillinparameter{mp}]
 %rules:under:dots    %rules:under:random
 %rules:under:dash    %rules:under:wave
 \setupfillin[type=underbar, n=20,    empty=no,
@@ -868,14 +874,12 @@ informationalign=center,
              method=0,     color=,   width=4em,
              dy=-0.4,      max=3,    offset=-.1,
              left=,        right=,   repeat=,
+             before=,	   after=,
              rulethickness=.05,
              foregroundcolor=,
              foregroundstyle=\ss,
              mp=]
-\definetextnote[textnote]
-\setuptextnote[empty=\rootfillinparameter\c!empty,
-			   n=\rootfillinparameter\c!n]
-\def\showanswer_for_fillin{
+\def\showanswer_for_fillin{%
     \doifincsnameelse{question}{\currentitemgroup}%
                      {\doifelse{\questionparameter{showanswer}}{true}
                                {\mode_showanswertrue}
@@ -886,43 +890,39 @@ informationalign=center,
                                {\mode_showanswertrue}
                                {\mode_showanswerfalse}}
                      {\relax}}
-\def\fillin{\dodoubleempty\dofillin}
+\def\fillin{\begingroup\dodoubleempty\dofillin}
 \def\dofillin[#1][#2]{%
-	\ifsecondargument\setupfillin[#1]\fi
+	\ifsecondargument\setupfillin[#1]\fi%
 	\showanswer_for_fillin%
-	\processaction[\fillinparameter\c!type][
-  		underbar=>\let\dofillin_temp\dofillin_indeed_text,
-		textnote=>\let\dofillin_temp\dofillin_indeed_textnote,
-	    	void=>\let\dofillin_temp\dofillin_indeed_rule,]
-	\ifsecondargument\setupfillin[#1]
-		\dofillin_temp[#1][#2]
-		\setdataset[Fillin_collector][\rawcountervalue[Unicode]][answer={#2}]
-	\else\dofillin_temp[][#1]
-    	\setdataset[Fillin_collector][\rawcountervalue[Unicode]][answer={#1}]\fi
+	\fillinparameter\c!before%
+	\doif{\fillinparameter\c!type}{}{\let\dofillin_temp\dofillin_indeed_text}%for default
+	\doif{\fillinparameter\c!type}{underbar}{\let\dofillin_temp\dofillin_indeed_text}%type=underbar
+	\doif{\fillinparameter\c!type}{textnote}{\let\dofillin_temp\dofillin_indeed_textnote}%
+	\doif{\fillinparameter\c!type}{void}    {\let\dofillin_temp\dofillin_indeed_rule}%
+	\ifsecondargument\setupfillin[#1]%
+		\dofillin_temp[#1][#2]%
+		\setdataset[Fillin_collector][\rawcountervalue[Unicode]][answer={#2}]%
+	\else\dofillin_temp[][#1]%
+    	\setdataset[Fillin_collector][\rawcountervalue[Unicode]][answer={#1}]\fi%
 	\ifmode_showanswer\setupfillin[empty=no]%
 	\else\setupfillin[empty=yes]\fi%
-}
+	\fillinparameter\c!after%
+\endgroup}
 \def\dofillin_temp[#1][#2]{#1#2}
-\def\dofillin_indeed_text[#1][#2]{%#1 option #2 contents or answer
-    \fillinparameter{before}%
-    \fillin_text{#2}
-    \fillinparameter{after}
+\def\dofillin_indeed_text[#1][#2]{%#1 option #2 contents or answer  
+    \fillin_text{#2}%
 }
 \def\dofillin_indeed_textnote[#1][#2]{%#1 option #2 contents or answer
-    \fillinparameter{before}%
-    \textnote[n=\fillinparameter\c!n]{#2}
-    \fillinparameter{after}
+    \textnote[n=\fillinparameter\c!n]{#2}%
 }
 \def\dofillin_indeed_rule[#1][#2]{%#1 option #2 contents or answer
-    \fillinparameter{before}%
     \blackrule[color=\fillinparameter{color},
      		   width=\fillinparameter{width},
 		   	   alternativevariant=a,
-		       height=0pt,depth=.5pt]
-    \fillinparameter{after}
+		       height=0pt,depth=.5pt]%
 }
-\def\getanswerfromfillin{
-  \datasetvariable{Fillin_collector}{\rawcountervalue[Unicode]}{answer}
+\def\getanswerfromfillin{%
+  \datasetvariable{Fillin_collector}{\rawcountervalue[Unicode]}{answer}%
 }
 
 \setupmaterial [\c!align=center,\c!color=,\c!style=,
