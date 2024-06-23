@@ -10,11 +10,17 @@
 %D      license=,
 %D          url=]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% upadate: 清除只使用 choice 環境返回 missing number 問題
-%          原因: choice dataset 設置了 questionorder，因爲沒有 question 環境，
-%		        所以爲正確生成 計數器。
 \startmodule[basicexam]
 \unprotect
+\setupmodule [mode=student,]
+\def\errorparameter#1{\begingroup
+    \startalignment[center]
+    \framed[align={center,lohi},width=max]{
+    \switchtocolor[blue]\tta
+    There is something Wrong happened at \color[red]{\underbar{parameter:#1}}.\\
+    Please check your code.\\
+    }\stopalignment
+    \endgroup}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   EXAM MODULE   %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -197,6 +203,16 @@ informationalign=center,
 \defineindicator[indicator]
 \def\currentmaterial{material}
 \def\currentindicator{indicator}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definemode[teacher][keep]
+\definemode[student][keep]
+\definemode[check]  [keep]
+\doif{\moduleparameter{basicexam}{mode}}{teacher}
+     {\enablemode[teacher]}{}
+\doif{\moduleparameter{basicexam}{mode}}{student}
+     {\enablemode[student]}{}
+\doif{\moduleparameter{basicexam}{mode}}{}
+     {\enablemode[student]}{}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifmode_quickcheck  \mode_quickcheckfalse
 \newif\ifmode_check       \mode_checkfalse
@@ -504,6 +520,7 @@ informationalign=center,
                    option=\csname #1parameter\endcsname{option},
                     style=\csname #1parameter\endcsname{style},
                     color=\csname #1parameter\endcsname{color},
+         numberconversion=\csname #1parameter\endcsname\c!numberconversion
                       ]%
 }
 \def\inherit_itemgroup_option_s[#1]{
@@ -724,7 +741,7 @@ informationalign=center,
              before=,
              after=,
              indent={first,always,2em},
-             afteranswer=\crlf\indentation,]
+             afteranswer=\endgraf\indentation,]
 
 \def\startanswer   {\dosingleempty\dostartanswer}
 \def\dostartanswer[#1]{%
@@ -741,8 +758,7 @@ informationalign=center,
      \show_point_or_answer[answer][answer]%
      \answerparameter{afteranswer}%
      \useanswerstyleandcolor\c!style\c!color%
-     \setupindenting[\answerparameter{indent}]
-     }
+     \setupindenting[\answerparameter{indent}]}
 \def\stopanswer{\stopenv_answer_descr%
     \stopenv_answer\answerparameter{after}%
     \endgroup}
@@ -1039,8 +1055,22 @@ informationalign=center,
         \bTR \bTD[nc=\number\tbl_col] {} \eTD \eTR}
     \eTABLE
 \endgroup}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% warning: conditional must put after env defination
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\startmode[teacher]
+	\mode_showanswertrue
+\stopmode
 
+\startmode[student]
+	\mode_showanswerfalse
+\stopmode
 
+\ifmode_showanswer\relax\else
+    \let\startanswe\relax
+    \let\stopanswer\relax
+    \definebuffer[answer]
+\fi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   EXAM MODULE   %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
