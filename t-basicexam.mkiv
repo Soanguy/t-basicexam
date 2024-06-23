@@ -95,43 +95,93 @@
 \definecombinedlist [tocexam][tu][level=chapter]
 \setupcombinedlist  [tocexam][list={tu},criterium=all]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\startsetups papertitle:set
+%    \writestatus{papertitle}{papertitle:set is being called..}%
+%%    \space{\blue[papertitle:set]}
+%    \def\papertitle_n{5}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    \def\papertitle_typi{secret}
+%    \def\papertitle_typii{title}
+%    \def\papertitle_typiii{subject}
+%    \def\papertitle_typiv{information}
+%    \def\papertitle_typv{notice}
+%    \def\papertitle_secret{}%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    \def\papertitle_title{}
+%    \def\papertitle_subject{}
+%    \def\papertitle_information{}
+%    \def\papertitle_notice{}
+%    \def\papertitle_secret_style{}%%%%%%%%%%%%%%%%%%%%%%
+%    \def\papertitle_title_style{}
+%    \def\papertitle_subject_style{}
+%    \def\papertitle_information_style{}
+%    \def\papertitle_notice_style{}
+%    \def\papertitle_secret_align{}%%%%%%%%%%%%%%%%%%%%%%
+%    \def\papertitle_title_align{}
+%    \def\papertitle_subject_align{}
+%    \def\papertitle_information_align{}
+%    \def\papertitle_notice_align{}
+%    \def\papertitle_secret_before{}%%%%%%%%%%%%%%%%%%%%%
+%    \def\papertitle_title_before{}
+%    \def\papertitle_subject_before{}
+%    \def\papertitle_information_before{}
+%    \def\papertitle_notice_before{}
+%    \def\papertitle_secret_after{}%%%%%%%%%%%%%%%%%%%%%%
+%    \def\papertitle_title_after{}
+%    \def\papertitle_subject_after{}
+%    \def\papertitle_information_after{}
+%    \def\papertitle_notice_after{}
+%    \def\papertitle_vspacetypi{}%%%%%%%%%%%%%%%%%%%%%%%%
+%    \def\papertitle_vspacetypii{}
+%    \def\papertitle_vspacetypi{}
+%    \def\papertitle_vspacetypi{}
+%    \def\papertitle_vspacetypi{}
+%\stopsetups
+%\setvariables[papertitle]
+%  [set={\setups[papertitle:set]},
+%   key={Apples are \applecolor !},
+%   reset={\setups[papertitle:reset]},
+%]
+%\getvariable {papertitle}{key}
+%\setvariables[papertitle][key=value]
+%\getvariable {papertitle}{key}
 \let\setuppapertitle\setgvariables
-\def\definepapertitle[#1]{\gdef\currentpapertitle{#1}}
+\def\definepapertitle[#1]{%
+	\gdef\currentpapertitle{#1}%
+	\setuppapertitle[\currentpapertitle][
+                       n=5,              % 定义需要在试卷标题处需要显示多少元素，
+                    typi=secret,         % 同时，自动定义相应数量的元素命令
+                   typii=title,          % 使用typi typii typiii typiv ...
+                  typiii=subject,        % 定义每个元素的名称，同时自动生成相关样式化命令
+                   typiv=information,    % X Xstyle Xalign beforeX afterX vspacetypi
+                    typv=notice,
+             secretstyle=\ss,
+              titlestyle=\ssa,
+            subjectstyle=\ssb,
+        informationstyle=\ttx,
+             noticestyle=\rm\it,
+             secretalign=flushleft,
+              titlealign=center,
+            subjectalign=center,
+        informationalign=center,
+             noticealign=flushleft,
+                  secret={绝密 ★ 启用前},
+                   title={\currentdate[year] 年普通高等学校招生全国统一考试},
+                 subject={SubJect},
+             information={总分:150 分，考试时间:120 分钟},
+                  notice={注意事项：
+                          \startitemize[n,packed,joinedup]
+                            \item 答题前，务必将自己的姓名、准考证号填写在%
+                                  答题卡规定的位置上。%
+                            \item 答选择題时，必须使用 2B 铅笔将答题卡上对%
+                                  应题目的答案标号涂黑。如需改动，用橡皮擦%
+                                  擦干净后，再选涂其它答案标号。答非选择题%
+                                  时，必须使用 0.5 毫米黑色签字笔，将答案%
+                                  书写在答题卡规定的位置上。所有題目必须在答%
+                                  题卡上作答，在试题卷上答题无效。 %
+                            \item 考试结束后，将试题卷和答题卡一并交回。
+                            \stopitemize},
+]}
+
 \definepapertitle[newpapertitle]
-\setuppapertitle [\currentpapertitle][
-               n=5,              % 定义需要在试卷标题处需要显示多少元素，
-            typi=secret,         % 同时，自动定义相应数量的元素命令
-           typii=title,          % 使用typi typii typiii typiv ...
-          typiii=subject,        % 定义每个元素的名称，同时自动生成相关样式化命令
-           typiv=information,    % X Xstyle Xalign beforeX afterX vspacetypi
-            typv=notice,
-     secretstyle=\ss,
-      titlestyle=\ssa,
-    subjectstyle=\ssb,
-informationstyle=\ttx,
-     noticestyle=\rm\it,
-     secretalign=flushleft,
-      titlealign=center,
-    subjectalign=center,
-informationalign=center,
-     noticealign=flushleft,
-          secret={绝密 ★ 启用前},
-           title={2021 年普通高等学校招生全国统一考试},
-         subject={日语},
-     information={总分:150 分，考试时间:120 分钟},
-          notice={注意事项：
-                  \startitemize[n,packed,joinedup]
-                    \item 答题前，务必将自己的姓名、准考证号填写在%
-                          答题卡规定的位置上。%
-                    \item 答选择題时，必须使用 2B 铅笔将答题卡上对%
-                          应题目的答案标号涂黑。如需改动，用橡皮擦%
-                          擦干净后，再选涂其它答案标号。答非选择题%
-                          时，必须使用 0.5 毫米黑色签字笔，将答案%
-                          书写在答题卡规定的位置上。所有題目必须在答%
-                          题卡上作答，在试题卷上答题无效。 %
-                    \item 考试结束后，将试题卷和答题卡一并交回。
-                    \stopitemize},
-]
 \def\doifemptyelsex#1#2{\doifelse{#1}{}{#2}{#1}}
 \def\definevariable[#1][#2]{% #1=namespace #2=element name
     \doifelse{\getvariable{#1}{#2align}}{}
@@ -142,26 +192,28 @@ informationalign=center,
     \doifemptyelsex{\getvariable{#1}{#2style}}{}
     \doifemptyelsex{\getvariable{#1}{#2}}
                    {\framed[color=red]
-                   {\ss warning: #2 is empty ! please input #2.}}
+                   {\ss warning: #2 is empty ! please input #2.or maybe you have some value is undefined because n > 5.}}
     \doifemptyelsex{\getvariable{#1}{after#2}}{}
     \vskip .1\baselineskip\relax
 }
 
 \definedataset[papertitle]% use dataset can get tu defined after placetocexam
 \def\currentpapertitletitle#1{
-\setdataset[papertitle][#1][title=\getvariable{#1}{title}]
-\tu{\datasetvariable{papertitle}{#1}{title}}
+	\setdataset[papertitle][#1][title=\getvariable{#1}{title}]
+	\tu{\datasetvariable{papertitle}{#1}{title}}
 }
 
-\def\makepapertitle[#1]{%
-  \vbox{\newcount\num_element \num_element=1%
-  \doifnot{\getvariable{#1}{title}}{}%
-  {\currentpapertitletitle{#1}}%
-  \dorecurse{\getvariable{#1}{n}}%start recurse
-    {\doifemptyelsex{\getvariable{#1}{vspacetyp\romannumeral\num_element}}{}
-    {\definevariable[#1][\getvariable{#1}{typ\romannumeral\num_element}]}
-     \advance\num_element by 1\relax}%stop recurse
-}}
+\def\makepapertitle[#1]{\begingroup%
+	\setupindenting[no]%
+	\vbox{\newcount\num_element \num_element=1%start vbox
+	\doifnot{\getvariable{#1}{title}}{}%
+		{\currentpapertitletitle{#1}}%
+	\dorecurse{\getvariable{#1}{n}}%start recurse
+		{\doifemptyelsex{\getvariable{#1}{vspacetyp\romannumeral\num_element}}{}
+    	{\definevariable[#1][\getvariable{#1}{typ\romannumeral\num_element}]}
+	\advance\num_element by 1\relax}%stop recurse
+	}%stop vbox
+\endgroup}
 %%%%%%%
 \installnamespace          {question}
 \installcommandhandler \????question  {question}  \????question
@@ -306,11 +358,11 @@ informationalign=center,
 \def\floorhelphelper#1#2.{\ifnum#2>0%
     \floorhelphelphelper#1\relax\relax\relax\else#1\fi}
 \def\floorhelphelphelper#1#2\relax{%
-  \if-#1\relax-\cnt_floor=0#2\relax%
-  \advance\cnt_floor by 1\relax%
-  \number\cnt_floor\relax%
-  \else\cnt_floor=0#1#2\relax%
-  \number\cnt_floor\relax\fi%
+	\if-#1\relax-\cnt_floor=0#2\relax%
+	\advance\cnt_floor by 1\relax%
+	\number\cnt_floor\relax%
+	\else\cnt_floor=0#1#2\relax%
+	\number\cnt_floor\relax\fi%
 }
 \directlua{MultiAnswerCollector = {}}
 \def\collect#1{%if want show collect,show #1
@@ -1055,6 +1107,53 @@ informationalign=center,
         \bTR \bTD[nc=\number\tbl_col] {} \eTD \eTR}
     \eTABLE
 \endgroup}
+
+\newcount\cnt_step_score
+\def\score_calc#1{% only show number
+	\newcount\cnt_step_score_temp%
+	\global\cnt_step_score_temp=#1\relax%
+	\ifnum\cnt_step_score=0\global\cnt_step_score=#1\relax\else%
+	\global\cnt_step_score=\numexpr\cnt_step_score+\cnt_step_score_temp\relax%
+	\fi\number\cnt_step_score%
+}
+\def\dotfill{\leavevmode%
+	\xleaders\hbox to 0.25em{\hfil.\hfil}%
+	\hfill\kern 0pt\relax}
+\def\cdotfill{\leavevmode%
+	\xleaders\hbox to 0.25em{\hfil$\cdot$\hfil}%
+	\hfill\kern 0pt\relax}
+\installnamespace                 {score}
+\installcommandhandler \????score {score} \????score
+\setupscore[style=\ssa,color=red,dotstyle=\ss,dotcolor=red,score=]
+\def\score{\dosingleempty\score_indeed}
+\def\score_indeed[#1]#2{\begingroup% format style
+	\iffirstargument\setupscore[#1]\fi%
+	\scoreparameter\c!before%
+	\usescorestyleandcolor\c!style\c!color%
+	\start\space\scoreparameter{dotstyle}%
+	\switchtocolor[\scoreparameter{dotcolor}]%
+	\doif{\scoreparameter\c!type}{}{\dotfill}%
+	\doif{\scoreparameter\c!type}{space}{}%
+	\doif{\scoreparameter\c!type}{hfill}{\unskip\hfill}%
+	\doif{\scoreparameter\c!type}{dotfill}{\dotfill}%
+	\doif{\scoreparameter\c!type}{cdotfill}{\cdotfill}%
+	\space\stop\scoreparameter\c!left%
+	\doif{\scoreparameter{score}}{}           {#2}%
+	\doif{\scoreparameter{score}}{default}    {#2}%
+	\doif{\scoreparameter{score}}{calculation}{\score_calc{#2}}%
+	\doif{\scoreparameter{score}}{complex}    {#2 : \score_calc{#2}}%
+	\scoreparameter\c!right\scoreparameter\c!after%
+\endgroup}
+\def\reset_score{%
+	\cnt_step_score_temp=0\relax%
+    \cnt_step_score=0\relax%
+}
+%score\score{3}\\
+%score\score[type=space]{3}\\
+%score\score[type=hfill]{3}\\
+%score\score[type=dotfill]{30}\\
+%\reset_score\\
+%score\score[type=cdotfill]{30}\\
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % warning: conditional must put after env defination
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
