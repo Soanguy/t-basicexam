@@ -591,6 +591,7 @@
                   symalign=,
                     symbol=,
                  itemalign=,
+                    option={packed,joinedup,nowhite},
                        way=bysection,
           numberconversion=n,]
 \inherit_itemgroup_option[problem]
@@ -623,7 +624,7 @@
                      right={},
                    stopper={.~},
                   distance=.5em,
-                  option=continue,
+                  option={continue,packed,joinedup,nowhite},
                     before=,
                      after=,
                      width=.5em,
@@ -655,8 +656,7 @@
 
 \def\stopquestion{%
 	\dataset_collector[question][question]%
-	\stopitemgroup%
-	\incrementcounter[UnicodeChoice]
+	\stopitemgroup%\incrementcounter[UnicodeChoice]
 	\endgroup}
 
 
@@ -761,6 +761,7 @@
 %                         {\tempc}
                          },]%
     \stopitemgroup%
+    \incrementcounter[UnicodeChoice]%
     \endgroup}
 
 
@@ -858,7 +859,7 @@
     \fi}%%%% 遞歸計算出最大寬度
 
 \def\startcitem{\dodoubleempty\startcitem_indeed}
-\def\startcitem_indeed[#1][#2]#3\stopcitem{%\par{%
+\def\startcitem_indeed[#1][#2]#3\stopcitem{%
     \ifsecondargument\setupcitem[#2]\fi%
     \get_citem_text[#3]%
     \set_count_itemlevel[env_choice:2][citem]%
@@ -907,11 +908,18 @@
 	\startcitem[#1]{#2}\stopcitem%
 }
 
-\def\fragilecitem{\dosingleempty\fragilecitem_indeed}
-\def\fragilecitem_indeed[#1]#2 {%
-	\startcitem[#1]{#2}\stopcitem%
-}
+\bgroup
+\obeylines
+\gdef\xcitem{\bgroup\obeylines\dosingleempty\doxcitem}%
+\gdef\doxcitem[#1]#2
+  {\egroup%
+  \doifsomethingelse{#1}%
+  {\startcitem[#1]#2\stopcitem}%
+  {}%
+  \startcitem #2\stopcitem}%
+\egroup
 
+\let\fragilecitem\xcitem
 
 \definedataset[Fillin_collector]
 \definetextnote[textnote]
