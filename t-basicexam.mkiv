@@ -181,7 +181,7 @@
                             \stopitemize},
 ]}
 
-\definepapertitle[newpapertitle]
+%\definepapertitle[newpapertitle]
 \def\doifemptyelsex#1#2{\doifelse{#1}{}{#2}{#1}}
 \def\definevariable[#1][#2]{% #1=namespace #2=element name
     \doifelse{\getvariable{#1}{#2align}}{}
@@ -1064,6 +1064,55 @@
     \material_parameter\c!source
     \indicator_reset_helper
     \endgroup}
+
+\installnamespace          {close}
+\installcommandhandler \????close     {close}     \????close
+\setupclose[width=2em,frame=off,stopper=.,distance=.5em,after=\blank[halfline]]
+\newcount\cnt_closetest\cnt_closetest=1\relax
+\starttexdefinition unexpanded closebar #1
+	\startbar[underbar]
+%   \scratchdimen\widthofstring{#1}\relax
+%   \zwj\kern.2\scratchdimen #1 \kern.2\scratchdimen\zwj
+	\zwj\kern 1em #1 \kern 1em\zwj
+	\stopbar
+\stoptexdefinition
+\def\docloseitem#1{\startcitem #1\stopcitem}
+\def\close_order{%
+	\noindent\unskip%
+	\inframed[width=\closeparameter\c!width,frame=\closeparameter\c!frame]{%
+		\convertnumber{n}{\cnt_closetest_temp}%
+		\closeparameter\c!stopper}%
+	\hskip\closeparameter\c!distance\relax%
+	\unskip%
+}
+\def\closechoice[#1]{%
+	\closebar{\number\cnt_closetest}%
+	\expandafter\gdef\csname close:\romannumerals\cnt_closetest\endcsname{#1}%
+	\advance\cnt_closetest by 1\relax%
+	}
+\def\placeclosechoice{%
+	\ifnum\cnt_closetest=1\relax%
+	\color[red]{it seems that there is no "closechoice" be setted,please check it!}\fi
+	\newcount\cnt_closetest_temp\cnt_closetest_temp=1\relax%
+	\dorecurse{\numexpr\cnt_closetest-1\relax}{%
+		\startchoice%
+			\useclosestyleandcolor\c!style\c!color%
+			\close_order
+			\processcommacommand[\csname close:\romannumerals\cnt_closetest_temp\endcsname]\docloseitem%
+		\stopchoice%
+		\advance\cnt_closetest_temp by 1\relax%
+	}%
+	\cnt_closetest=1\relax%
+}
+\def\startclose{\begingroup\dosingleempty\startclose_indeed}
+\def\startclose_indeed[#1]{%
+	\iffirstargument\setupclose[#1]\fi%
+	\closeparameter\c!before%
+}
+\def\stopclose{%
+	\closeparameter\c!after%
+	\placeclosechoice\endgroup%
+}
 
 \setupindicator [style=\ss\bf,
                  before={ (~},
