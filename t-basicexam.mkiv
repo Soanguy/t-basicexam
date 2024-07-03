@@ -272,13 +272,14 @@
 \newif\ifmode_showpoint   \mode_showpointfalse
 \newif\ifenv_question     \env_questionfalse
 \newif\ifenv_problem      \env_problemfalse
+\newif\ifenv_choice       \env_choicefalse
 \newif\ifenv_material     \env_materialfalse
+\newif\ifenv_close        \env_closefalse
 \newif\ifenv_answer       \env_answerfalse
 \newif\ifitem_choice      \item_choicefalse
 \newif\ifitem_pitem       \item_pitemfalse
 \newif\ifenv_toplevel     \env_topleveltrue
 \newif\ifenv_botlevel     \env_botlevelfalse
-\newif\ifcheck_inner_pitem\check_inner_pitemfalse
 \newif\ifchoice_check     \choice_checkfalse
 \newif\ifreset_counter
 %\ifconditional\c_strc_itemgroups_horizontal
@@ -289,23 +290,23 @@
 
 \newcount\totalchoicenumber%
 \newcount\currentchoicenumber%
-\definecounter[Unicode]      [way=bytext]%only for question:1 or problem:1
-\setcounter   [Unicode]      [1]
-\definecounter[UnicodeChoice][way=bytext]
-\setcounter   [UnicodeChoice][1]
-\definecounter[Unicode_toplevel]%for level 1 : question or problem
-\definecounter[Unicode_midlevel]%for level 2 : problem or level 1 : citem or pitem
-\definecounter[Unicode_botlevel]%for level 3 : only for level 2 : pitem
+\newcount\choice_seq\choice_seq=1\relax %%%%for answer list collect 
+\newcount\pitem_seq \pitem_seq =1\relax %%%%for answer list collect
+\newcount\answer_seq\answer_seq=1\relax %%%%for answer list collect
+\definecounter[Unicode]      [way=bytext]% \setcounter   [Unicode]      [1]
+\definecounter[Unicode_toplevel]% for level 1 : question or problem
+\definecounter[Unicode_midlevel]% for level 2 : problem or level 1 : citem or pitem
+\definecounter[Unicode_botlevel]% for level 3 : only for level 2 : pitem
 \definedataset[Answer_collector]
 \definedataset[Choice_collector]
 \definecounter[totalchoicenumber]       % get total number of choice
 \definecounter[currentchoicenumber]     % get order number of choice
 
-\defineitemgroup   [env_problem] % for choices : ABCD
+\defineitemgroup   [env_problem]  % for choices : ABCD
 \setupitemgroup    [env_problem]  [each] [n,packed,joinedup,nowhite]
 \defineitemgroup   [env_question] % for choices : ABCD
 \setupitemgroup    [env_question] [each] [n,packed,joinedup,nowhite,continue]
-\defineitemgroup   [env_choice] % for choices : ABCD
+\defineitemgroup   [env_choice]   % for choices : ABCD
 \setupitemgroup    [env_choice]   [each] [A,packed,joinedup,nowhite]
 \definedescription [env_answer_descr]
 \definetextbackground[env_answer]
@@ -331,6 +332,13 @@
 
 \def\show_check_info{\par\framed[width=\textwidth,align=flushleft]%
                      {\currentitemgroup\ \currentorder}\par}
+
+\def\choice_id{\datasetvariable{Choice_collector}{\rawcountervalue[Unicode]}{id}}
+\def\choice_availablecolumns{\datasetvariable{Choice_collector}{\rawcountervalue[Unicode]}{availablecolumns}}
+\def\choice_itemmaxwidth{\datasetvariable{Choice_collector}{\rawcountervalue[Unicode]}{itemmaxwidth}}
+\def\choice_totalchoicenumber{\datasetvariable{Choice_collector}{\rawcountervalue[Unicode]}{totalchoicenumber}}
+\def\choice_answer{\datasetvariable{Choice_collector}{\rawcountervalue[Unicode]}{answer}}
+\def\choice_answerstatus{\datasetvariable{Choice_collector}{\rawcountervalue[Unicode]}{answerstatus}}
                      
 \def\show_check_infos{\par\leftskip 0pt\relax\noindent%
 \framed[align=flushleft]{\language[en]%
@@ -345,10 +353,10 @@
 \NC CUitemlevel\NC \currentitemlevel       \NC     CUCnumber     \NC \choice_id                 \NC\NR
 \NC CUorder    \NC \currentorder           \NC     totalCnumber  \NC \choice_totalchoicenumber  \NC\NR
 \NC CUuserorder\NC  Cur=\currentitemnumber \NC     Cavailable    \NC \choice_availablecolumns   \NC\NR
-\NC level.check\NC \level_status           \NC     Canswer       \NC \get_choice_answer         \NC\NR
+\NC level.check\NC \level_status           \NC     Canswer       \NC \choice_answer             \NC\NR
 \NC answer     \NC \get_dataset_answer     \NC     Canswerstatus \NC \choice_answerstatus       \NC\NR
 \stoptabulate
-}\par} 
+}\par}
 
 \def\dimtonum #1{\number\numexpr \dimexpr #1\relax*635/65536\relax }
 \newcount\cnt_floor
@@ -381,6 +389,17 @@
     \rawcountervalue[Unicode_botlevel]%
 }
 
+\def\current_env_check{% can get \current_env_item
+	\ifenv_question  \def\current_env_item{question}\fi
+    \ifenv_problem   \def\current_env_item{problem}\fi
+    \ifenv_choice    \def\current_env_item{choice}\fi
+    \ifenv_material  \def\current_env_item{material}\fi
+    \ifenv_close     \def\current_env_item{close}\fi
+    \ifenv_answer    \def\current_env_item{answer}\fi
+    \ifitem_choice   \def\current_env_item{choice}\fi
+    \ifitem_pitem    \def\current_env_item{pitem}\fi
+}
+
 \def\set_currentuserorder[#1]{% get order that user setted
  \expandafter\newcount\csname #1order\endcsname%
  \ifnum\currentitemnumber=0%
@@ -392,21 +411,6 @@
 
 %%% this command can quickly get userorder
 \def\currentuserorder#1{\number\csname #1order\endcsname}
-
-%\def\currentenvname{%
-%    \doifincsnameelse{question}{\currentitemgroup}%
-%                     {\env_questiontrue}{\env_questionfalse}%
-%    \doifincsnameelse{problem}{\currentitemgroup}%
-%                     {\env_problemtrue}{\env_problemfalse}%
-%    \doifincsnameelse{choice}{\currentitemgroup}%
-%                     {\env_choicetrue}{\env_choicefalse}%
-%}
-
-\def\currentenv_check_for_pitem{%
-    \doifincsnameelse{question}{\currentitemgroup}%
-                     {\env_questiontrue}{\env_questionfalse}%
-    \doifincsnameelse{problem:2}{\currentitemgroup}%
-                     {\env_questiontrue}{\env_questionfalse}}
 
 \def\set_count_envlevel[#1][#2]{%
    \setcounter[Unicode_midlevel][0]
@@ -446,85 +450,79 @@
    \fi%
 }
 
-\def\dataset_collector[#1][#2]{%
-    %\ifmode_check @@currentunicode:\rawcountervalue[Unicode]@@ \else\relax\f
-    \newcount\currentunichoice\currentunichoice=\rawcountervalue[Unicode]
+\def\dataset_collector[#1][#2]{%#1 where answer from %% #2 user id for the env
+	\def\currentenvironment{\current_env_item}
     \setdataset [Answer_collector][\rawcountervalue[Unicode]]%收集答案並在未來展開
                 [id={\number\currentorder},% 當前列表序號(在試卷中的序列)
                  envid={\currentitemgroup},%當前列表名稱和層數
                  userid={\currentuserorder{#2}},%當前列表序號(可獲取被start更改後的序號)
-                 answer={\dataset_answer[#1]},
-                 content={K\rawcountervalue[Unicode]},
-                 dummttext={\ifcheck_inner_pitem The primary environment 
-                        of this environment is {\bf problem environment}, 
-                        and the secondary environment is {\bf pitem environment}. 
-                        As a result, the primary environment does not record 
-                        any information related to the answer.\else\relax\fi},
+                 answer={\pass_parameter_answer},
+                 point={\csname #1parameter\endcsname{point}},
+                 content={\rawcountervalue[Unicode]},
+                 dummttext={},
                  %totalchoicenumber={\rawcountervalue[totalchoicenumber]},
-                 dummytext={anything},
                          ]}
-                         
-\def\dataset_answer[#1]{% only used follow command: dataset_collector
-	\doifincsnameelse{choice}{\currentitemgroup}%
-	         {\get_choice_answer_num{\rawcountervalue[Unicode]}}%
-	         {\check_env_answer[#1]}%
-}
+
+\def\pass_parameter_answer{%
+	\ifenv_choice\get_choice_answer\else%
+	\check_env_answer[pitem]\fi}
 
 \def\check_env_answer[#1]{
 	\doifelsesomething{\csname #1parameter\endcsname{answer}}{}{%
-	   We didn't get the \color[red]{\tta #1 answer} value. \\
-       Maybe there was an error in the module, \\
-       or maybe you haven't set the \color[red]{\tta #1 answer} value yet%
-    }{%
-       \csname #1parameter\endcsname{answer}}%
+       There is no \color[red]{\tta #1 answer} value.
+     }{\csname #1parameter\endcsname{answer}}%
 }
-
-\def\check_choice_answer{
-	\doifincsnameelse{choice}{\currentitemgroup}{%
-       We didn't get the \color[red]{\tta answer} value. \\
-       Maybe there was an error in the module, \\
-       or maybe you haven't set the \color[red]{\tta answer} value yet%
-       }{%
-       There is no value for Choice,Maybe in \WORD{\sc problem} environment}
-}
-
-\def\get_dataset_answer_num#1{%\rawcountervalue[Unicode]
-    \datasetvariable{Answer_collector}{#1}{answer}}
-\def\get_dataset_answer{\get_dataset_answer_num{\rawcountervalue[Unicode]}}
-
-\def\get_dataset_answer_forp{%
-    \newcount\SFPA\SFPA=\numexpr\rawcountervalue[Unicode]-1\relax%
-    %\number\SFPA is special for env_answer which follow item_pitem 
-    \get_dataset_answer_num{\number\SFPA}%
-    \advance\SFPA by 1\relax}
 
 \def\get_choice_answer_num#1{%
     \doifsomethingelse%
     {\datasetvariable{Choice_collector}{#1}{answer}}%
     {\datasetvariable{Choice_collector}{#1}{answer}}%
-    {\check_choice_answer}}
+    {There is no \color[red]{\tta Choice answer} value.}}
+\def\get_choice_answer{\incrementcounter[Unicode]%
+	\get_choice_answer_num{\rawcountervalue[Unicode]}
+	\decrementcounter[Unicode]}
+\def\get_fillin_answer{%
+	\datasetvariable{Fillin_collector}{\rawcountervalue[Unicode]}{answer}%
+}
 
-\def\get_choice_answer{\get_choice_answer_num{\rawcountervalue[UnicodeChoice]}}
-
-\let\getanswerfrompitem\get_dataset_answer_forp
 \let\getanswerfromchoice\get_choice_answer
+\let\getanswerfromfillin\get_fillin_answer
+
+\def\typeanswer_choice{\dosingleempty\typeanswer_choice_indeed}
+\def\typeanswer_choice_indeed[#1]#2{
+	\iffirstargument\choice_seq=#1\fi
+	\dorecurse{#2}{\the\choice_seq
+		\get_choice_answer_num{\the\choice_seq}
+		\advance\choice_seq by 1\relax}
+}
+\def\typeanswer_fillin{\dosingleempty\typeanswer_fillin_indeed}
+\def\typeanswer_fillin_indeed[#1]#2{
+	\iffirstargument\pitem_seq=#1\fi
+	\dorecurse{#2}{\the\pitem_seq
+		\datasetvariable{Fillin_collector}{\the\pitem_seq}{answer}
+		\advance\pitem_seq by 1\relax}
+}
+\def\typeanswer{\dosingleempty\typeanswer_indeed}
+\def\typeanswer_indeed[#1]#2{%
+	\iffirstargument\answer_seq=#1\fi%
+	\dorecurse{#2}{\the\answer_seq%
+		\datasetvariable{Answer_collector}{\the\answer_seq}{answer}\\%
+		\advance\answer_seq by 1\relax}%
+}
+
+%\typeanswer_choice[1]{5}
+%\typeanswer_fillin[6]{4}
+%\typeanswer[1]{40}
+
 
 %%%%% NOTICE : 設定上，可以同時通過選項和 question 環境來直接設定答案，因此，
 %%%%%          如果 question 環境尚未設置值，則自動獲取選項值。否則，則獲取
 %%%%%          用戶主動輸入的值。
 %%%%%          目前，當用戶主動輸入值和選項值發生衝突時，並未設置警告信息!!!!
-\def\getanswer{% used for answer env to auto get answer
-    \doifincsnameelse
-    {problem}{\currentitemgroup}%
-    {\get_dataset_answer_forp}% get answer from pitem
-    {\dataset_answer[question]}% get answer from choice or get answer from question
-}
-
-\def\choice_id{\datasetvariable{Choice_collector}{\rawcountervalue[UnicodeChoice]}{id}}
-\def\choice_availablecolumns{\datasetvariable{Choice_collector}{\rawcountervalue[UnicodeChoice]}{availablecolumns}}
-\def\choice_itemmaxwidth{\datasetvariable{Choice_collector}{\rawcountervalue[UnicodeChoice]}{itemmaxwidth}}
-\def\choice_totalchoicenumber{\datasetvariable{Choice_collector}{\rawcountervalue[UnicodeChoice]}{totalchoicenumber}}
-\def\choice_answerstatus{\datasetvariable{Choice_collector}{\rawcountervalue[UnicodeChoice]}{answerstatus}}
+\def\getanswerforanswer{% used for answer env to auto get answer
+	\datasetvariable{Answer_collector}{\rawcountervalue[Unicode]}{answer}}
+\def\getpointforanswer{% used for answer env to auto get answer
+	\datasetvariable{Answer_collector}{\rawcountervalue[Unicode]}{point}}
 
 \def\check_choice_answerstatus{
     \ifchoice_check%
@@ -596,21 +594,24 @@
           numberconversion=n,]
 \inherit_itemgroup_option[problem]
 %\inherit_itemgroup_option_s[problem]
+
 \def\startproblem{\dosingleempty\startproblem_indeed}
 \def\startproblem_indeed[#1]{\begingroup%
-   \iffirstargument\setupproblem[#1]\fi%
-   \ifempty {\problemparameter{start}}% 避免 continue 和 start 属性冲突
+	\env_problemtrue\current_env_check%
+	\iffirstargument\setupproblem[#1]\fi%
+	\ifempty {\problemparameter{start}}% 避免 continue 和 start 属性冲突
              \startitemgroup[env_problem]%
                             [\problemparameter{numberconversion},#1]%
                             [#1]%
-    \else    \startitemgroup[env_problem]%
-                            [\problemparameter{numberconversion},         #1]%
+	\else    \startitemgroup[env_problem]%
+                            [\problemparameter{numberconversion},#1]%
                             [#1]\fi%
-%   \show_point_or_answer[problem][point]%
+%   \show_point_or_answer[problem][point]% no need to show this
 %   \show_point_or_answer[problem][answer]%
-   \set_count_envlevel[env_problem:1][problem]}
+	\set_count_envlevel[env_problem:1][problem]}
 
-\def\stopproblem{\dataset_collector[pitem][pitem]\stopitemgroup\endgroup}
+\def\stopproblem{%\dataset_collector[pitem][pitem]% should be deleted maybe?
+	\stopitemgroup\endgroup}
 
 \setupquestion [showpoint=false,
                     point=,
@@ -637,9 +638,10 @@
           numberconversion=n,]
 \inherit_itemgroup_option[question]
 %\inherit_itemgroup_option_s[question]
+
 \def\startquestion{\dosingleempty\startquestion_indeed}
 \def\startquestion_indeed[#1]{\begingroup%
-    \incrementcounter[Unicode]%
+    \env_questiontrue\current_env_check%
     \iffirstargument\setupquestion[#1]\fi%
     \ifempty{\questionparameter{start}}% 避免 continue 和 start 属性冲突
 		\startitemgroup[env_question]%
@@ -654,11 +656,8 @@
    \set_count_envlevel[env_question:1][question]%
    }
 
-\def\stopquestion{%
-	\dataset_collector[question][question]%
-	\stopitemgroup%\incrementcounter[UnicodeChoice]
-	\endgroup}
-
+\def\stopquestion{%\dataset_collector[question][question]%
+	\stopitemgroup\endgroup}
 
 \setupchoice       [showpoint=true,
                     point=4,
@@ -684,19 +683,21 @@
                        way=bysection,
           numberconversion=A,]
 \inherit_itemgroup_option[choice]
-\def\startchoice{\begingroup\dosingleempty\startchoice_indeed}
-\def\startchoice_indeed[#1]{%
+\def\startchoice{\dosingleempty\startchoice_indeed}
+\def\startchoice_indeed[#1]{\begingroup%
+    \env_choicetrue\current_env_check%
+    \incrementcounter[Unicode]%
     \doifelsesomething{\datasetvariable{Choice_collector}%
-    	              {\rawcountervalue[UnicodeChoice]}{totalchoicenumber}}% arg_1
+    	              {\rawcountervalue[Unicode]}{totalchoicenumber}}% arg_1
        {\scratchcounter\datasetvariable{Choice_collector}%
-                      {\rawcountervalue[UnicodeChoice]}{totalchoicenumber}}% arg_2
+                      {\rawcountervalue[Unicode]}{totalchoicenumber}}% arg_2
                       {\scratchcounter\zerocount}% arg_3
     \newcount\current_total_choice_number% 當前選項 ABCD 總計數
     \current_total_choice_number=\number\scratchcounter\relax%
     \doifelsesomething{\datasetvariable{Choice_collector}
-                      {\rawcountervalue[UnicodeChoice]}{availablecolumns}}%
+                      {\rawcountervalue[Unicode]}{availablecolumns}}%
        {\scratchcounter\datasetvariable{Choice_collector}
-                      {\rawcountervalue[UnicodeChoice]}{availablecolumns}}%
+                      {\rawcountervalue[Unicode]}{availablecolumns}}%
                       {\scratchcounter\zerocount}%
     \newcount\current_available_columns%可排版的最多列數
     \current_available_columns=\number\scratchcounter\relax%
@@ -745,27 +746,19 @@
     \else  \totalchoicenumber = \currentchoicenumber%
     \fi%遞歸出總序號
     \restorecounter[currentchoicenumber]%恢復答案所在序號
-    \newcount\tempa\tempa=\dimtonum{.8\textwidth}\relax%
-    \newcount\tempb\tempb=\dimtonum{\the\width_max_with_label}\relax%
-    \newcount\tempc\tempc=\rawcountervalue[currentchoicenumber]\relax%
-    \newcount\ChoiceOrder\ChoiceOrder=\rawcountervalue[UnicodeChoice]\relax%
-    \setdataset [Choice_collector][\rawcountervalue[UnicodeChoice]][%收集選項信息
+    \newcount\tempa       \tempa      =\dimtonum{.8\textwidth}\relax%
+    \newcount\tempb       \tempb      =\dimtonum{\the\width_max_with_label}\relax%
+    \newcount\ChoiceOrder \ChoiceOrder=\rawcountervalue[Unicode]\relax%
+    \setdataset [Choice_collector][\rawcountervalue[Unicode]][%收集選項信息
                  id={\number\ChoiceOrder},
                  availablecolumns={\number\numexpr \tempa / \tempb\relax},
                  itemmaxwidth={\the\width_cit_max},
                  totalchoicenumber={\number\totalchoicenumber},
                  answerstatus={\check_choice_answerstatus},
-                 answer={\callcollection
-%                         \convertnumber{
-%                         \choiceparameter{numberconversion}}%
-%                         {\tempc}
-                         },]%
-    \stopitemgroup%
-    \incrementcounter[UnicodeChoice]%
-    \endgroup}
+                 answer={\callcollection},]%
+    \stopitemgroup\endgroup}
 
-
-%%%%%%%5
+%%%%%%%
 \setupdescription  [env_answer_descr] 
                    [align=width, width=fit,
                     indenting=2em,distance=-2em,%hang=margin,
@@ -781,8 +774,8 @@
 
 \setupanswer[showanswer=true, 
 			 showpoint=true,
-             answer=\getanswer,
-             point=X,
+             answer=\getanswerforanswer,
+             point=\getpointforanswer,
              pointlabel={分},
              pointstyle=\answerparameter{style},
              pointcolor=\answerparameter{color},
@@ -797,8 +790,8 @@
              afteranswer=\endgraf\indentation,]
 
 \def\startanswer   {\dosingleempty\dostartanswer}
-\def\dostartanswer[#1]{%
-     \begingroup%\check_questionenv%
+\def\dostartanswer[#1]{\begingroup%
+     \env_answertrue\current_env_check%
      \iffirstargument\setupanswer[#1]\fi%
      \answerparameter{before}%
      \edef\getlabelwidth{\setbox0=\hbox{\answerparameter{labelstyle}%
@@ -828,8 +821,8 @@
                answercolor=red,]
 \def\startpitem{\dosingleempty\startpitem_indeed}
 \def\startpitem_indeed[#1]{\begingroup%
-    \currentenv_check_for_pitem%
-    \ifenv_question\check_inner_pitemtrue\else\check_inner_pitemfalse\fi%
+    \item_pitemtrue\current_env_check%
+    \incrementcounter[Unicode]%
 	\iffirstargument\setuppitem[#1]\fi%
     \startitem%
         \show_point_or_answer[pitem][point]%
@@ -839,8 +832,7 @@
 
 \def\stoppitem{%
 	\dataset_collector[pitem][pitem]%
-	\stopitem\incrementcounter[Unicode]%
-	\endgroup}
+	\stopitem\endgroup}
 
 \def\correct_choice#1#2{%
     \doif{#1}{*}{%
@@ -997,15 +989,12 @@
 		   	   alternativevariant=a,
 		       height=0pt,depth=.5pt]%
 }
-\def\getanswerfromfillin{%
-  \datasetvariable{Fillin_collector}{\rawcountervalue[Unicode]}{answer}%
-}
 
 \setupmaterial [\c!align=center,\c!color=,\c!style=,
 				\c!spacebefore=1em,\c!spaceafter=1em,
-                \c!title=Put title Here or not,
-                \c!author=Author Name Here,
-                \c!source={From Where},
+                \c!title=,
+                \c!author=,
+                \c!source=,
                 \c!indicator=reset,
                 indent={first,always,2em},]
 \setupmaterial [\c!number] [\c!before={(},\c!after={)},
@@ -1048,6 +1037,7 @@
     \processaction[\p_indicator][
     	reset=>\let\indicator_reset_helper\resetindicators,
 		continue=>\let\indicator_reset_helper\relax,]
+	\env_materialtrue\current_env_check%
 	\iffirstargument\setupcurrentmaterial[#1]\fi
 	\indicator_reset_helper
 	\usematerialstyleandcolor\c!style\c!color%
@@ -1081,7 +1071,9 @@
 	\noindent\unskip%
 	\inframed[width=\closeparameter\c!width,frame=\closeparameter\c!frame]{%
 		\convertnumber{n}{\cnt_closetest_temp}%
-		\closeparameter\c!stopper}%
+		\closeparameter\c!stopper%
+		\show_point_or_answer[close][point]%
+		\show_point_or_answer[close][answer]}%
 	\hskip\closeparameter\c!distance\relax%
 	\unskip%
 }
@@ -1095,17 +1087,19 @@
 	\color[red]{it seems that there is no "closechoice" be setted,please check it!}\fi
 	\newcount\cnt_closetest_temp\cnt_closetest_temp=1\relax%
 	\dorecurse{\numexpr\cnt_closetest-1\relax}{%
+		\hangafter 1
+		\hangindent \dimexpr\closeparameter\c!width + \closeparameter\c!distance\relax
 		\startchoice%
 			\useclosestyleandcolor\c!style\c!color%
 			\close_order
 			\processcommacommand[\csname close:\romannumerals\cnt_closetest_temp\endcsname]\docloseitem%
 		\stopchoice%
-		\advance\cnt_closetest_temp by 1\relax%
-	}%
+		\advance\cnt_closetest_temp by 1\relax}%
 	\cnt_closetest=1\relax%
 }
 \def\startclose{\begingroup\dosingleempty\startclose_indeed}
 \def\startclose_indeed[#1]{%
+	\env_closetrue\current_env_check%
 	\iffirstargument\setupclose[#1]\fi%
 	\closeparameter\c!before%
 }
