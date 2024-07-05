@@ -12,7 +12,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \startmodule[basicexam]
 \unprotect
-\setupmodule [mode=student,]
+\setupmodule[mode=student]
 \def\errorparameter#1{\begingroup
     \startalignment[center]
     \framed[align={center,lohi},width=max]{
@@ -25,7 +25,7 @@
 %%%%%%%%%%%%%%%%%   EXAM MODULE   %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 注意 ⚠️ 
+%% 注意 ⚠️
 %% 在定义命令时，参数后不可以直接断行，会导致参数查找失败。
 %%（可能是因为 tex 认为参数后断行，则参数的结束分界符为断行，而非括号）
 %% \def\foo#1{ .. some word ...}   \foo{..} 将正确运行
@@ -46,8 +46,6 @@
 %%                       \or p\or q\or r\or s\or t%
 %%                       \or u\or v\or w\or x\or y\or z
 %%                \fi}
-%% half uni bi tri quart quint sex sept oct deci semi cent
-%% \currentnofitems ** \currentitemnumber ** \curitindex 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\begingroup
 %\catcode`\%=12\relax
@@ -95,54 +93,6 @@
 \definecombinedlist [tocexam][tu][level=chapter]
 \setupcombinedlist  [tocexam][list={tu},criterium=all]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\startsetups papertitle:set
-%    \writestatus{papertitle}{papertitle:set is being called..}%
-%%    \space{\blue[papertitle:set]}
-%    \def\papertitle_n{5}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%    \def\papertitle_typi{secret}
-%    \def\papertitle_typii{title}
-%    \def\papertitle_typiii{subject}
-%    \def\papertitle_typiv{information}
-%    \def\papertitle_typv{notice}
-%    \def\papertitle_secret{}%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%    \def\papertitle_title{}
-%    \def\papertitle_subject{}
-%    \def\papertitle_information{}
-%    \def\papertitle_notice{}
-%    \def\papertitle_secret_style{}%%%%%%%%%%%%%%%%%%%%%%
-%    \def\papertitle_title_style{}
-%    \def\papertitle_subject_style{}
-%    \def\papertitle_information_style{}
-%    \def\papertitle_notice_style{}
-%    \def\papertitle_secret_align{}%%%%%%%%%%%%%%%%%%%%%%
-%    \def\papertitle_title_align{}
-%    \def\papertitle_subject_align{}
-%    \def\papertitle_information_align{}
-%    \def\papertitle_notice_align{}
-%    \def\papertitle_secret_before{}%%%%%%%%%%%%%%%%%%%%%
-%    \def\papertitle_title_before{}
-%    \def\papertitle_subject_before{}
-%    \def\papertitle_information_before{}
-%    \def\papertitle_notice_before{}
-%    \def\papertitle_secret_after{}%%%%%%%%%%%%%%%%%%%%%%
-%    \def\papertitle_title_after{}
-%    \def\papertitle_subject_after{}
-%    \def\papertitle_information_after{}
-%    \def\papertitle_notice_after{}
-%    \def\papertitle_vspacetypi{}%%%%%%%%%%%%%%%%%%%%%%%%
-%    \def\papertitle_vspacetypii{}
-%    \def\papertitle_vspacetypi{}
-%    \def\papertitle_vspacetypi{}
-%    \def\papertitle_vspacetypi{}
-%\stopsetups
-%\setvariables[papertitle]
-%  [set={\setups[papertitle:set]},
-%   key={Apples are \applecolor !},
-%   reset={\setups[papertitle:reset]},
-%]
-%\getvariable {papertitle}{key}
-%\setvariables[papertitle][key=value]
-%\getvariable {papertitle}{key}
 \let\setuppapertitle\setgvariables
 \def\definepapertitle[#1]{%
 	\gdef\currentpapertitle{#1}%
@@ -181,7 +131,6 @@
                             \stopitemize},
 ]}
 
-%\definepapertitle[newpapertitle]
 \def\doifemptyelsex#1#2{\doifelse{#1}{}{#2}{#1}}
 \def\definevariable[#1][#2]{% #1=namespace #2=element name
     \doifelse{\getvariable{#1}{#2align}}{}
@@ -192,7 +141,9 @@
     \doifemptyelsex{\getvariable{#1}{#2style}}{}
     \doifemptyelsex{\getvariable{#1}{#2}}
                    {\framed[color=red]
-                   {\ss warning: #2 is empty ! please input #2.or maybe you have some value is undefined because n > 5.}}
+                   {\ss warning: #2 is empty ! please input #2.
+                        or maybe you have some value is undefined
+                        because n > 5.}}
     \doifemptyelsex{\getvariable{#1}{after#2}}{}
     \vskip .1\baselineskip\relax
 }
@@ -229,6 +180,7 @@
 \installcommandhandler \????citem     {citem}     \????citem
 \installnamespace          {fillin}
 \installcommandhandler \????fillin    {fillin}    \????fillin
+%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcount\currentmaterial
 \installnamespace          {material}
 \installcommandhandler \????material  {material}  \????material
@@ -241,6 +193,8 @@
    \synchronizematerialcounters
 \to \everysetupmaterial
 \definematerial [material]
+\def\currentmaterial{material}
+%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcount\currentindicator
 \installnamespace          {indicator}
 \installcommandhandler \????indicator {indicator} \????indicator
@@ -253,7 +207,6 @@
    \synchronizeindicatorcounters
 \to \everysetupindicator
 \defineindicator[indicator]
-\def\currentmaterial{material}
 \def\currentindicator{indicator}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \definemode[teacher][keep]
@@ -287,17 +240,21 @@
 
 \newdimen\width_cit
 \newdimen\width_cit_max
-
 \newcount\totalchoicenumber%
 \newcount\currentchoicenumber%
-\newcount\choice_seq\choice_seq=1\relax %%%%for answer list collect 
-\newcount\pitem_seq \pitem_seq =1\relax %%%%for answer list collect
-\newcount\answer_seq\answer_seq=1\relax %%%%for answer list collect
-\definecounter[Unicode]      [way=bytext]% \setcounter   [Unicode]      [1]
+\newcount\totalpitemnumber%
+\newcount\currentpitemnumber%
+
+\definecounter[Unicode]      [way=bychapter]
 \definecounter[Unicode_toplevel]% for level 1 : question or problem
-\definecounter[Unicode_midlevel]% for level 2 : problem or level 1 : citem or pitem
-\definecounter[Unicode_botlevel]% for level 3 : only for level 2 : pitem
+\definecounter[Unicode_midlevel]% for level 2 : problem or level 1
+\definecounter[Unicode_botlevel]% for level 3 : only for level 2
+\def\QusetionID{\namedheadnumber{chapter}-\rawcountervalue[Unicode]}
+\def\increaseQusetionID{\incrementcounter[Unicode]}
+\def\decreaseQusetionID{\decrementcounter[Unicode]}
+
 \definedataset[Answer_collector]
+\definedataset[Problem_collector]
 \definedataset[Choice_collector]
 \definecounter[totalchoicenumber]       % get total number of choice
 \definecounter[currentchoicenumber]     % get order number of choice
@@ -327,36 +284,37 @@
     setbounds currentpicture to unitsquare xysized(RuleWidth,RuleHeight) ;
 \stopuseMPgraphic
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\mode_checktrue
-%\mode_quickchecktrue
+\def\choice_availablecolumns{\datasetvariable{Choice_collector}{\QusetionID}{availablecolumns}}
+\def\choice_itemmaxwidth{\datasetvariable{Choice_collector}{\QusetionID}{itemmaxwidth}}
+\def\choice_totalchoicenumber{\datasetvariable{Choice_collector}{\QusetionID}{totalchoicenumber}}
+\def\choice_answer{\datasetvariable{Choice_collector}{\QusetionID}{answer}}
+\def\choice_answerstatus{\datasetvariable{Choice_collector}{\QusetionID}{answerstatus}}
+\def\answer_id{\datasetvariable{Answer_collector}{\QusetionID}{id}}
+\def\answer_envid{\datasetvariable{Answer_collector}{\QusetionID}{envid}}
+\def\answer_order{\datasetvariable{Answer_collector}{\QusetionID}{order}}
+\def\answer_userorder{\datasetvariable{Answer_collector}{\QusetionID}{userorder}}
+\def\answer_answer{\datasetvariable{Answer_collector}{\QusetionID}{answer}}
+\def\answer_point{\datasetvariable{Answer_collector}{\QusetionID}{point}}
+\def\answer_totalnumber{\datasetvariable{Answer_collector}{\QusetionID}{totalnumber}}
 
 \def\show_check_info{\par\framed[width=\textwidth,align=flushleft]%
-                     {\currentitemgroup\ \currentorder}\par}
-
-\def\choice_id{\datasetvariable{Choice_collector}{\rawcountervalue[Unicode]}{id}}
-\def\choice_availablecolumns{\datasetvariable{Choice_collector}{\rawcountervalue[Unicode]}{availablecolumns}}
-\def\choice_itemmaxwidth{\datasetvariable{Choice_collector}{\rawcountervalue[Unicode]}{itemmaxwidth}}
-\def\choice_totalchoicenumber{\datasetvariable{Choice_collector}{\rawcountervalue[Unicode]}{totalchoicenumber}}
-\def\choice_answer{\datasetvariable{Choice_collector}{\rawcountervalue[Unicode]}{answer}}
-\def\choice_answerstatus{\datasetvariable{Choice_collector}{\rawcountervalue[Unicode]}{answerstatus}}
-                     
+                     {\answer_id\ ** \answer_envid\ ** \answer_order\ ** \answer_userorder}\par}
+         
 \def\show_check_infos{\par\leftskip 0pt\relax\noindent%
-\framed[align=flushleft]{\language[en]%
-\hfil {\bf NOTICE: MODE CHECK IS ON}          \hfil\par
-\hfil currentitemgroup:{\bf\currentitemgroup} \hfil\par
-\hfil Notice,{\bf info for choice}only show choice env information \hfil\par
-\starttabulate[|rp(.2\textwidth)|lp(.25\textwidth)%
-               |rp(.2\textwidth)|lp(.25\textwidth)|lwlB|]
-\NC {\bf Name}      \NC {\bf Content}           \NC     {\bf info for choice}\NC {\bf Content}  \NC\NR
-\HL
-\NC CUparen    \NC \currentparentitemgroup \NC     CUCmaxwidth   \NC \choice_itemmaxwidth       \NC\NR
-\NC CUitemlevel\NC \currentitemlevel       \NC     CUCnumber     \NC \choice_id                 \NC\NR
-\NC CUorder    \NC \currentorder           \NC     totalCnumber  \NC \choice_totalchoicenumber  \NC\NR
-\NC CUuserorder\NC  Cur=\currentitemnumber \NC     Cavailable    \NC \choice_availablecolumns   \NC\NR
-\NC level.check\NC \level_status           \NC     Canswer       \NC \choice_answer             \NC\NR
-\NC answer     \NC \get_dataset_answer     \NC     Canswerstatus \NC \choice_answerstatus       \NC\NR
-\stoptabulate
-}\par}
+	\framed[align=flushleft]{\language[en]%
+		\hfil {\bf NOTICE: MODE CHECK IS ON}          \hfil\par
+		\hfil currentitemgroup:{\bf\currentitemgroup} \hfil\par
+		\hfil Notice,{\bf Cinfos} only show choice env information \hfil\par
+		\starttabulate[|rp(.2\textwidth)|lp(.25\textwidth)|rp(.2\textwidth)|lp(.25\textwidth)|lwlB|]
+			\NC {\bf Name} \NC {\bf Content}           \NC     {\bf Cinfos}  \NC {\bf Content}  \NC\NR\HL
+            \NC CUparen    \NC \currentparentitemgroup \NC     CUCmaxwidth   \NC \choice_itemmaxwidth       \NC\NR
+            \NC CUitemlevel\NC \currentitemlevel       \NC                   \NC                            \NC\NR
+            \NC CUorder    \NC \currentorder           \NC     totalCnumber  \NC \choice_totalchoicenumber  \NC\NR
+            \NC CUuserorder\NC  Cur=\currentitemnumber \NC     Cavailable    \NC \choice_availablecolumns   \NC\NR
+            \NC level.check\NC \level_status           \NC     Canswer       \NC \choice_answer             \NC\NR
+            \NC answer     \NC \answer_answer          \NC     Canswerstatus \NC \choice_answerstatus       \NC\NR
+        \stoptabulate}
+    \par}
 
 \def\dimtonum #1{\number\numexpr \dimexpr #1\relax*635/65536\relax }
 \newcount\cnt_floor
@@ -380,15 +338,6 @@
     MultiAnswerCollector = {}
 }}
 
-\def\level_status{\ifenv_toplevel <env_toplevel> \else <toplevelfalse>\fi%
-                  \ifenv_botlevel <env_botlevel> \else <botlevelfalse>\fi}
-
-\def\currentorder{% get unique order
-    \rawcountervalue[Unicode_toplevel]-%
-    \rawcountervalue[Unicode_midlevel]-%
-    \rawcountervalue[Unicode_botlevel]%
-}
-
 \def\current_env_check{% can get \current_env_item
 	\ifenv_question  \def\current_env_item{question}\fi
     \ifenv_problem   \def\current_env_item{problem}\fi
@@ -400,13 +349,22 @@
     \ifitem_pitem    \def\current_env_item{pitem}\fi
 }
 
+\def\level_status{\ifenv_toplevel <env_toplevel> \else <toplevelfalse>\fi%
+                  \ifenv_botlevel <env_botlevel> \else <botlevelfalse>\fi}
+
+\def\currentorder{% get unique order
+    \rawcountervalue[Unicode_toplevel]%-\rawcountervalue[Unicode_midlevel]%
+    \ifnum\rawcountervalue[Unicode_botlevel]=0\relax\else%
+    (\rawcountervalue[Unicode_botlevel])\fi%
+}
+
 \def\set_currentuserorder[#1]{% get order that user setted
- \expandafter\newcount\csname #1order\endcsname%
- \ifnum\currentitemnumber=0%
- \csname #1order\endcsname=\rawcountervalue[Unicode_toplevel]\relax%
- \else%
- \csname #1order\endcsname=\currentitemnumber\relax%
- \fi%
+    \expandafter\newcount\csname #1order\endcsname%
+    \ifnum\currentitemnumber=0%
+    \csname #1order\endcsname=\rawcountervalue[Unicode_toplevel]\relax%
+    \else%
+    \csname #1order\endcsname=\currentitemnumber\relax%
+    \fi%
 }
 
 %%% this command can quickly get userorder
@@ -415,17 +373,11 @@
 \def\set_count_envlevel[#1][#2]{%
    \setcounter[Unicode_midlevel][0]
    \setcounter[Unicode_botlevel][0]
-   \newcount\currentproblem_toplevel%
-   \newcount\currentproblem_midlevel%
-   \newcount\currentproblem_botlevel%
    \doifincsnameelse{#1}{\currentitemgroup}
                     {\env_topleveltrue{}}
                     {\env_toplevelfalse{}}%
    \ifenv_toplevel\incrementcounter[Unicode_toplevel]%
              \else\incrementcounter[Unicode_midlevel]\fi%
-   \currentproblem_toplevel=\rawcountervalue[Unicode_toplevel]\relax%
-   \currentproblem_midlevel=\rawcountervalue[Unicode_midlevel]\relax%
-   \currentproblem_botlevel=\rawcountervalue[Unicode_botlevel]\relax%
    \set_currentuserorder[#2]%
    \ifmode_quickcheck\show_check_info\else%
        \ifmode_check\show_check_infos\else\fi%
@@ -433,35 +385,32 @@
 }
 
 \def\set_count_itemlevel[#1][#2]{%
-    \newcount\currentpitem_toplevel%
-    \newcount\currentpitem_midlevel%
-    \newcount\currentpitem_botlevel%
     \doifincsnameelse{#1}{\currentitemgroup}%
                      {\env_botleveltrue{}}%
                      {\env_botlevelfalse{}}%
    \ifenv_botlevel\incrementcounter[Unicode_botlevel]%
              \else\incrementcounter[Unicode_midlevel]\fi%
-   \currentpitem_toplevel=\rawcountervalue[Unicode_toplevel]\relax%
-   \currentpitem_midlevel=\rawcountervalue[Unicode_midlevel]\relax%
-   \currentpitem_botlevel=\rawcountervalue[Unicode_botlevel]\relax%
    \set_currentuserorder[#2]%
    \ifmode_quickcheck\show_check_info\else%
         \ifmode_check\show_check_infos\else\fi%
    \fi%
 }
 
+%%% id        由 章節號 + 題號 組成，題號在每一章節中重新從 1 計數
+%%% envid     當前列表名稱和層數
+%%% order     當前子題號，例如 第一題 ： 1 第六題第三小題 ： 6(3)
+%%% userorder 當前列表序號(可獲取被start更改後的序號)
+
 \def\dataset_collector[#1][#2]{%#1 where answer from %% #2 user id for the env
 	\def\currentenvironment{\current_env_item}
-    \setdataset [Answer_collector][\rawcountervalue[Unicode]]%收集答案並在未來展開
-                [id={\number\currentorder},% 當前列表序號(在試卷中的序列)
-                 envid={\currentitemgroup},%當前列表名稱和層數
-                 userid={\currentuserorder{#2}},%當前列表序號(可獲取被start更改後的序號)
+    \setdataset [Answer_collector][\QusetionID]%收集答案並在未來展開
+                [id={\QusetionID},%
+                 envid={\currentitemgroup},%
+                 order={\number\currentorder},%
+                 userorder={\currentuserorder{#2}},%
                  answer={\pass_parameter_answer},
                  point={\csname #1parameter\endcsname{point}},
-                 content={\rawcountervalue[Unicode]},
-                 dummttext={},
-                 %totalchoicenumber={\rawcountervalue[totalchoicenumber]},
-                         ]}
+                 totalnumber={\the\totalpitemnumber},]}
 
 \def\pass_parameter_answer{%
 	\ifenv_choice\get_choice_answer\else%
@@ -478,55 +427,30 @@
     {\datasetvariable{Choice_collector}{#1}{answer}}%
     {\datasetvariable{Choice_collector}{#1}{answer}}%
     {There is no \color[red]{\tta Choice answer} value.}}
-\def\get_choice_answer{\incrementcounter[Unicode]%
-	\get_choice_answer_num{\rawcountervalue[Unicode]}
+\def\get_choice_answer{\increaseQusetionID%
+	\get_choice_answer_num{\QusetionID}
 	\decrementcounter[Unicode]}
 \def\get_fillin_answer{%
-	\datasetvariable{Fillin_collector}{\rawcountervalue[Unicode]}{answer}%
+	\datasetvariable{Fillin_collector}{\QusetionID}{answer}%
 }
+
+\def\get_pitem_point{%
+	\def\ProblemID{\namedheadnumber{chapter}-\nextcountervalue[Unicode_toplevel]}%
+	\datasetvariable{Problem_collector}{\ProblemID}{totalpitempoint}}
 
 \let\getanswerfromchoice\get_choice_answer
 \let\getanswerfromfillin\get_fillin_answer
+\let\getpointfrompitem\get_pitem_point
+\let\getpointfromproblem\get_pitem_point
 
-\def\typeanswer_choice{\dosingleempty\typeanswer_choice_indeed}
-\def\typeanswer_choice_indeed[#1]#2{
-	\iffirstargument\choice_seq=#1\fi
-	\dorecurse{#2}{\the\choice_seq
-		\get_choice_answer_num{\the\choice_seq}
-		\advance\choice_seq by 1\relax}
-}
-\def\typeanswer_fillin{\dosingleempty\typeanswer_fillin_indeed}
-\def\typeanswer_fillin_indeed[#1]#2{
-	\iffirstargument\pitem_seq=#1\fi
-	\dorecurse{#2}{\the\pitem_seq
-		\datasetvariable{Fillin_collector}{\the\pitem_seq}{answer}
-		\advance\pitem_seq by 1\relax}
-}
-\def\typeanswer{\dosingleempty\typeanswer_indeed}
-\def\typeanswer_indeed[#1]#2{%
-	\iffirstargument\answer_seq=#1\fi%
-	\dorecurse{#2}{\the\answer_seq%
-		\datasetvariable{Answer_collector}{\the\answer_seq}{answer}\\%
-		\advance\answer_seq by 1\relax}%
-}
-
-%\typeanswer_choice[1]{5}
-%\typeanswer_fillin[6]{4}
-%\typeanswer[1]{40}
-
-
-%%%%% NOTICE : 設定上，可以同時通過選項和 question 環境來直接設定答案，因此，
-%%%%%          如果 question 環境尚未設置值，則自動獲取選項值。否則，則獲取
-%%%%%          用戶主動輸入的值。
-%%%%%          目前，當用戶主動輸入值和選項值發生衝突時，並未設置警告信息!!!!
+%%%%% NOTICE : 目前，當用戶主動輸入值和選項值發生衝突時，並未設置警告信息!!!!
 \def\getanswerforanswer{% used for answer env to auto get answer
-	\datasetvariable{Answer_collector}{\rawcountervalue[Unicode]}{answer}}
+	\datasetvariable{Answer_collector}{\QusetionID}{answer}}
 \def\getpointforanswer{% used for answer env to auto get answer
-	\datasetvariable{Answer_collector}{\rawcountervalue[Unicode]}{point}}
+	\datasetvariable{Answer_collector}{\QusetionID}{point}}
 
 \def\check_choice_answerstatus{
-    \ifchoice_check%
-        checked!%
+    \ifchoice_check checked!%
     \else%
     	\color[red]{unchecked!}\\
 	    The current answer is auto-generated, \\
@@ -545,12 +469,13 @@
             			\switchtocolor[\csname #1parameter\endcsname{#2color}]%
                  	\paren{\csname #1parameter\endcsname{#2}\ %
                        	   \csname #1parameter\endcsname{#2label}}%
-	 		 }%
-	         {\csname mode_show#2false\endcsname}%
-\endgroup}
-                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	 		 }{\csname mode_show#2false\endcsname}%
+	\endgroup}
+
+\newcount\cnt_step_point
+\newcount\cnt_step_point_temp%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \def\inherit_itemgroup_option[#1]{
 	            \setupcounter[itemgroup:env_#1]
 	               [way=\csname #1parameter\endcsname{way}]
@@ -608,9 +533,20 @@
                             [#1]\fi%
 %   \show_point_or_answer[problem][point]% no need to show this
 %   \show_point_or_answer[problem][answer]%
+	\currentpitemnumber=0\relax%
+	\cnt_step_point=0\relax%
+	\cnt_step_point_temp=0\relax%
 	\set_count_envlevel[env_problem:1][problem]}
 
-\def\stopproblem{%\dataset_collector[pitem][pitem]% should be deleted maybe?
+\def\stopproblem{%\dataset_collector[pitem][problem]% should be deleted maybe?
+    \ifnum \totalpitemnumber > \currentpitemnumber%
+           \totalpitemnumber = \totalpitemnumber%
+    \else  \totalpitemnumber = \numexpr\currentpitemnumber-1\relax%
+    \fi%遞歸出總序號
+    \setdataset [Problem_collector]%
+    [\namedheadnumber{chapter}-\rawcountervalue[Unicode_toplevel]]%收集答案並在未來展開
+                [totalpitemnumber={\the\totalpitemnumber},
+                 totalpitempoint={\number\cnt_step_point},]
 	\stopitemgroup\endgroup}
 
 \setupquestion [showpoint=false,
@@ -634,7 +570,7 @@
                   symalign=,
                     symbol=,
                  itemalign=,
-                       way=bysection,%wont work if continue on
+                       way=bychapter,%wont work if continue on
           numberconversion=n,]
 \inherit_itemgroup_option[question]
 %\inherit_itemgroup_option_s[question]
@@ -648,7 +584,7 @@
                   [\questionparameter{numberconversion},#1]%
                   [#1]%
 	\else\startitemgroup[env_question]%
-                  [\questionparameter{numberconversion},         #1]%
+                  [\questionparameter{numberconversion},#1]%
                   [start=\questionparameter{start},#1]%
    \fi\item%
    \show_point_or_answer[question][point]%
@@ -671,6 +607,7 @@
                      right={},
                    stopper={.~},
                   distance=.5em,
+                    option={packed,joinedup,nowhite},
                     before=,
                      after=,
                      width=1em,
@@ -686,18 +623,18 @@
 \def\startchoice{\dosingleempty\startchoice_indeed}
 \def\startchoice_indeed[#1]{\begingroup%
     \env_choicetrue\current_env_check%
-    \incrementcounter[Unicode]%
+    \increaseQusetionID%
     \doifelsesomething{\datasetvariable{Choice_collector}%
-    	              {\rawcountervalue[Unicode]}{totalchoicenumber}}% arg_1
+    	              {\QusetionID}{totalchoicenumber}}% arg_1
        {\scratchcounter\datasetvariable{Choice_collector}%
-                      {\rawcountervalue[Unicode]}{totalchoicenumber}}% arg_2
+                      {\QusetionID}{totalchoicenumber}}% arg_2
                       {\scratchcounter\zerocount}% arg_3
     \newcount\current_total_choice_number% 當前選項 ABCD 總計數
     \current_total_choice_number=\number\scratchcounter\relax%
     \doifelsesomething{\datasetvariable{Choice_collector}
-                      {\rawcountervalue[Unicode]}{availablecolumns}}%
+                      {\QusetionID}{availablecolumns}}%
        {\scratchcounter\datasetvariable{Choice_collector}
-                      {\rawcountervalue[Unicode]}{availablecolumns}}%
+                      {\QusetionID}{availablecolumns}}%
                       {\scratchcounter\zerocount}%
     \newcount\current_available_columns%可排版的最多列數
     \current_available_columns=\number\scratchcounter\relax%
@@ -732,7 +669,7 @@
                    [#1]%
     \totalchoicenumber=0\relax%
     \currentchoicenumber=0\relax%
-    \setcounter   [totalchoicenumber] [0]% recalculator when startitemgroup
+    \setcounter   [totalchoicenumber]   [0]% recalculator when startitemgroup
     \setcounter   [currentchoicenumber] [0]% recalculator when startitemgroup
     \set_count_envlevel[env_choice:1][choice]}
 
@@ -748,9 +685,7 @@
     \restorecounter[currentchoicenumber]%恢復答案所在序號
     \newcount\tempa       \tempa      =\dimtonum{.8\textwidth}\relax%
     \newcount\tempb       \tempb      =\dimtonum{\the\width_max_with_label}\relax%
-    \newcount\ChoiceOrder \ChoiceOrder=\rawcountervalue[Unicode]\relax%
-    \setdataset [Choice_collector][\rawcountervalue[Unicode]][%收集選項信息
-                 id={\number\ChoiceOrder},
+    \setdataset [Choice_collector][\QusetionID][%收集選項信息
                  availablecolumns={\number\numexpr \tempa / \tempb\relax},
                  itemmaxwidth={\the\width_cit_max},
                  totalchoicenumber={\number\totalchoicenumber},
@@ -822,17 +757,25 @@
 \def\startpitem{\dosingleempty\startpitem_indeed}
 \def\startpitem_indeed[#1]{\begingroup%
     \item_pitemtrue\current_env_check%
-    \incrementcounter[Unicode]%
+    \increaseQusetionID%
 	\iffirstargument\setuppitem[#1]\fi%
     \startitem%
+    	\ifnum\currentpitemnumber=0\currentpitemnumber=1\relax%
+		\else\relax\fi%
         \show_point_or_answer[pitem][point]%
         \show_point_or_answer[pitem][answer]%
     \set_count_itemlevel[env_problem:2][pitem]%
+    \global\cnt_step_point_temp=\pitemparameter{point}\relax%
+    \ifnum\cnt_step_point=0%
+		\global\cnt_step_point=\cnt_step_point_temp\relax%
+	\else%
+		\global\cnt_step_point=\numexpr\cnt_step_point+\cnt_step_point_temp\relax%
+	\fi
 }
 
 \def\stoppitem{%
 	\dataset_collector[pitem][pitem]%
-	\stopitem\endgroup}
+	\stopitem\global\advance\currentpitemnumber by 1\relax\endgroup}
 
 \def\correct_choice#1#2{%
     \doif{#1}{*}{%
@@ -853,8 +796,10 @@
 \def\startcitem{\dodoubleempty\startcitem_indeed}
 \def\startcitem_indeed[#1][#2]#3\stopcitem{%
     \ifsecondargument\setupcitem[#2]\fi%
-    \get_citem_text[#3]%
-    \set_count_itemlevel[env_choice:2][citem]%
+    \get_citem_text[#3]
+%    \set_count_itemlevel[env_choice:2][citem]
+%    没有必要计算子选项的 id，choice 环境的 id 就已经足够了。
+%    同时也已经有 totalchoicenumber 来获取子选项的数量了。
     \doif{#1}{*}{\choice_checktrue}%
     \ifconditional\c_strc_itemgroups_horizontal% mode_horizontal
        \ifnum\currentchoicenumber<1%
@@ -969,9 +914,9 @@
 	\doif{\fillinparameter\c!type}{void}    {\let\dofillin_temp\dofillin_indeed_rule}%
 	\ifsecondargument\setupfillin[#1]%
 		\dofillin_temp[#1][#2]%
-		\setdataset[Fillin_collector][\rawcountervalue[Unicode]][answer={#2}]%
+		\setdataset[Fillin_collector][\QusetionID][answer={#2}]%
 	\else\dofillin_temp[][#1]%
-    	\setdataset[Fillin_collector][\rawcountervalue[Unicode]][answer={#1}]\fi%
+    	\setdataset[Fillin_collector][\QusetionID][answer={#1}]\fi%
 	\ifmode_showanswer\setupfillin[empty=no]%
 	\else\setupfillin[empty=yes]\fi%
 	\fillinparameter\c!after%
@@ -1084,16 +1029,18 @@
 	}
 \def\placeclosechoice{%
 	\ifnum\cnt_closetest=1\relax%
-	\color[red]{it seems that there is no "closechoice" be setted,please check it!}\fi
+	\color[red]{it seems that there is no "closechoice" be setted,please check it!}\fi%
 	\newcount\cnt_closetest_temp\cnt_closetest_temp=1\relax%
+	\def\closetest_list{\csname close:\romannumerals\cnt_closetest_temp\endcsname}%
+	\useclosestyleandcolor\c!style\c!color%
 	\dorecurse{\numexpr\cnt_closetest-1\relax}{%
-		\hangafter 1
-		\hangindent \dimexpr\closeparameter\c!width + \closeparameter\c!distance\relax
-		\startchoice%
-			\useclosestyleandcolor\c!style\c!color%
-			\close_order
-			\processcommacommand[\csname close:\romannumerals\cnt_closetest_temp\endcsname]\docloseitem%
-		\stopchoice%
+		\hbox{\hsize=\textwidth%
+			\hbox{\close_order}\hbox{%
+			\vtop{%
+				\startchoice%
+					\processcommacommand[\closetest_list]\docloseitem%
+				\stopchoice%
+			}}}%
 		\advance\cnt_closetest_temp by 1\relax}%
 	\cnt_closetest=1\relax%
 }
@@ -1205,6 +1152,233 @@
 %score\score[type=dotfill]{30}\\
 %\reset_score\\
 %score\score[type=cdotfill]{30}\\
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\dorecurse{200}{
+\expandafter\getrandomnumber \csname n_\romannumeral\recurselevel\endcsname  {1} {20}}
+
+\dorecurse{200}{
+\expandafter\getrandomnumber \csname nn_\romannumeral\recurselevel\endcsname {1} {20}}
+
+\def\longtesttxt[#1]{%%1. \longtesttxt[\romannumeral 1]
+	\ifcase\csname n_#1\endcsname%
+		就像按 S 来响应错误一样。\or%0
+		这个例子不太完整，因为页码没有存储在有用的地方。\or%1
+		TeX 处理数学显示后，它将以下项目添加到当前垂直列表中： 惩罚、胶水、实际显示、胶水和惩罚。\or%2
+		然而，它显示了一种增加或减少计数器的方法，并设置数字中的数字或相当于数字的罗马数字中的字母。\or%3
+		基本问题是 “对 TeXbook 的页面引用应该如何出现在参考页面的描述区域中？” 这个例子显示了三种可能性。\or%4
+		正如 TeX 不会随机连字符单词一样，它也不会在段落中的行之间随机打断数学表达式。\or%5
+		TeX 仅考虑在关系（例如 = 或 < ）或二进制操作（例如 + 或 × ）之后进行中断。\or%6
+		此命令提供对当前字体中所有字符的访问。号码应该在 0 -- 255 范围内。\or%7
+		Junkjunk.tex文件不包含任何有用的东西，但这些行说明了一种读取辅助文件的方法。\or%8
+		此命令将框寄存器中的列表副本添加到当前列表中。\or%9
+		请注意，每个寄存器在创建后都会被初始化。\or%0
+		此命令提供了一种直接指定分隔符的方法。\or%1
+		数字应该是七个十六进制数字。\or%2
+		它的前导数字必须在 0-7 范围内。该数字用作类号，其余六位数字用作 \type{\delcode} 值。\or%3
+		Plain TeX 有二十多个定义，类似于：`\type{\def\rceil{\delimiter"5265307 }}'。\or%4
+		这个定义意味着 \type{\rceil} 在家庭5（关闭），其小形式在家庭2位置"65，其大形式在家庭3位置"07"。\or%5
+		\type{\Delimiter} 指定了一个数学符号，并以两种方式工作。\or%6
+		当 TeX 寻找分隔符时（例如，在 \type{\left} 之后），它忽略了类数字，并使用剩余的六位数字作为 \type{\delcode}。\or%7
+		但是，当分隔符在其他上下文中出现时，右三位数字被删除，其余四位数字成为符号的 \type{\mathcode}。\or%8
+		对于 \type{\rceil}，这意味着 \type{\delcode} 是"265307，\type{\mathcode} 是"5265"。\or%9
+		它首先计算子公式在轴上方和下延伸的距离。接下来，它使 y 等于刚刚计算的最大距离的两倍。\fi}
+
+\def\shorttesttxt[#1]{%%1. \shorttesttxt[i]
+	\ifcase\csname nn_#1\endcsname%
+		悬挂压痕的数量\or%0
+		段落中正线的宽度\or%1
+		开始一个没有缩进的新段落\or%2
+		告诉TeX尝试增加或减少段落中的行数\or%3
+		扩展令牌，但在到达非空间令牌之前什么都不做\or%4
+		只有当主垂直列表为空时，它才会结束当前工作\or%5
+		该命令在内部垂直模式下是不允许的\or%6
+		任意中断由三个字符序列组成\or%7
+		另一个无效号码被传递了\or%8
+		来自假部分的条件命令\or%9
+		线路需要转移的金额\or%0
+		用于指定显示样式\or%1
+		关系后断线的惩罚\or%2
+		此命令定义了宏\or%3
+		家庭的脚本字体\or%4
+		尺寸没有变化\or%5
+		额外的空间\or%6
+		左边的段落\or%7
+		当前线宽\or%8
+		文本样式\or%9
+		序列\fi}
+
+\def\choicenum[#1][#2][#3]{
+	\ifnum\csname nn_#1\endcsname < 6
+		\expandafter\startcitem[*]{\shorttesttxt[\romannumeral #2]}  \stopcitem
+	\else
+		\expandafter\startcitem{\shorttesttxt[\romannumeral #3]}  \stopcitem
+	\fi
+}
+
+\newcount\LNUM\LNUM=1\relax
+\newcount\CNUM\CNUM=1\relax
+\newcount\DNUM\DNUM=1\relax
+\newcount\ENUM\ENUM=2\relax
+
+\def\example@choice#1{
+    \setupquestion[showanswer=true,showpoint=true,point=2,answer=\getanswerfromchoice]
+    \dorecurse{#1}{
+    	\startquestion
+    	\longtesttxt[\romannumeral\LNUM]\global\advance\LNUM by 1\relax
+            \startchoice
+            \choicenum[\romannumeral\CNUM][\the\DNUM][\the\ENUM]
+            \global\advance\CNUM by 1\relax\global\advance\DNUM by 2\relax\global\advance\ENUM by 2\relax
+            \choicenum[\romannumeral\CNUM][\the\DNUM][\the\ENUM]
+            \advance\CNUM by 1\relax\advance\DNUM by 1\relax\advance\ENUM by 2\relax
+            \choicenum[\romannumeral\CNUM][\the\DNUM][\the\ENUM]
+            \advance\CNUM by 1\relax\advance\DNUM by 1\relax\advance\ENUM by 2\relax
+            \choicenum[\romannumeral\CNUM][\the\DNUM][\the\ENUM]
+            \advance\CNUM by 1\relax\advance\DNUM by 1\relax\advance\ENUM by 2\relax
+            \stopchoice
+            \startanswer
+            \input knuthmath
+            \stopanswer
+    \stopquestion}
+}
+\def\example@fillin#1{
+    \setupquestion[showanswer=false,answer=,showpoint=true,point=\getpointfrompitem]
+    \setuppitem[showanswer=true,showpoint=true,point=3,answer=\getanswerfromfillin]
+    \startquestion
+    	\longtesttxt[\romannumeral\LNUM]
+    	\def\fillinanswer{\shorttesttxt[\romannumeral\CNUM]}
+    	\startproblem
+    	\dorecurse{#1}{
+    		\startpitem \longtesttxt[\romannumeral\CNUM] \fillin[][\fillinanswer]\stoppitem
+    		\startanswer
+            	\input knuthmath
+            \stopanswer
+    		\global\advance\CNUM by 1\relax}
+    	\stopproblem
+    	\stopquestion
+}
+\def\example@pitem#1{
+    \setupquestion[showpoint=true,showanswer=false,answer=,point=\getpointfrompitem]
+    \setuppitem[showanswer=true,point=4,]
+    \startquestion
+    	\longtesttxt[\romannumeral\LNUM]
+    	\def\fillinanswer{\shorttesttxt[\romannumeral\CNUM]}
+    	\startproblem
+    	\dorecurse{#1}{
+    		\startpitem[answer={answer : \recurselevel},]\longtesttxt[\romannumeral\CNUM]\stoppitem 
+    		\startanswer
+            	\input knuthmath
+            \stopanswer
+    		\global\advance\CNUM by 1\relax}
+    	\stopproblem
+    	\stopquestion
+}
+\def\example@material#1{
+    \startmaterial
+    \input knuthmath
+    \stopmaterial
+    \setupquestion[showanswer=true,showpoint=true,point=6,answer=\getanswerfromchoice]
+    \dorecurse{#1}{
+    	\startquestion
+    	\longtesttxt[\romannumeral\LNUM]\global\advance\LNUM by 1\relax
+            \startchoice
+            \choicenum[\romannumeral\CNUM][\the\DNUM][\the\ENUM]
+            \global\advance\CNUM by 1\relax%
+            \global\advance\DNUM by 2\relax%
+            \global\advance\ENUM by 2\relax%
+            \choicenum[\romannumeral\CNUM][\the\DNUM][\the\ENUM]
+            \advance\CNUM by 1\relax%
+            \advance\DNUM by 1\relax%
+            \advance\ENUM by 2\relax%
+            \choicenum[\romannumeral\CNUM][\the\DNUM][\the\ENUM]
+            \advance\CNUM by 1\relax%
+            \advance\DNUM by 1\relax%
+            \advance\ENUM by 2\relax%
+            \choicenum[\romannumeral\CNUM][\the\DNUM][\the\ENUM]
+            \advance\CNUM by 1\relax%
+            \advance\DNUM by 1\relax%
+            \advance\ENUM by 2\relax%
+            \stopchoice
+            \startanswer
+            	\input knuthmath
+            \stopanswer
+    \stopquestion}
+}
+\def\example@close#1{
+    \startclose
+    \def\closechoicex{\shorttesttxt[\romannumeral\DNUM]\global\advance\DNUM by 1\relax}
+    \dorecurse{#1}{
+        \dorecurse{3}{
+        	\longtesttxt[\romannumeral\CNUM]
+    		\global\advance\CNUM by 1\relax
+    		}\closechoice[\closechoicex,{[*]\closechoicex},\closechoicex]
+    	\longtesttxt[\romannumeral\CNUM]}
+    \stopclose
+}
+
+%\dorecurse{30}{\typeanswerbychap{1}\par}
+%\resetanswerid%
+%\dorecurse{30}{\typeanswerbychap{2}\par}
+%\resetanswerid
+%\noindent\typeanswerlist[1][6]{30}
+%\resetanswerid
+%\noindent\typeanswerlist[2][6]{30}
+%\type@answer@i[6*5,1,28]
+
+\newcount\qid_in_chap\qid_in_chap=1\relax
+\def\resetanswerid{\qid_in_chap=1\relax}
+\def\typeanswerbychap{\dosingleempty\typeanswerbychap_indeed}
+\def\typeanswerbychap_indeed[#1]#2{% #1 = chapter number，該命令會自行遞增計數器來獲取答案
+	\iffirstargument\qid_in_chap=#1\relax\fi%
+	\datasetvariable{Answer_collector}{#2-\the\qid_in_chap}{answer}%
+	\advance\qid_in_chap by 1\relax}
+\def\typeanswerdirect#1{% #1 = \qid，需要自行輸入來獲取某個題目的答案
+	\datasetvariable{Answer_collector}{#1}{answer}}
+\def\typeanswerlist{\dodoubleempty\typeanswerlist_indeed}
+\def\typeanswerlist_indeed[#1][#2]#3{%#1 = chapter number
+	\ifsecondargument\qid_in_chap=#2\fi% #2 = from which question to start
+	\dorecurse{#3}{% answer amount
+		\datasetvariable{Answer_collector}{#1-\the\qid_in_chap}{answer}%
+	\advance\qid_in_chap by 1\relax}
+}
+
+\newcount\answer@seq@tempa\answer@seq@tempa=0\relax%
+\newcount\answer@seq@tempb\answer@seq@tempb=0\relax%
+\newcount\answer@seq@tempc
+\def\type@answer@i[#1*#2,#3,#4]{% #1 for row #2 for column %
+                                % #3 chapter number #4 last answer id%
+	\answer@seq@tempc=\numexpr#4-1\relax%
+    \bTABLE
+    	\dorecurse{#1}{\bTR
+    		\dorecurse{#2}{%
+				\ifnum\answer@seq@tempa>\answer@seq@tempc \bTD\eTD\relax\else%
+            	\advance\answer@seq@tempa by 1\relax%
+                \expanded{\bTD
+                	\datasetvariable{Answer_collector}{#3-\the\answer@seq@tempa}{order}
+			\eTD}\fi}
+    	\eTR\bTR
+    		\dorecurse{#2}{%
+			    \ifnum\answer@seq@tempb>\answer@seq@tempc \bTD\eTD\relax\else%
+				\advance\answer@seq@tempb by 1\relax%
+    	    	\expanded{\bTD
+    				\datasetvariable{Answer_collector}{#3-\the\answer@seq@tempb}{answer}
+    		\eTD}\fi}
+    	\eTR}
+    \eTABLE
+}
+
+\def\type@answer@ii{
+\answer_seq=0\relax
+\bTABLE
+\dorecurse{4}{\bTR
+	\dorecurse{5}{
+        \advance\answer_seq by 1\relax%
+            \expanded{\bTD\the\answer_seq\eTD}
+			\expanded{\bTD
+				\datasetvariable{Answer_collector}{\the\answer_seq}{answer}
+		\eTD}}
+\eTR}
+\eTABLE}
+%\type@answer@i{4}{5}{18}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % warning: conditional must put after env defination
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
