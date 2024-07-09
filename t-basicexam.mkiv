@@ -21,6 +21,15 @@
     Please check your code.\\
     }\stopalignment
     \endgroup}
+%%%% 2UP Printing %%%%%%%%
+%%%% \setuppapersize[user pagesize][real pagesize,real orientation]
+%%%% \setuparranging[page arrange method]
+%%%% more info : https://wiki.contextgarden.net/Command/setuparranging
+%%%%             https://wiki.contextgarden.net/Imposition
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\setuppapersize[A4][A3,landscape]
+%\setuparranging[2SIDE]%[2UP]
+%\setuppagenumbering[alternative=singlesided]%{doublesided}]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   EXAM MODULE   %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -32,7 +41,7 @@
 %% \def\foo#1
 %%     { .. some word ...}         \foo{..} 将导致失败
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 注意 ⚠️ 
+%% 注意 ⚠️
 %% 在 lua 中使用 循环 等结构时，要注意 % 百分比符号的使用。不可以直接在关键字后
 %% 使用。会导致运行出错：'do' expected near 'docontext' 等消息。
 %% for i > 10 do % do 和 % 号之间有空格，  会正常运行
@@ -75,7 +84,7 @@
 \setuplabeltext [cn] [section={第,部分},subsection={第,节},]
 
 \definehead [tu]   [chapter]       % you latin
-\definehead [ego]  [section]       % me  latin 
+\definehead [ego]  [section]       % me  latin
 \definehead [isea] [subsection]    % he or she latin
 \definehead [heu]  [subsubsection] % och
 \setuphead  [tu]   [incrementnumber=yes,number=no,placehead=no,page=odd]
@@ -83,7 +92,7 @@
 \setupheads [isea] [numbercommand=]
 \setupheads [tu,ego,isea]
                    [indentnext=yes,align=flushleft,
-                   before={\blank[quarterline]}, 
+                   before={\blank[quarterline]},
                    after={\blank[quarterline]},
                    sectionconversionset=examnum]
 \setuphead  [ego]   [style=\ssa]
@@ -95,8 +104,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \let\setuppapertitle\setgvariables
 \def\definepapertitle[#1]{%
-	\gdef\currentpapertitle{#1}%
-	\setuppapertitle[\currentpapertitle][
+  \gdef\currentpapertitle{#1}%
+  \setuppapertitle[\currentpapertitle][
                        n=5,              % 定义需要在试卷标题处需要显示多少元素，
                     typi=secret,         % 同时，自动定义相应数量的元素命令
                    typii=title,          % 使用typi typii typiii typiv ...
@@ -150,20 +159,20 @@
 
 \definedataset[papertitle]% use dataset can get tu defined after placetocexam
 \def\currentpapertitletitle#1{
-	\setdataset[papertitle][#1][title=\getvariable{#1}{title}]
-	\tu{\datasetvariable{papertitle}{#1}{title}}
+  \setdataset[papertitle][#1][title=\getvariable{#1}{title}]
+  \tu{\datasetvariable{papertitle}{#1}{title}}
 }
 
 \def\makepapertitle[#1]{\begingroup%
-	\setupindenting[no]%
-	\vbox{\newcount\num_element \num_element=1%start vbox
-	\doifnot{\getvariable{#1}{title}}{}%
-		{\currentpapertitletitle{#1}}%
-	\dorecurse{\getvariable{#1}{n}}%start recurse
-		{\doifemptyelsex{\getvariable{#1}{vspacetyp\romannumeral\num_element}}{}
-    	{\definevariable[#1][\getvariable{#1}{typ\romannumeral\num_element}]}
-	\advance\num_element by 1\relax}%stop recurse
-	}%stop vbox
+  \setupindenting[no]%
+  \vbox{\newcount\num_element \num_element=1%start vbox
+  \doifnot{\getvariable{#1}{title}}{}%
+    {\currentpapertitletitle{#1}}%
+  \dorecurse{\getvariable{#1}{n}}%start recurse
+    {\doifemptyelsex{\getvariable{#1}{vspacetyp\romannumeral\num_element}}{}
+      {\definevariable[#1][\getvariable{#1}{typ\romannumeral\num_element}]}
+  \advance\num_element by 1\relax}%stop recurse
+  }%stop vbox
 \endgroup}
 %%%%%%%
 \installnamespace          {question}
@@ -231,6 +240,7 @@
 
 \newdimen\width_cit
 \newdimen\width_cit_max
+\newdimen\choice_max_compared_width%
 \newcount\totalchoicenumber%
 \newcount\currentchoicenumber%
 \newcount\totalpitemnumber%
@@ -264,7 +274,7 @@
 \defineoverlay     [normalframeOL]
                    [\useMPgraphic{normalframeMP}]
 \startuseMPgraphic{normalframeMP}
-	draw unitsquare xyscaled (\overlaywidth, \overlayheight)
+  draw unitsquare xyscaled (\overlaywidth, \overlayheight)
 \stopuseMPgraphic
 \startuseMPgraphic{rules:under:wave}
     vardef lsin primary x =
@@ -292,14 +302,14 @@
 
 \def\show_check_info{\par\framed[width=\textwidth,align=flushleft]%
                      {\answer_id\ ** \answer_envid\ ** \answer_order\ ** \answer_userorder}\par}
-         
+
 \def\show_check_infos{\par\leftskip 0pt\relax\noindent%
-	\framed[align=flushleft]{\language[en]%
-		\hfil {\bf NOTICE: MODE CHECK IS ON}          \hfil\par
-		\hfil currentitemgroup:{\bf\currentitemgroup} \hfil\par
-		\hfil Notice,{\bf Cinfos} only show choice env information \hfil\par
-		\starttabulate[|rp(.2\textwidth)|lp(.25\textwidth)|rp(.2\textwidth)|lp(.25\textwidth)|lwlB|]
-			\NC {\bf Name} \NC {\bf Content}           \NC     {\bf Cinfos}  \NC {\bf Content}  \NC\NR\HL
+  \framed[align=flushleft]{\language[en]%
+    \hfil {\bf NOTICE: MODE CHECK IS ON}          \hfil\par
+    \hfil currentitemgroup:{\bf\currentitemgroup} \hfil\par
+    \hfil Notice,{\bf Cinfos} only show choice env information \hfil\par
+    \starttabulate[|rp(.2\textwidth)|lp(.25\textwidth)|rp(.2\textwidth)|lp(.25\textwidth)|lwlB|]
+      \NC {\bf Name} \NC {\bf Content}           \NC     {\bf Cinfos}  \NC {\bf Content}  \NC\NR\HL
             \NC CUparen    \NC \currentparentitemgroup \NC     CUCmaxwidth   \NC \choice_itemmaxwidth       \NC\NR
             \NC CUitemlevel\NC \currentitemlevel       \NC                   \NC                            \NC\NR
             \NC CUorder    \NC \currentorder           \NC     totalCnumber  \NC \choice_totalchoicenumber  \NC\NR
@@ -317,11 +327,11 @@
 \def\floorhelphelper#1#2.{\ifnum#2>0%
     \floorhelphelphelper#1\relax\relax\relax\else#1\fi}
 \def\floorhelphelphelper#1#2\relax{%
-	\if-#1\relax-\cnt_floor=0#2\relax%
-	\advance\cnt_floor by 1\relax%
-	\number\cnt_floor\relax%
-	\else\cnt_floor=0#1#2\relax%
-	\number\cnt_floor\relax\fi%
+  \if-#1\relax-\cnt_floor=0#2\relax%
+  \advance\cnt_floor by 1\relax%
+  \number\cnt_floor\relax%
+  \else\cnt_floor=0#1#2\relax%
+  \number\cnt_floor\relax\fi%
 }
 \directlua{MultiAnswerCollector = {}}
 \def\collect#1{%if want show collect,show #1
@@ -332,7 +342,7 @@
 }}
 
 \def\current_env_check{% can get \current_env_item
-	\ifenv_question  \def\current_env_item{question}\fi
+  \ifenv_question  \def\current_env_item{question}\fi
     \ifenv_problem   \def\current_env_item{problem}\fi
     \ifenv_choice    \def\current_env_item{choice}\fi
     \ifenv_material  \def\current_env_item{material}\fi
@@ -399,7 +409,7 @@
 %%% userorder 當前列表序號(可獲取被start更改後的序號)
 
 \def\dataset_collector[#1][#2]{%#1 where answer from %% #2 user id for the env
-	\def\currentenvironment{\current_env_item}
+  \def\currentenvironment{\current_env_item}
     \setdataset [Answer_collector][\QusetionID]%收集答案並在未來展開
                 [id={\QusetionID},%
                  envid={\currentitemgroup},%
@@ -410,11 +420,11 @@
                  totalnumber={\the\totalpitemnumber},]}
 
 \def\pass_parameter_answer{%
-	\ifenv_choice\get_choice_answer\else%
-	\check_env_answer[pitem]\fi}
+  \ifenv_choice\get_choice_answer\else%
+  \check_env_answer[pitem]\fi}
 
 \def\check_env_answer[#1]{
-	\doifelsesomething{\csname #1parameter\endcsname{answer}}{}{%
+  \doifelsesomething{\csname #1parameter\endcsname{answer}}{}{%
        There is no \color[red]{\tta #1 answer} value.
      }{\csname #1parameter\endcsname{answer}}%
 }
@@ -425,15 +435,15 @@
     {\datasetvariable{Choice_collector}{#1}{answer}}%
     {There is no \color[red]{\tta Choice answer} value.}}
 \def\get_choice_answer{\increaseQusetionID%
-	\get_choice_answer_num{\QusetionID}
-	\decrementcounter[Unicode]}
+  \get_choice_answer_num{\QusetionID}
+  \decrementcounter[Unicode]}
 \def\get_fillin_answer{%
-	\datasetvariable{Fillin_collector}{\QusetionID}{answer}%
+  \datasetvariable{Fillin_collector}{\QusetionID}{answer}%
 }
 
 \def\get_pitem_point{%
-	\def\ProblemID{\namedheadnumber{chapter}-\nextcountervalue[Unicode_toplevel]}%
-	\datasetvariable{Problem_collector}{\ProblemID}{totalpitempoint}}
+  \def\ProblemID{\namedheadnumber{chapter}-\nextcountervalue[Unicode_toplevel]}%
+  \datasetvariable{Problem_collector}{\ProblemID}{totalpitempoint}}
 
 \let\getanswerfromchoice\get_choice_answer
 \let\getanswerfromfillin\get_fillin_answer
@@ -442,37 +452,37 @@
 
 %%%%% NOTICE : 目前，當用戶主動輸入值和選項值發生衝突時，並未設置警告信息!!!!
 \def\getanswerforanswer{% used for answer env to auto get answer
-	\datasetvariable{Answer_collector}{\QusetionID}{answer}}
+  \datasetvariable{Answer_collector}{\QusetionID}{answer}}
 \def\getpointforanswer{% used for answer env to auto get answer
-	\datasetvariable{Answer_collector}{\QusetionID}{point}}
+  \datasetvariable{Answer_collector}{\QusetionID}{point}}
 
 \def\check_choice_answerstatus{
     \ifchoice_check checked!%
     \else%
-    	\color[red]{unchecked!}\\
-	    The current answer is auto-generated, \\
-	    please set the answer manually. \\
-	    The concise way to do this is to \\
-	    add \[*\] parameter to {\tt citem} command.\\
-	\fi}
+      \color[red]{unchecked!}\\
+      The current answer is auto-generated, \\
+      please set the answer manually. \\
+      The concise way to do this is to \\
+      add \[*\] parameter to {\tt citem} command.\\
+  \fi}
 
 \def\show_point_or_answer[#1][#2]{\begingroup%#1 parameter %#2 modename
-	\processaction[\csname #1parameter\endcsname{show#2}][%
-	               true=>\csname mode_show#2true\endcsname,%
-	               false=>\csname mode_show#2false\endcsname,]%
-	\doifelse{\csname #1parameter\endcsname{show#2}}{true}
-         	 {\csname mode_show#2true\endcsname%
-            			\csname #1parameter\endcsname{#2style}%
-            			\switchtocolor[\csname #1parameter\endcsname{#2color}]%
-                 	\paren{\csname #1parameter\endcsname{#2}\ %
-                       	   \csname #1parameter\endcsname{#2label}}%
-	 		 }{\csname mode_show#2false\endcsname}%
-	\endgroup}
+  \processaction[\csname #1parameter\endcsname{show#2}][%
+                 true=>\csname mode_show#2true\endcsname,%
+                 false=>\csname mode_show#2false\endcsname,]%
+  \doifelse{\csname #1parameter\endcsname{show#2}}{true}
+            {\csname mode_show#2true\endcsname%
+                  \csname #1parameter\endcsname{#2style}%
+                  \switchtocolor[\csname #1parameter\endcsname{#2color}]%
+                   \paren{\csname #1parameter\endcsname{#2}\ %
+                            \csname #1parameter\endcsname{#2label}}%
+        }{\csname mode_show#2false\endcsname}%
+  \endgroup}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \def\inherit_itemgroup_option[#1]{
-	            \setupcounter[itemgroup:env_#1]
-	               [way=\csname #1parameter\endcsname{way}]
+              \setupcounter[itemgroup:env_#1]
+                 [way=\csname #1parameter\endcsname{way}]
                 \setupitemgroup[env_#1]%[packed,joinedup,nowhite]
                    [ left=\csname #1parameter\endcsname{left},
                     right=\csname #1parameter\endcsname{right},
@@ -493,7 +503,7 @@
                       ]%
 }
 \def\inherit_itemgroup_option_s[#1]{
-    \setupitemgroup[env_#1] 
+    \setupitemgroup[env_#1]
                    [start=\csname #1parameter\endcsname{start},]
 }
 \setupproblem  [      left={},  %%%%% follow is itemize option
@@ -516,17 +526,17 @@
 
 \def\startproblem{\dosingleempty\startproblem_indeed}
 \def\startproblem_indeed[#1]{\begingroup%
-	\env_problemtrue\current_env_check%
-	\iffirstargument\setupproblem[#1]\fi%
-	\startitemgroup[env_problem]%
+  \env_problemtrue\current_env_check%
+  \iffirstargument\setupproblem[#1]\fi%
+  \startitemgroup[env_problem]%
                    [\problemparameter{numberconversion},#1]%
                    [#1]%
 %   \show_point_or_answer[problem][point]% no need to show this
 %   \show_point_or_answer[problem][answer]%
-	\currentpitemnumber=0\relax%
-	\cnt_step_point=0\relax%
-	\cnt_step_point_temp=0\relax%
-	\set_count_envlevel[env_problem:1][problem]}
+  \currentpitemnumber=0\relax%
+  \cnt_step_point=0\relax%
+  \cnt_step_point_temp=0\relax%
+  \set_count_envlevel[env_problem:1][problem]}
 
 \def\stopproblem{%\dataset_collector[pitem][problem]% should be deleted maybe?
     \ifnum \totalpitemnumber > \currentpitemnumber%
@@ -537,7 +547,7 @@
     [\namedheadnumber{chapter}-\rawcountervalue[Unicode_toplevel]]%收集答案並在未來展開
                 [totalpitemnumber={\the\totalpitemnumber},
                  totalpitempoint={\number\cnt_step_point},]%
-	\stopitemgroup\endgroup}
+  \stopitemgroup\endgroup}
 
 \setupquestion [showpoint=false,
                     point=,
@@ -570,10 +580,10 @@
     \env_questiontrue\current_env_check%
     \iffirstargument\setupquestion[#1]\fi%
     \ifempty{\questionparameter{start}}% 避免 continue 和 start 属性冲突
-		\startitemgroup[env_question]%
+    \startitemgroup[env_question]%
                   [\questionparameter{numberconversion},continue,#1]%
                   [#1]%
-	\else\startitemgroup[env_question]%
+  \else\startitemgroup[env_question]%
                   [\questionparameter{numberconversion},#1]%
                   [#1]%
    \fi\item[\questionparameter\c!reference]%
@@ -583,8 +593,12 @@
    \unskip}
 
 \def\stopquestion{%\dataset_collector[question][question]%
-	\stopitemgroup\endgroup}
+  \stopitemgroup\endgroup}
 
+
+% maxiwidth key is for calcaluted max width of choice and waited to be compare，
+% notice this key is maxiwidth ,and difference from maxwidth which
+%        for setupitemgroup command
 \setupchoice       [showpoint=true,
                     point=4,
                pointstyle=,
@@ -601,6 +615,7 @@
                     before=,
                      after=,
                      width=1em,
+                  maxiwidth=.8\textwidth,
                      start=1,
                      align=,
                  indenting=no,
@@ -615,7 +630,7 @@
     \env_choicetrue\current_env_check%
     \increaseQusetionID%
     \doifelsesomething{\datasetvariable{Choice_collector}%
-    	              {\QusetionID}{totalchoicenumber}}% arg_1
+                    {\QusetionID}{totalchoicenumber}}% arg_1
        {\scratchcounter\datasetvariable{Choice_collector}%
                       {\QusetionID}{totalchoicenumber}}% arg_2
                       {\scratchcounter\zerocount}% arg_3
@@ -629,13 +644,13 @@
     \newcount\current_available_columns%可排版的最多列數
     \current_available_columns=\number\scratchcounter\relax%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%    % if calc_horizontal_num >= tbl_cit_count 
+%    % if calc_horizontal_num >= tbl_cit_count
 %    %                                      set horizontal = tbl_cit_count
 %    % if calc_horizontal_num <  tbl_cit_count and tbl_cit_count ~= 1
 %    %                                  set horizontal = two % calc_horizontal_num
 %    % if calc_horizontal_num <  tbl_cit_count and tbl_cit_count == 1
-%    %                                      set horizontal = 1     
-%    % 特别的， 3 选项 且 可排版最大列数为 2 时，排版 1 行                            
+%    %                                      set horizontal = 1
+%    % 特别的， 3 选项 且 可排版最大列数为 2 时，排版 1 行
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \startluacode
     tbl_num_temp = {"one","two","three","four",
@@ -652,7 +667,7 @@
     else    available_columns_arg = "horizontal,two"
     end
     \stopluacode
-	\iffirstargument\setupchoice[#1]\fi%
+  \iffirstargument\setupchoice[#1]\fi%
     \startitemgroup[env_choice]%
                    [\choiceparameter{numberconversion},#1,%
                     \ctxlua{context(available_columns_arg,"")},]%
@@ -673,7 +688,8 @@
     \else  \totalchoicenumber = \currentchoicenumber%
     \fi%遞歸出總序號
     \restorecounter[currentchoicenumber]%恢復答案所在序號
-    \newcount\tempa       \tempa      =\dimtonum{.8\textwidth}\relax%
+  \choice_max_compared_width=\choiceparameter{maxiwidth}\relax%
+    \newcount\tempa       \tempa      =\dimtonum{\choice_max_compared_width}\relax%
     \newcount\tempb       \tempb      =\dimtonum{\the\width_max_with_label}\relax%
     \setdataset [Choice_collector][\QusetionID][%收集選項信息
                  availablecolumns={\number\numexpr \tempa / \tempb\relax},
@@ -684,23 +700,35 @@
     \stopitemgroup\endgroup}
 
 %%%%%%%
-\setupdescription   [env_answer_descr] 
+\setupdescription   [env_answer_descr]
                     [align=width, width=fit,
-                     closesymbol=,before=,after=,
-                     closecommand=,]
-\setuptextbackground[env_answer]  
-					[location=paragraph,width=local,
+                     before=,after=,]
+\setuptextbackground[env_answer]
+                    [location=paragraph,width=local,
                      leftoffset=1ex,rightoffset=1ex,
                      %topoffset=.5ex,bottomoffset=.5ex,
                      before={\leftskip=0pt\startnarrower
                             \blank[force,halfline]},
                      after={\blank[halfline]\stopnarrower},
-                     background=normalframeOL]
+                     background=\answerparameter\c!background,
+                     backgroundcolor=\answerparameter\c!backgroundcolor,
+                     corner=\answerparameter\c!corner,
+                     frame=\answerparameter\c!frame,
+                     framecolor=\answerparameter\c!framecolor,
+                     rulethickness=\answerparameter\c!rulethickness,
+                     ]
 
 
 \newdimen\label_width\label_width=2em\relax
-\setupanswer[showanswer=true, 
-			 showpoint=true,
+\setupanswer[
+             background=normalframeOL,
+             backgroundcolor=,
+             corner=,
+             frame=,
+             framecolor=,
+             rulethickness=,
+             showanswer=true,
+             showpoint=true,
              answer=\getanswerforanswer,
              point=\getpointforanswer,
              pointlabel={分},
@@ -710,38 +738,48 @@
              answercolor=\answerparameter{color},
              distance=-\label_width,
              style=\ss,
-             labelstyle=\bi, 
+             labelstyle=\bi,
              label={答案 : },
              before=,
              after=,
+             draftheight=5em,
+             draftcontent={},
+             draftbefore={},
+             draftafter={},
              indenting={first,always,2em},
              afteranswer={\par\indentation},]
 \def\startanswer   {\dosingleempty\dostartanswer}
 \def\dostartanswer[#1]#2\stopanswer{\begingroup%
-	\ifmode_showanswer%
-		\env_answertrue\current_env_check%
-		\iffirstargument\setupanswer[#1]\fi%
-		\answerparameter{before}%
-		\setwidthof{\answerparameter{labelstyle}%
+    \env_answertrue\current_env_check%
+    \iffirstargument\setupanswer[#1]\fi%
+    \answerparameter{before}%
+  \ifmode_showanswer%
+    \setwidthof{\answerparameter{labelstyle}%
                     \answerparameter{label}}\to\label_width
         \setupdescription [env_answer_descr][
-				    distance=\answerparameter\c!distance,
-				 closesymbol=\answerparameter\c!closesymbol,
-				closecommand=\answerparameter\c!closecommand,]
-    	\startenv_answer%
-    		\startenv_answer_descr{%
-    				\answerparameter{labelstyle}%
-    				\answerparameter{label}}
-				\hskip\label_width\relax
-    			\show_point_or_answer[answer][point]%
-    			\show_point_or_answer[answer][answer]%
-    			\answerparameter{afteranswer}%
-    			\useanswerstyleandcolor\c!style\c!color%
-    			\setupindenting[\answerparameter\c!indenting] #2
-    		\stopenv_answer_descr%
-    	\stopenv_answer%
-    	\answerparameter{after}%
-	\else\relax\fi%
+            distance=\answerparameter\c!distance,
+         closesymbol=\answerparameter\c!closesymbol,
+        closecommand=\answerparameter\c!closecommand,]
+      \startenv_answer%
+        \startenv_answer_descr{%
+            \answerparameter{labelstyle}%
+            \answerparameter{label}}
+        \hskip\label_width\relax
+          \show_point_or_answer[answer][point]%
+          \show_point_or_answer[answer][answer]%
+          \answerparameter{afteranswer}%
+          \useanswerstyleandcolor\c!style\c!color%
+          \setupindenting[\answerparameter\c!indenting] #2
+        \stopenv_answer_descr%
+      \stopenv_answer%
+  \else
+    \startenv_answer%
+      \answerparameter{draftbefore}%
+      \mbox{}\vbox to \answerparameter{draftheight}{\answerparameter{draftcontent}}\relax%
+      \answerparameter{draftafter}%
+    \stopenv_answer%
+  \fi%
+  \answerparameter{after}%
     \endgroup}
 
 \setuppitem    [showpoint=false,
@@ -757,29 +795,29 @@
 \def\startpitem_indeed[#1]{\begingroup%
     \item_pitemtrue\current_env_check%
     \increaseQusetionID%
-	\iffirstargument\setuppitem[#1]\fi%
+  \iffirstargument\setuppitem[#1]\fi%
     \startitem[\pitemparameter{reference}]%%
-    	\ifnum\currentpitemnumber=0\currentpitemnumber=1\relax%
-		\else\relax\fi%
+      \ifnum\currentpitemnumber=0\currentpitemnumber=1\relax%
+    \else\relax\fi%
         \show_point_or_answer[pitem][point]%
         \show_point_or_answer[pitem][answer]%
     \set_count_itemlevel[env_problem:2][pitem]%
     \global\cnt_step_point_temp=\pitemparameter{point}\relax%
     \ifnum\cnt_step_point=0%
-		\global\cnt_step_point=\cnt_step_point_temp\relax%
-	\else%
-		\global\cnt_step_point=\numexpr\cnt_step_point+\cnt_step_point_temp\relax%
-	\fi
+    \global\cnt_step_point=\cnt_step_point_temp\relax%
+  \else%
+    \global\cnt_step_point=\numexpr\cnt_step_point+\cnt_step_point_temp\relax%
+  \fi
 }
 
 \def\stoppitem{%
-	\dataset_collector[pitem][pitem]%
-	\stopitem\global\advance\currentpitemnumber by 1\relax\endgroup}
+  \dataset_collector[pitem][pitem]%
+  \stopitem\global\advance\currentpitemnumber by 1\relax\endgroup}
 
 \def\correct_choice#1#2{%
     \doif{#1}{*}{%
-	{\doifelse{\choiceparameter{answerstyle}}{}%
-	{\choiceparameter{answerstyle}}%
+  {\doifelse{\choiceparameter{answerstyle}}{}%
+  {\choiceparameter{answerstyle}}%
     {\questionparameter{answerstyle}}%
     \doifelse{\choiceparameter{answercolor}}{}%
     {\switchtocolor[\choiceparameter{answercolor}]}%
@@ -818,7 +856,7 @@
     \fi%
     \startitem
     \ifconditional\c_strc_itemgroups_horizontal% mode_horizontal
-		\doifelse{#1}{*}{\correct_choice{#1}{#3}}{#3}%
+    \doifelse{#1}{*}{\correct_choice{#1}{#3}}{#3}%
     \else%
       \setcounter[currentchoicenumber][\currentchoicenumber]%
       \setcounter[totalchoicenumber][\currentchoicenumber]%
@@ -837,11 +875,11 @@
 
 \def\pitem{\dosingleempty\pitem_indeed}
 \def\pitem_indeed[#1]#2{
-	\startpitem[#1]{#2}\stoppitem
+  \startpitem[#1]{#2}\stoppitem
 }
 \def\citem{\dosingleempty\citem_indeed}
 \def\citem_indeed[#1]#2{%
-	\startcitem[#1]{#2}\stopcitem%
+  \startcitem[#1]{#2}\stopcitem%
 }
 
 \bgroup
@@ -860,7 +898,7 @@
 \definedataset[Fillin_collector]
 \definetextnote[textnote]
 \setuptextnote[empty=\rootfillinparameter\c!empty,
-			   n=\rootfillinparameter\c!n]
+         n=\rootfillinparameter\c!n]
 \setupbar[fillin_text,\v!textnote:\v!underbar]
         [continue=\fillinparameter{continue},
         unit=\fillinparameter{unit},
@@ -882,11 +920,11 @@
 %rules:under:dots    %rules:under:random
 %rules:under:dash    %rules:under:wave
 \setupfillin[type=underbar, n=20,    empty=no,
-			 continue=yes, unit=em,  order=foreground,
+       continue=yes, unit=em,  order=foreground,
              method=0,     color=,   width=4em,
              dy=-0.4,      max=3,    offset=-.1,
              left=,        right=,   repeat=,
-             before=,	   after=,
+             before=,     after=,
              rulethickness=.05,
              foregroundcolor=,
              foregroundstyle=\ss,
@@ -904,55 +942,55 @@
                      {\relax}}
 \def\fillin{\begingroup\dodoubleempty\dofillin}
 \def\dofillin[#1][#2]{%
-	\ifsecondargument\setupfillin[#1]\fi%
-	\showanswer_for_fillin%
-	\fillinparameter\c!before\fillinparameter\c!left%
-	\doif{\fillinparameter\c!type}{}{\let\dofillin_temp\dofillin_indeed_text}%for default
-	\doif{\fillinparameter\c!type}{underbar}{\let\dofillin_temp\dofillin_indeed_text}%type=underbar
-	\doif{\fillinparameter\c!type}{textnote}{\let\dofillin_temp\dofillin_indeed_textnote}%
-	\doif{\fillinparameter\c!type}{void}    {\let\dofillin_temp\dofillin_indeed_rule}%
-	\ifsecondargument\setupfillin[#1]%
-		\dofillin_temp[#1][#2]%
-		\setdataset[Fillin_collector][\QusetionID][answer={#2}]%
-	\else\dofillin_temp[][#1]%
-    	\setdataset[Fillin_collector][\QusetionID][answer={#1}]\fi%
-	\ifmode_showanswer\setupfillin[empty=no]%
-	\else\setupfillin[empty=yes]\fi%
-	\fillinparameter\c!right\fillinparameter\c!after%
+  \ifsecondargument\setupfillin[#1]\fi%
+  \showanswer_for_fillin%
+  \fillinparameter\c!before\fillinparameter\c!left%
+  \doif{\fillinparameter\c!type}{}{\let\dofillin_temp\dofillin_indeed_text}%for default
+  \doif{\fillinparameter\c!type}{underbar}{\let\dofillin_temp\dofillin_indeed_text}%type=underbar
+  \doif{\fillinparameter\c!type}{textnote}{\let\dofillin_temp\dofillin_indeed_textnote}%
+  \doif{\fillinparameter\c!type}{void}    {\let\dofillin_temp\dofillin_indeed_rule}%
+  \ifsecondargument\setupfillin[#1]%
+    \dofillin_temp[#1][#2]%
+    \setdataset[Fillin_collector][\QusetionID][answer={#2}]%
+  \else\dofillin_temp[][#1]%
+      \setdataset[Fillin_collector][\QusetionID][answer={#1}]\fi%
+  \ifmode_showanswer\setupfillin[empty=no]%
+  \else\setupfillin[empty=yes]\fi%
+  \fillinparameter\c!right\fillinparameter\c!after%
 \endgroup}
 \def\dofillin_temp[#1][#2]{#1#2}
-\def\dofillin_indeed_text[#1][#2]{%#1 option #2 contents or answer  
+\def\dofillin_indeed_text[#1][#2]{%#1 option #2 contents or answer
     \fillin_text{#2}%
 }
 \def\dofillin_indeed_textnote[#1][#2]{%#1 option #2 contents or answer
     \textnote[n=\fillinparameter\c!n]{#2}%
 }
 \def\dofillin_indeed_rule[#1][#2]{%#1 option #2 contents or answer
-	\doifelse{\fillinparameter\c!empty}{yes}
-	{\blackrule[color=white,
-     		   width=\fillinparameter{width},
-		   	   alternativevariant=a,
-		       height=0pt,depth=.5pt]}{
+  \doifelse{\fillinparameter\c!empty}{yes}
+  {\blackrule[color=white,
+            width=\fillinparameter{width},
+            alternativevariant=a,
+           height=0pt,depth=.5pt]}{
     \blackrule[color=\fillinparameter{color},
-     		   width=\fillinparameter{width},
-		   	   alternativevariant=a,
-		       height=0pt,depth=.5pt]}%
+            width=\fillinparameter{width},
+            alternativevariant=a,
+           height=0pt,depth=.5pt]}%
 }
 
 \setupmaterial [\c!align=center,\c!color=,\c!style=,
-				\c!spacebefore=1em,\c!spaceafter=1em,
+        \c!spacebefore=1em,\c!spaceafter=1em,
                 \c!title=,
                 \c!author=,
                 \c!source=,
                 \c!indicator=reset,
                 indent={first,always,2em},]
 \setupmaterial [\c!number] [\c!before={(},\c!after={)},
-							\c!prefix=no,\c!start=\plusone,
+              \c!prefix=no,\c!start=\plusone,
                             \c!style=\namedmaterialparameter\c!title\c!style,
                             \c!color=\namedmaterialparameter\c!title\c!color,
                             \c!numberconversion=cn,\c!way=\v!by\v!section]
 \setupmaterial [\c!title]  [\c!style=\ss\tfa,\c!color=,\c!align=center,
-							\c!before=,]
+              \c!before=,]
 \setupmaterial [\c!author] [\c!style=\tf,\c!color=,\c!align=flushright]
 \setupmaterial [\c!source] [\c!before=\par,\c!align=flushright]
 \def\material_counter_parameter#1%
@@ -984,12 +1022,12 @@
     \let\currentmaterial\empty
     \edef\p_indicator{\rootmaterialparameter\c!indicator}
     \processaction[\p_indicator][
-    	reset=>\let\indicator_reset_helper\resetindicators,
-		continue=>\let\indicator_reset_helper\relax,]
-	\env_materialtrue\current_env_check%
-	\iffirstargument\setupcurrentmaterial[#1]\fi
-	\indicator_reset_helper
-	\usematerialstyleandcolor\c!style\c!color%
+      reset=>\let\indicator_reset_helper\resetindicators,
+    continue=>\let\indicator_reset_helper\relax,]
+  \env_materialtrue\current_env_check%
+  \iffirstargument\setupcurrentmaterial[#1]\fi
+  \indicator_reset_helper
+  \usematerialstyleandcolor\c!style\c!color%
     \blank[\rootmaterialparameter\c!spacebefore]
     \startalignment[\rootmaterialparameter\c!align]
         \material_counter_parameter\c!number
@@ -1009,54 +1047,54 @@
 \setupclose[width=2em,frame=off,stopper=.,distance=.5em,after=\blank[halfline]]
 \newcount\cnt_closetest\cnt_closetest=1\relax
 \starttexdefinition unexpanded closebar #1
-	\startbar[underbar]
+  \startbar[underbar]
 %   \scratchdimen\widthofstring{#1}\relax
 %   \zwj\kern.2\scratchdimen #1 \kern.2\scratchdimen\zwj
-	\zwj\kern 1em #1 \kern 1em\zwj
-	\stopbar
+  \zwj\kern 1em #1 \kern 1em\zwj
+  \stopbar
 \stoptexdefinition
 \def\docloseitem#1{\startcitem #1\stopcitem}
 \def\close_order{%
-	\noindent\unskip%
-	\inframed[width=\closeparameter\c!width,frame=\closeparameter\c!frame]{%
-		\convertnumber{n}{\cnt_closetest_temp}%
-		\closeparameter\c!stopper%
-		\show_point_or_answer[close][point]%
-		\show_point_or_answer[close][answer]}%
-	\hskip\closeparameter\c!distance\relax%
-	\unskip%
+  \noindent\unskip%
+  \inframed[width=\closeparameter\c!width,frame=\closeparameter\c!frame]{%
+    \convertnumber{n}{\cnt_closetest_temp}%
+    \closeparameter\c!stopper%
+    \show_point_or_answer[close][point]%
+    \show_point_or_answer[close][answer]}%
+  \hskip\closeparameter\c!distance\relax%
+  \unskip%
 }
 \def\closechoice[#1]{%
-	\closebar{\number\cnt_closetest}%
-	\expandafter\gdef\csname close:\romannumerals\cnt_closetest\endcsname{#1}%
-	\advance\cnt_closetest by 1\relax%
-	}
+  \closebar{\number\cnt_closetest}%
+  \expandafter\gdef\csname close:\romannumerals\cnt_closetest\endcsname{#1}%
+  \advance\cnt_closetest by 1\relax%
+  }
 \def\placeclosechoice{%
-	\ifnum\cnt_closetest=1\relax%
-	\color[red]{it seems that there is no "closechoice" be setted,please check it!}\fi%
-	\newcount\cnt_closetest_temp\cnt_closetest_temp=1\relax%
-	\def\closetest_list{\csname close:\romannumerals\cnt_closetest_temp\endcsname}%
-	\useclosestyleandcolor\c!style\c!color%
-	\dorecurse{\numexpr\cnt_closetest-1\relax}{%
-		\hbox{\hsize=\textwidth%
-			\hbox{\close_order}\hbox{%
-			\vtop{%
-				\startchoice%
-					\processcommacommand[\closetest_list]\docloseitem%
-				\stopchoice%
-			}}}%
-		\advance\cnt_closetest_temp by 1\relax}%
-	\cnt_closetest=1\relax%
+  \ifnum\cnt_closetest=1\relax%
+  \color[red]{it seems that there is no "closechoice" be setted,please check it!}\fi%
+  \newcount\cnt_closetest_temp\cnt_closetest_temp=1\relax%
+  \def\closetest_list{\csname close:\romannumerals\cnt_closetest_temp\endcsname}%
+  \useclosestyleandcolor\c!style\c!color%
+  \dorecurse{\numexpr\cnt_closetest-1\relax}{%
+    \hbox{\hsize=\textwidth%
+      \hbox{\close_order}\hbox{%
+      \vtop{%
+        \startchoice%
+          \processcommacommand[\closetest_list]\docloseitem%
+        \stopchoice%
+      }}}%
+    \advance\cnt_closetest_temp by 1\relax}%
+  \cnt_closetest=1\relax%
 }
 \def\startclose{\begingroup\dosingleempty\startclose_indeed}
 \def\startclose_indeed[#1]{%
-	\env_closetrue\current_env_check%
-	\iffirstargument\setupclose[#1]\fi%
-	\closeparameter\c!before%
+  \env_closetrue\current_env_check%
+  \iffirstargument\setupclose[#1]\fi%
+  \closeparameter\c!before%
 }
 \def\stopclose{%
-	\closeparameter\c!after%
-	\placeclosechoice\endgroup%
+  \closeparameter\c!after%
+  \placeclosechoice\endgroup%
 }
 
 \setupindicator [style=\ss\bf,
@@ -1065,8 +1103,8 @@
                   prefix=no,
                numberconversion=cn,%hiragana,
                   type=line,]
-                  
-\def\indicator {\dosingleempty\doindicator} 
+
+\def\indicator {\dosingleempty\doindicator}
 \def\doindicator[#1]#2{\begingroup%
     \iffirstargument\setupindicator[#1]\fi%
     \edef\indicator_type{\indicatorparameter\c!type}%
@@ -1081,7 +1119,7 @@
     \convertedcounter[\currentindicator]%
     \indicatorparameter\c!after%
     #2}\endgroup}
-   
+
 \def\indicators{\convertedcounter[\currentindicator]
                 \incrementcounter[\currentindicator]}
 \def\resetindicators{\setcounter[\currentindicator][0]}
@@ -1112,42 +1150,42 @@
 
 \newcount\cnt_step_score
 \def\score_calc#1{% only show number
-	\newcount\cnt_step_score_temp%
-	\global\cnt_step_score_temp=#1\relax%
-	\ifnum\cnt_step_score=0\global\cnt_step_score=#1\relax\else%
-	\global\cnt_step_score=\numexpr\cnt_step_score+\cnt_step_score_temp\relax%
-	\fi\number\cnt_step_score%
+  \newcount\cnt_step_score_temp%
+  \global\cnt_step_score_temp=#1\relax%
+  \ifnum\cnt_step_score=0\global\cnt_step_score=#1\relax\else%
+  \global\cnt_step_score=\numexpr\cnt_step_score+\cnt_step_score_temp\relax%
+  \fi\number\cnt_step_score%
 }
 \def\dotfill{\leavevmode%
-	\xleaders\hbox to 0.25em{\hfil.\hfil}%
-	\hfill\kern 0pt\relax}
+  \xleaders\hbox to 0.25em{\hfil.\hfil}%
+  \hfill\kern 0pt\relax}
 \def\cdotfill{\leavevmode%
-	\xleaders\hbox to 0.25em{\hfil$\cdot$\hfil}%
-	\hfill\kern 0pt\relax}
+  \xleaders\hbox to 0.25em{\hfil$\cdot$\hfil}%
+  \hfill\kern 0pt\relax}
 \installnamespace                 {score}
 \installcommandhandler \????score {score} \????score
 \setupscore[style=\ssa,color=red,dotstyle=\ss,dotcolor=red,score=]
 \def\score{\dosingleempty\score_indeed}
 \def\score_indeed[#1]#2{\begingroup% format style
-	\iffirstargument\setupscore[#1]\fi%
-	\scoreparameter\c!before%
-	\usescorestyleandcolor\c!style\c!color%
-	\start\space\scoreparameter{dotstyle}%
-	\switchtocolor[\scoreparameter{dotcolor}]%
-	\doif{\scoreparameter\c!type}{}{\dotfill}%
-	\doif{\scoreparameter\c!type}{space}{}%
-	\doif{\scoreparameter\c!type}{hfill}{\unskip\hfill}%
-	\doif{\scoreparameter\c!type}{dotfill}{\dotfill}%
-	\doif{\scoreparameter\c!type}{cdotfill}{\cdotfill}%
-	\space\stop\scoreparameter\c!left%
-	\doif{\scoreparameter{score}}{}           {#2}%
-	\doif{\scoreparameter{score}}{default}    {#2}%
-	\doif{\scoreparameter{score}}{calculation}{\score_calc{#2}}%
-	\doif{\scoreparameter{score}}{complex}    {#2 : \score_calc{#2}}%
-	\scoreparameter\c!right\scoreparameter\c!after%
+  \iffirstargument\setupscore[#1]\fi%
+  \scoreparameter\c!before%
+  \usescorestyleandcolor\c!style\c!color%
+  \start\space\scoreparameter{dotstyle}%
+  \switchtocolor[\scoreparameter{dotcolor}]%
+  \doif{\scoreparameter\c!type}{}{\dotfill}%
+  \doif{\scoreparameter\c!type}{space}{}%
+  \doif{\scoreparameter\c!type}{hfill}{\unskip\hfill}%
+  \doif{\scoreparameter\c!type}{dotfill}{\dotfill}%
+  \doif{\scoreparameter\c!type}{cdotfill}{\cdotfill}%
+  \space\stop\scoreparameter\c!left%
+  \doif{\scoreparameter{score}}{}           {#2}%
+  \doif{\scoreparameter{score}}{default}    {#2}%
+  \doif{\scoreparameter{score}}{calculation}{\score_calc{#2}}%
+  \doif{\scoreparameter{score}}{complex}    {#2 : \score_calc{#2}}%
+  \scoreparameter\c!right\scoreparameter\c!after%
 \endgroup}
 \def\reset_score{%
-	\cnt_step_score_temp=0\relax%
+  \cnt_step_score_temp=0\relax%
     \cnt_step_score=0\relax%
 }
 %score\score{3}\\
@@ -1164,59 +1202,59 @@
 \expandafter\getrandomnumber \csname nn_\romannumeral\recurselevel\endcsname {1} {20}}
 
 \def\longtesttxt[#1]{%%1. \longtesttxt[\romannumeral 1]
-	\ifcase\csname n_#1\endcsname%
-		就像按 S 来响应错误一样。\or%0
-		这个例子不太完整，因为页码没有存储在有用的地方。\or%1
-		TeX 处理数学显示后，它将以下项目添加到当前垂直列表中： 惩罚、胶水、实际显示、胶水和惩罚。\or%2
-		然而，它显示了一种增加或减少计数器的方法，并设置数字中的数字或相当于数字的罗马数字中的字母。\or%3
-		基本问题是 “对 TeXbook 的页面引用应该如何出现在参考页面的描述区域中？” 这个例子显示了三种可能性。\or%4
-		正如 TeX 不会随机连字符单词一样，它也不会在段落中的行之间随机打断数学表达式。\or%5
-		TeX 仅考虑在关系（例如 = 或 < ）或二进制操作（例如 + 或 × ）之后进行中断。\or%6
-		此命令提供对当前字体中所有字符的访问。号码应该在 0 -- 255 范围内。\or%7
-		Junkjunk.tex文件不包含任何有用的东西，但这些行说明了一种读取辅助文件的方法。\or%8
-		此命令将框寄存器中的列表副本添加到当前列表中。\or%9
-		请注意，每个寄存器在创建后都会被初始化。\or%0
-		此命令提供了一种直接指定分隔符的方法。\or%1
-		数字应该是七个十六进制数字。\or%2
-		它的前导数字必须在 0-7 范围内。该数字用作类号，其余六位数字用作 \type{\delcode} 值。\or%3
-		Plain TeX 有二十多个定义，类似于：`\type{\def\rceil{\delimiter"5265307 }}'。\or%4
-		这个定义意味着 \type{\rceil} 在家庭5（关闭），其小形式在家庭2位置"65，其大形式在家庭3位置"07"。\or%5
-		\type{\Delimiter} 指定了一个数学符号，并以两种方式工作。\or%6
-		当 TeX 寻找分隔符时（例如，在 \type{\left} 之后），它忽略了类数字，并使用剩余的六位数字作为 \type{\delcode}。\or%7
-		但是，当分隔符在其他上下文中出现时，右三位数字被删除，其余四位数字成为符号的 \type{\mathcode}。\or%8
-		对于 \type{\rceil}，这意味着 \type{\delcode} 是"265307，\type{\mathcode} 是"5265"。\or%9
-		它首先计算子公式在轴上方和下延伸的距离。接下来，它使 y 等于刚刚计算的最大距离的两倍。\fi}
+  \ifcase\csname n_#1\endcsname%
+    就像按 S 来响应错误一样。\or%0
+    这个例子不太完整，因为页码没有存储在有用的地方。\or%1
+    TeX 处理数学显示后，它将以下项目添加到当前垂直列表中： 惩罚、胶水、实际显示、胶水和惩罚。\or%2
+    然而，它显示了一种增加或减少计数器的方法，并设置数字中的数字或相当于数字的罗马数字中的字母。\or%3
+    基本问题是 “对 TeXbook 的页面引用应该如何出现在参考页面的描述区域中？” 这个例子显示了三种可能性。\or%4
+    正如 TeX 不会随机连字符单词一样，它也不会在段落中的行之间随机打断数学表达式。\or%5
+    TeX 仅考虑在关系（例如 = 或 < ）或二进制操作（例如 + 或 × ）之后进行中断。\or%6
+    此命令提供对当前字体中所有字符的访问。号码应该在 0 -- 255 范围内。\or%7
+    Junkjunk.tex文件不包含任何有用的东西，但这些行说明了一种读取辅助文件的方法。\or%8
+    此命令将框寄存器中的列表副本添加到当前列表中。\or%9
+    请注意，每个寄存器在创建后都会被初始化。\or%0
+    此命令提供了一种直接指定分隔符的方法。\or%1
+    数字应该是七个十六进制数字。\or%2
+    它的前导数字必须在 0-7 范围内。该数字用作类号，其余六位数字用作 \type{\delcode} 值。\or%3
+    Plain TeX 有二十多个定义，类似于：`\type{\def\rceil{\delimiter"5265307 }}'。\or%4
+    这个定义意味着 \type{\rceil} 在家庭5（关闭），其小形式在家庭2位置"65，其大形式在家庭3位置"07"。\or%5
+    \type{\Delimiter} 指定了一个数学符号，并以两种方式工作。\or%6
+    当 TeX 寻找分隔符时（例如，在 \type{\left} 之后），它忽略了类数字，并使用剩余的六位数字作为 \type{\delcode}。\or%7
+    但是，当分隔符在其他上下文中出现时，右三位数字被删除，其余四位数字成为符号的 \type{\mathcode}。\or%8
+    对于 \type{\rceil}，这意味着 \type{\delcode} 是"265307，\type{\mathcode} 是"5265"。\or%9
+    它首先计算子公式在轴上方和下延伸的距离。接下来，它使 y 等于刚刚计算的最大距离的两倍。\fi}
 
 \def\shorttesttxt[#1]{%%1. \shorttesttxt[i]
-	\ifcase\csname nn_#1\endcsname%
-		悬挂压痕的数量\or%0
-		段落中正线的宽度\or%1
-		开始一个没有缩进的新段落\or%2
-		告诉TeX尝试增加或减少段落中的行数\or%3
-		扩展令牌，但在到达非空间令牌之前什么都不做\or%4
-		只有当主垂直列表为空时，它才会结束当前工作\or%5
-		该命令在内部垂直模式下是不允许的\or%6
-		任意中断由三个字符序列组成\or%7
-		另一个无效号码被传递了\or%8
-		来自假部分的条件命令\or%9
-		线路需要转移的金额\or%0
-		用于指定显示样式\or%1
-		关系后断线的惩罚\or%2
-		此命令定义了宏\or%3
-		家庭的脚本字体\or%4
-		尺寸没有变化\or%5
-		额外的空间\or%6
-		左边的段落\or%7
-		当前线宽\or%8
-		文本样式\or%9
-		序列\fi}
+  \ifcase\csname nn_#1\endcsname%
+    悬挂压痕的数量\or%0
+    段落中正线的宽度\or%1
+    开始一个没有缩进的新段落\or%2
+    告诉TeX尝试增加或减少段落中的行数\or%3
+    扩展令牌，但在到达非空间令牌之前什么都不做\or%4
+    只有当主垂直列表为空时，它才会结束当前工作\or%5
+    该命令在内部垂直模式下是不允许的\or%6
+    任意中断由三个字符序列组成\or%7
+    另一个无效号码被传递了\or%8
+    来自假部分的条件命令\or%9
+    线路需要转移的金额\or%0
+    用于指定显示样式\or%1
+    关系后断线的惩罚\or%2
+    此命令定义了宏\or%3
+    家庭的脚本字体\or%4
+    尺寸没有变化\or%5
+    额外的空间\or%6
+    左边的段落\or%7
+    当前线宽\or%8
+    文本样式\or%9
+    序列\fi}
 
 \def\choicenum[#1][#2][#3]{
-	\ifnum\csname nn_#1\endcsname < 6
-		\expandafter\startcitem[*]{\shorttesttxt[\romannumeral #2]}  \stopcitem
-	\else
-		\expandafter\startcitem{\shorttesttxt[\romannumeral #3]}  \stopcitem
-	\fi
+  \ifnum\csname nn_#1\endcsname < 6
+    \expandafter\startcitem[*]{\shorttesttxt[\romannumeral #2]}  \stopcitem
+  \else
+    \expandafter\startcitem{\shorttesttxt[\romannumeral #3]}  \stopcitem
+  \fi
 }
 
 \newcount\LNUM\LNUM=1\relax
@@ -1227,8 +1265,8 @@
 \def\example@choice#1{
     \setupquestion[showanswer=true,showpoint=true,point=2,answer=\getanswerfromchoice]
     \dorecurse{#1}{
-    	\startquestion
-    	\longtesttxt[\romannumeral\LNUM]\global\advance\LNUM by 1\relax
+      \startquestion
+      \longtesttxt[\romannumeral\LNUM]\global\advance\LNUM by 1\relax
             \startchoice
             \choicenum[\romannumeral\CNUM][\the\DNUM][\the\ENUM]
             \global\advance\CNUM by 1\relax\global\advance\DNUM by 2\relax\global\advance\ENUM by 2\relax
@@ -1248,33 +1286,33 @@
     \setupquestion[showanswer=false,answer=,showpoint=true,point=\getpointfrompitem]
     \setuppitem[showanswer=true,showpoint=true,point=3,answer=\getanswerfromfillin]
     \startquestion
-    	\longtesttxt[\romannumeral\LNUM]
-    	\def\fillinanswer{\shorttesttxt[\romannumeral\CNUM]}
-    	\startproblem
-    	\dorecurse{#1}{
-    		\startpitem \longtesttxt[\romannumeral\CNUM] \fillin[][\fillinanswer]\stoppitem
-    		\startanswer
-            	\input knuthmath
+      \longtesttxt[\romannumeral\LNUM]
+      \def\fillinanswer{\shorttesttxt[\romannumeral\CNUM]}
+      \startproblem
+      \dorecurse{#1}{
+        \startpitem \longtesttxt[\romannumeral\CNUM] \fillin[][\fillinanswer]\stoppitem
+        \startanswer
+              \input knuthmath
             \stopanswer
-    		\global\advance\CNUM by 1\relax}
-    	\stopproblem
-    	\stopquestion
+        \global\advance\CNUM by 1\relax}
+      \stopproblem
+      \stopquestion
 }
 \def\example@pitem#1{
     \setupquestion[showpoint=true,showanswer=false,answer=,point=\getpointfrompitem]
     \setuppitem[showanswer=true,point=4,]
     \startquestion
-    	\longtesttxt[\romannumeral\LNUM]
-    	\def\fillinanswer{\shorttesttxt[\romannumeral\CNUM]}
-    	\startproblem
-    	\dorecurse{#1}{
-    		\startpitem[answer={answer : \recurselevel},]\longtesttxt[\romannumeral\CNUM]\stoppitem 
-    		\startanswer
-            	\input knuthmath
+      \longtesttxt[\romannumeral\LNUM]
+      \def\fillinanswer{\shorttesttxt[\romannumeral\CNUM]}
+      \startproblem
+      \dorecurse{#1}{
+        \startpitem[answer={answer : \recurselevel},]\longtesttxt[\romannumeral\CNUM]\stoppitem
+        \startanswer
+              \input knuthmath
             \stopanswer
-    		\global\advance\CNUM by 1\relax}
-    	\stopproblem
-    	\stopquestion
+        \global\advance\CNUM by 1\relax}
+      \stopproblem
+      \stopquestion
 }
 \def\example@material#1{
     \startmaterial
@@ -1282,8 +1320,8 @@
     \stopmaterial
     \setupquestion[showanswer=true,showpoint=true,point=6,answer=\getanswerfromchoice]
     \dorecurse{#1}{
-    	\startquestion
-    	\longtesttxt[\romannumeral\LNUM]\global\advance\LNUM by 1\relax
+      \startquestion
+      \longtesttxt[\romannumeral\LNUM]\global\advance\LNUM by 1\relax
             \startchoice
             \choicenum[\romannumeral\CNUM][\the\DNUM][\the\ENUM]
             \global\advance\CNUM by 1\relax%
@@ -1303,7 +1341,7 @@
             \advance\ENUM by 2\relax%
             \stopchoice
             \startanswer
-            	\input knuthmath
+              \input knuthmath
             \stopanswer
     \stopquestion}
 }
@@ -1312,10 +1350,10 @@
     \def\closechoicex{\shorttesttxt[\romannumeral\DNUM]\global\advance\DNUM by 1\relax}
     \dorecurse{#1}{
         \dorecurse{3}{
-        	\longtesttxt[\romannumeral\CNUM]
-    		\global\advance\CNUM by 1\relax
-    		}\closechoice[\closechoicex,{[*]\closechoicex},\closechoicex]
-    	\longtesttxt[\romannumeral\CNUM]}
+          \longtesttxt[\romannumeral\CNUM]
+        \global\advance\CNUM by 1\relax
+        }\closechoice[\closechoicex,{[*]\closechoicex},\closechoicex]
+      \longtesttxt[\romannumeral\CNUM]}
     \stopclose
 }
 
@@ -1332,17 +1370,17 @@
 \def\resetanswerid{\qid_in_chap=1\relax}
 \def\typeanswerbychap{\dosingleempty\typeanswerbychap_indeed}
 \def\typeanswerbychap_indeed[#1]#2{% #1 = chapter number，該命令會自行遞增計數器來獲取答案
-	\iffirstargument\qid_in_chap=#1\relax\fi%
-	\datasetvariable{Answer_collector}{#2-\the\qid_in_chap}{answer}%
-	\advance\qid_in_chap by 1\relax}
+  \iffirstargument\qid_in_chap=#1\relax\fi%
+  \datasetvariable{Answer_collector}{#2-\the\qid_in_chap}{answer}%
+  \advance\qid_in_chap by 1\relax}
 \def\typeanswerdirect#1{% #1 = \qid，需要自行輸入來獲取某個題目的答案
-	\datasetvariable{Answer_collector}{#1}{answer}}
+  \datasetvariable{Answer_collector}{#1}{answer}}
 \def\typeanswerlist{\dodoubleempty\typeanswerlist_indeed}
 \def\typeanswerlist_indeed[#1][#2]#3{%#1 = chapter number
-	\ifsecondargument\qid_in_chap=#2\fi% #2 = from which question to start
-	\dorecurse{#3}{% answer amount
-		\datasetvariable{Answer_collector}{#1-\the\qid_in_chap}{answer}%
-	\advance\qid_in_chap by 1\relax}
+  \ifsecondargument\qid_in_chap=#2\fi% #2 = from which question to start
+  \dorecurse{#3}{% answer amount
+    \datasetvariable{Answer_collector}{#1-\the\qid_in_chap}{answer}%
+  \advance\qid_in_chap by 1\relax}
 }
 
 \newcount\answer@seq@tempa\answer@seq@tempa=0\relax%
@@ -1350,23 +1388,23 @@
 \newcount\answer@seq@tempc
 \def\type@answer@i[#1*#2,#3,#4]{% #1 for row #2 for column %
                                 % #3 chapter number #4 last answer id%
-	\answer@seq@tempc=\numexpr#4-1\relax%
+  \answer@seq@tempc=\numexpr#4-1\relax%
     \bTABLE
-    	\dorecurse{#1}{\bTR
-    		\dorecurse{#2}{%
-				\ifnum\answer@seq@tempa>\answer@seq@tempc \bTD\eTD\relax\else%
-            	\advance\answer@seq@tempa by 1\relax%
+      \dorecurse{#1}{\bTR
+        \dorecurse{#2}{%
+        \ifnum\answer@seq@tempa>\answer@seq@tempc \bTD\eTD\relax\else%
+              \advance\answer@seq@tempa by 1\relax%
                 \expanded{\bTD
-                	\datasetvariable{Answer_collector}{#3-\the\answer@seq@tempa}{order}
-			\eTD}\fi}
-    	\eTR\bTR
-    		\dorecurse{#2}{%
-			    \ifnum\answer@seq@tempb>\answer@seq@tempc \bTD\eTD\relax\else%
-				\advance\answer@seq@tempb by 1\relax%
-    	    	\expanded{\bTD
-    				\datasetvariable{Answer_collector}{#3-\the\answer@seq@tempb}{answer}
-    		\eTD}\fi}
-    	\eTR}
+                  \datasetvariable{Answer_collector}{#3-\the\answer@seq@tempa}{order}
+      \eTD}\fi}
+      \eTR\bTR
+        \dorecurse{#2}{%
+          \ifnum\answer@seq@tempb>\answer@seq@tempc \bTD\eTD\relax\else%
+        \advance\answer@seq@tempb by 1\relax%
+            \expanded{\bTD
+            \datasetvariable{Answer_collector}{#3-\the\answer@seq@tempb}{answer}
+        \eTD}\fi}
+      \eTR}
     \eTABLE
 }
 
@@ -1374,12 +1412,12 @@
 \answer_seq=0\relax
 \bTABLE
 \dorecurse{4}{\bTR
-	\dorecurse{5}{
+  \dorecurse{5}{
         \advance\answer_seq by 1\relax%
             \expanded{\bTD\the\answer_seq\eTD}
-			\expanded{\bTD
-				\datasetvariable{Answer_collector}{\the\answer_seq}{answer}
-		\eTD}}
+      \expanded{\bTD
+        \datasetvariable{Answer_collector}{\the\answer_seq}{answer}
+    \eTD}}
 \eTR}
 \eTABLE}
 %\type@answer@i{4}{5}{18}
@@ -1400,10 +1438,10 @@
 \doif{\moduleparameter{basicexam}{mode}}{}
      {\enablemode[student]}{}
 \startmode[teacher]
-	\mode_showanswertrue
+  \mode_showanswertrue
 \stopmode
 \startmode[student]
-	\mode_showanswerfalse
+  \mode_showanswerfalse
 \stopmode
 %\ifmode_showanswer\relax\else%
 %    \let\startanswer\relax
