@@ -87,7 +87,7 @@
 \definehead [ego]  [section]       % me  latin
 \definehead [isea] [subsection]    % he or she latin
 \definehead [heu]  [subsubsection] % och
-\setuphead  [tu]   [incrementnumber=yes,number=no,placehead=no,page=odd]
+\setuphead  [tu]   [incrementnumber=yes,placehead=no,page=odd]
 \setuphead  [ego]  [sectionsegments=section,numbercommand=]
 \setupheads [isea] [numbercommand=]
 \setupheads [tu,ego,isea]
@@ -223,6 +223,7 @@
 \newif\ifmode_check       \mode_checkfalse
 \newif\ifmode_showanswer  \mode_showanswerfalse
 \newif\ifmode_showpoint   \mode_showpointfalse
+\newif\ifmode_showscript  \mode_showscriptfalse
 \newif\ifenv_question     \env_questionfalse
 \newif\ifenv_problem      \env_problemfalse
 \newif\ifenv_choice       \env_choicefalse
@@ -252,7 +253,7 @@
 \definecounter[Unicode_toplevel]% for level 1 : question or problem
 \definecounter[Unicode_midlevel]% for level 2 : problem or level 1
 \definecounter[Unicode_botlevel]% for level 3 : only for level 2
-\def\QusetionID{\namedheadnumber{chapter}-\rawcountervalue[Unicode]}
+\def\QusetionID{\somenamedheadnumber{tu}{current}-\rawcountervalue[Unicode]}
 \def\increaseQusetionID{\incrementcounter[Unicode]}
 \def\decreaseQusetionID{\decrementcounter[Unicode]}
 
@@ -688,7 +689,7 @@
     \else  \totalchoicenumber = \currentchoicenumber%
     \fi%遞歸出總序號
     \restorecounter[currentchoicenumber]%恢復答案所在序號
-  \choice_max_compared_width=\choiceparameter{maxiwidth}\relax%
+    \choice_max_compared_width=\choiceparameter{maxiwidth}\relax%
     \newcount\tempa       \tempa      =\dimtonum{\choice_max_compared_width}\relax%
     \newcount\tempb       \tempb      =\dimtonum{\the\width_max_with_label}\relax%
     \setdataset [Choice_collector][\QusetionID][%收集選項信息
@@ -718,15 +719,8 @@
                      rulethickness=\answerparameter\c!rulethickness,
                      ]
 
-
 \newdimen\label_width\label_width=2em\relax
 \setupanswer[
-             background=normalframeOL,
-             backgroundcolor=,
-             corner=,
-             frame=,
-             framecolor=,
-             rulethickness=,
              showanswer=true,
              showpoint=true,
              answer=\getanswerforanswer,
@@ -742,16 +736,24 @@
              label={答案 : },
              before=,
              after=,
-             draftheight=5em,
-             draftcontent={},
-             draftbefore={},
-             draftafter={},
              indenting={first,always,2em},
-             afteranswer={\par\indentation},]
+             afteranswer={\par\indentation},
+             showscript=false,
+             scriptcontent={},
+             scriptbefore={},
+             scriptafter={},
+             background=normalframeOL,
+             backgroundcolor=,
+             corner=,
+             frame=,
+             framecolor=,
+             rulethickness=,
+             ]
 \def\startanswer   {\dosingleempty\dostartanswer}
 \def\dostartanswer[#1]#2\stopanswer{\begingroup%
     \env_answertrue\current_env_check%
     \iffirstargument\setupanswer[#1]\fi%
+    \doif{\answerparameter{showscript}}{true}{\mode_showscripttrue}
     \answerparameter{before}%
   \ifmode_showanswer%
     \setwidthof{\answerparameter{labelstyle}%
@@ -773,11 +775,13 @@
         \stopenv_answer_descr%
       \stopenv_answer%
   \else
-    \startenv_answer%
-      \answerparameter{draftbefore}%
-      \mbox{}\vbox to \answerparameter{draftheight}{\answerparameter{draftcontent}}\relax%
-      \answerparameter{draftafter}%
-    \stopenv_answer%
+    \ifmode_showscript%
+      \startenv_answer%
+        \answerparameter{scriptbefore}%
+          \answerparameter{scriptcontent}%
+        \answerparameter{scriptafter}%
+      \stopenv_answer%
+    \else\fi%
   \fi%
   \answerparameter{after}%
     \endgroup}
