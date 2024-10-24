@@ -1,0 +1,1498 @@
+\usemodule[memos]
+\usemodule[basicexam][mode=teacher]
+\setuplabeltext [hans] [section={第,部分},subsection={第,节},]
+\def\han#1{{\hw #1}}
+
+\starttext
+
+\placecontent
+
+\chapter{数学试卷排版示例}
+
+\setupfillin[n=20]
+ 1.
+\startquestion[points = 2]
+  设集合 $A = \{x \mid -1 < x < 4\}$，$B = \{2, 3, 4, 5\}$，则 $A \cap B = $ \fillin{}
+
+  \startchoice
+    \citem {$\{2\}$}
+    \citem {$\{2, 3\}$}
+    \citem {$\{3, 4\}$}
+    \citem {$\{2, 3, 4\}$}
+  \stopchoice
+\stopquestion
+
+ 2.
+\startquestion
+  已知 $z = 2 - i$，则 $z (\bar{z} + i) = $ \fillin{}
+  \startchoice
+    \citem {$6 - 2i$}
+    \citem {$2 - 2i$}
+    \citem {$6 + 2i$}
+    \citem {$4 + 2i$}
+  \stopchoice
+\stopquestion
+
+% 3.
+\startquestion
+  已知圆锥的底面半径为 $\sqrt{2}$，其侧面展开图为一个半圆，则该圆锥的母线长为 \fillin{}
+  \startchoice
+    \citem {$2$}
+    \citem {$2 \sqrt{2}$}
+    \citem {$4$}
+    \citem {$4 \sqrt{2}$}
+  \stopchoice
+\stopquestion
+
+% 4.
+\startquestion
+  下列区间中，函数 $f(x) = 7 \sin \left( x - \frac{\pi}{6} \right)$ 的单调递增区间是 \fillin{}
+  \startchoice
+    \citem {$\left( 0               , \frac{\pi}{2}  \right)$}
+    \citem {$\left( \frac{\pi}{2} , \pi            \right)$}
+    \citem {$\left( \pi           , \frac{3\pi}{2} \right)$}
+    \citem {$\left( \frac{3\pi}{2}, 2\pi           \right)$}
+  \stopchoice
+\stopquestion
+
+% 5.
+\startquestion
+  已知 $F_1$，$F_2$ 是椭圆 $C \colon \frac{x^2}{9} + \frac{y^2}{4} = 1$ 的两个焦点，
+  点 $M$ 在 $C$ 上，则 $|M F_1| \cdot |M F_2|$ 的最大值为 \fillin{}
+  \startchoice
+    \citem {$13$}
+    \citem {$12$}
+    \citem {$9$}
+    \citem {$6$}
+  \stopchoice
+\stopquestion
+
+% 6.
+\startquestion
+  若 $\tan\theta = -2$，则 $\frac{\sin\theta (1 + \sin 2\theta)}{\sin\theta + \cos\theta} = $ \fillin{}
+  \startchoice
+    \citem {$-\frac{6}{5}$}
+    \citem {$-\frac{2}{5}$}
+    \citem {$\frac{2}{5}$}
+    \citem {$\frac{6}{5}$}
+  \stopchoice
+\stopquestion
+
+% 7.
+\startquestion
+  若过点 $(a, b)$ 可作曲线 $y = e^x$ 的两条切线，则 \fillin{}
+  \startchoice
+    \citem {$e^b < a$}
+    \citem {$e^a < b$}
+    \citem {$0 < a < e^b$}
+    \citem {$0 < b < e^a$}
+  \stopchoice
+\stopquestion
+
+% 8.
+\startquestion
+  有 $6$ 个相同的球，分别标有数字 $1$，$2$，$3$，$4$，$5$，$6$，从中有放回地随机取两次，每次取 $1$ 个球，
+  甲表示事件“第一次去出的球的数字是 $1$”，
+  乙表示事件“第二次取出的球的数字是 $2$”，
+  丙表示事件“两次取出的球的数字之和是 $8$”，
+  丁表示事件“两次取出的球的数字之和是 $7$”，则 \fillin{}
+  \startchoice[two]
+    \citem {甲与丙相互独立}
+    \citem {甲与丁相互独立}
+    \citem {乙与丙相互独立}
+    \citem {丙与丁相互独立}
+  \stopchoice
+\stopquestion
+
+\setupfillin[type=void]
+
+% 13.
+\startquestion
+  已知函数 $f(x) = x^3 (a \cdot 2^x - 2^{-x})$ 是偶函数，则 $a = $ \fillin{} 。
+\stopquestion
+
+% 14.
+\startquestion
+  已知 $O$ 为坐标原点，抛物线 $C \colon y^2 = 2px$（$p > 0$）的焦点为 $F$，
+  $P$ 为 $C$ 上一点，$PF$ 与 $x$ 轴垂直，$Q$ 为 $x$ 轴上一点，且 $PQ \perp OP$，
+  若 $|FQ| = 6$，则 $C$ 的准线方程为 \fillin{} 。
+\stopquestion
+
+% 15.
+\startquestion
+  函数 $f(x) = |2x - 1| - 2 \ln x$ 的最小值为 \fillin{} 。
+\stopquestion
+
+% 16.
+\startquestion
+  某校学生在研究民间剪纸艺术时，发现剪纸时经常会沿纸的某条对称轴把纸对折。
+  规格为 {20 x 12}{dm} 的长方形纸，对折 $1$ 次共可以得到
+  {10 x 12}{dm}， {20 x 6}{dm} 两种规格的图形，
+  它们的面积之和 $S_1 = {240}{dm^2}$，
+  对折 $2$ 次共可以得到 {5 x 12}{dm}，{10 x 6}{dm}，
+  {20 x 3}{dm} 三种规格的图形，它们的面积之和 $S_2 = {240}{dm^2}$，
+  以此类推。则对折 $4$ 次共可以得到不同规格图形的种数为 \fillin{} ；
+  如果对折 $n$ 次，那么 $\sum_{k=1}^n S_k = $ \fillin{} \unit{dm^2}。
+\stopquestion
+
+\chapter{日语试卷排版示例}
+
+\ego{}
+
+\isea{}
+
+\startquestion[start=1]
+	女の人は来週の読書会に参加しますか。
+	\startchoice
+		\citem{参加する}
+		\citem{参加しない}
+		\citem{まだ分からない}
+	\stopchoice
+\stopquestion
+\startquestion
+	本屋はどこにありますか。
+	\startchoice
+		\citem{交差点の左}
+		\citem{道路の右}
+		\citem{東京ホテルのとなり}
+	\stopchoice
+\stopquestion
+\startquestion
+	男の人はいま何をしていますか。
+	\startchoice
+		\citem{大学生}
+		\citem{医者}
+		\citem{大学の先生}
+	\stopchoice
+\stopquestion
+\startquestion
+	女の人はこれから、まず何をしますか。
+	\startchoice
+		\citem{料理を注文する。}
+		\citem{傘を男の人に渡す。}
+		\citem{もう一人来るのを待つ。}
+	\stopchoice
+\stopquestion
+\startquestion
+	お客さんはこれから、まず何をしますか。
+	\startchoice
+		\citem{レストランに行く。}
+		\citem{部屋の手続きをする。}
+		\citem{荷物を部屋へ持っていく。}
+	\stopchoice
+\stopquestion
+\startquestion
+	男の人の座席番号はどれですか。
+	\startchoice
+		\citem{6 号車の8A}
+		\citem{8 号車の6A}
+		\citem{8号車の8A}
+	\stopchoice
+\stopquestion
+\startquestion
+	女の人はどうしてお菓子を買いに来ましたか
+	\startchoice
+		\citem{テレビでみたから}
+		\citem{店員に薦められたから}
+		\citem{ネットで話題になっているから}
+	\stopchoice
+\stopquestion
+
+\isea{}
+
+\startquestion
+	どの会議室を利用しますか。
+	\startchoice
+		\citem{103会議室（水曜日午後1時～3時）}
+		\citem{105会議室（金曜日午後1時～3時）}
+		\citem{103会議室（金曜日午後3時～5時）}
+	\stopchoice
+\stopquestion
+\startquestion
+	参加する人は何人ですか。
+	\startchoice
+		\citem{20人}
+		\citem{30人}
+		\citem{50人}
+	\stopchoice
+\stopquestion
+\startquestion
+	女の人はスピーチ大会で何をしますか
+	\startchoice
+		\citem{資料を配る}
+		\citem{先生方を案内する}
+		\citem{参加者の名前を書く}
+	\stopchoice
+\stopquestion
+\startquestion
+	女の人はスピーチ大会でどんな服を着ますか。
+	\startchoice
+		\citem{スーツ}
+		\citem{Tシャツ}
+		\citem{制服}
+	\stopchoice
+\stopquestion
+\startquestion
+	午前中にする家事はどれですか。
+	\startchoice
+		\citem{部屋の掃除}
+		\citem{洗濯}
+		\citem{買い物}
+	\stopchoice
+\stopquestion
+\startquestion
+	資源ゴミを出す日は何曜日ですか。
+	\startchoice
+		\citem{火曜日}
+		\citem{水曜日}
+		\citem{木曜日}
+	\stopchoice
+\stopquestion
+\startquestion
+	正しいのはどれですか。
+	\startchoice
+		\citem{佐藤さんはこちらに来る途中である。}
+		\citem{佐藤さんは発表会の準備をしている。}
+		\citem{佐藤さんは先に発表会に行っている。}
+	\stopchoice
+\stopquestion
+\startquestion
+	男の人はこれからどうしますか。
+	\startchoice
+		\citem{佐藤さんに連絡する。}
+		\citem{佐藤さんに会いに行く。}
+		\citem{30分後にもう一度来る。}
+	\stopchoice
+\stopquestion
+
+\ego{}
+
+\startquestion
+高い山 \fillin{} 登ると高山病になりやすいということです。
+	\startchoice
+		\citem{の}
+		\citem{を}
+		\citem{と}
+		\citem{が}
+	\stopchoice
+\stopquestion
+\startquestion
+	豊の部屋で靴をはいてはいけない \fillin{} 言ったでしょう。
+	\startchoice
+		\citem{に}
+		\citem{と}
+		\citem{が}
+		\citem{で}
+	\stopchoice
+\stopquestion
+\startquestion
+	この前、同僚 \fillin{} 田中さんといっしょに京都へ出張しました。
+	\startchoice
+		\citem{の}
+		\citem{に}
+		\citem{を}
+		\citem{へ}
+	\stopchoice
+\stopquestion
+\startquestion
+	日本はどんな国 \fillin{} 日本国内にずっといるなら見えにくいでしょう。
+	\startchoice
+		\citem{か}
+		\citem{を}
+		\citem{が}
+		\citem{で}
+	\stopchoice
+\stopquestion
+\startquestion
+	これは見ている \fillin{} でも元気になる。すばらしい。
+	\startchoice
+		\citem{まで}
+		\citem{さえ}
+		\citem{だけ}
+		\citem{ほど}
+	\stopchoice
+\stopquestion
+\startquestion
+	あなたが今いちばん見 \fillin{} アニメは何でしょう。
+	\startchoice
+		\citem{たい}
+		\citem{たがる}
+		\citem{たかった}
+		\citem{たがった}
+	\stopchoice
+\stopquestion
+\startquestion
+	山田さんはまだ学生 \fillin{} という話を聞きました。
+	\startchoice
+		\citem{だ}
+		\citem{べき}
+		\citem{そうだ}
+		\citem{ようだ}
+	\stopchoice
+\stopquestion
+\startquestion
+	鈴木さんにあまりお酒を飲まない \fillin{} 言ってください。
+	\startchoice
+		\citem{らしく}
+		\citem{ように}
+		\citem{そうで}
+		\citem{みたいに}
+	\stopchoice
+\stopquestion
+\startquestion
+	スポーツから教え \fillin{} ことについて、話してください。
+	\startchoice
+		\citem{たがる}
+		\citem{させる}
+		\citem{られた}
+		\citem{たかった}
+	\stopchoice
+\stopquestion
+\startquestion
+	オリンピックの試合を見ながら、感動して泣き \fillin{} 時がありますか。
+	\startchoice
+		\citem{ような}
+		\citem{らしい}
+		\citem{みたい}
+		\citem{そうな}
+	\stopchoice
+\stopquestion
+\startquestion
+	日本語の暖味表現は難しく、今でも分から \fillin{} 困っている。
+	\startchoice
+		\citem{ない}
+		\citem{なくは}
+		\citem{なくて}
+		\citem{なくも}
+	\stopchoice
+\stopquestion
+\startquestion
+	この機械のいい点は音の \fillin{} だ
+	\startchoice
+		\citem{静かさ}
+		\citem{静かで}
+		\citem{静かに}
+		\citem{静かな}
+	\stopchoice
+\stopquestion
+\startquestion
+	あっ、 \fillin{} 本、こんなところにあった。
+	\startchoice
+		\citem{探せる}
+		\citem{見つけた}
+		\citem{見つかる}
+		\citem{探していた}
+	\stopchoice
+\stopquestion
+\startquestion
+	あ、山田さん、そのパスコンは \fillin{} ので、これを使ってください。
+	\startchoice
+		\citem{壊れている}
+		\citem{壊している}
+		\citem{壊れてある}
+		\citem{壊してみる}
+	\stopchoice
+\stopquestion
+\startquestion
+	社会の発展にしたがって、今後看護師の求人が増える時代に \fillin{} と思う。
+	\startchoice
+		\citem{なっておく}
+		\citem{なっていく}
+		\citem{なってみる}
+		\citem{なっている}
+	\stopchoice
+\stopquestion
+\startquestion
+	このジュースはおいしそうですね。ちょっと飲んで \fillin{} もいいですか。
+	\startchoice
+		\citem{みて}
+		\citem{いて}
+		\citem{きて}
+		\citem{あって}
+	\stopchoice
+\stopquestion
+\startquestion
+	人間なんかは自分に都合のいい意見だけ聞く \fillin{} がある。
+	\startchoice
+		\citem{頭}
+		\citem{癖}
+		\citem{熊度}
+		\citem{立場}
+	\stopchoice
+\stopquestion
+\startquestion
+	ねえ、昨日の雨は \fillin{} ですね。 
+	\startchoice
+		\citem{さむかった}
+		\citem{すごかった}
+		\citem{きびしかった}
+		\citem{すくなかった}
+	\stopchoice
+\stopquestion
+\startquestion
+	すみません。 \fillin{} から、ラジオの音をもう少し大きくしてください。
+	\startchoice
+		\citem{見ません}
+		\citem{見えません}
+		\citem{聞きません}
+		\citem{聞こえません}
+	\stopchoice
+\stopquestion
+\startquestion
+	高校に入ってから宿題に追われていて、 \fillin{} 暇はありません。
+	\startchoice
+		\citem{ならべる}
+		\citem{なくなる}
+		\citem{なまける}
+		\citem{ながれる}
+	\stopchoice
+\stopquestion
+\startquestion
+	論文作成のため、 \fillin{} で関係資料を検索していましだ
+	\startchoice
+		\citem{マナー}
+		\citem{イメージ}
+		\citem{エコロジー}
+		\citem{インターネット}
+	\stopchoice
+\stopquestion
+\startquestion
+	今日まであの人のことを思い出さない日は \fillin{} もなかった。
+	\startchoice
+		\citem{一日}
+		\citem{一週間}
+		\citem{一か月}
+		\citem{一年}
+	\stopchoice
+\stopquestion
+\startquestion
+	最近、忙しいので、あまり \fillin{} 音楽を聞くことができなくなりました。
+	\startchoice
+		\citem{ゆっくり}
+		\citem{もっとも}
+		\citem{まっすぐ}
+		\citem{まったく}
+	\stopchoice
+\stopquestion
+\startquestion
+	皆様の \fillin{} 無事に閉会式を迎えることができました。
+	\startchoice
+		\citem{せいで}
+		\citem{わけで}
+		\citem{おかげで}
+		\citem{きっかけで}
+	\stopchoice
+\stopquestion
+\startquestion
+	今日はお客さんが来ますから、失礼なことをしないよう \fillin{} ください。
+	\startchoice
+		\citem{気がついて}
+		\citem{気に入って}
+		\citem{気をつけて}
+		\citem{気になって}
+	\stopchoice
+\stopquestion
+\startquestion
+	今夜、うちに電話して \fillin{} ませんか。詳しいことを聞きたいので。
+	\startchoice
+		\citem{やり}
+		\citem{もらえ}
+		\citem{もらい}
+		\citem{いただき}
+	\stopchoice
+\stopquestion
+\startquestion
+	人気歌手が来て \fillin{} なら、スピーチ大会はおもしろくなるでしょう。
+	\startchoice
+		\citem{くれる}
+		\citem{あげる}
+		\citem{もらう}
+		\citem{さしあげる}
+	\stopchoice
+\stopquestion
+\startquestion
+	新しい一年は先生にとって幸せな年でありますよう心から \fillin{} 。
+	\startchoice
+		\citem{祈られます}
+		\citem{祈りなさいます}
+		\citem{お祈りになります}
+		\citem{お祈りいたします}
+	\stopchoice
+\stopquestion
+\startquestion
+	「社長、わたしが駅まで \fillin{} いただきます。」
+	\startchoice
+		\citem{ご案内}
+		\citem{案内して}
+		\citem{ご案内して}
+		\citem{ご案内させて}
+	\stopchoice
+\stopquestion
+\startquestion
+	「何もありませんが、たくさん召しあがってください。」「ありがとうございます。遠慮なく \fillin{} 。」
+	\startchoice
+		\citem{まいります}
+		\citem{お食べします}
+		\citem{いただきます}
+		\citem{召しあがります}
+	\stopchoice
+\stopquestion
+\startquestion
+	「今日は仕事も落ち着いてきたし、もう退社していいよ。」「すみません。 \fillin{} 。」
+	\startchoice
+		\citem{喜びます}
+		\citem{楽しいです}
+		\citem{謝ります}
+		\citem{お先に失礼します}
+	\stopchoice
+\stopquestion
+\startquestion
+	電気製品は機能が多ければ多い \fillin{} 使いにくいと言われています。
+	\startchoice
+		\citem{しか}
+		\citem{ほど}
+		\citem{さえ}
+		\citem{まで}
+	\stopchoice
+\stopquestion
+\startquestion
+	先生は今日元気がないようだね。何か心配なことがあるの \fillin{} 。
+	\startchoice
+		\citem{と思う}
+		\citem{とみえる}
+		\citem{かもしれない}
+		\citem{いうまでもない}
+	\stopchoice
+\stopquestion
+\startquestion
+	大学では日本語は \fillin{} 、英語も勉強しなければならないから、大変です。
+	\startchoice
+		\citem{ほか}
+		\citem{とても}
+		\citem{もっとも}
+		\citem{もちろん}
+	\stopchoice
+\stopquestion
+\startquestion
+	彼女の \fillin{} だから、何をされても許してあげたいです。
+	\startchoice
+		\citem{こと}
+		\citem{もの}
+		\citem{はず}
+		\citem{わけ}
+	\stopchoice
+\stopquestion
+\startquestion
+	王さんは大事なお客様 \fillin{} 、インドネシアへ行くことになった。
+	\startchoice
+		\citem{と言えば}
+		\citem{とともに}
+		\citem{としたら}
+		\citem{としても}
+	\stopchoice
+\stopquestion
+\startquestion
+	新聞に \fillin{} 、近年来、大学受験生の人数はだんだん減っているそうです。
+	\startchoice
+		\citem{つれて}
+		\citem{ついて}
+		\citem{よると}
+		\citem{とって}
+	\stopchoice
+\stopquestion
+\startquestion
+	猫を飼って \fillin{} 、そのかわいさが分かる。
+	\startchoice
+		\citem{ほしくて}
+		\citem{はじめて}
+		\citem{いけなくて}
+		\citem{ならなくて}
+	\stopchoice
+\stopquestion
+\startquestion
+	人生を笑って生きましょう！明日はきっと、今日よりもいい日 \fillin{} 。
+	\startchoice
+		\citem{にしている}
+		\citem{に決めている}
+		\citem{にわたっている}
+		\citem{に決まっている}
+	\stopchoice
+\stopquestion
+\startquestion
+	北京冬季オリンピック開催の2022年は \fillin{} です。
+	\startchoice
+		\citem{令和2年}
+		\citem{令和3年}
+		\citem{令和4年}
+		\citem{令和5年}
+	\stopchoice
+\stopquestion
+
+\ego{}
+
+\setupmaterial[title=,author=,source=,indicator=reset]
+\setupmaterial[indicator][reset=true]
+\startmaterial
+雪が降る夜、玄関への階段を上がろうとすると、犬の鳴き声が聞こえた。カバンを置いて、街灯の明かりを頼りに家の前の側溝をのぞくと、汚れた子犬がぶるぶる体を震わせている。捨て犬だ。
+
+娘が世話をすると約束して飼い始めた金魚を、世話をせずに死なせたので、妻は\indicator{もう生きものは飼わない}と常々言っていたが、この寒さでは凍え死ぬ、1 泊だけでも家に置こうと私と娘は一緒に妻に\indicator{手を合わせた}。
+
+夜ごはんはクリームシチューだったので、ミルクを追加して温度を調整して与えると、子犬は息つく間もなくペろペろと舐め尽くした。その後、古タオルを敷いた段ボール箱の中でしばらく鳴いていたが、やがて寝た。
+
+翌日には形ができ、翌々日にはペンキが塗られ、犬小屋ができた。器用な（\han{手巧}）妻が作った。娘が掛け算の九九（\han{乗法口決}）の勉強をやっていたので、犬の名前をククとしたのも妻だった。
+
+しばらくして突然に、私の海外赴任が決定し、単身で中国に行った。妻と娘からの報告では、ククは物覚えが悪く、お手も下手で、ボール拾いはまったくできない。一番の問題は、郵便配達などの人たちにも吠えることであり、妻はほとほと困っていると伝えてきた。
+
+私は、\indicator{内心喜んでいた}。私の留守中、ククが番犬(\han{看家犬})の役割をしっかりと果たしていると思ったからだ。私の赴任は10 年ほどになり、ククは老犬になり、私が帰国して間もなくして死んだ。\indicator{それ}は、私が留守の間、家族を守った、拾ってくれた恩返し(\han{报恩})だと言っているようだった。
+\stopmaterial
+\startquestion
+	「\indicator{もう生きものは飼わない}」理由は何か。
+	\startchoice
+		\citem{汚いと思うから}
+		\citem{娘と約束したから}
+		\citem{娘が金魚を飼い始めたから}
+		\citem{娘が生きものを死なせたから}
+	\stopchoice
+\stopquestion
+\startquestion
+	「\indicator{手を合わせた}」とはどういう意味か。
+	\startchoice
+		\citem{感謝した。 }
+		\citem{賛成した。 }
+		\citem{お願いをした。}
+		\citem{手伝ってもらった。}
+	\stopchoice
+\stopquestion
+\startquestion
+	「\indicator{内心喜んでいた}」とあるが、それはなぜか。
+	\startchoice
+		\citem{犬が成長しているから}
+		\citem{犬が家族を守っているから}
+		\citem{妻がほとほと困っているから}
+		\citem{妻と娘が世話をしているから}
+	\stopchoice
+\stopquestion
+\startquestion
+	「\indicator{それ}」は何を指すか。
+	\startchoice
+		\citem{ククが老犬になったこと}
+		\citem{私がククを拾ってあげたこと}
+		\citem{海外赴任が10年ほどあること}
+		\citem{私が帰国するまでククが生きていてくれたこと}
+	\stopchoice
+\stopquestion
+\startquestion
+	文章の内容に合っているものはどれか。
+	\startchoice
+		\citem{ククはとてもかしこい犬だ。}
+		\citem{娘が犬にククという名前をつけた。}
+		\citem{妻は熱心にククの世話をしていた。}
+		\citem{ククは拾ってきた時、きれいな犬だった。}
+	\stopchoice
+\stopquestion
+
+\startmaterial
+あぁ月曜かぁ。起きたくないなあ。4連休はどこにも行かず、たっぷり寝たはずなのに。あと10分、あと10分、ベッドの中で繰り返す、そんな朝。
+
+「借金はできても、\indicator{貯金はできない}」といわれるのが睡眠である。寝不足がいつの間にか借金のように膨らんで、健康や仕事に悪影響を及ぼす。「睡眠負債」というやつである。たまった借りを一括返済しようと休日に寝だめ（\han{补觉}）をしても、かえってリズムが乱れ体調を崩してしまう。
+
+日本人は世界でも際立って（\han{明显}）睡眠時間が短い。2018年の調査では、経済力開発機構の加盟30カ国で最下位の7時間22分。米国の8時間48分に比べれば、確かに見劣りする。1960年には日本人も8時間13分は眠っていたそうだから。経済成長とともに\indicator{「負債」も右肩上がり}。
+
+\indicator{}、若い世代には変化が兆している。20~30代前半の睡眠時間は約8時間と、この10年間で1割程度増えた。寝る間を惜しんで仕事や夜遊びに打ち込む（\han{投入}）より、自宅でスマホをいじり（\han{玩手机}）ながら横になる…そんな\indicator{生活様式が要因}という。
+
+「不眠不休」はある時代まで日本人の美徳だった。働き方改革が叫ばれるいま。手始めは「眠り方改革」かもしれない。よ一し思い切ってもうひと寝入り…ってわけにはしかないか。
+\stopmaterial
+\startquestion
+	 「\indicator{貯金はできない}」とは何の意味か。
+	\startchoice
+		\citem{睡眠はお金では買えない。}
+		\citem{睡眠に投資しても意味がない。}
+		\citem{睡眠は負債になることが多い。 }
+		\citem{睡眠を貯めることはできない。}
+	\stopchoice
+\stopquestion
+\startquestion
+	 「\indicator{『負債』も右肩上がり}」とはどういうことか。
+	\startchoice
+		\citem{睡眠時間が長くなっている。}
+		\citem{寝る時間が早くなっている。}
+		\citem{経済の負債がひどくなっている。 }
+		\citem{寝不足の状況が深刻になっている。}
+	\stopchoice
+\stopquestion
+\startquestion
+	文中の\indicator{}に入れるのに最も適当なものはどれか。
+	\startchoice
+		\citem{ それに}
+		\citem{それで}
+		\citem{それでも }
+		\citem{それなら}
+	\stopchoice
+\stopquestion
+\startquestion
+	「\indicator{生活様式が要因}」 とあるが、なぜそう言うか。
+	\startchoice
+		\citem{寝るのが遅くなるから}
+		\citem{横になると眠くなるから}
+		\citem{仕事や夜遊びで疲れるから}
+		\citem{働き方改革が叫ばれるから}
+	\stopchoice
+\stopquestion
+\startquestion
+	筆者の考えに合っているものはどれか。
+	\startchoice
+		\citem{働き方改革をやるべきではない。}
+		\citem{まず眠り方改革を進めるべきだ。}
+		\citem{若者は「睡眠負債」を一括返済すべきだ。}
+		\citem{若者は横になってスマホをいじるべきではない。}
+	\stopchoice
+\stopquestion
+
+
+\startmaterial
+食器洗い機を購入してから1年たったある日、夫が突然、食器洗い機のことを「食洗機さん」と「さん」を付けて呼び始めた。購入する前は、「食洗機って、本当に必要なの？」なんて言っていたのに、どうしたのだろうか。
+
+「さん」を付ける心理について少し考えてみた。「さん」は「さま（様）」が変化した言葉だが、おそらく現代の日本で最もよく使われている敬称だ。「田中さん」のように人の名前に付けると「さま」ほどは畏まらず（\han{不那么拘谨}） 、「ちゃん」ほどは親しすぎない感じがして使いやすい。ちょっとくだけた（\han{轻松的}）会話では、「あそこの会社の部長さんが…」など職業や役職に付けることもある。さらに、人間以外にも、「象さん」「お豆さん」のように「さん」を付ける人もいる。
+
+「『新明解国語辞典（第8版） 』は「さん」について、「様」より親しみの気持ちを含めて、人の名前や人を表す語などのあとにつけて（\han{軽い}）敬意を表す。また、動植物や身近に存在する物などを凝人化して言う場合にも用いられる」と説明している。確かに、「トマトさん」などと呼ぶと、絵本に登場するような姿が思い浮かんで一気に\indicator{}が増す気がする。いずれにしてもこの一年間に、わが家の食洗機は、ただの家電製品から、身近について頼れる相棒（\han{伙伴}）「食洗機さん」に昇格したということなのだろう。
+
+そういえば、今より人間関係に敏感だった中学時代、仲良くなりかけた（\han{开始変得}）クラスメートの「さん」付けをいつやめるか真剣に\indicator{悩んだ}こともあった。いつものようにフル稼働（\han{连軸转}）する「食洗機さん」を眺めつつ、自分にもそんな時代もあったなと少しだけ懷かしく思う今日のごろだ。
+\stopmaterial
+\startquestion
+	食洗機を購入する前、「夫」はどう思っていたか。
+	\startchoice
+		\citem{食洗機は必要ではない。}
+		\citem{食洗機は家にあるべきだ。}
+		\citem{前から食洗機がほしかった。}
+		\citem{食洗機のことを初めて知った。}
+	\stopchoice
+\stopquestion
+\startquestion
+	この文章によると、日本で最もよく使われている敬称はどれか。
+	\startchoice
+		\citem{さん}
+		\citem{さま }
+		\citem{ちゃん}
+		\citem{先生}
+	\stopchoice
+\stopquestion
+\startquestion
+	文中の\indicator{}に入れるのに最も適当なものはどれか。
+	\startchoice
+		\citem{敬意}
+		\citem{親しみ }
+		\citem{嫌な気持ち}
+		\citem{感謝の気持ち}
+	\stopchoice
+\stopquestion
+\startquestion
+	購入して1年、食洗機はどうなったか。
+	\startchoice
+		\citem{あまり役に立たなかった。}
+		\citem{古くなって使えなくなった。}
+		\citem{なくてはならないものになった。 }
+		\citem{あまり使っていないからまだ新しい。}
+	\stopchoice
+\stopquestion
+\startquestion
+	文中に「\indicator{悩んだ}」とあるが、なぜ悩んだか。
+	\startchoice
+		\citem{「さん」の使い方が分からなかったから}
+		\citem{仲良くしていいかどうか分からなかったから}
+		\citem{どのように友だちと仲良くなるか分からなかったから}
+		\citem{いつから親しい呼び方で友達を呼ぶか分からなかったから。}
+	\stopchoice
+\stopquestion
+
+\startmaterial
+私は、子どもたちには、生きがい（\han{人生价値}）を見つけてほしいと思っています。これまでは、「有名大学に入り、いい会社といわれる大企業に就職することが安定した人生と成功への道」といった考え方が王道として信じられてきました。なぜなら、今、子育てをしている親世代が育ったのは、世間的によいといわれるレール（\han{執道}）に乗っていればある程度安心という「正解がある時代」だったからです。
+
+でも「終身雇用」や「年功序列」という制度が崩れ、たとえ「いい会社」に入れた。としても、それで一生が保証されるわけではありません。将来を見通す（\han{展望}）ことが難しい、\indicator{正解のない時代}になったのてある。もちろん、よい変化もあり、「どこに住んでも仕事ができるし、いくつ仕事を持ってもいい」と、仕事のやり方も変わり、時間の自由を手に入れ、ハッピーになったという声も聞こえてきます。
+
+自分がワクワクして(\han{兴奋地})取り組める(\han{能够投入})こと、本当にやりたいことがある人にとっては、可能性にあふれた時代になってきました。\indicator{}、毎日をワクワクしながら暮らしている大人はどのくらいいるでしょうか。周りを見回しても、あまり見当たらない(\han{找不到})ように感じます。
+
+それどころか、急に「やりたいことをやりなさい」「あなたはどう考えるの？」と言われて、「えっ？そんなこと言われても…」と\indicator{困っている人が多い}ようです。それは、これまで、新しいことに挑戦しようとしたときに、親や先生から否定が、人と違う意見を言ったら白い目で見られたりという経験を繰り返した結果、自分の考えを持たないほうが生きやすいということを学習してきてしまったからかもしれません。
+\stopmaterial
+\startquestion
+	今、子育てをしている親世代が育った時代はどんな時代か。
+	\startchoice
+		\citem{正解にこだわらない時代 }
+		\citem{誰でも簡単にいい企業に就職できる時代}
+		\citem{世間的によいと思われることをやればいい時代}
+		\citem{有名な大学に入らなくても安定した生活ができる時代}
+	\stopchoice
+\stopquestion
+\startquestion
+	文中の「\indicator{正解のない時代}」とは何か。
+	\startchoice
+		\citem{将来どうなるか分からない時代}
+		\citem{だれでも一生が保証される時代}
+		\citem{「終身雇用」「年功序列」の時代 }
+		\citem{どんな企業がいい企業か分からない時代}
+	\stopchoice
+\stopquestion
+\startquestion
+	文中の\indicator{}に入れるのに最も適当なものはどれか。
+	\startchoice
+		\citem{だから}
+		\citem{しかし}
+		\citem{ところで}
+		\citem{したがって}
+	\stopchoice
+\stopquestion
+\startquestion
+	毎日ワクワクしながら暮らすことができないのはなぜか。
+	\startchoice
+		\citem{仕事のやり方が変わったから}
+		\citem{他の人が可能性にあふれているから}
+		\citem{自分が本当にやりたいことが分からないから}
+		\citem{時間の自由を手に入れることができないから}
+	\stopchoice
+\stopquestion
+\startquestion
+	文中に「\indicator{困っている人が多い}」とあるが、なせそうなったか。
+	\startchoice
+		\citem{年功列制度が崩れたから}
+		\citem{親や先生の教育には問題があるから}
+		\citem{新しいことに挑戦しようとしないから}
+		\citem{生きやすい生き方をしている人が少ないから}
+	\stopchoice
+\stopquestion
+%
+
+\unprotect
+%\mode_checktrue
+\protect
+\setupindenting[yes,medium]
+\definepapertitle[papertitles]
+\setuppapertitle [papertitles][
+    n=6,
+    typi=secret, 
+    typii=title,
+    typiii=subject,
+    typiv=signinformation,
+    typv=information,
+    typvi=notice,
+    secretstyle=\ss,
+    titlestyle=\ssa,
+    subjectstyle=\ssb,
+    informationstyle=\ttx,
+    noticestyle=\rm\it,
+    secretalign=flushleft,
+    titlealign=center,
+    subjectalign=center,
+    informationalign=center,
+    noticealign=flushleft,
+    secret={绝密 ★ 启用前},
+    title={2024年普通高等学校招生全国统一考试（新课标 I 卷）},
+    subject={英语学科},
+    signinformation={{姓名:     }{\blackrule[width=4em,height=.2pt]}
+                     {准考证号: }{\blackrule[width=4em,height=.2pt]}},
+    information={全卷共12页，满分150分，考试时间120分钟。},
+    notice={考生注意：
+            \startitemize[n,packed,joinedup]
+            \item 答题前，请务必将自己的姓名、准考证号用黑色字迹的签字笔
+                  或钢笔分别填写在试题卷和答题纸规定的位置上。 %
+            \item 答题时，请按照答题纸上“注意事项”的要求，在答题纸相应的
+                  位置上规范作答，在本试题卷上的作答一律无效。 %
+            \stopitemize},
+]
+
+
+\chapter{2024年普通高等学校招生全国统一考试（新课标 I 卷）}
+
+\makepapertitle[papertitles]
+
+\ego{听力（共两节，满分30分）}
+做题时，先将答案标在试卷上。录音内容结束后，你将有两分钟的时间将试卷上的答案转涂到答题纸上。
+
+\isea{（共5小题；每小题1.5分，满分7.5分）}
+听下面5段对话。每段对话后有一个小题，从题中所给的A、B、C三个选项中选出最佳选项。
+听完每段对话后，你都有10秒钟的时间来回答有关小题和阅读下一小题。每段对话仅读一遍。
+
+\startquestion[example=true]
+  例： How much is the shirt?
+  \startchoice
+  \startcitem{£19.15.}\stopcitem
+  \startcitem{£9.18.}\stopcitem
+  \startcitem[*]{£9.15.}\stopcitem
+  \stopchoice
+\stopquestion
+
+\setupquestion[answer=\getanswerfromchoice]
+\startquestion[start=1]
+What is Kate doing?
+  \startchoice
+  \startcitem Boarding a flight.\stopcitem
+  \startcitem Arranging a trip.\stopcitem
+  \startcitem[*] Seeing a friend off.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What are the speakers talking about?
+  \startchoice
+  \startcitem A pop star.\stopcitem
+  \startcitem[*] An old song.\stopcitem
+  \startcitem A radio program.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What will the speakers do today?
+  \startchoice
+  \startcitem[*] A Go to an art show.\stopcitem
+  \startcitem Meet the man's aunt.\stopcitem
+  \startcitem Eat out with Mark.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What does the man want to do?
+  \startchoice
+  \startcitem Cancel an order.\stopcitem
+  \startcitem Ask for a receipt.\stopcitem
+  \startcitem[*] Reschedule a delivery.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+When will the next train to Bedford leave?
+  \startchoice
+  \startcitem[*] At 9:45.\stopcitem
+  \startcitem At 10:15.\stopcitem
+  \startcitem At 11:00.\stopcitem
+  \stopchoice
+\stopquestion
+
+\isea{（共15小题；每小题1.5分，满分22.5分）}
+听下面5段对话或独白。每段对话或独白后有几个小题，从题中所给的A、B、C三个选项中选出最佳选项。
+听每段对话或独白前，你将有时间阅读各个小题，每小题5秒钟；听完后，各小题将给出5秒钟的作答时间。
+每段对话或独白读两遍。
+
+听下面一段较长对话，回答以下小题。
+
+\startquestion
+What will the weather be like today?
+  \startchoice
+  \startcitem[*] Stormy.\stopcitem
+  \startcitem Sunny.\stopcitem
+  \startcitem Foggy.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What is the man going to do?
+  \startchoice
+  \startcitem Plant a tree.\stopcitem
+  \startcitem[*] Move his car.\stopcitem
+  \startcitem Check the map.\stopcitem
+  \stopchoice
+\stopquestion
+  
+听下面一段较长对话，回答以下小题。
+
+\startquestion
+Why is Kathy in California now?
+  \startchoice
+  \startcitem She is on vacation there.\stopcitem
+  \startcitem[*] She has just moved there.\stopcitem
+  \startcitem She is doing business there.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What is the relationship between Tom and Fiona?
+  \startchoice
+  \startcitem Husband and wife.\stopcitem
+  \startcitem[*] Brother and sister.\stopcitem
+  \startcitem Father and daughter.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What does Kathy thank Dave for?
+  \startchoice
+  \startcitem Finding her a new job.\stopcitem
+  \startcitem Sending her a present.\stopcitem
+  \startcitem[*] Calling on her mother.\stopcitem
+  \stopchoice
+\stopquestion
+
+听下面一段较长对话，回答以下小题。
+
+\startquestion
+How did Jack go to school when he was a child?
+  \startchoice
+  \startcitem By bike.\stopcitem
+  \startcitem[*] On foot.\stopcitem
+  \startcitem By bus.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What is Jack's attitude toward parents driving their kids to school?
+  \startchoice
+  \startcitem Disapproving.\stopcitem
+  \startcitem Encouraging.\stopcitem
+  \startcitem[*] Understanding.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What is the problem with some parents according to the woman?
+  \startchoice
+  \startcitem[*] Overprotecting their children.\stopcitem
+  \startcitem Pushing their children too hard.\stopcitem
+  \startcitem Having no time for their children.\stopcitem
+  \stopchoice
+\stopquestion
+
+听下面一段较长对话，回答以下小题。
+
+\startquestion
+Why did Marie post her kitchen gardening online at first?
+  \startchoice
+  \startcitem[*] To keep records of her progress.\stopcitem
+  \startcitem To sell home-grown vegetables.\stopcitem
+  \startcitem To motivate her fellow gardeners.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+Why does Marie recommend beginners to grow strawberries?
+  \startchoice
+  \startcitem They need no special care.\stopcitem
+  \startcitem They can be used in cooking.\stopcitem
+  \startcitem[*] They bear a lot of fruit soon.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What is difficult for Marie to grow?
+  \startchoice
+  \startcitem Herbs.\stopcitem
+  \startcitem[*] Carrots.\stopcitem
+  \startcitem Pears.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What is Marie's advice to those interested in kitchen gardening?
+  \startchoice
+  \startcitem Aim high.\stopcitem
+  \startcitem Keep focused.\stopcitem
+  \startcitem[*] Stay optimistic.\stopcitem
+  \stopchoice
+\stopquestion
+
+听下面一段独白，回答以下小题。
+
+\startquestion
+What is "Life of Johnson"?
+  \startchoice
+  \startcitem[*] A magazine column.\stopcitem
+  \startcitem A TV series.\stopcitem
+  \startcitem A historical novel.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What is Johnson famous for?
+  \startchoice
+  \startcitem His acting talent.\stopcitem
+  \startcitem[*] His humorous writing.\stopcitem
+  \startcitem His long sports career.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+When did Johnson join Sports Times?
+  \startchoice
+  \startcitem In 1981.\stopcitem
+  \startcitem In 1983.\stopcitem
+  \startcitem[*] In 1985.\stopcitem
+  \stopchoice
+\stopquestion
+
+\ego{阅读（共两节，满分50分）}
+\isea{（共15小题；每小题2.5分，满分37.5分）}
+阅读下列短文，从每题所给的A、B、C、D四个选项中选出最佳选项。
+
+\setupmaterial[title] [style=bold]
+\setupmaterial[number][numberconversion=A,before=,after=]
+\startmaterial[title=\par HABITAT RESTORATION TEAM,author=,source=]
+\language[en]
+Help restore and protect Marin's natural areas from the Marin Headlands to Bolinas Ridge. We'll explore beautiful park sites while conducting invasive (侵入的) plant removal, winter planting, and seed collection. Habitat Restoration Team volunteers play a vital role in restoring sensitive resources and protecting endangered species across the ridges and valleys.
+
+{\bf GROUPS}
+
+Groups of five or more require special arrangements and must be confirmed in advance. Please review the List of Available Projects and fill out the Group Project Request Form.
+
+{\bf AGE, SKILLS, WHAT TO BRING}
+
+Volunteers aged 10 and over are welcome. Read our Youth Policy Guidelines for youth under the age of 15.
+
+Bring your completed Volunteer Agreement Form. Volunteers under the age of 18 must have the parent/guardian approval section signed.
+
+We'll be working rain or shine. Wear clothes that can get dirty. Bring layers for changing weather and a raincoat if necessary.
+
+Bring a personal water bottle, sunscreen, and lunch.
+
+No experience necessary. Training and tools will be provided. Fulfills (满足) community service requirements.
+
+{\bf UPCOMING EVENTS}
+
+\setuptabulate[distance=big,rule=line,frame=on]
+\starttabulate[|cw(.5tw)|cw(.5tw)|]
+\HL
+\VL {\bf Time}                         \VL {\bf Meeting Location}      \VL\NR\HL
+\VL Sunday, Jan. 15  10:00 am — 1:00 pm\VL Battery Alexander Trailhead \VL\NR\HL
+\VL Sunday, Jan. 22  10:00 am — 2:30 pm\VL Stinson Beach Parking Lot   \VL\NR\HL
+\VL Sunday, Jan. 29   9:30 am — 2:30 pm\VL Coyote Ridge Trailhead      \VL\NR\HL
+\stoptabulate
+\stopmaterial
+
+\startquestion
+What is the aim of the Habitat Restoration Team?
+  \startchoice
+  \startcitem To discover mineral resources.\stopcitem
+  \startcitem To develop new wildlife parks.\stopcitem
+  \startcitem[*] To protect the local ecosystem.\stopcitem
+  \startcitem To conduct biological research.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What is the lower age limit for joining the Habitat Restoration Team?
+  \startchoice
+  \startcitem 5.\stopcitem
+  \startcitem[*] 10.\stopcitem
+  \startcitem 15.\stopcitem
+  \startcitem 18.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What are the volunteers expected to do?
+  \startchoice
+  \startcitem Bring their own tools.\stopcitem
+  \startcitem[*] Work even in bad weather.\stopcitem
+  \startcitem Wear a team uniform.\stopcitem
+  \startcitem Do at least three projects.\stopcitem
+  \stopchoice
+\stopquestion
+
+\startmaterial[title=,author=,source=]
+\language[en]
+“I am not crazy,” says Dr. William Farber, shortly after performing acupuncture (针灸) on a rabbit. “I am ahead of my time.” If he seems a little defensive, it might be because even some of his coworkers occasionally laugh at his unusual methods. But Farber is certain he’ll have the last laugh. He’s one of a small but growing number of American veterinarians (兽医) now practicing “holistic” medicine-combining traditional Western treatments with acupuncture, chiropractic (按摩疗法) and herbal medicine.
+
+Farber, a graduate of Colorado State University, started out as a more conventional veterinarian. He became interested in alternative treatments 20 years ago when he suffered from terrible back pain. He tried muscle-relaxing drugs but found little relief. Then he tried acupuncture, an ancient Chinese practice, and was amazed that he improved after two or three treatments. What worked on a veterinarian seemed likely to work on his patients. So, after studying the techniques for a couple of years, he began offering them to pets.
+
+Leigh Tindale’s dog Charlie had a serious heart condition. After Charlie had a heart attack, Tindale says, she was prepared to put him to sleep, but Farber’s treatments eased her dog’s suffering so much that she was able to keep him alive for an additional five months. And Priscilla Dewing reports that her horse, Nappy, “moves more easily and rides more comfortably” after a chiropractic adjustment.
+
+Farber is certain that the holistic approach will grow more popular with time, and if the past is any indication, he may be right: Since 1982, membership in the American Holistic Veterinary Medical Association has grown from 30 to over 700. “Sometimes it surprises me that it works so well,” he says. “I will do anything to help an animal. That’s my job.”
+\stopmaterial
+
+\startquestion
+What do some of Farber’s coworkers think of him?
+  \startchoice[n=4]
+  \startcitem[*] He’s odd.\stopcitem
+  \startcitem He’s strict.\stopcitem
+  \startcitem He’s brave.\stopcitem
+  \startcitem He’s rude.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+Why did Farber decide to try acupuncture on pets?
+  \startchoice
+  \startcitem He was trained in it at university.\stopcitem
+  \startcitem He was inspired by another veterinarian.\stopcitem
+  \startcitem[*] He benefited from it as a patient.\stopcitem
+  \startcitem He wanted to save money for pet owners.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What does paragraph 3 mainly talk about?
+  \startchoice
+  \startcitem Steps of a chiropractic treatment.\stopcitem
+  \startcitem The complexity of veterinarians’ work.\stopcitem
+  \startcitem Examples of rare animal diseases.\stopcitem
+  \startcitem[*] The effectiveness of holistic medicine.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+Why does the author mention the American Holistic Veterinary Medical Association?
+  \startchoice
+  \startcitem[*] To prove Farber’s point.\stopcitem
+  \startcitem To emphasize its importance.\stopcitem
+  \startcitem To praise veterinarians.\stopcitem
+  \startcitem To advocate animal protection.\stopcitem
+  \stopchoice
+\stopquestion
+
+\startmaterial[title=,author=,source=]
+\language[en]
+Is comprehension the same whether a person reads a text onscreen or on paper? And are listening to and viewing content as effective as reading the written word when covering the same material? The answers to both questions are often “no”. The reasons relate to a variety of factors, including reduced concentration, an entertainment mindset (心态) and a tendency to multitask while consuming digital content.
+
+When reading texts of several hundred words or more, learning is generally more successful when it’s on paper than onscreen. A large amount of research confirms this finding. The benefits of print reading particularly \underbar{\bf shine through} when experimenters move from posing simple tasks — like identifying the main idea in a reading passage — to ones that require mental abstraction — such as drawing inferences from a text.
+
+The differences between print and digital reading results are partly related to paper’s physical properties. With paper, there is a literal laying on of hands, along with the visual geography of distinct pages. People often link their memory of what they’ve read to how far into the book it was or where it was on the page.
+
+But equally important is the mental aspect. Reading researchers have proposed a theory called “shallowing hypothesis (假说)\;”. According to this theory, people approach digital texts with a mindset suited to social media, which are often not so serious, and devote less mental effort than when they are reading print.
+
+Audio (音频) and video can feel more engaging than text, and so university teachers increasingly turn to these technologies — say, assigning an online talk instead of an article by the same person. However, psychologists have demonstrated that when adults read news stories, they remember more of the content than if they listen to or view identical pieces.
+
+Digital texts, audio and video all have educational roles, especially when providing resources not available in print. However, for maximizing learning where mental focus and reflection are called for, educators shouldn’t assume all media are the same, even when they contain identical words.
+\stopmaterial
+
+\startquestion
+What does the underlined phrase “shine through” in paragraph 2 mean?
+  \startchoice
+  \startcitem Seem unlikely to last.\stopcitem
+  \startcitem Seem hard to explain.\stopcitem
+  \startcitem Become ready to use.\stopcitem
+  \startcitem[*] Become easy to notice.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What does the shallowing hypothesis assume?
+  \startchoice
+  \startcitem[*] Readers treat digital texts lightly.\stopcitem
+  \startcitem Digital texts are simpler to understand.\stopcitem
+  \startcitem People select digital texts randomly.\stopcitem
+  \startcitem Digital texts are suitable for social media.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+Why are audio and video increasingly used by university teachers?
+  \startchoice
+  \startcitem[*] They can hold students' attention.\stopcitem
+  \startcitem They are more convenient to prepare.\stopcitem
+  \startcitem They help develop advanced skills.\stopcitem
+  \startcitem They are more informative than text.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What does the author imply in the last paragraph?
+  \startchoice
+  \startcitem Students should apply multiple learning techniques.\stopcitem
+  \startcitem Teachers should produce their own teaching material.\stopcitem
+  \startcitem[*] Print texts cannot be entirely replaced in education.\stopcitem
+  \startcitem Education outside the classroom cannot be ignored.\stopcitem
+  \stopchoice
+\stopquestion
+
+\startmaterial[title=,author=,source=]
+\language[en]
+In the race to document the species on Earth before they go extinct, researchers and citizen scientists have collected billions of records. Today, most records of biodiversity are often in the form of photos, videos, and other digital records. Though they are useful for detecting shifts in the number and variety of species in an area, a new Stanford study has found that this type of record is not perfect.
+
+ “With the rise of technology it is easy for people to make observations of different species with the aid of a mobile application,” said Barnabas Daru, who is lead author of the study and assistant professor of biology in the Stanford School of Humanities and Sciences. “These observations now outnumber the primary data that comes from physical specimens \hbox{(标本)}, and since we are increasingly using observational data to investigate how species are responding to global change, I wanted to know: Are they usable?”
+ 
+Using a global dataset of 1.9 billion records of plants, insects, birds, and animals, Daru and his team tested how well these data represent actual global biodiversity patterns.
+
+“We were particularly interested in exploring the aspects of sampling that tend to bias (使有偏差) data, like the greater likelihood of a citizen scientist to take a picture of a flowering plant instead of the grass right next to it,” said Daru.
+Their study revealed that the large number of observation-only records did not lead to better global coverage. Moreover, these data are biased and favor certain regions, time periods, and species. This makes sense because the people who get observational biodiversity data on mobile devices are often citizen scientists recording their encounters with species in areas nearby. These data are also biased toward certain species with attractive or eye-catching features.
+
+What can we do with the imperfect datasets of biodiversity?
+
+“Quite a lot,” Daru explained. “Biodiversity apps can use our study results to inform users of oversampled areas and lead them to places — and even species — that are not well-sampled. To improve the quality of observational data, biodiversity apps can also encourage users to have an expert confirm the identification of their uploaded image.”
+\stopmaterial
+
+\startquestion
+What do we know about the records of species collected now?
+  \startchoice
+  \startcitem They are becoming outdated.\stopcitem
+  \startcitem[*] They are mostly in electronic form.\stopcitem
+  \startcitem They are limited in number.\stopcitem
+  \startcitem They are used for public exhibition.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What does Daru’s study focus on?
+  \startchoice
+  \startcitem Threatened species.\stopcitem
+  \startcitem Physical specimens.\stopcitem
+  \startcitem[*] Observational data.\stopcitem
+  \startcitem Mobile applications.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What has led to the biases according to the study?
+  \startchoice
+  \startcitem Mistakes in data analysis.\stopcitem
+  \startcitem Poor quality of uploaded pictures.\stopcitem
+  \startcitem[*] Improper way of sampling.\stopcitem
+  \startcitem Unreliable data collection devices.\stopcitem
+  \stopchoice
+\stopquestion
+\startquestion
+What is Daru’s suggestion for biodiversity apps?
+  \startchoice
+  \startcitem Review data from certain areas.\stopcitem
+  \startcitem Hire experts to check the records.\stopcitem
+  \startcitem Confirm the identity of the users.\stopcitem
+  \startcitem[*] Give guidance to citizen scientists.\stopcitem
+  \stopchoice
+\stopquestion
+
+\isea{（共5小题；每小题2.5分，满分12.5分）}
+阅读下面短文，从短文后的选项中选出可以填入空白处的最佳选项。选项中有两项为多余选项。
+
+Not all great writers are great spellers. If you want to be published, it's vital to submit a perfect, professionally presented manuscript (原稿). \specialocitem[answer=F] No editor is likely to tolerate a writer who does not take the trouble to spell words correctly.
+I keep two reference books close-by on my desk: dictionary and thesaurus (同义词词典). I don't trust my laptop's spellchecker. \specialocitem[answer=B] Of course, these days there are plenty of online dictionaries and thesauruses, but I'm old-fashioned enough to prefer a hard cover and pages I can leaf through with my fingers. I use the Concise Oxford Dictionary and the Collins Thesaurus.
+\specialocitem[answer=E] It should give you a precise definition of each word, thus differentiating it from other words whose meanings are similar, but not identical. It will also usually show how the word is pronounced.
+In addition, I have an old two-volume copy of the Shorter Oxford Dictionary, picked up a few years ago in a bookshop sale for just 99 pence. Of course, with its 2,672 pages, it's not exactly short. It contains around 163,000 words, plus word combinations and idiomatic phrases. \specialocitem[answer=A] However, if I need to check the origin of a word or to look up examples of its usage, there's nothing better.
+For well over a hundred years the most influential English dictionary was Samuel Johnson's Dictionary of the English Language published in 1755. "To make dictionaries is dull (乏味) work," wrote Johnson, illustrating one definition of "dull". \specialocitem[answer=D] A few minutes spent casting your eye over a page or two can be a rewarding experience.
+
+  \startitemize[A,packed,nowhite,joined]
+  \startitem I don't often use this dictionary.\stopitem
+  \startitem It takes no account of the context.\stopitem
+  \startitem But I still don't want to replace them.\stopitem
+  \startitem But a dictionary can be a pleasure to read.\stopitem
+  \startitem Of course, a dictionary is not only for spelling.\stopitem
+  \startitem That means good grammar and no spelling mistakes.\stopitem
+  \startitem Dictionaries don't always give you enough information.\stopitem
+  \stopitemize
+
+\ego{语言运用（共两节，满分30分）}
+\isea{（共15小题；每小题1分，满分15分）}
+阅读下面短文，从每题所给的A、B、C、D四个选项中选出最佳选项。
+
+\startclose
+I’ve been motivated — and demotivated — by other folks’ achievements all my life.
+
+When I was a teenager, a neighborhood friend 
+\closechoice[knew,held,{[*]won},quit] a marathon race. Feeling motivated, I started running 
+\closechoice[{[*]regularly},silently,proudly,recently], but then two things happened. First, a girl I met one day told me she was 
+\closechoice[asking,looking,waiting,{[*]training}] for a “super,” referring to a 52.4-mile double marathon. Then, the next day I went on my longest run — 15 miles. To be honest, I 
+\closechoice[made,believed,{[*]hated},deserved] it! Between the girl making my 
+\closechoice[advantage,{[*]achievement},contribution,influence] seem small and the pure boredom of jogging, I decided that the only 
+\closechoice[way,risk,place,{[*]reason}] I’d ever run again is if a big dog was running after me!
+
+So I 
+\closechoice[gave up,went on,{[*]turned to},dealt with] cycling. I got a good bike and rode a lot. I 
+\closechoice[heard,{[*]dreamed},complained,approved] of entering cycle races until I flew to San Diego to visit my sister. While she was at work one day, I 
+\closechoice[painted,{[*]borrowed},bought,parked] her bike and went for a ride. The 
+\closechoice[{[*]problem},secret,principle,advice]: the roads there went through large valleys where I’d be riding uphill for miles at a time. I’d never faced such 
+\closechoice[dangers,events,opponents,{[*]challenges}]. That day, I got 
+\closechoice[{[*]passed},convinced,admired,stopped] by about 100 “local” bikers who were used to such roads. When I got back home, suddenly riding my bike didn’t seem quite as 
+\closechoice[reliable,convenient,familiar,{[*]appealing}].
+
+I’ve 
+\closechoice[traveled,{[*]matured},missed,worried] a lot since then. I’ve come to accept that whatever 
+\closechoice[limits,dates,{[*]goals},tests] I set for myself, they just have to be my own.
+\stopclose
+
+\isea{（共10小题；每小题1.5分，满分15分）}
+阅读下面短文，在空白处填入1个适当的单词或括号内单词的正确形式。
+
+\startoptclose
+Heatherwick Studio recently built a greenhouse at the edge of the National Trust’s Woolbeding Gardens. This beautiful structure, named Glasshouse, is at the centre of a new garden that shows how the Silk Road influeVLes English gardens even in modern times.
+
+The latest \ocitem[answer=engineering]{engineer} techniques are applied to create this protective \ocitem[answer=functional]{function} structure that is also beautiful. The design features ten steel “sepals (萼片)” made of glass and aluminium (铝). These sepals open on warm days \ocitem[answer=to give]{give} the inside plants sunshine and fresh air. In cold weather, the structure stays \ocitem[answer=closed]{close} to protect the plants.
+
+Further, the Silk Route Garden around the greenhouse \ocitem[answer=walks]{walk} visitors through a journey influeVLed by the aVLient Silk Road, by which silk as well as many plant species came to Britain for \ocitem[answer=the]{} first time. These plants iVLluded modern Western \ocitem[answer=favorites]{favourite} such as rosemary, lavender and fennel. The garden also contains a winding path that guides visitors through the twelve regions of the Silk Road. The path offers over 300 plant species for visitors to see, too.
+The Glasshouse stands \ocitem[answer=as]{} a great achievement in contemporary design, to house the plants of the southwestern part of China at the end of a path retracing (追溯) the steps along the Silk Route \ocitem[answer=which that] {} brought the plants from their native habitat in Asia to come to define much of the \ocitem[answer=richness]{rich} of gardening in England.
+\stopoptclose
+
+\ego{写作（共两节，满分40分）}
+\isea{（满分15分）}
+\setupquestion[answer=参见例文]
+\startquestion
+假定你是李华，上周五你们班在公园上了一堂美术课。请你给英国朋友Chris写一封邮件分享这次经历，内容包括：
+
+
+\startitemize[n,nowhite,packed,joined]
+             [left={(},right={)},distance=0em,stopper={}]
+  \item 你完成的作品；
+  \item 你的感想。
+\stopitemize
+
+\noindent 注意：
+      \startitemize[n,nowhite,packed,joined]
+                   [left={(},right={)},distance=0em,stopper={}]
+      \item 写作词数应为80个左右；
+      \item 请按如下格式在答题纸的相应位置作答。
+      \stopitemize
+\stopquestion
+
+\noindent Dear Chris,
+
+      \fillinrules[n=5,width=broad,interlinespace=1,before=\indentation]
+      {I’m writing to share with you an art class I had in a park last Friday. } \par
+      
+      \startalignment[flushright]
+      Yours,\par
+      Li Hua
+      \stopalignment
+
+\startanswer[answer=见参考作文]
+\noindent Dear Chris,
+
+I’m writing to share with you an art class I had in a park last Friday.
+
+We were tasked to draw or paint something that impressed us most. Inspired by the fantastic scenery, I decided to create a watercolor painting of the small bridge over the park’s pond, surrounded by blooming flowers.
+
+The entire experience was incredibly refreshing. Being surrounded by nature not only sparked my creativity but also offered a much-needed break from the usual hustle and bustle of school life. I felt a deep sense of peace as I painted.
+
+In a word, it was not just an art class; it was a moment of connection with nature that I truly cherished.
+
+\startalignment[flushright]
+Yours,\par
+Li Hua
+\stopalignment
+\stopanswer
+
+
+\isea{（满分25分）}
+\startquestion
+阅读下面材料，根据其内容和所给段落开头语续写两段，使之构成一篇完整的短文。
+\stopquestion
+
+I met Gunter on a cold, wet and unforgettable evening in September. I had planned to fly to Vienna and take a bus to Prague for a conference. Due to a big storm, my flight had been delayed by an hour and a half. I touched down in Vienna just 30 minutes before the departure of the last bus to Prague. The moment I got off the plane, I ran like crazy through the airport building and jumped into the first taxi on the rank without a second thought.
+
+That was when I met Gunter. I told him where I was going, but he said he hadn't heard of the bus station. I thought my pronunciation was the problem, so I explained again more slowly, but he still looked confused. When I was about to give up, Gunter fished out his little phone and rang up a friend. After a heated discussion that lasted for what seemed like a century, Gunter put his phone down and started the car.
+Finally, with just two minutes to spare we rolled into the bus station. Thankfully, there was a long queue (队列) still waiting to board the bus. Gunter parked the taxi behind the bus, turned around, and looked at me with a big smile on his face. "We made it," he said.
+
+Just then I realised that I had zero cash in my wallet. I flashed him an apologetic smile as I pulled out my Portuguese bankcard. He tried it several times, but the card machine just did not play along. A feeling of helplessness washed over me as I saw the bus queue thinning out.
+
+At this moment, Gunter pointed towards the waiting hall of the bus station. There, at the entrance, was a cash machine. I jumped out of the car, made a mad run for the machine, and popped my card in, only to read the message: "Out of order. Sorry."
+
+\noindent 注意：
+\startitemize[n,nowhite,packed,joined][left={(},right={)},distance=0em,stopper={}]
+\item 续写词数应为150个左右；
+\item 请按如下格式在答题纸的相应位置作答。
+\stopitemize
+
+I ran back to Gunter and told him the bad news.
+\fillinrules[n=5,width=broad,interlinespace=1,before=\indentation]{}
+
+Four days later, when I was back in Vienna, I called Gunter as promised.
+\fillinrules[n=5,width=broad,interlinespace=1,before=\indentation]{}
+
+\startanswer[answer=见参考作文]
+参考范文 Para 1
+
+I ran back to Gunter and told him the bad news. He looked at me in disbelief, asking me what to do. Flashing him another apologetic smile, I begged him for a delayed payment. “If I miss this last bus to Prague, I’ll be late for the conference which is so important that I can’t afford to miss it!” I explained. “May I have your phone number? I will call you and return the money I owe you. I promise I will keep my word or you keep my watch!” I added, handing him my watch as well as my business card. Gunter accepted my business card but rejected my watch. He wrote down his phone number and gave it to me. “Just keep your promise, Sir.” A feeling of gratitude washed over me as I heard his words. Giving him a firm handshake, I jumped out of the car, made a mad run for the bus, and jumped onto it just before its departure.
+
+Para 2
+
+Four days later, when I was back in Vienna, I called Gunter as promised. He picked me up at the bus station where he had dropped me off four days before. Beaming a warm smile at him, I gave him a big hug the moment I saw him. We chatted happily on the way to the airport. I told him that thanks to his generosity and timely help, everything had gone smoothly. When he stopped his taxi outside the airport, I paid him for the “double car ride”, back and forth from the airport to the bus station, together with a generous tip that he turned down. I also gave him an attractive souvenir I had bought at Prague, which he accepted with delight. We became good friends and kept in touch with each other regularly. I felt blessed to have such a warm-hearted friend like Gunter.
+\stopanswer
+
+
+%\dorecurse{75}{\typeanswerbychap{1},\quad}
+\unprotect
+\type@answer@i[{2}*5,1,10]\par
+\type@answer@i[{2}*5,2,10]\par
+\type@answer@i[{14}*5,3,75]
+\protect
+
+\stoptext
+
+1.C	2.B	3.A	4.C	5.A
+
+6.A	7.B	8.B	9.B	10.C
+
+11.B	12.C	13.A	14.A	15.C
+
+16.B	17.C	18.A	19.B	20.C
+
+21.C	22.B	23.B	24.A	25.C	
+
+26.D	27.A	28.D	29.A	30.A	
+
+31.C	32.B	33.C	34.C	35.D	
+
+36.F	37.B	38.E	39.A	40.D
+
+41.C	42.A	43.D	44.C	45.B	
+
+46.D	47.C	48.B	49.B	50.A
+
+51.D	52.A	53.D	54.B	55.C					

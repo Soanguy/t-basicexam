@@ -1,19 +1,29 @@
 \usemodule[memos]
-    [fontsize=11pt,
+   [typescript=adobe,
+    latinfontname=texgyre,
+    fontname=adobehans,
+    fontsize=11pt,
     themecolor=green,
     layout=moderate,
+    tocsstyle=line,
+    chapterstyle=simple,
     hdrstyle=foemarginalt]
-\usemodule[basicexam]
+\usemodule[basicexam][mode=teacher]
 \starttext
-\definecombinedlist[contentswithsub][part,chapter,section,subsection][level=section,criterium=local]
-\setupcombinedlist   [contentswithsub] [list={part,chapter,section,subsection}]
-\setuplist [chapter] [width=3em,distance=1em,margin=1em]
-\setuplist [section] [width=3em,distance=1em,margin=2em]
-\setuplist [subsection] [width=3em,distance=1em,margin=3em,alternative=c]
 
-\placecontentswithsub
+\placecontent
 
 \chapter{環境設置}
+
+\section{模塊設置}
+
+\starttyping
+\usemodule[basicexam][mode=student]
+\stoptyping
+
+可以通過修改 mode 的值來設定師生兩版。目前有 student、teacher 兩種屬性。
+
+設定爲 student 之後，默認隱藏答案。設定爲 teacher 則反之。
 
 \section{繪製卷頭}
 \setuptype[lines=hyphenated]
@@ -27,8 +37,8 @@
 \stoplists
 
 \startbuffer
-\definepapertitle[newpapertitle]
-\setuppapertitle [\currentpapertitle][
+\definepapertitle[papertitles]
+\setuppapertitle [papertitles][
     n=5,              % 定义需要在试卷标题处需要显示多少元素，
     typi=secret,      % 同时，自动定义相应数量的元素命令
     typii=title,      % 使用typi typii typiii typiv ...
@@ -46,7 +56,7 @@
     informationalign=center,
     noticealign=flushleft,
     secret={绝密 ★ 启用前},
-    title={\tu{2021 年普通高等学校招生全国统一考试}},
+    title={2021 年普通高等学校招生全国统一考试},
     subject={日语},
     information={总分:150 分，考试时间:120 分钟},
     notice={注意事项：
@@ -66,7 +76,42 @@
 
 \typebuffer
 
-\framed[width=\textwidth,align=flushleft]{\makepapertitle[\currentpapertitle]}
+\definepapertitle[papertitles]
+\setuppapertitle [papertitles][
+    n=5,              % 定义需要在试卷标题处需要显示多少元素，
+    typi=secret,      % 同时，自动定义相应数量的元素命令
+    typii=title,      % 使用typi typii typiii typiv ...
+    typiii=subject,   % 定义每个元素的名称，同时自动生成相关样式化命令
+    typiv=information,% X Xstyle Xalign beforeX afterX vspacetypi
+    typv=notice,
+    secretstyle=\ss,
+    titlestyle=\ssa,
+    subjectstyle=\ssb,
+    informationstyle=\ttx,
+    noticestyle=\rm\it,
+    secretalign=flushleft,
+    titlealign=center,
+    subjectalign=center,
+    informationalign=center,
+    noticealign=flushleft,
+    secret={绝密 ★ 启用前},
+    title={2021 年普通高等学校招生全国统一考试},
+    subject={日语},
+    information={总分:150 分，考试时间:120 分钟},
+    notice={注意事项：
+      \startitemize[n,packed,joinedup]
+        \item 答题前，务必将自己的姓名、准考证号填写在%
+              答题卡规定的位置上。%
+        \item 答选择題时，必须使用 2B 铅笔将答题卡上对%
+              应题目的答案标号涂黑。如需改动，用橡皮擦%
+              擦干净后，再选涂其它答案标号。答非选择题%
+              时，必须使用 0.5 毫米黑色签字笔，将答案%
+              书写在答题卡规定的位置上。所有題目必须在答%
+              题卡上作答，在试题卷上答题无效。 %
+        \item 考试结束后，将试题卷和答题卡一并交回。
+        \stopitemize},
+    ]
+\framed[width=\textwidth,align=flushleft]{\makepapertitle[papertitles]}
 
 \section{标题}
 
@@ -188,7 +233,7 @@
 \startbuffer
 \startquestion
   \examplewords
-    \startproblem[left={(},right={)}]
+    \startproblem[left={(},right={)},distance=1em,stopper={}]
     \startpitem \examplewords \stoppitem
     \startpitem \examplewords \stoppitem
     \startpitem \examplewords \stoppitem
@@ -239,24 +284,30 @@
 除了上述的鍵值，還提供了一個可以獲取統一環境下答案的命令：\cmd{getanswerfromfillin}。該命令會獲取臨近 \cmd{fillin} 的內容，並輸出爲答案。
 
 \startbuffer
+\setupanswer[showanswer=true]
 \startquestion
   \examplewords 
-    \startproblem[left={(},right={)}]
-    \startpitem 該環境位於 \fillin[env_question:1]。 \stoppitem
+    \setuppitem[answer=\getanswerfromfillin]
+    \startproblem[left={(},right={)},distance=1em,stopper={}]
+    \startpitem 該環境位於 \fillin{env_question:1}。 \stoppitem
     \startanswer[answer=\getanswerfromfillin]
     	\input knuthmath
     \stopanswer
-    \startpitem 該環境位於 \fillin[mp=rules:under:wave][env_question:1]。 \stoppitem
+    \startpitem 該環境位於 \fillin[mp=rules:under:wave]{env_question:1}。 \stoppitem
     \startanswer[answer=\getanswerfromfillin]
     	\input knuthmath
     \stopanswer
     \startpitem 
-    	該環境位於 \fillin[type=textnote,empty=number][env_question:1]。 注意，textnote 並不會把答案放置在正確的位置，\cmd{fillin} 命令目前無法完全兼容。
+    	該環境位於 \fillin[type=textnote,empty=number]{env_question:1}。 注意，textnote 並不會把答案放置在正確的位置，\cmd{fillin} 命令目前無法完全兼容。
     \stoppitem
     \startanswer[answer=\getanswerfromfillin]
     	\input knuthmath
     \stopanswer
-    \startpitem 該環境位於 \fillin[type=void][]。 \stoppitem
+    \startpitem 該環境位於 \fillin[type=void]{}。 \stoppitem
+    \startanswer[answer=\getanswerfromfillin]
+    	\input knuthmath
+    \stopanswer
+    \startpitem 該環境位於 \fillin[type=void,empty=yes,left={(},right={)}]{}。 \stoppitem
     \startanswer[answer=\getanswerfromfillin]
     	\input knuthmath
     \stopanswer
@@ -351,18 +402,72 @@
 
 \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
 
+特別的，設定了一個脆弱的選項命令。該命令可以不通過界定花括號來排版選項，但可能會引發未知問題，特別是選項中含有空格時。
+
+\startbuffer
+\setupquestion[showanswer=true]
+\startquestion[answer=\getanswerfromchoice]
+    \examplewords
+    \startchoice
+        \fragilecitem[*]{SomeWords}
+        \fragilecitem SomeWords
+        \fragilecitem[*]{SomeWords}
+        \fragilecitem SomeWords
+    \stopchoice
+\stopquestion
+\stopbuffer
+
+\typebuffer
+
+\framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
+\subsection{close   環境命令}
+
+用於生成完形填空。
+
+\startclose
+On Oct. 11, hundreds of runners competed in a cross-country race in Minnesota. 
+Melanie Bailey should have \closechoice[designed,followed,changed,finished] the 
+course earlier than she did. Her \closechoice[delay,chance,trouble,excuse] came 
+because she was carrying a \closechoice[judge,volunteer,classmate,competitor] 
+across the finish line.
+
+As reported by a local newspaper, Bailey was more than two-thirds of the way 
+through her \closechoice[race,school,town,training] when a runner in front of 
+her began crying in pain. She \closechoice[agreed,returned,stopped,promised] 
+to help her fellow runner, Danielle Lenoue. Bailey took her arm to see if she 
+could walk forward with \closechoice[courage,aid,patience,advice] . She couldn't. 
+Bailey then \closechoice[went away,stood up,stepped aside,bent down] to let Lenoue 
+climb onto her back and carried her all the way to the finish line, then another 
+300 feet to where Lenoue could get \closechoice[medical,public,constant,equal] attention.
+
+Once there, Lenoue was \closechoice[interrupted,assessed,identified,appreciated] 
+and later taken to a hospital, where she learned that she had serious injuries in 
+one of her knees. She would have struggled with extreme \closechoice[hunger,pain,cold,tiredness] 
+to make it to that aid checkpoint without Bailey's help.
+
+As for Bailey, she is more \closechoice[worried,ashamed,confused,discouraged] 
+about why her act is considered a big \closechoice[game,problem,lesson,deal] . 
+"She was just crying. I couldn't \closechoice[leave,cure,bother,understand] her,"
+Bailey told the reporter. "I feel like I was just doing the right thing.”
+
+Although the two young women were strangers before the \closechoice[ride,test,meet,show] , 
+they've since become friends. Neither won the race, but the \closechoice[secret,display,benefit,exchange] 
+of human kindness won the day.
+\stopclose
+
 \subsection{answer   環境命令}
 
 \cmd{answer} 是爲師生兩版設置的命令。但目前該命令和相關設置還具有諸多不足之處。只需要將該環境置於題目下方，即可獲取當前題目設定的答案，並可以爲其編寫答案解析。
 
 \startbuffer
-\startquestion[answer={answer for \currentitemgroup }]
+\startquestion[showanswer=true,answer={answer for \currentitemgroup }]
     \examplewords 注意：\cmd{answer} 可以獲取父環境或同級環境的答案而不必再次設置。
     \startanswer[point=12]
     \input knuthmath
     \stopanswer
 \stopquestion
-\startquestion[answer=\getanswerfromchoice]
+\startquestion[showanswer=true,answer=\getanswerfromchoice]
     \examplewords 注意：\cmd{answer} 可以獲取父環境或同級環境的答案而不必再次設置。
     \startchoice
         \startcitem{Some Words}\stopcitem 
@@ -383,16 +488,16 @@
 \startbuffer
 \startquestion
   \examplewords
-    \startproblem[left={(},right={)}]
-    \startpitem[answer={Pitem 1}] \examplewords \stoppitem
+    \startproblem[showanswer=true,left={(},right={)},distance=1em,stopper={}]
+    \startpitem[showanswer=true,answer={Pitem 1}] \examplewords \stoppitem
     \startanswer[point=10]
     \input knuthmath
     \stopanswer
-    \startpitem[answer={Pitem 2}] \examplewords \stoppitem
+    \startpitem[showanswer=true,answer={Pitem 2}] \examplewords \stoppitem
     \startanswer[point=20]
     \input knuthmath
     \stopanswer
-    \startpitem[answer={Pitem 3}] \examplewords \stoppitem
+    \startpitem[showanswer=true,answer={Pitem 3}] \examplewords \stoppitem
     \startanswer[point=30]
     \input knuthmath
     \stopanswer
@@ -426,5 +531,163 @@
 
 \makewritingbox
 
-\input{EXAMPLE.tex}
+\chapter{示例}
+
+\startbuffer
+\startquestion
+    \examplewords
+  \startchoice
+     \startcitem    \examplewords \stopcitem
+     \startcitem    \examplewords \stopcitem
+     \startcitem[*] \examplewords \stopcitem
+     \startcitem    \examplewords \stopcitem
+  \stopchoice
+  \startanswer[point=2]
+    \examplewords
+  \stopanswer
+\stopquestion
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\blackrule[color=green,width=1tw,height=.5pt]
+
+\startbuffer
+\startquestion
+    \examplewords
+  \startproblem[left={(},right={)},distance=1em,stopper={}]
+     \startpitem[answer=p1::\examplewords] \examplewords \stoppitem
+       \startanswer[point=1]\examplewords\stopanswer
+     \startpitem[answer=p2::\examplewords] \examplewords \stoppitem
+       \startanswer[point=2]\examplewords\stopanswer
+     \startpitem[answer=p3::\examplewords] \examplewords \stoppitem
+       \startanswer[point=3]\examplewords\stopanswer
+     \startpitem[answer=p4::\examplewords] \examplewords \stoppitem
+       \startanswer[point=4]\examplewords\stopanswer
+  \stopproblem
+\stopquestion
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\blackrule[color=green,width=1tw,height=.5pt]
+
+\def\fillinexamplewords{該環境位於 \fillin{f::\currentuserorder}。}
+
+\startbuffer
+\startquestion
+    \examplewords
+    \setuppitem[answer=\getanswerfromfillin]
+  \startproblem[left={(},right={)},distance=1em,stopper={}]
+     \startpitem \fillinexamplewords \stoppitem
+       \startanswer[point=1]\examplewords\stopanswer
+     \startpitem \fillinexamplewords \stoppitem
+       \startanswer[point=2]\examplewords\stopanswer
+     \startpitem \fillinexamplewords \stoppitem
+       \startanswer[point=3]\examplewords\stopanswer
+     \startpitem \fillinexamplewords \stoppitem
+       \startanswer[point=4]\examplewords\stopanswer
+  \stopproblem
+\stopquestion
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\blackrule[color=green,width=1tw,height=.5pt]
+
+\startbuffer
+\setupmaterial[number][way=bychapter]
+\startmaterial[title=title,author=author,source=source]
+  \input knuthmath \indicator{GGGG}
+  \input knuthmath \indicator{HHHH}
+  \input knuthmath \indicators
+\stopmaterial
+\startquestion
+    \examplewords \indicator{GGGG}
+  \startchoice
+     \startcitem    \examplewords \stopcitem
+     \startcitem    \examplewords \stopcitem
+     \startcitem[*] \examplewords \stopcitem
+     \startcitem    \examplewords \stopcitem
+  \stopchoice
+  \startanswer[point=2]
+    \examplewords
+  \stopanswer
+\stopquestion
+\startquestion
+    \examplewords \indicator{HHHH}
+  \startchoice
+     \startcitem    \examplewords \stopcitem
+     \startcitem[*] \examplewords \stopcitem
+     \startcitem    \examplewords \stopcitem
+     \startcitem    \examplewords \stopcitem
+  \stopchoice
+  \startanswer[point=3]
+    \examplewords
+  \stopanswer
+\stopquestion
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\blackrule[color=green,width=1tw,height=.5pt]
+
+\startbuffer
+\startclose
+  \input knuthmath \closechoice[AAA,BBB,CCC,DDD]
+  \input knuthmath \closechoice[EEE,BBB,FFF,DDD]
+\stopclose
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\blackrule[color=green,width=1tw,height=.5pt]
+
+\startbuffer
+\startoptclose
+  \input knuthmath \ocitem{AAA,BBB,CCC,DDD}
+  \input knuthmath \ocitem{EEE,BBB,FFF,DDD}
+  \input knuthmath \ocitem{EEE,GGG,FFF,HHH}
+\stopoptclose
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\blackrule[color=green,width=1tw,height=.5pt]
+
+\startbuffer
+\startoptclose
+  \input knuthmath \specialocitem[answer={AAA,BBB,CCC,DDD}]
+  \input knuthmath \specialocitem[answer={EEE,BBB,FFF,DDD}]
+  \input knuthmath \specialocitem[answer={EEE,GGG,FFF,HHH}]
+\stopoptclose
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\chapter{TODO List}
+
+%\startTODO
+  \startlists
+     \item 連線題
+     \item 是否應該爲模塊添加字體設置選項？
+     \item 佈局設置（雙開）
+     \item 雙語設置
+     \item 自動計算分值？
+  \stoplists
+%\stopTODO
 \stoptext
