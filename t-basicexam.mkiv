@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \module
 %D   [     file=t-basicexam,
-%D      version=2024-6-1,
+%D      version=2024-10-24,
 %D        title=basicexam,
 %D     subtitle=Memoir Ever,
 %D       author=商无辛(Shueng Mosan),
@@ -22,15 +22,6 @@
     Please check your code.\\
     }\stopalignment
     \endgroup}
-%%%% 2UP Printing %%%%%%%%
-%%%% \setuppapersize[user pagesize][real pagesize,real orientation]
-%%%% \setuparranging[page arrange method]
-%%%% more info : https://wiki.contextgarden.net/Command/setuparranging
-%%%%             https://wiki.contextgarden.net/Imposition
-%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\setuppapersize[A4][A3,landscape]
-%\setuparranging[2SIDE]%[2UP]
-%\setuppagenumbering[alternative=singlesided]%{doublesided}]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   EXAM MODULE   %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -62,6 +53,23 @@
 %\gdef\percentchar{%}
 %\endgroup
 %\ctxlua{context(string.format("\percentchar8s",456))}
+
+%D \section{尚未處理的組合}
+%D 設置頁面
+%D 2UP Printing
+%D \starttyping
+%D \setuppapersize[user pagesize][real pagesize,real orientation]
+%D \setuparranging[page arrange method]
+%D more info : https://wiki.contextgarden.net/Command/setuparranging
+%D             https://wiki.contextgarden.net/Imposition
+%D \stoptyping
+%D 例如：
+%D \starttyping
+%D \setuppapersize[A4][A3,landscape]
+%D \setuparranging[2SIDE]%[2UP]
+%D \setuppagenumbering[alternative=singlesided]%{doublesided}]
+%D \stoptyping
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \defineconversion [hiragana]      [あ,い,う,え,お,か,き,く,け,こ,さ,し,す,せ,そ,
                                    た,ち,つ,て,と,な,に,ぬ,ね,の,は,ひ,ふ,へ,ほ,
@@ -80,6 +88,55 @@
 %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% setupinfos 设置试卷抬头信息和格式
+%D \section{繪製卷頭}
+%D 
+%D 下面的命令簡單地展示了如何定義、設定並繪製一個新卷頭。
+%D \startitemize[nowhite,packed,joinedup]
+%D \item 通過 \type{\definepapertitle[PaperTitleName]} 命令可以新建卷頭信息，
+%D \item 通過  \type{\setuppapertitle[PaperTitleName]} 命令可以設定卷頭信息，
+%D \item 通過   \type{\makepapertitle[PaperTitleName]} 命令可以繪製卷頭結果。
+%D \stopitemize
+%D 
+%D \startbuffer
+%D \definepapertitle[papertitles]
+%D \setuppapertitle [papertitles][
+%D     n=5,              
+%D     typi=secret,     
+%D     typii=title,     
+%D     typiii=subject,   
+%D     typiv=information,
+%D     typv=notice,
+%D     secretstyle=\ss,
+%D     titlestyle=\ssa,
+%D     subjectstyle=\ssb,
+%D     informationstyle=\ttx,
+%D     noticestyle=\rm\it,
+%D     secretalign=flushleft,
+%D     titlealign=center,
+%D     subjectalign=center,
+%D     informationalign=center,
+%D     noticealign=flushleft,
+%D     secret={绝密 ★ 启用前},
+%D     title={2021 年普通高等学校招生全国统一考试},
+%D     subject={日语},
+%D     information={总分:150 分，考试时间:120 分钟},
+%D     notice={注意事项：
+%D       \startitemize[n,packed,joinedup]
+%D         \item 答题前，务必将自己的姓名、准考证号填写在%
+%D               答题卡规定的位置上。%
+%D         \item 答选择题时，必须使用 2B 铅笔将答题卡上对%
+%D               应题目的答案标号涂黑。如需改动，用橡皮擦%
+%D               擦干净后，再选涂其它答案标号。答非选择题%
+%D               时，必须使用 0.5 毫米黑色签字笔，将答案%
+%D               书写在答题卡规定的位置上。所有題目必须在答%
+%D               题卡上作答，在试题卷上答题无效。 %
+%D         \item 考试结束后，将试题卷和答题卡一并交回。
+%D         \stopitemize},
+%D     ]
+%D  \makepapertitle [papertitles]
+%D \stopbuffer
+%D \typebuffer
+%D \framed{\getbuffer}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% ego=section isea=subsection
 \setuplabeltext [cn] [section={第,部分},subsection={第,节},]
@@ -164,8 +221,14 @@
 \endgroup}
 %%%%%%%%
 \startinterface all
-\setinterfaceconstant {true}  {true}
-\setinterfaceconstant {false} {false}
+\setinterfaceconstant {true}        {true}
+\setinterfaceconstant {false}       {false}
+\setinterfaceconstant {answer}      {answer}
+\setinterfaceconstant {answerstyle} {answerstyle}
+\setinterfaceconstant {answercolor} {answercolor}
+\setinterfaceconstant {point}       {point}
+\setinterfaceconstant {pointstyle}  {pointstyle}
+\setinterfaceconstant {pointcolor}  {pointcolor}
 \stopinterface
 %%%%%%%
 \installnamespace          {question}
@@ -301,7 +364,7 @@
 \def\answer_answer{\ifmode_example You're in EXAMPLE MODE!\else\datasetvariable{Answer_collector}{\QusetionID}{answer}\fi}
 \def\answer_point{\datasetvariable{Answer_collector}{\QusetionID}{point}}
 \def\answer_totalnumber{\datasetvariable{Answer_collector}{\QusetionID}{totalnumber}}
-
+\def\point_point{\datasetvariable{Answer_collector}{\QusetionID}{point}}
 \def\show_check_info{
    \ifmode_quickcheck
      \par\framed[width=\textwidth,align=flushleft]%
@@ -321,17 +384,16 @@
     \hfil     Notice,{\bf MODE EXAMPLE} wont provide data infos    \hfil\par\fi
     \setuptabulate[bodyfont={tt,9pt}]
     \starttabulate[|rp(.2\textwidth)|lp(.25\textwidth)|rp(.2\textwidth)|lp(.25\textwidth)|lwlB|]
-      \NC {\bf Name} \NC {\bf Content}           \NC     {\bf Cinfos}  \NC {\bf Content}              \NC\NR\HL
-      \NC CUitemgroup\NC \currentitemgroup       \NC     CUQusetionID  \NC \QusetionID                \NC\NR
-      \NC CUparen    \NC \currentparentitemgroup \NC     CUCmaxwidth   \NC \choice_itemmaxwidth       \NC\NR
-      \NC CUorder    \NC \currentorder           \NC     totalCnumber  \NC \choice_totalchoicenumber  \NC\NR
-      \NC CUuserorder\NC \currentuserorder       \NC     Cavailable    \NC \choice_availablecolumns   \NC\NR
-      \NC level.check\NC \level_status           \NC     Canswer       \NC \choice_answer             \NC\NR
-      \NC answer     \NC \answer_answer          \NC     Canswerstatus \NC \choice_answerstatus       \NC\NR\HL
-      \NC mode.status\NC \mode_status            \NC     CUProblemID   \NC \ProblemID                 \NC\NR
-      \NC    \NC   \NC     totalPnumber  \NC \pitem_totalnumber         \NC\NR
-      \NC    \NC   \NC     totalPpoint   \NC \pitem_totalpoint          \NC\NR
-%      \NC    \NC   \NC    \NC    \NC\NR
+      \NC {\bf Name}    \NC {\bf Content}           \NC {\bf Cinfos} \NC {\bf Content}             \NC\NR\HL
+      \NC CUitemgroup   \NC \currentitemgroup       \NC CUQusetionID \NC \QusetionID               \NC\NR
+      \NC CUparen       \NC \currentparentitemgroup \NC CUCmaxwidth  \NC \choice_itemmaxwidth      \NC\NR
+      \NC CUorder       \NC \currentorder           \NC totalCnumber \NC \choice_totalchoicenumber \NC\NR
+      \NC CUuserorder   \NC \currentuserorder       \NC Cavailable   \NC \choice_availablecolumns  \NC\NR
+      \NC answer        \NC \answer_answer          \NC Canswer      \NC \choice_answer            \NC\NR
+      \NC CUpoint       \NC \point_point            \NC              \NC                           \NC\NR\HL
+      \NC mode.status   \NC \mode_status            \NC CUProblemID  \NC \ProblemID                \NC\NR
+      \NC level.check   \NC \level_status           \NC totalPnumber \NC \pitem_totalnumber        \NC\NR
+      \NC Canswerstatus \NC \choice_answerstatus    \NC totalPpoint  \NC \pitem_totalpoint         \NC\NR
     \stoptabulate}
     \par\endgroup}
 
@@ -358,7 +420,7 @@
 }}
 
 \newcount\c_example_toggle
-\def\example_toggle[#1]%
+\def\example_toggle[#1]% 专用于测试是否开启了 example mode
     {\doif{\csname #1parameter\endcsname{example}}{true}%
           {\mode_exampletrue\global\c_example_toggle=999\relax}}
 
@@ -366,12 +428,12 @@
                   \ifenv_botlevel <env_botlevel>\else
                                   <env_midlevel>\fi\fi}
 
-\def\mode_status{\ifmode_check     <check>\fi
-                 \ifmode_showanswer<showanswer>\fi
-                 \ifmode_showpoint <showpoint>\fi
-                 \ifmode_example   <example>\fi}
+\def\mode_status{ \ifmode_check      <M:C>\fi%check
+                  \ifmode_showanswer <M:A>\fi%answer
+                  \ifmode_showpoint  <M:P>\fi%point
+                  \ifmode_example    <M:E>\fi}
 
-\def\currentorder{% get unique order ( no chapter number )
+\def\currentorder{%                     get unique order ( no chapter number )
     \rawcountervalue[Unicode_toplevel]%-\rawcountervalue[Unicode_midlevel]%
     \ifnum\rawcountervalue[Unicode_botlevel]=0\relax\else%
     (\rawcountervalue[Unicode_botlevel])\fi%
@@ -436,7 +498,7 @@
 
 \def\check_env_answer[#1]{
   \doifelsesomething{\csname #1parameter\endcsname{answer}}{}{%
-       There is no \color[red]{\tta #1 answer} value.
+       no \color[red]{\tt #1 answer} value there.
      }{\csname #1parameter\endcsname{answer}}%
 }
 
@@ -444,7 +506,7 @@
     \doifsomethingelse%
     {\datasetvariable{Choice_collector}{#1}{answer}}%
     {\datasetvariable{Choice_collector}{#1}{answer}}%
-    {There is no \color[red]{\tta Choice answer} value.}}
+    {no \color[red]{\tt Choice answer} value here.}}
 \def\get_choice_answer{\increaseQusetionID%
   \get_choice_answer_num{\QusetionID}%
   \decrementcounter[Unicode]}
@@ -484,12 +546,13 @@
     \processaction[\csname #1parameter\endcsname{show#2}][%
              true=>\csname mode_show#2true\endcsname,
             false=>\csname mode_show#2false\endcsname,]%
+    \expandafter\edef\csname current#1#2\endcsname{\csname #1parameter\endcsname{#2}}%
     \csname ifmode_show#2\endcsname%
         \begingroup%
         \csname #1parameter\endcsname{#2style}%
         \switchtocolor[\csname #1parameter\endcsname{#2color}]%
         \paren {\csname #1parameter\endcsname{#2prelabel}% like=>answer : blabla
-                \csname #1parameter\endcsname{#2}% like=> 1 points
+                \csname #1parameter\endcsname{#2}%\csname current#1#2\endcsname%             like=> 1 points
                 \csname #1parameter\endcsname{#2label}}%
         \endgroup%
     \fi}
@@ -523,6 +586,19 @@
 
 %D \section{设置 problem 环境}
 
+%D \tex{problem} 環境命令可以設置多個聚合問題，該環境具有一個特定的子命令 \tex{pitem} 來列明每個問題。
+%D 可以用來設置填空、問答等題目。
+%D 
+%D \startbuffer
+%D \startproblem
+%D \startpitem 該環境位於 \currentitemgroup 。 \stoppitem
+%D \startpitem 該環境位於 \currentitemgroup 。 \stoppitem
+%D \startpitem 該環境位於 \currentitemgroup 。 \stoppitem
+%D \stopproblem
+%D \stopbuffer
+%D \typebuffer
+%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
 \setupproblem  [left={},  %%%%% follow is itemize option
                 right={},
                 stopper={.~},
@@ -540,10 +616,73 @@
                 numberconversion=tnum,]
 \inherit_itemgroup_option[problem]
 
-%D problem 只继承了部分 itemgroup 的键值，并没有新的键值设定
-%D 在当前(v20241023)中已经删去了设置答案和分值的设置。
-%D 因为，problem 环境下一般有许多 pitem，每个题目都可能有自己的分值和答案。
-%D 因此，直接设置 pitem 即可。
+%D %D problem 只继承了部分 itemgroup 的键值，并没有新的键值设定。
+%D %D 在当前(v20241023)中已经删去了设置答案和分值的设置。
+%D %D 因为，problem 环境下一般有许多 pitem，每个题目都可能有自己的分值和答案。
+%D %D 因此，出於設計目的，每個問題的答案和分數等直接通過 \tex{pitem} 來設定。
+%D 
+%D %D \startbuffer
+%D %D \startproblem
+%D %D \startpitem[showpoint=true,point=5]         該環境位於 \currentitemgroup 。 \stoppitem
+%D %D \startpitem[showanswer=true,answer={newer}] 該環境位於 \currentitemgroup 。 \stoppitem
+%D %D \startpitem[]                               該環境位於 \currentitemgroup 。 \stoppitem
+%D %D \stopproblem
+%D %D \stopbuffer
+%D %D \typebuffer
+%D %D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
+%D 不同於 \tex{question} 環境所有的序號都是連續的，\tex{problem} 環境每次開始後都是重新進行計數。
+
+%D 如果想要爲 \tex{problem} 環境添加題幹，可以將 \tex{problem} 環境放置在 \tex{question} 環境之中。
+%D \startbuffer
+%D \startquestion
+%D   該環境位於 \currentitemgroup 。
+%D     \startproblem[left={(},right={)},distance=1em,stopper={}]
+%D     \startpitem 該環境位於 \currentitemgroup 。 \stoppitem
+%D     \startpitem 該環境位於 \currentitemgroup 。 \stoppitem
+%D     \startpitem 該環境位於 \currentitemgroup 。 \stoppitem
+%D     \stopproblem
+%D \stopquestion
+%D \stopbuffer
+%D \typebuffer
+%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+%D 
+%D 如果想要設置填空題，可以使用 \tex{fillin} 命令。
+%D 同時，\tex{getanswerfromfillin}命令會獲取臨近 \tex{fillin} 的內容，並輸出爲答案。
+%D 
+%D \startbuffer
+%D \setupanswer[showanswer=true]
+%D \startquestion
+%D   該環境位於 \currentitemgroup 。 
+%D     \setuppitem[answer=\getanswerfromfillin,showanswer=true]
+%D     \startproblem[left={(},right={)},distance=1em,stopper={}]
+%D     \startpitem 該環境位於 \fillin{env_question:1}。 \stoppitem
+%D     \startanswer[answer=\getanswerfromfillin]
+%D     	\input knuthmath
+%D     \stopanswer
+%D     \startpitem 該環境位於 \fillin[mp=rules:under:wave]{env_question:1}。 \stoppitem
+%D     \startanswer[answer=\getanswerfromfillin]
+%D     	\input knuthmath
+%D     \stopanswer
+%D     \startpitem 
+%D     	該環境位於 \fillin[empty=number]{env_question:2}。 
+%D     \stoppitem
+%D     \startanswer[answer=\getanswerfromfillin]
+%D     	\input knuthmath
+%D     \stopanswer
+%D     \startpitem 該環境位於 \fillin[empty=yes]{env_question:3}。 \stoppitem
+%D     \startanswer[answer=\getanswerfromfillin]
+%D     	\input knuthmath
+%D     \stopanswer
+%D     \startpitem 該環境位於 \fillin[empty=yes,left={(},right={)}]{env_question:4}。 \stoppitem
+%D     \startanswer[answer=\getanswerfromfillin]
+%D     	\input knuthmath
+%D     \stopanswer
+%D     \stopproblem
+%D \stopquestion
+%D \stopbuffer
+%D \typebuffer
+%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
 
 \tolerant\protected\def\startproblem[#1]{%
   \ifenv_question\increaseQusetionID%如果 problem 作为子环境存在时
@@ -570,19 +709,68 @@
                  totalpitempoint={\number\cnt_step_point},]%
   \stopitemgroup\endgroup}
 
+
+
 %D \section{设置 question 环境}
+
+%D \tex{question} 環境命令可以用來設置題幹。
+%D 只需將題幹包裹在 \tex{startquestion}  \tex{stopquestion} 命令之間即可。
+%D 
+%D \startbuffer
+%D   \startquestion
+%D     該環境位於 \currentitemgroup 。
+%D   \stopquestion
+%D   \startquestion
+%D     該環境位於 \currentitemgroup 。
+%D   \stopquestion
+%D \stopbuffer
+%D \typebuffer
+%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
+%D \tex{question} 環境命令繼承了大部分 \tex{itemgroup} 環境的選項設置。
+%D 因此，可以像修改 \tex{itemgroup} 一樣，使用 \tex{setupquestion} 來修改該環境。
+%D 
+%D \bgroup
+%D   \startbuffer
+%D     \setupquestion[color=green,style=\ss,start=22]
+%D     \startquestion
+%D       該環境位於 \currentitemgroup 。
+%D     \stopquestion
+%D   \stopbuffer
+%D   \typebuffer
+%D   \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+%D \egroup
 
 %D question 环境可以设置 {\bf 答案} 和 {\bf 分值}。该键值详细的设置如下：
 %D \starttabulate[|l|l|l|l|]
 %D \NC showanswer \NC answer \NC answerstyle    \NC answercolor \NC\NR
-%D \NC            \NC        \NC answerprelabel \NC answerlabel \NC\NR
+%D \NC            \NC        \NC answerprelabel \NC answerlabel \NC\NR\HL
 %D \NC showpoint  \NC point  \NC pointstyle     \NC pointcolor  \NC\NR
 %D \NC            \NC        \NC pointprelabel  \NC pointlabel  \NC\NR
 %D \stoptabulate
+
+%D \startbuffer
+%D   \startquestion[showpoint=true,point=5,pointlabel={points},
+%D                  showanswer=true,answer={new answer},answerstyle={\tt},]
+%D     該環境位於 \currentitemgroup 。
+%D   \stopquestion
+%D \stopbuffer
+%D \typebuffer
+%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
 %D 此外，question 设置了一个特殊的键值 example=true，可以是当前题目不被录入答案。
 %D 在(v20241023)中，通过不太正常的方式设置了 example 后的题目可以自动重置回到序数 1。
 %D 或许，可以设置一个新的键值，来设定 example 之后的题目是重置为 1 还是接续上一个序号。
 %D 此外，由于 question 内置了一个 item，因此可以使用 reference 来创建引用。
+
+%D {\bf 關於 point 和 answer 的設定: }
+%D point 的分值默認是一整個題目的總分數。如果當前字環境為 problem，只要為每個 pitem
+%D 設計了 point 的分值，該模塊就會自動計算，並通過 \tex{getpointfrompitem}
+%D 來獲取計算後的 point。answer 的獲取也是一樣。可以通過 \tex{getanswerfromchoice} 來
+%D 獲取當前環境的選項答案。需要注意的是，並沒有設計  \tex{getanswerfrompitem}。在設計時，
+%D pitem 默認是擁有多個同級項目的。也就是說，會在同一個 question 環境中，有多個子答案。
+%D 我們無法獲知應該使用哪一個作為當前環境的答案。同樣的道理，每個 question 環境內只有一個
+%D choice 環境，只需要直接為 question 環境配置分值即可。choice 環境並不能配置分數。
 
 \setupquestion [%showpoint=false,
                 %point=,
@@ -643,15 +831,66 @@
                   \fi}
 
 %D \section{设置 choice 环境}
+%D 該環境命令只能置於 \tex{question} 環境之下。該環境有一個子項目：
+%D \tex{startcitem}
+%D \tex{stopcitem}。
+%D \starttyping
+%D  \startcitem {選項內容} \stopcitem
+%D \stoptyping
+
+%D 可以通過 \type{[*]} 來標記正確答案。如果想要設置多選題，只需要對每個正確答案添加 \type{[*]} 即可。
+%D \startbuffer
+%D \setupquestion[showanswer=true]
+%D \startquestion[answer=\getanswerfromchoice]
+%D     該環境位於 \currentitemgroup 。
+%D     \startchoice
+%D         \startcitem[*]{Some Words}\stopcitem 
+%D         \startcitem{Some Words}\stopcitem
+%D         \startcitem[*]{Some Words}\stopcitem 
+%D         \startcitem{Some Words}\stopcitem
+%D     \stopchoice
+%D \stopquestion
+%D \startquestion[answer=\getanswerfromchoice]
+%D     該環境位於 \currentitemgroup 。
+%D     \startchoice
+%D         \startcitem{Some More Words}\stopcitem 
+%D         \startcitem{Some More Words}\stopcitem
+%D         \startcitem[*]{Some More Words}\stopcitem 
+%D         \startcitem[*]{Some More Words}\stopcitem
+%D     \stopchoice
+%D \stopquestion
+%D \startquestion[answer=\getanswerfromchoice]
+%D     該環境位於 \currentitemgroup 。
+%D     \startchoice
+%D         \startcitem{Some More More Words}\stopcitem 
+%D         \startcitem[*]{Some More More Words}\stopcitem
+%D         \startcitem{Some More More Words}\stopcitem 
+%D         \startcitem[*]{Some More More Words}\stopcitem
+%D     \stopchoice
+%D \stopquestion
+%D \stopbuffer
+%D \typebuffer
+%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
+%D 同時為 \tex{startcitem}\tex{stopcitem} 定義了同義命令 \tex{citem} 和 \tex{fragilecitem}。
+%D \tex{fragilecitem}命令可以不通過界定花括號來排版選項，但可能會引發未知問題，
+%D 特別是選項中含有空格時。\tex{citem} 則需要將選項包裹在花括號中。
+%D \starttyping
+%D  \citem {選項內容}
+%D  \fragilecitem 選項內容
+%D \stoptyping
+
 %D 该环境继承了一部分 itemgroup 的键值，就如同前两个命令一样。
 %D 不同于 question 具有answer 和 point 两种键值，该环境只具有 answer 相关的键值，来特别地
-%D 设置是否显示答案。因为 choice 环境的特殊性，point 键值是通过 question 环境来显示。
+%D 设置是否显示答案和配置答案樣式。
+%D 因为 choice 环境的特殊性，point 键值通过 question 环境来显示。和 question 環境的區別是
 %D question 环境的 answer 控制答案是否显示在题干以及设置相关样式。
 %D choice   环境的 answer 控制答案是否显示在选项以及设置相关样式。
 
-% maxiwidth key is for calcaluted max width of choice and waited to be compare，
-% notice this key is maxiwidth ,and difference from maxwidth which
-%        for setupitemgroup command
+%D 另外，choice 環境有一個特別的值：
+%D maxiwidth key is for calcaluted max width of choice and waited to be compare，
+%D notice this key is maxiwidth ,and difference from maxwidth which
+%D for setupitemgroup command
 \setupchoice [answer=\get_choice_answer,
               answerstyle=\ss\tf,
               answercolor=red,
@@ -755,6 +994,7 @@
                  availablecolumns={\number\numexpr \tempa / \tempb\relax},
                  itemmaxwidth={\the\width_cit_max},
                  totalchoicenumber={\number\totalchoicenumber},
+                 point={\questionparameter\c!point},
                  answerstatus={\check_choice_answerstatus},
                  answer={\callcollection},]%
     \dataset_collector[question][choice]%
@@ -781,6 +1021,55 @@
 %D 整体环境通过 textbackground 环境进行设置。
 %D 该环境具有 answer 和 point 的全部键值。
 %D 同时，通过 label labelstyle labelcolor 来设置答案环境的标签。
+%D 此外，還提供了一個特殊的鍵值 sctipt，該鍵值主要用於創建答題區域。
+%D 該鍵值和 answer 鍵值是互斥的，不應該同時啟用。
+
+%D \tex{answer} 是爲師生兩版設置的命令。但目前該命令和相關設置還具有諸多不足之處。只需要將該環境置於題目下方，即可獲取當前題目設定%D 的答案，並可以爲其編寫答案解析。
+%D 
+%D \startbuffer
+%D \startquestion[showanswer=true,answer={answer for \currentitemgroup }]
+%D     該環境位於 \currentitemgroup 。 注意：\tex{answer} 可以獲取父環境或同級環境的答案而不必再次設置。
+%D     \startanswer[point=12]
+%D     \input knuthmath
+%D     \stopanswer
+%D \stopquestion
+%D \startquestion[showanswer=true,answer=\getanswerfromchoice]
+%D     該環境位於 \currentitemgroup 。 注意：\tex{answer} 可以獲取父環境或同級環境的答案而不必再次設置。
+%D     \startchoice
+%D         \startcitem{Some Words}\stopcitem 
+%D         \startcitem{Some Words}\stopcitem
+%D         \startcitem[*]{Some Words}\stopcitem 
+%D         \startcitem{Some Words}\stopcitem
+%D     \stopchoice
+%D     \startanswer[point=1]
+%D     \input knuthmath
+%D     \stopanswer
+%D \stopquestion
+%D \stopbuffer
+%D \typebuffer
+%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+%D 
+%D \startbuffer
+%D \startquestion[showanswer=true]
+%D   該環境位於 \currentitemgroup 。
+%D     \startproblem[showanswer=true,left={(},right={)},distance=1em,stopper={}]
+%D     \startpitem[showanswer=true,answer={Pitem 1}] 該環境位於 \currentitemgroup 。 \stoppitem
+%D     \startanswer[point=10]
+%D     \input knuthmath
+%D     \stopanswer
+%D     \startpitem[showanswer=true,answer={Pitem 2}] 該環境位於 \currentitemgroup 。 \stoppitem
+%D     \startanswer[point=20]
+%D     \input knuthmath
+%D     \stopanswer
+%D     \startpitem[showanswer=true,answer={Pitem 3}] 該環境位於 \currentitemgroup 。 \stoppitem
+%D     \startanswer[point=30]
+%D     \input knuthmath
+%D     \stopanswer
+%D     \stopproblem
+%D \stopquestion
+%D \stopbuffer
+%D \typebuffer
+%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
 
 \setupanswer[showanswer=true,
              showpoint=true,
@@ -838,6 +1127,10 @@
 
 %D \section{设置 pitem,citem 命令}
 %D 仅具有 answer point 和 reference 键值。
+
+%D pitem 項目下如果含有 fillin 命令，可以通過 \tex{getanswerfromfillin} 來獲取答案
+%D 請注意，不要同時為單個 pitem 或者 fillin 命令同時設置答案，
+%D 這可能會引起答案無法正確獲取。
 
 \setuppitem    [%showpoint=false,
                 point=0,% 必須有預設值，否則出現計數器錯誤(missing number)
@@ -1001,7 +1294,7 @@
               unit=em,
               order=foreground,
               method=0,
-              color=gray,
+              %color=gray,
               width=4em,
               n=10,
               dy=-0.4,
@@ -1070,16 +1363,19 @@
 \endgroup}
 
 %D \section{設置 material 環境}
+%D 顧名思義，\tex{material} 環境用來放置大段文本材料。
 %D 該環境比較特殊，它設置了多個子實例來進行更完善的設置。
 %D 除了 \tex{setupmaterial[number]} 這個實例繼承了 \tex{setupcounter} 的全部鍵值之外，
 %D 其他實例都是新定義的鍵值。
 
 %D 這些實例分別是：
-%D \tex{setupmaterial[number]}    設置 該環境標題的 {\bf 序號};
-%D \tex{setupmaterial[title]}     設置 該環境的{\bf 標題} 相關的樣式;
-%D \tex{setupmaterial[author]}    設置 該環境文章的{\bf 作者} 相關的樣式;
-%D \tex{setupmaterial[source]}    設置 該環境文章的{\bf 具體來源} 的相關樣式。
-%D \tex{setupmaterial[indicator]} 設置 該環境文章的{\bf 畫線序號文字} 的相關樣式。
+%D \startitemize[nowhite,joinedup,packed]
+%D \item \tex{setupmaterial[number]}    設置 該環境標題的 {\bf 序號};
+%D \item \tex{setupmaterial[title]}     設置 該環境的{\bf 標題} 相關的樣式;
+%D \item \tex{setupmaterial[author]}    設置 該環境文章的{\bf 作者} 相關的樣式;
+%D \item \tex{setupmaterial[source]}    設置 該環境文章的{\bf 具體來源} 的相關樣式。
+%D \item \tex{setupmaterial[indicator]} 設置 該環境文章的{\bf 畫線序號文字} 的相關樣式。
+%D \stopitemize
 
 %D 此外，\type{title},\type{author},\type{source} 的名稱是通過 \tex{setupmaterial}
 %D 來直接設置。此外， 該環境具有一個特殊的子命令 \tex{indicator} 來標記文章中的提問的部分並
@@ -1097,6 +1393,15 @@
 %D to the number of start you've setted.
 %D otherwise, you need put [start = number] before the chapter you want
 %D to reset the counter.
+
+%D \startbuffer
+%D \setupmaterial[title][color=green]
+%D \startmaterial[title={Knuth},author={Mos},source={Yelu}]
+%D \input knuth
+%D \stopmaterial
+%D \stopbuffer
+%D \typebuffer
+%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
 
 \setupmaterial [\c!align=center,
                 %\c!color=,
@@ -1213,16 +1518,53 @@
     \interwordspacesafter\scratchcounter
   \stopbar}
 
-%D close 环境近乎是单独设计的。该环境主要使用两个命令：
-%D \tex{startclose} 和 \tex{stopclose} 用来创建该环境，
-%D \tex{closechoice} 用来标记环境内的选项，该命令随行文放置即可。选项无须再次在文章后放置，
-%D \tex{stopclose} 会自行放置。
+%D close 環境近乎是單獨設計的。該環境主要使用兩個命令：
+%D \tex{startclose} 和 \tex{stopclose} 用來創建該環境，
+%D \tex{closechoice} 用來標記環境內的選項，該命令隨行文放置即可。選項無須再次在文章後放置，
+%D \tex{stopclose} 會自行放置。
+%D 因為 \type{close} 環境的子項目 \tex{closechoice} 是通過 choice 環境設置的。
+%D 因此，可以通過 \type{[*]} 來標記正確答案。
 
-%D close 环境同样继承了 answer 的键值。
-%D 此外设置了 reset 键来选择是否每一篇重置选项的题号，
-%D 其他的键值： barcolor barstyle 设置 下划线样式
-%D            before after style color 用于整体环境
-%D            width frame stopper distance 用于选项前题号样式
+%D close 環境同樣繼承了 answer 的鍵值。
+%D 此外設置了 reset 鍵來選擇是否每一篇重置選項的題號，
+%D 其他的鍵值： barcolor barstyle 設置 下划線樣式
+%D            before after style color 用於整體環境
+%D            width frame stopper distance 用於選項前題號樣式
+
+%D \startbuffer
+%D \startclose
+%D On Oct. 11, hundreds of runners competed in a cross-country race in Minnesota. 
+%D Melanie Bailey should have \closechoice[designed,followed,changed,finished] the 
+%D course earlier than she did. Her \closechoice[delay,chance,trouble,excuse] came 
+%D because she was carrying a \closechoice[judge,volunteer,classmate,competitor] 
+%D across the finish line.
+%D 
+%D As reported by a local newspaper, Bailey was more than two-thirds of the way 
+%D through her \closechoice[race,school,town,training] when a runner in front of 
+%D her began crying in pain. She \closechoice[agreed,returned,stopped,promised] 
+%D to help her fellow runner, Danielle Lenoue. Bailey took her arm to see if she 
+%D could walk forward with \closechoice[courage,aid,patience,advice] . She couldn't. 
+%D Bailey then \closechoice[went away,stood up,stepped aside,bent down] to let Lenoue 
+%D climb onto her back and carried her all the way to the finish line, then another 
+%D 300 feet to where Lenoue could get \closechoice[medical,public,constant,equal] attention.
+%D 
+%D Once there, Lenoue was \closechoice[interrupted,assessed,identified,appreciated] 
+%D and later taken to a hospital, where she learned that she had serious injuries in 
+%D one of her knees. She would have struggled with extreme \closechoice[hunger,pain,cold,tiredness] 
+%D to make it to that aid checkpoint without Bailey's help.
+%D 
+%D As for Bailey, she is more \closechoice[worried,ashamed,confused,discouraged] 
+%D about why her act is considered a big \closechoice[game,problem,lesson,deal] . 
+%D "She was just crying. I couldn't \closechoice[leave,cure,bother,understand] her,"
+%D Bailey told the reporter. "I feel like I was just doing the right thing.”
+%D 
+%D Although the two young women were strangers before the \closechoice[ride,test,meet,show] , 
+%D they've since become friends. Neither won the race, but the \closechoice[secret,display,benefit,exchange] 
+%D of human kindness won the day.
+%D \stopclose
+%D \stopbuffer
+%D \typebuffer
+%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
 
 \setupclose[%showanswer=false,
             answer=\getanswerfromchoice,
@@ -1237,11 +1579,11 @@
             after=\blank[halfline]]
 
 
-\def\closechoice[#1]{%定义文章内的序号。这是用户命令，用来记录选项(定义选项列表)
+\def\closechoice[#1]{%定義文章內的序號。這是用戶命令，用來記錄選項(定義選項列表)
   \expandafter\gdef\csname close:\romannumerals\cnt_closetest\endcsname{#1}%
-  % cnt_closetest 用于标记选项列表，会随着选项题目增加，无论是否启用重置，该计数器都会记录并自增
-  % 在生成选项序列时，该计数器可以进行：(1) 是否设置了选项 (2) 递增出选项序列
-  % 该计数器属于局域，每篇文章都会重置回 1。
+    % cnt_closetest 用於標記選項列表，會隨著選項題目增加，無論是否啓用重置，該計數器都會記錄並自增
+      % 在生成選項序列時，該計數器可以進行：(1) 是否設置了選項 (2) 遞增出選項序列
+        % 該計數器屬於局域，每篇文章都會重置回 1。
   \ifclose_counter_reset%
     \begingroup%
       \switchtocolor[\closeparameter{barcolor}]%
@@ -1249,7 +1591,7 @@
       \closebar{\number\cnt_closetest}%
     \endgroup%
   \else%
-    \begingroup\let\par\relax% 将其封装在局域，避免 par 命令失效
+    \begingroup\let\par\relax% 將其封裝在局域，避免 par 命令失效
       \switchtocolor[\closeparameter{barcolor}]%
       \closeparameter{barstyle}%
       \startitemgroup[env_question][n,continue,text,nostopper]%
@@ -1262,7 +1604,7 @@
   \advance\cnt_closetest by 1\relax}
 
 \def\docloseitem#1{\startcitem #1\stopcitem}
-\def\close_order{%选项前的序号样式，序号通过 tempa 设定
+\def\close_order{%選項前的序號樣式，序號通過 tempa 設定
   \noindent\unskip%
   \inframed[width=\closeparameter\c!width,
             frame=\closeparameter\c!frame,
@@ -1288,7 +1630,7 @@
   \dorecurse{\number\scratchcounter}{%
     \hbox{\hsize=\textwidth%
           \parentitemnumber=\currentitemnumber\relax
-          \edef\currentuserorder{\number\cnt_closetest_tempa%放置在这里才能正确获取题号
+          \edef\currentuserorder{\number\cnt_closetest_tempa%放置在這裡才能正確獲取題號
             \ifnum\rawcountervalue[Unicode_botlevel]=0\relax\else% 抽出 order 定義，
             (\rawcountervalue[Unicode_botlevel])\fi}% 因為該環境沒有上級 question 環境
       \hbox{\close_order}\hbox{%
@@ -1322,15 +1664,15 @@
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%D \section{设置 optclose 环境}
-%D 该环境是 close 环境的变体，但目前并未对该环境进行更多的设置。
-%D 该环境的主要命令有两个：
-%D \tex{startoptclose} 和 \tex{stopoptclose} 用来创建该环境，
-%D \tex{ocitem} 用来标记环境内的选项，该命令随行文放置即可。
+%D \section{設置 optclose 環境}
+%D 該環境是 close 環境的變體，但目前並未對該環境進行更多的設置。
+%D 該環境的主要命令有兩個：
+%D \tex{startoptclose} 和 \tex{stopoptclose} 用來創建該環境，
+%D \tex{ocitem} 用來標記環境內的選項，該命令隨行文放置即可。
 %D \tex{ocitem[answer=blabla]}\type{blablabla}
 
-%D 此外，还有一个特殊的命令，\tex{specialocitem} 仅具有 answer 键值。可以通过
-%D \tex{setupocitem} 来调整该命令的样式。该命令标记答案，且无须任何环境包裹。
+%D 此外，還有一個特殊的命令，\tex{specialocitem} 僅具有 answer 鍵值。可以通過
+%D \tex{setupocitem} 來調整該命令的樣式。該命令標記答案，且無須任何環境包裹。
 
 \setupocitem [%answer=,
               %color=,
@@ -1380,7 +1722,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{score}
-%D 放置在 answer 环境内标记得分。
+%D 放置在 answer 環境內標記得分。
 
 %D \starttyping
 %D   score\score{3}\\
@@ -1567,13 +1909,12 @@
 }
 \def\example@pitem#1{
     \setupquestion[answer=,point=\getpointfrompitem]
-    \setuppitem[point=4]
     \startquestion
       \longtesttxt[\romannumeral\LNUM]
       \def\fillinanswer{\shorttesttxt[\romannumeral\CNUM]}
       \startproblem
       \dorecurse{#1}{
-        \startpitem[answer={answer : \recurselevel},]
+        \startpitem[answer={answer : \recurselevel},point={\number\CNUM\relax}]
         \longtesttxt[\romannumeral\CNUM]\stoppitem
         \startanswer
               \input knuthmath
@@ -1737,7 +2078,7 @@
 \eTABLE}
 %\type@answer@i{4}{5}{18}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%D \section{模式设置}
+%D \section{模式設置}
 % warning: conditional must put after env defination
 % 因爲隱藏答案是通過 definebuffer 來實現的，
 % 似乎無法將該環境作爲子環境放置在 buffer 環境中，
