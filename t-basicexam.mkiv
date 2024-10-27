@@ -219,7 +219,10 @@
   \advance\num_element by 1\relax}%stop recurse
   }%stop vbox
 \endgroup}
-%%%%%%%%
+
+%D \section{定义其后环境所需命令}
+
+%D 定义关键词
 \startinterface all
 \setinterfaceconstant {true}        {true}
 \setinterfaceconstant {false}       {false}
@@ -230,13 +233,17 @@
 \setinterfaceconstant {pointstyle}  {pointstyle}
 \setinterfaceconstant {pointcolor}  {pointcolor}
 \stopinterface
-%%%%%%%
+%D 安装定义命名空间和环境助手
 \installnamespace          {question}
 \installcommandhandler \????question  {question}  \????question
 \installnamespace          {problem}
 \installcommandhandler \????problem   {problem}   \????problem
 \installnamespace          {choice}
 \installcommandhandler \????choice    {choice}    \????choice
+\installnamespace          {writing}
+\installcommandhandler \????writing   {writing}   \????writing
+\installnamespace          {subwriting}
+\installcommandhandler \????subwriting{subwriting}\????subwriting
 \installnamespace          {answer}
 \installcommandhandler \????answer    {answer}    \????answer
 \installnamespace          {close}
@@ -277,6 +284,8 @@
 \newif\ifenv_choice       \env_choicefalse
 \newif\ifenv_material     \env_materialfalse
 \newif\ifenv_close        \env_closefalse
+\newif\ifenv_writing      \env_writingfalse
+\newif\ifenv_subwriting   \env_subwritingfalse
 \newif\ifenv_answer       \env_answerfalse
 \newif\ifenv_toplevel     \env_topleveltrue
 \newif\ifenv_botlevel     \env_botlevelfalse
@@ -319,10 +328,12 @@
 \def\decreaseQusetionID{\ifmode_example\decreaseEQusetionID\else%
                         \decrementcounter[Unicode]\fi}
 \def\ProblemID{\namedheadnumber{chapter}-\rawcountervalue[Unicode_toplevel]}
+\def\SubwritingID{\namedheadnumber{chapter}-\rawcountervalue[Unicode_toplevel]}
 
 \definedataset[Answer_collector]
 \definedataset[Problem_collector]
 \definedataset[Choice_collector]
+\definedataset[Subwriting_collector]
 
 \defineitemgroup   [env_problem]  %
 \setupitemgroup    [env_problem]  [each] [n,packed,joinedup,nowhite]
@@ -438,13 +449,24 @@
     \ifnum\rawcountervalue[Unicode_botlevel]=0\relax\else%
     (\rawcountervalue[Unicode_botlevel])\fi%
 }
+
 \newcount\parentitemnumber
+
 \def\set_currentuserorder[#1]{% set order that user setted
     \ifcsname #1order\endcsname\else%
     \expandafter\newcount\csname #1order\endcsname\fi%
-    \ifenv_toplevel\csname #1order\endcsname=\currentitemnumber\relax%
-    \else          \csname #1order\endcsname=\parentitemnumber \relax%
-    \fi}
+    \ifenv_toplevel\csname #1order\endcsname=\currentitemnumber\relax
+    \else          \csname #1order\endcsname=\parentitemnumber \relax
+    \fi}%专为子级设计来获取父级序号，否则直接获取当前序号
+%% 注意，只要某个条件不关闭，他就会一直开启。例如：
+% {\env_topleveltrue
+%    1. \ifenv_toplevel top \else bot \fi  % top
+%    \env_toplevelfalse\env_botleveltrue   % 关闭了 toplevel 才能正确输出
+%    2. \ifenv_toplevel top \else bot \fi  % bot
+%    3. \ifenv_botlevel bot \else top \fi} % bot
+% 一定要关闭，因为默认并没有设置 top 和 bot 的二元关系。
+% 所以即便是专门测试 bot 是否开启的 3 ，
+% 也只会在关闭 top 的情况下获取正确的结果。
 
 \def\current_user_order#1{% get user order which can by changed by START
     \number\csname #1order\endcsname%
@@ -455,12 +477,12 @@
    \setcounter[Unicode_midlevel][0]%
    \setcounter[Unicode_botlevel][0]%
    \doifincsnameelse{#1}{\currentitemgroup}%
-                    {\env_topleveltrue{}}%
+                    {\env_topleveltrue{}}% 如果当前环境等于#1 设为顶级
                     {\env_toplevelfalse{}}%
    \ifenv_toplevel\incrementcounter[Unicode_toplevel]%
              \else\incrementcounter[Unicode_midlevel]\fi%
-   \set_currentuserorder[#2]%
-   \edef\currentuserorder{\current_user_order{#2}}%
+   \set_currentuserorder[#2]% 创建 #2order 以备使用
+   \edef\currentuserorder{\current_user_order{#2}}%获取 上面定义的 #2order
    \show_check_info%
 }
 
@@ -469,9 +491,10 @@
                      {\env_botleveltrue{}}%
                      {\env_botlevelfalse{}}%
    \ifenv_botlevel\incrementcounter[Unicode_botlevel]%
-             \else\incrementcounter[Unicode_midlevel]\fi%
+             \else\incrementcounter[Unicode_midlevel]\fi% 
    \set_currentuserorder[#2]%
-   \edef\currentuserorder{\current_user_order{#2}}
+   \ifenv_subwriting\env_botleveltrue\else\fi%
+   \edef\currentuserorder{\current_user_order{#2}}  
    \show_check_info%
 }
 
@@ -481,20 +504,22 @@
 %%% userorder 當前列表序號(可獲取被start更改後的序號)
 
 \def\dataset_collector[#1][#2]{%#1 where answer from %% #2 user id for the env
+    \def\currentpoint{\csname #1parameter\endcsname{point}}%
     \setdataset [Answer_collector][\QusetionID]%收集答案並在未來展開
                 [id={\QusetionID},%
                  envid={\currentitemgroup},%
                  order={\number\currentorder},%
                  userorder={\currentuserorder},%
-                 answer={\pass_parameter_answer},
-                 point={\csname #1parameter\endcsname{point}},
+                 answer={\pass_parameter_answer},%
+                 point={\currentpoint},
                  totalnumber={\the\totalpitemnumber},]}
                  % totalnumber 需要修改為根據環境改變所收集的數量信息
 
 \def\pass_parameter_answer{%
   \ifenv_choice\get_choice_answer\else%
   \ifenv_problem\check_env_answer[pitem]\else%
-  \check_env_answer[ocitem]\fi\fi}
+  \ifenv_writing\get_writing_answer\else
+  \check_env_answer[ocitem]\fi\fi\fi}
 
 \def\check_env_answer[#1]{
   \doifelsesomething{\csname #1parameter\endcsname{answer}}{}{%
@@ -518,15 +543,24 @@
   \def\ProblemID{\namedheadnumber{chapter}-\nextcountervalue[Unicode_toplevel]}%
   \datasetvariable{Problem_collector}{\ProblemID}{totalpitempoint}}
 
+\def\get_subwriting_point{%
+  \def\SubwritingID{\namedheadnumber{chapter}-\nextcountervalue[Unicode_toplevel]}%
+  \datasetvariable{Subwriting_collector}{\SubwritingID}{totalsubwritingpoint}}
+
 \let\getanswerfromchoice\get_choice_answer
 \let\getanswerfromfillin\get_fillin_answer
 \let\getpointfrompitem\get_pitem_point
 \let\getpointfromproblem\get_pitem_point
+\let\getpointfromsubwriting\get_subwriting_point
 
 %%%%% NOTICE : 目前，當用戶主動輸入值和選項值發生衝突時，並未設置警告信息!!!!
 \def\getanswerforanswer{% used for answer env to auto get answer
-  \datasetvariable{Answer_collector}{\QusetionID}{answer}}
-\def\getpointforanswer{% used for answer env to auto get answer
+  \ifenv_writing% 因为写作环境的答案一般比较长，在获取答案时，answer 环境会获取显示的很长。
+    \ifx\current_writing_answer\empty%判断环境，并确认 writing 环境是否已经设置 answer 键值
+      \datasetvariable{Answer_collector}{\QusetionID}{answer}%若是，直接获取 writing 环境的
+    \else \current_writing_answer\fi%answer 键值，若否，则按照 QID 获取答案。
+  \else \datasetvariable{Answer_collector}{\QusetionID}{answer}\fi}
+\def\getpointforanswer{% used for answer env to auto get point
   \datasetvariable{Answer_collector}{\QusetionID}{point}}
 
 \def\check_choice_answerstatus{
@@ -707,9 +741,8 @@
     \setdataset [Problem_collector][\ProblemID]%收集信息並在未來展開
                 [totalpitemnumber={\the\totalpitemnumber},
                  totalpitempoint={\number\cnt_step_point},]%
-  \stopitemgroup\endgroup}
-
-
+  \stopitemgroup%
+  \endgroup}
 
 %D \section{设置 question 环境}
 
@@ -1000,21 +1033,111 @@
     \dataset_collector[question][choice]%
     \stopitemgroup\endgroup}
 
-%%%%%%%
-\setuptextbackground[env_answer]
-                    [location=paragraph,width=local,
-                     leftoffset=1ex,rightoffset=1ex,
-                     %topoffset=.5ex,bottomoffset=.5ex,
-                     before={\leftskip=0pt\startnarrower
-                            \blank[force,halfline]},
-                     after={\blank[halfline]\stopnarrower},
-                     background=\answerparameter\c!background,
-                     backgroundcolor=\answerparameter\c!backgroundcolor,
-                     corner=\answerparameter\c!corner,
-                     frame=\answerparameter\c!frame,
-                     framecolor=\answerparameter\c!framecolor,
-                     rulethickness=\answerparameter\c!rulethickness,
-                     ]
+%D \section{设置 writing 环境}
+%D 目前该环境只是初步的设计。
+%D 如果只有同级的多个作文题目，只需要使用 writing 环境即可。
+%D 但是，当一个作文体下面有多个子题目时，需要将子题目放到 subwriting 环境当中。
+
+%D 该环境目前关于 itemgroup 的设置是直接继承自 question 环境。直接通过 \tex{setupquestion}
+%D 来进行设置皆可。
+
+%D 如果含有 subwriting 环境，可以使用 \tex{getanswerfromsubwriting} 来获取总分数。
+%D \startbuffer
+%D \setupwriting[showanswer=true,showpoint=true]
+%D \startwriting[point=45]
+%D   作文题目说明
+%D   \startanswer
+%D     参考作文 1
+%D   \stopanswer
+%D \stopwriting
+%D 
+%D \startwriting[point=\getpointfromsubwriting]
+%D 作文题目说明
+%D   \startsubwriting[point=450]
+%D     sub 作文题目说明
+%D     \startanswer
+%D       参考作文 2
+%D     \stopanswer
+%D   \stopsubwriting
+%D   \startsubwriting[point=4588]
+%D     sub 作文题目说明
+%D     \startanswer
+%D     参考作文 3
+%D     \stopanswer
+%D   \stopsubwriting
+%D \stopwriting
+%D \stopbuffer
+%D \typebuffer
+%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
+\setupwriting[answer={参见参考作文。}]
+\setupsubwriting[answer={参见参考作文。},point=0]
+
+\tolerant\protected\def\startwriting[#1]{\begingroup%
+  \env_writingtrue%
+  \iffirstargument\setupwriting[#1]\fi%注意，writing 没有单独的 itemgroup 环境
+  \ifempty{\questionparameter{start}}% 避免 continue 和 start 属性冲突
+  \startitemgroup[env_question]% 该环境的 item 样式通过 question 来进行设置即可
+                  [\questionparameter{numberconversion},continue,#1]%
+                  [#1]%
+  \else\startitemgroup[env_question]%
+                      [\questionparameter{numberconversion},#1]%
+                      [#1]%
+  \fi\item[\writingparameter\c!reference]%
+  \show_point_or_answer[writing][point]%
+  \show_point_or_answer[writing][answer]%
+  \def\current_writing_answer{\writingparameter\c!answer}
+  \increaseQusetionID%不同于 question 环境，此处只增长不缩减
+  \parentitemnumber=\currentitemnumber\relax
+  \cnt_step_point=0\relax%
+  \cnt_step_point_temp=0\relax%
+  \set_count_envlevel[env_question:1][writing]%
+  \setcounter    [strc_close_counter][\currentitemnumber]%
+  \savecounter   [strc_close_counter]%
+  \unskip}
+
+\def\stopwriting{%
+  \ifnum\cnt_step_point=0\relax
+    \edef\currentwritingpoint{\writingparameter\c!point}%
+  \else%
+    \edef\currentwritingpoint{\number\cnt_step_point}%
+  \fi%
+  \setdataset [Subwriting_collector][\SubwritingID]%only for total point 
+              [totalsubwritingpoint={\currentwritingpoint},
+               totalsubwritingitem={\rawcountervalue[Unicode_botlevel]}]
+  \ifenv_subwriting\else%
+  \dataset_collector[writing][question]\fi%
+  \stopitemgroup\endgroup}
+
+\tolerant\protected\def\startsubwriting[#1]{%
+  \env_subwritingtrue\begingroup\env_toplevelfalse%
+  \iffirstargument\setupsubwriting[#1]\fi
+  \ifempty{\questionparameter{start}}% 避免 continue 和 start 属性冲突
+      \startitemgroup[env_question]% 该环境的 item 样式通过 question 来进行设置即可
+                     [\questionparameter{numberconversion},continue,#1]%
+                     [#1]%
+  \else\startitemgroup[env_question]%
+                        [\questionparameter{numberconversion},#1]%
+                        [#1]%
+  \fi%
+  \item \show_point_or_answer[subwriting][point]%
+        \show_point_or_answer[subwriting][answer]%
+        \def\current_writing_answer{\subwritingparameter\c!answer}%
+        \ifnum\currentitemnumber=1\relax
+          \decreaseQusetionID\increaseQusetionID%
+        \else\increaseQusetionID\fi%
+       %当具有多个子写作环境时，才增长 QID ，否则削减至 父级 QID（相当于继承）
+        \set_count_itemlevel[env_question:2][subwriting]%
+        \setcounter      [strc_close_counter][\currentitemnumber]%
+        \savecounter     [strc_close_counter]%
+        \global\cnt_step_point_temp=\subwritingparameter\c!point\relax%
+        \ifnum\cnt_step_point=0%
+              \global\cnt_step_point=\cnt_step_point_temp\relax%
+        \else%
+              \global\cnt_step_point=\numexpr\cnt_step_point+\cnt_step_point_temp\relax%
+        \fi
+        }
+\def\stopsubwriting{\dataset_collector[subwriting][subwriting]\stopitemgroup\endgroup}
 
 %D \section{设置 answer 环境}
 %D 在(v20241023)中，删除了 answer 环境的标签通过 description 来进行设置。
@@ -1071,6 +1194,22 @@
 %D \typebuffer
 %D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
 
+%%%%%%%
+\setuptextbackground[env_answer]
+                    [location=paragraph,width=local,
+                     leftoffset=1ex,rightoffset=1ex,
+                     %topoffset=.5ex,bottomoffset=.5ex,
+                     before={\leftskip=0pt\startnarrower
+                            \blank[force,halfline]},
+                     after={\blank[halfline]\stopnarrower},
+                     background=\answerparameter\c!background,
+                     backgroundcolor=\answerparameter\c!backgroundcolor,
+                     corner=\answerparameter\c!corner,
+                     frame=\answerparameter\c!frame,
+                     framecolor=\answerparameter\c!framecolor,
+                     rulethickness=\answerparameter\c!rulethickness,
+                     ]
+
 \setupanswer[showanswer=true,
              showpoint=true,
              answer=\getanswerforanswer,
@@ -1100,6 +1239,10 @@
 
 \tolerant\protected\def\startanswer[#1]#:#2\stopanswer{\begingroup%
     \env_answertrue%
+    \xdef\get_writing_answer{#2}% only for writing env
+% 需要注意，该命令会传递给 dataset，不同于 writing 环境的 current_writing_answer
+% current_writing_answer 的目的是设置较短的作文答案。
+% get_writing_answer 则是设置完整的作文答案。
     \iffirstargument\setupanswer[#1]\fi%
     \doif{\answerparameter{showscript}}{true}{\mode_showscripttrue}%
     \answerparameter{before}%
@@ -1123,7 +1266,7 @@
     \else\fi%
   \fi%
   \answerparameter{after}%
-    \endgroup}
+  \endgroup}
 
 %D \section{设置 pitem,citem 命令}
 %D 仅具有 answer point 和 reference 键值。
@@ -1698,6 +1841,10 @@
     \let\par\relax\increaseQusetionID%               %%% 必須命令，自增序號以備調用
     \item \show_point_or_answer[ocitem][point]%
          \set_count_itemlevel[env_question:2][ocitem]%%%% 必須命令，設定序號
+         % 注意，此时 toplevel 并没有正确的关闭，因此最终的结果依然是 toplevel。
+         % 但是该环境本身就被视为 toplevel                =>  5
+         % 如果该环境被视为子项目时，则需要关闭 toplevel。==> 5(1)
+         % 另外，关闭 toplevel 需要在 set_count_itemlevel 命令之前才会生效。
          \allowbreak\doifsomethingelse{#2}{(#2)}{}%
          \show_point_or_answer[ocitem][answer]%
          \dataset_collector[ocitem][ocitem]%          %%% 必須命令，設定可調用信息
@@ -1714,6 +1861,8 @@
           \increaseQusetionID%
           %\show_point_or_answer[ocitem][point]%
           \set_count_itemlevel[env_question:2][ocitem]%
+          % 关于 toplevel 的问题参见 ocitem 的解释。
+          % 是否需要设置子项目还有待考虑。
           \show_point_or_answer[ocitem][answer]%
           \dataset_collector[ocitem][ocitem]%
           \setcounter      [strc_close_counter][\currentitemnumber]%
