@@ -289,6 +289,8 @@
 \newif\ifenv_answer       \env_answerfalse
 \newif\ifenv_toplevel     \env_topleveltrue
 \newif\ifenv_botlevel     \env_botlevelfalse
+\newif\ifitem_pitem       \item_pitemfalse
+\newif\ifitem_fillin      \item_fillinfalse
 \newif\ifchoice_check     \choice_checkfalse
 \newif\ifcontinue_counter \continue_counterfalse
 \newif\ifclose_counter_reset\close_counter_resetfalse
@@ -318,14 +320,14 @@
 \definecounter[totalchoicenumber]       % get total number of choice
 \definecounter[currentchoicenumber]     % get order number of choice
 \definecounter[strc_close_counter]      % 为 close 环境可以继续 question 序号而设置
-\def\EQusetionID{E-\somenamedheadnumber{chapter}{current}-\number\cnt_example_question}
-\def\QusetionID{\ifmode_example\EQusetionID\else%
+\def\EQuestionID{E-\somenamedheadnumber{chapter}{current}-\number\cnt_example_question}
+\def\QuestionID{\ifmode_example\EQuestionID\else%
                 \somenamedheadnumber{chapter}{current}-\rawcountervalue[Unicode]\fi}
-\def\increaseEQusetionID{\advance\cnt_example_question by 1\relax}
-\def\decreaseEQusetionID{\advance\cnt_example_question by -1\relax}
-\def\increaseQusetionID{\ifmode_example\increaseEQusetionID\else%
+\def\increaseEQuestionID{\advance\cnt_example_question by 1\relax}
+\def\decreaseEQuestionID{\advance\cnt_example_question by -1\relax}
+\def\increaseQuestionID{\ifmode_example\increaseEQuestionID\else%
                         \incrementcounter[Unicode]\fi}
-\def\decreaseQusetionID{\ifmode_example\decreaseEQusetionID\else%
+\def\decreaseQuestionID{\ifmode_example\decreaseEQuestionID\else%
                         \decrementcounter[Unicode]\fi}
 \def\ProblemID{\namedheadnumber{chapter}-\rawcountervalue[Unicode_toplevel]}
 \def\SubwritingID{\namedheadnumber{chapter}-\rawcountervalue[Unicode_toplevel]}
@@ -358,24 +360,68 @@
         withcolor RuleColor ;
     setbounds currentpicture to unitsquare xysized(RuleWidth,RuleHeight) ;
 \stopuseMPgraphic
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%D \section{设定一些可能用得到的符号}
+%D 需要注意，这些符号需要预先安装字体 NotoSansSymbols2。
+%D
+%D \starttabulate[|l|r|l|r|]
+%D \NC \type{\symbol{marksquare}}           \NC \symbol{marksquare}           
+%D \VL \type{\symbol{markcircle}}           \NC \symbol{markcircle}          \NC\NR\HL
+%D \NC \type{\symbol{markcheck}}            \NC \symbol{markcheck}            
+%D \VL \type{\symbol{markcross}}            \NC \symbol{markcross}           \NC\NR
+%D \NC \type{\symbol{markheavycheck}}       \NC \symbol{markheavycheck}       
+%D \VL \type{\symbol{markheavycross}}       \NC \symbol{markheavycross}      \NC\NR
+%D \NC \type{\symbol{marksquarecheck}}      \NC \symbol{marksquarecheck}      
+%D \VL \type{\symbol{marksquarecross}}      \NC \symbol{marksquarecross}     \NC\NR
+%D \NC \type{\symbol{marksquareheavycheck}} \NC \symbol{marksquareheavycheck} 
+%D \VL \type{\symbol{marksquareheavycross}} \NC \symbol{marksquareheavycross}\NC\NR
+%D \NC \type{\symbol{markcirclecheck}}      \NC \symbol{markcirclecheck}      
+%D \VL \type{\symbol{markcirclecross}}      \NC \symbol{markcirclecross}    \NC\NR
+%D \NC \type{\symbol{markcircleheavycheck}} \NC \symbol{markcircleheavycheck} 
+%D \VL \type{\symbol{markcircleheavycross}} \NC \symbol{markcircleheavycross}\NC\NR
+%D \NC \type{\symbol{marknotcheck}}         \NC \symbol{marknotcheck}         
+%D \VL                                      \NC                              \NC\NR
+%D \stoptabulate
+\doifelsefontpresent{NotoSansSymbols2-Regular}{}{
+  \writestatus{Warning}{Symbol Font is not Found,Please install NotoSansSymbols2 font.}
+}
+\definefontsynonym[NotoSansSymbols2][file:NotoSansSymbols2-Regular]
+\def\notosymb#1{\getglyphstyled{NotoSansSymbols2}{\tochar{n:#1}}}
+
+\definesymbol[marksquare][\notosymb{☐}]
+\definesymbol[markcircle][\notosymb{○}]
+
+\definesymbol[marknotcheck][\notosymb{⍻}]
+\definesymbol[markcheck][\notosymb{🗸}]
+\definesymbol[markheavycheck][\notosymb{✓}]
+\definesymbol[marksquarecheck][\notosymb{\hbox to 1em{☐\kern-.7em\relax\raise.2em\hbox{🗸}}}]
+\definesymbol[marksquareheavycheck][\notosymb{\hbox to 1em{☐\kern-.7em\relax\raise.2em\hbox{✓}}}]
+\definesymbol[markcirclecheck][\notosymb{\hbox to 1em{○\kern-.7em\relax\raise.2em\hbox{🗸}}}]
+\definesymbol[markcircleheavycheck][\notosymb{\hbox to 1em{○\kern-.7em\relax\raise.2em\hbox{✓}}}]
+
+\definesymbol[markcross][\notosymb{✗}]
+\definesymbol[markheavycross][\notosymb{✘}]
+\definesymbol[marksquarecross][\notosymb{\hbox to 1em{☐\kern-.75em\relax\raise.1em\hbox{✗}}}]
+\definesymbol[marksquareheavycross][\notosymb{\hbox to 1em{☐\kern-.75em\relax\raise.1em\hbox{✘}}}]
+\definesymbol[markcirclecross][\notosymb{\hbox to 1em{○\kern-.75em\relax\raise.2em\hbox{✗}}}]
+\definesymbol[markcircleheavycross][\notosymb{\hbox to 1em{○\kern-.75em\relax\raise.2em\hbox{✘}}}]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\def\choice_availablecolumns{\datasetvariable{Choice_collector}{\QusetionID}{availablecolumns}}
-\def\choice_itemmaxwidth{\datasetvariable{Choice_collector}{\QusetionID}{itemmaxwidth}}
-\def\choice_totalchoicenumber{\datasetvariable{Choice_collector}{\QusetionID}{totalchoicenumber}}
-\def\choice_answer{\datasetvariable{Choice_collector}{\QusetionID}{answer}}
-\def\choice_answerstatus{\datasetvariable{Choice_collector}{\QusetionID}{answerstatus}}
+\def\choice_availablecolumns{\datasetvariable{Choice_collector}{\QuestionID}{availablecolumns}}
+\def\choice_itemmaxwidth{\datasetvariable{Choice_collector}{\QuestionID}{itemmaxwidth}}
+\def\choice_totalchoicenumber{\datasetvariable{Choice_collector}{\QuestionID}{totalchoicenumber}}
+\def\choice_answer{\datasetvariable{Choice_collector}{\QuestionID}{answer}}
+\def\choice_answerstatus{\datasetvariable{Choice_collector}{\QuestionID}{answerstatus}}
 %%%%%%%%%%%%%%%%%%%%%%%%
 \def\pitem_totalnumber{\datasetvariable{Problem_collector}{\ProblemID}{totalpitemnumber}}
 \def\pitem_totalpoint{\datasetvariable{Problem_collector}{\ProblemID}{totalpitempoint}}
 %%%%%%%%%%%%%%%%%%%%%%%%
-\def\answer_id{\datasetvariable{Answer_collector}{\QusetionID}{id}}
-\def\answer_envid{\datasetvariable{Answer_collector}{\QusetionID}{envid}}
-\def\answer_order{\datasetvariable{Answer_collector}{\QusetionID}{order}}
-\def\answer_userorder{\datasetvariable{Answer_collector}{\QusetionID}{userorder}}
-\def\answer_answer{\ifmode_example You're in EXAMPLE MODE!\else\datasetvariable{Answer_collector}{\QusetionID}{answer}\fi}
-\def\answer_point{\datasetvariable{Answer_collector}{\QusetionID}{point}}
-\def\answer_totalnumber{\datasetvariable{Answer_collector}{\QusetionID}{totalnumber}}
-\def\point_point{\datasetvariable{Answer_collector}{\QusetionID}{point}}
+\def\answer_id{\datasetvariable{Answer_collector}{\QuestionID}{id}}
+\def\answer_envid{\datasetvariable{Answer_collector}{\QuestionID}{envid}}
+\def\answer_order{\datasetvariable{Answer_collector}{\QuestionID}{order}}
+\def\answer_userorder{\datasetvariable{Answer_collector}{\QuestionID}{userorder}}
+\def\answer_answer{\ifmode_example You're in EXAMPLE MODE!\else\datasetvariable{Answer_collector}{\QuestionID}{answer}\fi}
+\def\answer_point{\datasetvariable{Answer_collector}{\QuestionID}{point}}
+\def\answer_totalnumber{\datasetvariable{Answer_collector}{\QuestionID}{totalnumber}}
+\def\point_point{\datasetvariable{Answer_collector}{\QuestionID}{point}}
 \def\show_check_info{
    \ifmode_quickcheck
      \par\framed[width=\textwidth,align=flushleft]%
@@ -396,7 +442,7 @@
     \setuptabulate[bodyfont={tt,9pt}]
     \starttabulate[|rp(.2\textwidth)|lp(.25\textwidth)|rp(.2\textwidth)|lp(.25\textwidth)|lwlB|]
       \NC {\bf Name}    \NC {\bf Content}           \NC {\bf Cinfos} \NC {\bf Content}             \NC\NR\HL
-      \NC CUitemgroup   \NC \currentitemgroup       \NC CUQusetionID \NC \QusetionID               \NC\NR
+      \NC CUitemgroup   \NC \currentitemgroup       \NC CUQuestionID \NC \QuestionID               \NC\NR
       \NC CUparen       \NC \currentparentitemgroup \NC CUCmaxwidth  \NC \choice_itemmaxwidth      \NC\NR
       \NC CUorder       \NC \currentorder           \NC totalCnumber \NC \choice_totalchoicenumber \NC\NR
       \NC CUuserorder   \NC \currentuserorder       \NC Cavailable   \NC \choice_availablecolumns  \NC\NR
@@ -505,8 +551,8 @@
 
 \def\dataset_collector[#1][#2]{%#1 where answer from %% #2 user id for the env
     \def\currentpoint{\csname #1parameter\endcsname{point}}%
-    \setdataset [Answer_collector][\QusetionID]%收集答案並在未來展開
-                [id={\QusetionID},%
+    \setdataset [Answer_collector][\QuestionID]%收集答案並在未來展開
+                [id={\QuestionID},%
                  envid={\currentitemgroup},%
                  order={\number\currentorder},%
                  userorder={\currentuserorder},%
@@ -515,28 +561,64 @@
                  totalnumber={\the\totalpitemnumber},]}
                  % totalnumber 需要修改為根據環境改變所收集的數量信息
 
-\def\pass_parameter_answer{%
-  \ifenv_choice\get_choice_answer\else%
-  \ifenv_problem\check_env_answer[pitem]\else%
-  \ifenv_writing\get_writing_answer\else
-  \check_env_answer[ocitem]\fi\fi\fi}
+% 环境层级一览                 
+% question 环境                 % close 环境                    % material 环境
+%    choice 环境                %       closechoice 项目  ⭕    % question 环境
+%       citem 项目        ⭕    % optclose 环境                 %    choice 环境
+%    problem 环境               %       ocitem 项目       ⭕    %       citem 项目        ⭕
+%       pitem 项目        ⭕    %       specialocitem 项目⭕
+%         fillin 项目     ⭕
+% ======================================================================================
+% writing 环境            ⭕
+%     subwriting 环境
+%
 
-\def\check_env_answer[#1]{
-  \doifelsesomething{\csname #1parameter\endcsname{answer}}{}{%
-       no \color[red]{\tt #1 answer} value there.
-     }{\csname #1parameter\endcsname{answer}}%
+% 获取当前环境的答案，并传递给最终的 answer dataset 
+% 但是，条件判断的套嵌还需要优化。当前(20241029)的修改后似乎增加了 0.2~0.4 秒的生成时间
+\def\pass_parameter_answer{%
+  \ifenv_choice%
+    \get_choice_answer%
+  \else%
+    \ifenv_problem%
+      \ifitem_fillin%
+        \get_fillin_answer%
+      \else%
+        \check_parameter_answer[pitem]%
+      \fi%
+    \else%
+      \ifenv_writing%
+        \get_writing_answer%
+      \else%
+        \ifenv_close%
+          \increaseQuestionID%
+          \check_parameter_answer[ocitem]%
+          \decreaseQuestionID%
+        \else%
+          \currentpointoranswer%
+        \fi%
+      \fi%
+    \fi%
+  \fi}
+
+\def\check_env_answer[#1][#2][#3]{%
+   \doifsomethingelse{\datasetvariable{#2}{#3}{answer}}%
+    {\datasetvariable{#2}{#3}{answer}}%
+    {\tt no \color[red]{\bf #1 answer} value here,or no need here.}%
 }
 
-\def\get_choice_answer_num#1{%
-    \doifsomethingelse%
-    {\datasetvariable{Choice_collector}{#1}{answer}}%
-    {\datasetvariable{Choice_collector}{#1}{answer}}%
-    {no \color[red]{\tt Choice answer} value here.}}
-\def\get_choice_answer{\increaseQusetionID%
-  \get_choice_answer_num{\QusetionID}%
-  \decrementcounter[Unicode]}
+\def\check_parameter_answer[#1]{%
+  \doifsomethingelse{\csname #1parameter\endcsname\c!answer}%
+    {\csname #1parameter\endcsname\c!answer}%
+    {\tt no \color[red]{\bf #1 answer} value here,or no need here.}%
+}
+
+\def\get_choice_answer{%
+    \increaseQuestionID%
+    \check_env_answer[choice][Choice_collector][\QuestionID]%
+    \decrementcounter[Unicode]}
+
 \def\get_fillin_answer{%
-  \datasetvariable{Fillin_collector}{\QusetionID}{answer}%
+    \check_env_answer[fillin][Fillin_collector][\QuestionID]%
 }
 
 \def\get_pitem_point{%
@@ -557,11 +639,11 @@
 \def\getanswerforanswer{% used for answer env to auto get answer
   \ifenv_writing% 因为写作环境的答案一般比较长，在获取答案时，answer 环境会获取显示的很长。
     \ifx\current_writing_answer\empty%判断环境，并确认 writing 环境是否已经设置 answer 键值
-      \datasetvariable{Answer_collector}{\QusetionID}{answer}%若是，直接获取 writing 环境的
+      \datasetvariable{Answer_collector}{\QuestionID}{answer}%若是，直接获取 writing 环境的
     \else \current_writing_answer\fi%answer 键值，若否，则按照 QID 获取答案。
-  \else \datasetvariable{Answer_collector}{\QusetionID}{answer}\fi}
+  \else \datasetvariable{Answer_collector}{\QuestionID}{answer}\fi}
 \def\getpointforanswer{% used for answer env to auto get point
-  \datasetvariable{Answer_collector}{\QusetionID}{point}}
+  \datasetvariable{Answer_collector}{\QuestionID}{point}}
 
 \def\check_choice_answerstatus{
     \ifchoice_check checked!%
@@ -577,16 +659,55 @@
 %    \doifelse{\csname #1parameter\endcsname{#2}}{}
 %             {\csname mode_show#2false\endcsname}
 %             {\relax}% 这可能会导致答案无法显示，需要更好的逻辑进行设计答案空值的情况
+    \edef\currentmode{#2}% check point or answer
     \processaction[\csname #1parameter\endcsname{show#2}][%
              true=>\csname mode_show#2true\endcsname,
             false=>\csname mode_show#2false\endcsname,]%
-    \expandafter\edef\csname current#1#2\endcsname{\csname #1parameter\endcsname{#2}}%
+    \edef\currentpointoranswer{\csname #1parameter\endcsname{#2}}%
     \csname ifmode_show#2\endcsname%
         \begingroup%
         \csname #1parameter\endcsname{#2style}%
         \switchtocolor[\csname #1parameter\endcsname{#2color}]%
         \paren {\csname #1parameter\endcsname{#2prelabel}% like=>answer : blabla
-                \csname #1parameter\endcsname{#2}%\csname current#1#2\endcsname%             like=> 1 points
+                \ifx\currentmode\c!point% if #2 = point
+                  \ifenv_answer%
+                    \csname #1parameter\endcsname{#2}%
+                  \else%
+                    \ifenv_subwriting%
+                      \csname #1parameter\endcsname{#2}%
+                    \else%
+                      \ifenv_writing%
+                        \getpointfromsubwriting%
+                      \else%
+                        \csname #1parameter\endcsname{#2}%
+                      \fi%
+                    \fi%
+                  \fi%
+                \else% if #2 = answer。因为 currentXXXanswer 是有定义内容的，
+                  \ifenv_answer%
+                    \answer_answer%
+                  \else%
+                    \edef\currentanswer{\csname #1parameter\endcsname{#2}}%
+                    \ifitem_pitem%
+                      \doifsomethingelse{\csname #1parameter\endcsname{#2}}
+                        {\currentanswer}
+                        {\expandafter\csname set#1parameter\endcsname{#2}{\getanswerfromfillin}%
+                          \csname #1parameter\endcsname{#2}}% setXXXparameter 设置键值
+                    \else% 如果避免使用 getanswerfromchoice ？？
+                      \ifenv_question% 因为没有为 question 设置 dataset，所以可以直接获取
+                        \answer_answer%
+                      \else%
+                        \ifenv_close%
+                          \increaseQuestionID%
+                          \answer_answer%选择题想要获取正确序号的答案必须要先增后减
+                          \decreaseQuestionID%
+                        \else%
+                          \currentanswer%
+                        \fi%
+                      \fi%
+                    \fi%
+                  \fi%
+                \fi%
                 \csname #1parameter\endcsname{#2label}}%
         \endgroup%
     \fi}
@@ -719,10 +840,10 @@
 %D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
 
 \tolerant\protected\def\startproblem[#1]{%
-  \ifenv_question\increaseQusetionID%如果 problem 作为子环境存在时
+  \ifenv_question\increaseQuestionID%如果 problem 作为子环境存在时
   \parentitemnumber=\currentitemnumber\relax% 直接获取 question 的 ID
   \set_count_envlevel[env_problem:2][question]%
-  \decreaseQusetionID\fi%
+  \decreaseQuestionID\fi%
   \begingroup\env_problemtrue%
   \iffirstargument\setupproblem[#1]\fi%
   \startitemgroup [env_problem]%
@@ -849,13 +970,13 @@
                       [#1]%
    \fi\item[\questionparameter\c!reference]%
    \show_point_or_answer[question][point]%
-   \show_point_or_answer[question][answer]%
-   \increaseQusetionID%
+   \increaseQuestionID%让 question 获取下一个 QID 的答案。
+   \show_point_or_answer[question][answer]%因为 question 本身不具备答案
    \parentitemnumber=\currentitemnumber\relax
    \set_count_envlevel[env_question:1][question]%
    \setcounter      [strc_close_counter][\currentitemnumber]%
    \savecounter     [strc_close_counter]%
-   \decreaseQusetionID%
+   \decreaseQuestionID%
    \unskip}
 
 \def\stopquestion{\stopitemgroup\endgroup%
@@ -948,17 +1069,17 @@
 
 \tolerant\protected\def\startchoice[#1]{\begingroup%
     \env_choicetrue%
-    \increaseQusetionID%
+    \increaseQuestionID%
     \doifelsesomething{\datasetvariable{Choice_collector}%
-                    {\QusetionID}{totalchoicenumber}}% arg_1
+                    {\QuestionID}{totalchoicenumber}}% arg_1
        {\scratchcounter\datasetvariable{Choice_collector}%
-                      {\QusetionID}{totalchoicenumber}}% arg_2
+                      {\QuestionID}{totalchoicenumber}}% arg_2
                       {\scratchcounter\zerocount}% arg_3
     \current_total_choice_number=\number\scratchcounter\relax%
     \doifelsesomething{\datasetvariable{Choice_collector}
-                      {\QusetionID}{availablecolumns}}%
+                      {\QuestionID}{availablecolumns}}%
        {\scratchcounter\datasetvariable{Choice_collector}
-                      {\QusetionID}{availablecolumns}}%
+                      {\QuestionID}{availablecolumns}}%
                       {\scratchcounter\zerocount}%
     \current_available_columns=\number\scratchcounter\relax%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1019,8 +1140,8 @@
    \ifdefined \currentuserorder\else%
               \doifincsnameelse{env_choice:2}{\currentitemgroup}%
                    {}{\set_count_envlevel[env_choice:1][choice]}\fi%
-    \setdataset [Choice_collector][\QusetionID][%收集選項信息,傳遞給下面的總收集處
-                 id={\QusetionID},%
+    \setdataset [Choice_collector][\QuestionID][%收集選項信息,傳遞給下面的總收集處
+                 id={\QuestionID},%
                  envid={\currentitemgroup},%
                  order={\number\currentorder},%
                  userorder={\currentuserorder},%
@@ -1070,11 +1191,12 @@
 %D \typebuffer
 %D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
 
-\setupwriting[answer={参见参考作文。}]
-\setupsubwriting[answer={参见参考作文。},point=0]
+\setupwriting[answer={参见参考作文。},pointlabel={分}]
+\setupsubwriting[answer={参见参考作文。},point=0,pointlabel={分}]
 
 \tolerant\protected\def\startwriting[#1]{\begingroup%
   \env_writingtrue%
+  \setupanswer[showanswer=false]%
   \iffirstargument\setupwriting[#1]\fi%注意，writing 没有单独的 itemgroup 环境
   \ifempty{\questionparameter{start}}% 避免 continue 和 start 属性冲突
   \startitemgroup[env_question]% 该环境的 item 样式通过 question 来进行设置即可
@@ -1087,7 +1209,7 @@
   \show_point_or_answer[writing][point]%
   \show_point_or_answer[writing][answer]%
   \def\current_writing_answer{\writingparameter\c!answer}
-  \increaseQusetionID%不同于 question 环境，此处只增长不缩减
+  \increaseQuestionID%不同于 question 环境，此处只增长不缩减
   \parentitemnumber=\currentitemnumber\relax
   \cnt_step_point=0\relax%
   \cnt_step_point_temp=0\relax%
@@ -1124,8 +1246,8 @@
         \show_point_or_answer[subwriting][answer]%
         \def\current_writing_answer{\subwritingparameter\c!answer}%
         \ifnum\currentitemnumber=1\relax
-          \decreaseQusetionID\increaseQusetionID%
-        \else\increaseQusetionID\fi%
+          \decreaseQuestionID\increaseQuestionID%
+        \else\increaseQuestionID\fi%
        %当具有多个子写作环境时，才增长 QID ，否则削减至 父级 QID（相当于继承）
         \set_count_itemlevel[env_question:2][subwriting]%
         \setcounter      [strc_close_counter][\currentitemnumber]%
@@ -1287,7 +1409,7 @@
                 %reference=,
                 ]
 \tolerant\protected\def\startpitem[#1]{\begingroup%
-  \increaseQusetionID%
+  \item_pitemtrue\increaseQuestionID%
   \iffirstargument\setuppitem[#1]\fi%
     \startitem[\pitemparameter{reference}]%%
       \ifnum\currentpitemnumber=0\currentpitemnumber=1\relax\fi%
@@ -1303,7 +1425,8 @@
 
 \def\stoppitem{%
   \dataset_collector[pitem][pitem]%
-  \stopitem\global\advance\currentpitemnumber by 1\relax\endgroup}
+  \stopitem\global\advance\currentpitemnumber by 1\relax
+  \endgroup}
 
 %D choice 只具有 showanswer 和 [*](用于标记正确答案) 两个设置
 
@@ -1451,7 +1574,9 @@
     \else\setupfillin[empty=yes]\fi}
 \newcount\c_fillin_number
 
-\tolerant\protected\def\fillin[#1]#:#2{\begingroup%
+\tolerant\protected\def\fillin[#1]#:#2{%
+  \item_pitemfalse\item_fillintrue%
+  \begingroup%
   \iffirstargument\setupfillin[#1]\fi%
   \removeunwantedspaces%
   \global\advance\c_fillin_number by 1\relax
@@ -1501,7 +1626,7 @@
       \fi\fi\fi%
     \egroup%
    \fi%
-  \setdataset[Fillin_collector][\QusetionID][answer={#2}]%
+  \setdataset[Fillin_collector][\QuestionID][answer={#2}]%
   \fillinparameter\c!right\fillinparameter\c!after%
 \endgroup}
 
@@ -1838,18 +1963,18 @@
    {\begingroup%
     \iffirstargument\setupocitem[#1]\fi%
     \useocitemstyleandcolor\c!style\c!color%
-    \let\par\relax\increaseQusetionID%               %%% 必須命令，自增序號以備調用
+    \let\par\relax\increaseQuestionID%               %%% 必須命令，自增序號以備調用
     \item \show_point_or_answer[ocitem][point]%
-         \set_count_itemlevel[env_question:2][ocitem]%%%% 必須命令，設定序號
-         % 注意，此时 toplevel 并没有正确的关闭，因此最终的结果依然是 toplevel。
-         % 但是该环境本身就被视为 toplevel                =>  5
-         % 如果该环境被视为子项目时，则需要关闭 toplevel。==> 5(1)
-         % 另外，关闭 toplevel 需要在 set_count_itemlevel 命令之前才会生效。
-         \allowbreak\doifsomethingelse{#2}{(#2)}{}%
-         \show_point_or_answer[ocitem][answer]%
-         \dataset_collector[ocitem][ocitem]%          %%% 必須命令，設定可調用信息
-         \setcounter      [strc_close_counter][\currentitemnumber]%
-         \savecounter     [strc_close_counter]%
+          \set_count_itemlevel[env_question:2][ocitem]%%%% 必須命令，設定序號
+          % 注意，此时 toplevel 并没有正确的关闭，因此最终的结果依然是 toplevel。
+          % 但是该环境本身就被视为 toplevel                =>  5
+          % 如果该环境被视为子项目时，则需要关闭 toplevel。==> 5(1)
+          % 另外，关闭 toplevel 需要在 set_count_itemlevel 命令之前才会生效。
+          \allowbreak\doifsomethingelse{#2}{(#2)}{}%
+          \show_point_or_answer[ocitem][answer]%
+          \dataset_collector[ocitem][ocitem]%          %%% 必須命令，設定可調用信息
+          \setcounter      [strc_close_counter][\currentitemnumber]%
+          \savecounter     [strc_close_counter]%
   \endgroup}
 
 \def\specialocitem[#1]{\begingroup\let\par\relax%
@@ -1858,7 +1983,7 @@
     \setupocitem[#1]\useocitemstyleandcolor\c!style\c!color%%
     \startitemgroup[env_question][n,continue,text,nostopper][lefttext=\closebar,righttext=]%
     \item \ifenv_close\relax\else%
-          \increaseQusetionID%
+          \increaseQuestionID%
           %\show_point_or_answer[ocitem][point]%
           \set_count_itemlevel[env_question:2][ocitem]%
           % 关于 toplevel 的问题参见 ocitem 的解释。
@@ -2018,7 +2143,7 @@
 \newcount\ENUM\ENUM=2\relax
 
 \def\example@choice#1{
-    \setupquestion[point=2,answer=\getanswerfromchoice]
+    \setupquestion[point=2]
     \dorecurse{#1}{
       \startquestion
       \longtesttxt[\romannumeral\LNUM]\global\advance\LNUM by 1\relax
@@ -2038,8 +2163,8 @@
     \stopquestion}
 }
 \def\example@fillin#1{
-    \setupquestion[answer=,point=\getpointfrompitem]
-    \setuppitem   [point=3,answer=\getanswerfromfillin]
+    \setupquestion[point=\getpointfrompitem]
+    \setuppitem   [point=3]
     \startquestion
       \longtesttxt[\romannumeral\LNUM]
       \def\fillinanswer{\shorttesttxt[\romannumeral\CNUM]}
@@ -2057,7 +2182,7 @@
       \stopquestion
 }
 \def\example@pitem#1{
-    \setupquestion[answer=,point=\getpointfrompitem]
+    \setupquestion[point=\getpointfrompitem]
     \startquestion
       \longtesttxt[\romannumeral\LNUM]
       \def\fillinanswer{\shorttesttxt[\romannumeral\CNUM]}
@@ -2076,7 +2201,7 @@
     \startmaterial
     \input knuthmath
     \stopmaterial
-    \setupquestion[point=6,answer=\getanswerfromchoice]
+    \setupquestion[point=6]
     \dorecurse{#1}{
       \startquestion
       \longtesttxt[\romannumeral\LNUM]\global\advance\LNUM by 1\relax
