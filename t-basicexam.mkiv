@@ -348,7 +348,7 @@
 \defineoverlay     [normalframeOL]
                    [\useMPgraphic{normalframeMP}]
 \startuseMPgraphic{normalframeMP}
-  draw unitsquare xyscaled (\overlaywidth, \overlayheight)
+  draw unitsquare xyscaled (\overlaywidth, \overlayheight);
 \stopuseMPgraphic
 \startuseMPgraphic{rules:under:wave}
     vardef lsin primary x =
@@ -710,7 +710,7 @@
                 \fi%
                 \csname #1parameter\endcsname{#2label}}%
         \endgroup%
-    \fi}
+    \else\fi}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \defineconversion[tnum][\addff{tabularnumbers}]
@@ -1321,9 +1321,8 @@
                     [location=paragraph,width=local,
                      leftoffset=1ex,rightoffset=1ex,
                      %topoffset=.5ex,bottomoffset=.5ex,
-                     before={\leftskip=0pt\startnarrower
-                            \blank[force,halfline]},
-                     after={\blank[halfline]\stopnarrower},
+                     before={\leftskip=0pt\startnarrower},
+                     after={\stopnarrower},
                      background=\answerparameter\c!background,
                      backgroundcolor=\answerparameter\c!backgroundcolor,
                      corner=\answerparameter\c!corner,
@@ -1354,7 +1353,7 @@
              background=normalframeOL,
              %backgroundcolor=,
              %corner=,
-             %frame=,
+             frame=on,
              %framecolor=,
              %rulethickness=,
              ]
@@ -1368,25 +1367,23 @@
     \iffirstargument\setupanswer[#1]\fi%
     \doif{\answerparameter{showscript}}{true}{\mode_showscripttrue}%
     \answerparameter{before}%
-  \ifmode_showanswer%
-      \startenv_answer%
-           {\answerparameter{labelstyle}%
-            \switchtocolor[\answerparameter{labelcolor}]%
-            \answerparameter{label}}%
-          \show_point_or_answer[answer][point]%
-          \show_point_or_answer[answer][answer]%
-          \useanswerstyleandcolor\c!style\c!color%
-          \answerparameter{afteranswer}#2
-      \stopenv_answer%
-  \else%
     \ifmode_showscript%
       \startenv_answer%
         \answerparameter{scriptbefore}%
-          \answerparameter{scriptcontent}%
+        \answerparameter{scriptcontent}%
         \answerparameter{scriptafter}%
       \stopenv_answer%
-    \else\fi%
-  \fi%
+    \else
+      \startenv_answer%
+       {\answerparameter{labelstyle}%
+        \switchtocolor[\answerparameter{labelcolor}]%
+        \answerparameter{label}}%
+        \show_point_or_answer[answer][point]%
+        \show_point_or_answer[answer][answer]%
+        \useanswerstyleandcolor\c!style\c!color%
+        \answerparameter{afteranswer}#2
+      \stopenv_answer%
+    \fi%
   \answerparameter{after}%
   \endgroup}
 
@@ -1531,6 +1528,8 @@
 %D rules:under:dots    %rules:under:random
 %D rules:under:dash    %rules:under:wave
 
+%D 新增一个 align=autoright 来让 fillin 对齐右方。但必须同时设置 n=0 才会正常工作。
+
 \definedataset[Fillin_collector]
 \setupbar[fillin_text]
          [ rulethickness=\fillinparameter{rulethickness},
@@ -1584,7 +1583,10 @@
   \edef\p_empty{\fillinparameter\c!empty}%
   \edef\p_number{\number\c_fillin_number}%
   \edef\currentbar{\fillinparameter\c!rule}%
+  \edef\fillin_align{\fillinparameter\c!align}
   \showanswer_for_fillin%
+  \doifelse{\fillin_align}{autoright}%
+           {\unskip\nobreak\hfill\penalty20\hskip2em\hbox{}\nobreak\hfill}{\relax}%
   \fillinparameter\c!before\fillinparameter\c!left%
   \ifx\p_n\wildcardsymbol
      \donefalse
@@ -1628,6 +1630,8 @@
    \fi%
   \setdataset[Fillin_collector][\QuestionID][answer={#2}]%
   \fillinparameter\c!right\fillinparameter\c!after%
+  \doifelse{\fillin_align}{autoright}%
+           {\parfillskip=0pt \finalhyphendemerits=0 \par}{}%
 \endgroup}
 
 %D \section{設置 material 環境}
@@ -2175,6 +2179,7 @@
           \longtesttxt[\romannumeral\CNUM]\fillin[]{\fillinanswer}
         \stoppitem
         \startanswer
+              \ifmode_showanswer DDD \else XXXX\fi
               \input knuthmath
             \stopanswer
         \global\advance\CNUM by 1\relax}
