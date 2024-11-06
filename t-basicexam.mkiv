@@ -13,7 +13,7 @@
 
 \startmodule[basicexam]
 \unprotect
-\setupmodule[mode=student]
+\setupmodule[mode=student,layout=default,footer=default]
 \def\errorparameter#1{\begingroup
     \startalignment[center]
     \framed[align={center,lohi},width=max]{
@@ -22,6 +22,31 @@
     Please check your code.\\
     }\stopalignment
     \endgroup}
+
+\newif\iflay_twoup   \lay_twoupfalse
+\newif\ifhdr_default \hdr_defaultfalse
+
+\processallactionsinset[\currentmoduleparameter{mode}][
+     teacher=>{\enablemode[teacher]},
+     student=>{\enablemode[student]},
+       check=>{\enablemode[check]},
+  \v!default=>{\enablemode[student]},
+  \v!unknown=>\errorparameter{mode},
+]
+
+\processallactionsinset[\currentmoduleparameter{layout}][
+       twoup=>\lay_twouptrue,
+        none=>\relax,
+  \v!default=>\relax,
+  \v!unknown=>\errorparameter{layout},
+]
+
+\processallactionsinset[\currentmoduleparameter{footer}][
+        none=>{\relax},
+  \v!default=>\hdr_defaulttrue,
+  \v!unknown=>\errorparameter{footer},
+]
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   EXAM MODULE   %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -70,6 +95,12 @@
 %D \setuppagenumbering[alternative=singlesided]%{doublesided}]
 %D \stoptyping
 
+\iflay_twoup
+  \setuppapersize[A4][A3,landscape]
+  \setuparranging[2SIDE]% 2SIDE start page at odd [2UP] start at even
+  \setuppagenumbering[alternative={doublesided}]%singlesided]
+\fi
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \defineconversion [hiragana]      [あ,い,う,え,お,か,き,く,け,こ,さ,し,す,せ,そ,
                                    た,ち,つ,て,と,な,に,ぬ,ね,の,は,ひ,ふ,へ,ほ,
@@ -98,14 +129,13 @@
 %D \stopitemize
 %D 
 %D \startbuffer
-%D \definepapertitle[papertitles]
+%D \definepapertitle[papertitles][secret,title,subject,information,notice]
+%D % 第一個參數是試卷名稱，下同。餘下兩個命令接受本參數
+%D % 第二個參數是包含的元素，順序決定卷頭排布。只有 definepapertitle 有這個參數
+%D % 必須預先定義這些參數，才能夠正確生成頁腳。缺省的情況下，如果不設置該參數，
+%D % 將使用預訂順序 secret,title,subject,information,notice
+%D % 第三個參數可以直接設定相關樣式和內容。下同。餘下兩個命令接受本參數
 %D \setuppapertitle [papertitles][
-%D     n=5,              
-%D     typi=secret,     
-%D     typii=title,     
-%D     typiii=subject,   
-%D     typiv=information,
-%D     typv=notice,
 %D     secretstyle=\ss,
 %D     titlestyle=\ssa,
 %D     subjectstyle=\ssb,
@@ -156,15 +186,46 @@
 \definestructureconversionset[examnum][chinesenumerals][chinesenumerals]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \let\setuppapertitle\setgvariables
-\def\definepapertitle[#1]{%
-  \gdef\currentpapertitle{#1}%
-  \setuppapertitle[\currentpapertitle][
-                       n=5,              % 定义需要在试卷标题处需要显示多少元素，
-                    typi=secret,         % 同时，自动定义相应数量的元素命令
-                   typii=title,          % 使用typi typii typiii typiv ...
-                  typiii=subject,        % 定义每个元素的名称，同时自动生成相关样式化命令
-                   typiv=information,    % X Xstyle Xalign beforeX afterX vspacetypi
-                    typv=notice,
+\def\definepapertitlevariable#1{\begingroup% #1=element name
+    \edef\temp_marking{\getvariable{\currentpapertitle}{#1}}%
+    \marking[#1]{\temp_marking}%
+    \doifelse{\getvariable{\currentpapertitle}{#1align}}{}%
+             {\setupalign[center]}%
+             {\setupalign[\getvariable{\currentpapertitle}{#1align}]}%
+    \par%
+    \doifemptyelsex{\getvariable{\currentpapertitle}{before#1}}{}%
+    \doifemptyelsex{\getvariable{\currentpapertitle}{#1style}}{}%
+    \doifemptyelsex{\getvariable{\currentpapertitle}{#1color}}{}%
+    \doifemptyelsex{\getvariable{\currentpapertitle}{#1}}%
+                   {\writestatus{module exam}{warning: #1 is empty ! please input #1.
+                        or maybe you have some value is undefined
+                        because n > 5.}}%
+    \doifemptyelsex{\getvariable{\currentpapertitle}{after#1}}{}%
+    \par\endgroup}
+
+\tolerant\protected\def\definepapertitle[#1][#2][#3]%#1 oaoerinfo name #2 comma list of papertitle
+{\def\currentpapertitle{#1}%
+ \edef\currentpapertitlelist{#2}%
+ \ifempty\currentpapertitlelist%
+   \expandafter\def\csname ???papertitle::\currentpapertitle list\endcsname%
+     {secret,title,subject,information,notice}%
+ \else%
+   \expandafter\def\csname ???papertitle::\currentpapertitle list\endcsname{#2}%
+ \fi%
+ \processcommalistwithparameters[#2]\definemarking%
+ \setvariables[\currentpapertitle][subjectsuffix=学科试卷]% only used for footerinfo
+ \ifparameters\or\or\or\setvariables[\currentpapertitle][#3]\fi\parindent0pt\relax}
+
+\tolerant\protected\def\makepapertitle[#1][#2]%
+{\begingroup\edef\currentpapertitle{#1}%
+ \ifparameters\or\or\setevariables[\currentpapertitle][#2]\fi\parindent0pt\relax
+ \processcommacommand[\csname ???papertitle::\currentpapertitle list\endcsname]\definepapertitlevariable%
+ \endgroup}
+
+%% #1 = newpapertitle #2 = elements of newpapertitle #3 = setup elements of newpapertitle
+\definepapertitle[newpaper][secret,title,subject,information,notice,][]
+%% #1 = newpapertitle #2 = setup elements of newpapertitle
+\setuppapertitle[newpaper][
              secretstyle=\ss,
               titlestyle=\ssa,
             subjectstyle=\ssb,
@@ -191,35 +252,34 @@
                                   题卡上作答，在试题卷上答题无效。 %
                             \item 考试结束后，将试题卷和答题卡一并交回。
                             \stopitemize},
-]}
+]
+%% #1 = newpapertitle #2 = setup elements of newpapertitle
+%% \makepapertitle[newpaper][title=OOOOOOO]
+%% quickly get elements at header and footer: 
+%% \getmarking[title][page][first] :: \getmarking[title][current]
 
-\def\doifemptyelsex#1#2{\doifelse{#1}{}{#2}{#1}}
-\def\definevariable[#1][#2]{% #1=namespace #2=element name
-    \doifelse{\getvariable{#1}{#2align}}{}
-             {\setupalign[center]}
-             {\setupalign[\getvariable{#1}{#2align}]}
-    \vskip .1\baselineskip\relax
-    \doifemptyelsex{\getvariable{#1}{before#2}}{}
-    \doifemptyelsex{\getvariable{#1}{#2style}}{}
-    \doifemptyelsex{\getvariable{#1}{#2}}
-                   {\framed[color=red]
-                   {\ss warning: #2 is empty ! please input #2.
-                        or maybe you have some value is undefined
-                        because n > 5.}}
-    \doifemptyelsex{\getvariable{#1}{after#2}}{}
-    \vskip .1\baselineskip\relax
-}
+\setuplabeltext[cn]  [totalpage={第,页}]
+\setuplabeltext[hans][totalpage={第,页}] % work with memos 
+\setuplabeltext[hant][totalpage={第,頁}] % work with memos 
+\setuplabeltext[ja]  [totalpage={第,ページ}]
 
-\def\makepapertitle[#1]{\begingroup%
-  \setupindenting[no]%
-  \vbox{\newcount\num_element \num_element=1%start vbox
-  \dorecurse{\getvariable{#1}{n}}%start recurse
-    {\doifemptyelsex{\getvariable{#1}{vspacetyp\romannumeral\num_element}}{}
-      {\definevariable[#1][\getvariable{#1}{typ\romannumeral\num_element}]}
-  \advance\num_element by 1\relax}%stop recurse
-  }%stop vbox
-\endgroup}
-
+\ifhdr_default
+  \definedelimitedtext    [paren]   [location=text]
+  \setupdelimitedtext     [paren:1] [left={（\nobreak}, right={\nobreak）}]
+  \setupdelimitedtext     [paren:2] [left={\,[~}, right={~]\,}]
+  \setupdelimitedtext     [paren:3] [left={\,\{~}, right={~\}\,}]
+  \setupmarking[subject][expansion=yes]
+  \setupfooter [state=start]
+  \startsetups hdr:infos
+  \framed[height=max,align=lohi,frame=off]{%
+    \getmarking[subject][page][current]
+    \getvariable{\currentpapertitle}{subjectsuffix}\ %
+    \paren{\labeltexts{page}{\pagenumber},\ % 
+           \labeltexts{page}{\lastpagenumber}}%
+    }
+  \stopsetups
+  \setupfootertexts[\setups{hdr:infos}]
+\fi
 %D \section{定义其后环境所需命令}
 
 %D 定义关键词
@@ -253,7 +313,7 @@
 \installnamespace          {citem}
 \installcommandhandler \????citem     {citem}     \????citem
 \installnamespace          {ocitem}
-\installcommandhandler \????ocitem     {ocitem}     \????ocitem
+\installcommandhandler \????ocitem    {ocitem}    \????ocitem
 \installnamespace          {fillin}
 \installcommandhandler \????fillin    {fillin}    \????fillin
 %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -360,7 +420,8 @@
         withcolor RuleColor ;
     setbounds currentpicture to unitsquare xysized(RuleWidth,RuleHeight) ;
 \stopuseMPgraphic
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%D \section{设定一些可能用得到的符号}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%D \section{设定一些可能用得到的符号}
 %D 需要注意，这些符号需要预先安装字体 NotoSansSymbols2。
 %D
 %D \starttabulate[|l|r|l|r|]
@@ -375,7 +436,7 @@
 %D \NC \type{\symbol{marksquareheavycheck}} \NC \symbol{marksquareheavycheck} 
 %D \VL \type{\symbol{marksquareheavycross}} \NC \symbol{marksquareheavycross}\NC\NR
 %D \NC \type{\symbol{markcirclecheck}}      \NC \symbol{markcirclecheck}      
-%D \VL \type{\symbol{markcirclecross}}      \NC \symbol{markcirclecross}    \NC\NR
+%D \VL \type{\symbol{markcirclecross}}      \NC \symbol{markcirclecross}     \NC\NR
 %D \NC \type{\symbol{markcircleheavycheck}} \NC \symbol{markcircleheavycheck} 
 %D \VL \type{\symbol{markcircleheavycross}} \NC \symbol{markcircleheavycross}\NC\NR
 %D \NC \type{\symbol{marknotcheck}}         \NC \symbol{marknotcheck}         
@@ -497,7 +558,6 @@
 }
 
 \newcount\parentitemnumber
-
 \def\set_currentuserorder[#1]{% set order that user setted
     \ifcsname #1order\endcsname\else%
     \expandafter\newcount\csname #1order\endcsname\fi%
@@ -562,11 +622,11 @@
                  % totalnumber 需要修改為根據環境改變所收集的數量信息
 
 % 环境层级一览                 
-% question 环境                 % close 环境                    % material 环境
-%    choice 环境                %       closechoice 项目  ⭕    % question 环境
-%       citem 项目        ⭕    % optclose 环境                 %    choice 环境
-%    problem 环境               %       ocitem 项目       ⭕    %       citem 项目        ⭕
-%       pitem 项目        ⭕    %       specialocitem 项目⭕
+% question 环境                 % close 环境                      % material 环境
+%    choice 环境                %       closechoice 项目    ⭕    % question 环境
+%       citem 项目        ⭕    % optclose 环境                   %    choice 环境
+%    problem 环境               %       ocitem 项目         ⭕    %       citem 项目    ⭕
+%       pitem 项目        ⭕    %       specialocitem 项目  ⭕
 %         fillin 项目     ⭕
 % ======================================================================================
 % writing 环境            ⭕
@@ -771,20 +831,20 @@
                 numberconversion=tnum,]
 \inherit_itemgroup_option[problem]
 
-%D %D problem 只继承了部分 itemgroup 的键值，并没有新的键值设定。
-%D %D 在当前(v20241023)中已经删去了设置答案和分值的设置。
-%D %D 因为，problem 环境下一般有许多 pitem，每个题目都可能有自己的分值和答案。
-%D %D 因此，出於設計目的，每個問題的答案和分數等直接通過 \tex{pitem} 來設定。
-%D 
-%D %D \startbuffer
-%D %D \startproblem
-%D %D \startpitem[showpoint=true,point=5]         該環境位於 \currentitemgroup 。 \stoppitem
-%D %D \startpitem[showanswer=true,answer={newer}] 該環境位於 \currentitemgroup 。 \stoppitem
-%D %D \startpitem[]                               該環境位於 \currentitemgroup 。 \stoppitem
-%D %D \stopproblem
-%D %D \stopbuffer
-%D %D \typebuffer
-%D %D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+%D problem 只继承了部分 itemgroup 的键值，并没有新的键值设定。
+%D 在当前(v20241023)中已经删去了设置答案和分值的设置。
+%D 因为，problem 环境下一般有许多 pitem，每个题目都可能有自己的分值和答案。
+%D 因此，出於設計目的，每個問題的答案和分數等直接通過 \tex{pitem} 來設定。
+
+%D \startbuffer
+%D \startproblem
+%D \startpitem[showpoint=true,point=5]         該環境位於 \currentitemgroup 。 \stoppitem
+%D \startpitem[showanswer=true,answer={newer}] 該環境位於 \currentitemgroup 。 \stoppitem
+%D \startpitem[]                               該環境位於 \currentitemgroup 。 \stoppitem
+%D \stopproblem
+%D \stopbuffer
+%D \typebuffer
+%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
 
 %D 不同於 \tex{question} 環境所有的序號都是連續的，\tex{problem} 環境每次開始後都是重新進行計數。
 
@@ -1643,10 +1703,10 @@
 %D 這些實例分別是：
 %D \startitemize[nowhite,joinedup,packed]
 %D \item \tex{setupmaterial[number]}    設置 該環境標題的 {\bf 序號};
-%D \item \tex{setupmaterial[title]}     設置 該環境的{\bf 標題} 相關的樣式;
-%D \item \tex{setupmaterial[author]}    設置 該環境文章的{\bf 作者} 相關的樣式;
-%D \item \tex{setupmaterial[source]}    設置 該環境文章的{\bf 具體來源} 的相關樣式。
-%D \item \tex{setupmaterial[indicator]} 設置 該環境文章的{\bf 畫線序號文字} 的相關樣式。
+%D \item \tex{setupmaterial[title]}     設置 該環境的 {\bf 標題} 相關的樣式;
+%D \item \tex{setupmaterial[author]}    設置 該環境文章的 {\bf 作者} 相關的樣式;
+%D \item \tex{setupmaterial[source]}    設置 該環境文章的 {\bf 具體來源} 的相關樣式。
+%D \item \tex{setupmaterial[indicator]} 設置 該環境文章的 {\bf 畫線序號文字} 的相關樣式。
 %D \stopitemize
 
 %D 此外，\type{title},\type{author},\type{source} 的名稱是通過 \tex{setupmaterial}
@@ -2079,10 +2139,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{模拟例子}
 
-\dorecurse{200}{
+\dorecurse{2000}{% 提高这个数字，可以提升可生成例子的总数。所有例子共用一个总数
 \expandafter\getrandomnumber \csname n_\romannumeral\recurselevel\endcsname  {1} {20}}
 
-\dorecurse{200}{
+\dorecurse{2000}{% 一旦总例子数超过，则无法继续生成，并抛出错误。
 \expandafter\getrandomnumber \csname nn_\romannumeral\recurselevel\endcsname {1} {20}}
 
 \def\longtesttxt[#1]{%%1. \longtesttxt[\romannumeral 1]
@@ -2356,42 +2416,30 @@
 \eTR}
 \eTABLE}
 %\type@answer@i{4}{5}{18}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{模式設置}
-% warning: conditional must put after env defination
-% 因爲隱藏答案是通過 definebuffer 來實現的，
-% 似乎無法將該環境作爲子環境放置在 buffer 環境中，
-% 或者將該環境放置在 宏命令 之中。
-% 目前重新定義了 answer 環境
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \definemode[teacher][keep]
 \definemode[student][keep]
 \definemode[check]  [keep]
-\doif{\moduleparameter{basicexam}{mode}}{teacher}
-     {\enablemode[teacher]}{}
-\doif{\moduleparameter{basicexam}{mode}}{student}
-     {\enablemode[student]}{}
-\doif{\moduleparameter{basicexam}{mode}}{}
-     {\enablemode[student]}{}
 \startmode[teacher]
   \mode_showanswertrue
+  \setupanswer[showscript=false]
   \mode_showpointtrue
 \stopmode
 \startmode[student]
   \mode_showanswerfalse
-  \mode_showpointfalse
-%  \setupquestion[showanswer=false,showpoint=true]
-%  \setupchoice  [showanswer=false,showpoint=true]
-%  \setupcitem   [showanswer=false,showpoint=true]
-%  \setuppitem   [showanswer=false,showpoint=true]
-%  \setupclose   [showanswer=false,showpoint=true]
-%  \setupocitem  [showanswer=false,showpoint=true]
+  \setupanswer[showscript=true]
+  \mode_showpointtrue
 \stopmode
-%\ifmode_showanswer\relax\else%
-%    \let\startanswer\relax
-%    \let\stopanswer\relax
-%    \definebuffer[answer]
-%\fi%
+\startmode[check]
+  \mode_checktrue
+\stopmode
+\def\showanswer{\mode_showanswertrue\setupanswer[showscript=false]}
+\def\hideanswer{\mode_showanswerfalse\setupanswer[showscript=true]}
+\let\showpoint\mode_showpointtrue
+\let\hidepoint\mode_showanswerfalse
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   EXAM MODULE   %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

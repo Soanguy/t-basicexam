@@ -1,13 +1,48 @@
 \usemodule[memos]
-\usemodule[basicexam][mode=teacher]
+\usemodule[basicexam][mode=teacher,layout=twoup]
 \setuplabeltext [hans] [section={第,部分},subsection={第,节},]
 \def\han#1{{\hw #1}}
 
+\definepapertitle[papertitles][secret,title,subject,information,notice]
+\setuppapertitle [papertitles][
+    secretstyle=\ss,
+    titlestyle=\ssa,
+    subjectstyle=\ssb,
+    informationstyle=\ttx,
+    noticestyle=\rm\it,
+    secretalign=flushleft,
+    titlealign=center,
+    subjectalign=center,
+    informationalign=center,
+    noticealign=flushleft,
+    secret={绝密 ★ 启用前},
+    title={2024年普通高等学校招生全国统一考试（新课标 I 卷）},
+    subject={英语学科},
+    signinformation={{姓名:     }{\blackrule[width=4em,height=.2pt]}
+                     {准考证号: }{\blackrule[width=4em,height=.2pt]}},
+    information={全卷共12页，满分150分，考试时间120分钟。},
+    notice={考生注意：
+            \startitemize[n,packed,joinedup]
+            \item 答题前，请务必将自己的姓名、准考证号用黑色字迹的签字笔
+                  或钢笔分别填写在试题卷和答题纸规定的位置上。 %
+            \item 答题时，请按照答题纸上“注意事项”的要求，在答题纸相应的
+                  位置上规范作答，在本试题卷上的作答一律无效。 %
+            \stopitemize},
+]
+\setupquestion[point=2]
+\setupproblem[point=2]
+\setuppitem[point=2]
 \starttext
 
+\startmakeup
 \placecontent
+\stopmakeup
 
 \chapter{数学试卷排版示例}
+\setupfooter[state=start]
+\resetuserpagenumber
+
+\makepapertitle[papertitles][subject=数语学科]
 
 \setupfillin[n=20]
  1.
@@ -96,7 +131,7 @@
   乙表示事件“第二次取出的球的数字是 $2$”，
   丙表示事件“两次取出的球的数字之和是 $8$”，
   丁表示事件“两次取出的球的数字之和是 $7$”，则 \fillin{}
-  \startchoice[two]
+  \startchoice
     \citem {甲与丙相互独立}
     \citem {甲与丁相互独立}
     \citem {乙与丙相互独立}
@@ -136,6 +171,7 @@
 \stopquestion
 
 \chapter{日语试卷排版示例}
+\makepapertitle[papertitles][subject=日语学科]
 
 \ego{}
 
@@ -860,48 +896,10 @@
 \stopquestion
 %
 
-\unprotect
-%\mode_checktrue
-\protect
-\setupindenting[yes,medium]
-\definepapertitle[papertitles]
-\setuppapertitle [papertitles][
-    n=6,
-    typi=secret, 
-    typii=title,
-    typiii=subject,
-    typiv=signinformation,
-    typv=information,
-    typvi=notice,
-    secretstyle=\ss,
-    titlestyle=\ssa,
-    subjectstyle=\ssb,
-    informationstyle=\ttx,
-    noticestyle=\rm\it,
-    secretalign=flushleft,
-    titlealign=center,
-    subjectalign=center,
-    informationalign=center,
-    noticealign=flushleft,
-    secret={绝密 ★ 启用前},
-    title={2024年普通高等学校招生全国统一考试（新课标 I 卷）},
-    subject={英语学科},
-    signinformation={{姓名:     }{\blackrule[width=4em,height=.2pt]}
-                     {准考证号: }{\blackrule[width=4em,height=.2pt]}},
-    information={全卷共12页，满分150分，考试时间120分钟。},
-    notice={考生注意：
-            \startitemize[n,packed,joinedup]
-            \item 答题前，请务必将自己的姓名、准考证号用黑色字迹的签字笔
-                  或钢笔分别填写在试题卷和答题纸规定的位置上。 %
-            \item 答题时，请按照答题纸上“注意事项”的要求，在答题纸相应的
-                  位置上规范作答，在本试题卷上的作答一律无效。 %
-            \stopitemize},
-]
-
-
 \chapter{2024年普通高等学校招生全国统一考试（新课标 I 卷）}
+\setupindenting[yes,medium]
 
-\makepapertitle[papertitles]
+\makepapertitle[papertitles][subject=英语学科]
 
 \ego{听力（共两节，满分30分）}
 做题时，先将答案标在试卷上。录音内容结束后，你将有两分钟的时间将试卷上的答案转涂到答题纸上。
