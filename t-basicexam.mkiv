@@ -226,7 +226,7 @@
     \par%
     \doifemptyelsex{\namedpapertitleparameter{\currentpapertitle}{before#1}}{}%
     \doifemptyelsex{\namedpapertitleparameter{\currentpapertitle}{#1style}}{}%
-    \doifemptyelsex{\namedpapertitleparameter{\currentpapertitle}{#1color}}{}%
+    \expandafter\begincsname\namedpapertitleparameter{\currentpapertitle}{#1color}\endcsname
     \doifemptyelsex{\namedpapertitleparameter{\currentpapertitle}{#1}}%
                    {\writestatus{module exam}{warning: #1 is empty ! please input #1.
                         or maybe you have some value is undefined
