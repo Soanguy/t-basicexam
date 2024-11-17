@@ -129,13 +129,14 @@
 %D \stopitemize
 %D
 %D \startbuffer
-%D \definepapertitle[papertitles][secret,title,subject,information,notice]
+%D \definepapertitle[papertitles]
 %D % 第一個參數是試卷名稱，下同。
 %D % 第二個參數是父級試卷名稱，可以設置父級進行繼承。，
 %D % 第三個參數可以直接設定相關樣式和內容。下同。
 %D % 通過 list 參數可以設置順序
 %D % 預設順序為 secret,title,subject,information,notice
 %D \setuppapertitle [papertitles][
+%D     list={secret,title,subject,information,notice},subjectsuffix=学科试卷,
 %D     secretstyle=\ss,
 %D     titlestyle=\ssa,
 %D     subjectstyle=\ssb,
@@ -171,18 +172,22 @@
 %% ego=section isea=subsection
 \setuplabeltext [cn] [section={第,部分},subsection={第,节},]
 
+\definehead [tu]   [chapter]
 \definehead [ego]  [section]       % me  latin
 \definehead [isea] [subsection]    % he or she latin
 \definehead [heu]  [subsubsection] % och
+\setuphead  [tu]   [placehead=empty]
 \setuphead  [ego]  [sectionsegments=section,numbercommand=]
 \setupheads [isea] [numbercommand=]
-\setupheads [ego,isea]
+\setupheads [tu,ego,isea]
                    [indentnext=yes,align=flushleft,
                    before={\blank[quarterline]},
                    after={\blank[quarterline]},
                    sectionconversionset=examnum]
 \setuphead  [ego]   [style=\ssa]
 \setuphead  [isea]  [style=\hwa]
+\definelist[tu]
+\setuplist [tu][style={\feature[+][tabularnumbers]}]
 \definestructureconversionset[examnum][chinesenumerals][chinesenumerals]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \installnamespace          {papertitle}
@@ -191,7 +196,7 @@
 \definemarking[title]
 \definemarking[subject]
 
-\setuppapertitle [list={secret,title,subject,information,notice},subjectsuffix=学科试卷]
+\setuppapertitle [list={secret,title,subject,information,signinformation,notice},subjectsuffix=学科试卷]
 \setuppapertitle [
     secretstyle=\ss,
     titlestyle=\ssa,
@@ -204,7 +209,7 @@
     informationalign=center,
     noticealign=flushleft,
     secret={绝密 ★ 启用前},
-    title={2024年普通高等学校招生全国统一考试（新课标 I 卷）},
+    title={2024年普通高等学校招生全国统一考试},
     subject={英语学科},
     signinformation={{姓名:     }{\blackrule[width=4em,height=.2pt]}
                      {准考证号: }{\blackrule[width=4em,height=.2pt]}},
@@ -220,28 +225,29 @@
 
 \def\doifemptyelsex#1#2{\doifelse{#1}{}{#2}{#1}}
 \def\definepapertitlevariable#1{\begingroup% #1=element name
+    \parindent0pt\relax\par%
     \doifelse{\namedpapertitleparameter{\currentpapertitle}{#1align}}{}%
              {\setupalign[center]}%
              {\setupalign[\namedpapertitleparameter{\currentpapertitle}{#1align}]}%
-    \par%
     \doifemptyelsex{\namedpapertitleparameter{\currentpapertitle}{before#1}}{}%
     \doifemptyelsex{\namedpapertitleparameter{\currentpapertitle}{#1style}}{}%
     \expandafter\begincsname\namedpapertitleparameter{\currentpapertitle}{#1color}\endcsname
     \doifemptyelsex{\namedpapertitleparameter{\currentpapertitle}{#1}}%
                    {\writestatus{module exam}{warning: #1 is empty ! please input #1.
-                        or maybe you have some value is undefined
-                        because n > 5.}}%
+                        or maybe you have some value is undefined}}%
     \doifemptyelsex{\namedpapertitleparameter{\currentpapertitle}{after#1}}{}%
     \par\endgroup}
 
 \tolerant\def\makepapertitle[#1][#2]%
-  {\begingroup\def\currentpapertitle{#1}%
+  {\begingroup\edef\currentpapertitle{#1}%
    \ifarguments\or\or\setuppapertitle[#1][#2]\fi
-   \def\currentlist{\namedpapertitleparameter{\currentpapertitle}{list}}
+   \edef\currentlist{\namedpapertitleparameter\currentpapertitle\c!list}
+   \edef\currenttitle{\namedpapertitleparameter\currentpapertitle\c!title}
+   \expandafter\expandafter\expandafter\tu\expandafter{\currenttitle}
    \processcommacommand[\currentlist]\definepapertitlevariable
-   \marking[subject]{\namedpapertitleparameter{\currentpapertitle}{subject}
-                     \namedpapertitleparameter{\currentpapertitle}{subjectsuffix}}
-   \marking[title]{\namedpapertitleparameter{\currentpapertitle}{title}}
+   \marking[subject]{\namedpapertitleparameter\currentpapertitle{subject}
+                     \namedpapertitleparameter\currentpapertitle{subjectsuffix}}
+   \marking[title]{\namedpapertitleparameter\currentpapertitle\c!title}
   \endgroup}
 
 %% #1 = newpapertitle #2 =  parent newpapertitle #3 = setup elements of newpapertitle
@@ -280,10 +286,10 @@
 %% quickly get elements at header and footer:
 %% \getmarking[title][page][first] :: \getmarking[title][current]
 
-\setuplabeltext[cn]  [totalpage={第,页}]
-\setuplabeltext[hans][totalpage={第,页}] % work with memos
-\setuplabeltext[hant][totalpage={第,頁}] % work with memos
-\setuplabeltext[ja]  [totalpage={第,ページ}]
+\setuplabeltext[cn]  [totalpage={共,页}]
+\setuplabeltext[hans][totalpage={共,页}] % work with memos
+\setuplabeltext[hant][totalpage={共,頁}] % work with memos
+\setuplabeltext[ja]  [totalpage={共,ページ}]
 
 \ifhdr_default
   \definedelimitedtext    [paren]   [location=text]
@@ -296,7 +302,7 @@
   \framed[height=max,align=lohi,frame=off]{%
     \getmarking[subject][page][current]
     \paren{\labeltexts{page}{\pagenumber},\ %
-           \labeltexts{page}{\lastpagenumber}}%
+           \labeltexts{totalpage}{\lastpagenumber}}%
     }
   \stopsetups
   \setupfootertexts[\setups{hdr:infos}]
