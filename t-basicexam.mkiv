@@ -687,7 +687,7 @@
   \setdataset [Answer_collectorhelper][\HelperID]%收集信息並在未來展開
               [totalpitemnumber={\the\totalpitemnumber},
                totalpoint={\currenttotalpoint},]%
-} 
+}
 
 % 环境层级一览
 % question 环境                 % close 环境                      % material 环境
@@ -769,7 +769,7 @@
       \cnt_step_point_temp\scratchcounter\relax
     \fi%
     \global\cnt_step_point_temp\scratchcounter\relax%
-    \ifnum\cnt_step_point=\scratchcounter\relax% 
+    \ifnum\cnt_step_point=\scratchcounter\relax%
       \global\cnt_step_point=\cnt_step_point_temp\relax%
     \else%
       \global\cnt_step_point=\numexpr\cnt_step_point+\cnt_step_point_temp\relax%
@@ -1167,7 +1167,7 @@
               %before=,
               %after=,
               width=1em,
-              maxiwidth=.8\textwidth,
+              maxiwidth=.9\textwidth,
               start=1,
               %align=,
               indenting=no,
@@ -1238,6 +1238,11 @@
     \choice_max_compared_width = \choiceparameter{maxiwidth}\relax%
     \tempa                     = \dimtonum{\choice_max_compared_width}\relax%
     \tempb                     = \dimtonum{\the\width_max_with_label}\relax%
+    \startluacode
+      local a = tex.count['tempa']
+      local b = tex.count['tempb']
+            c = math.floor(a/b)
+    \stopluacode
 %   \choice_max_compared_width 是可排版的最長寬度。
 %   tempa 和 tempb 將寬度數字化，以備比較出可排版的欄數。
 %   因為取消了 choice 作為上級環境時的 \set_count_envlevel 因此，重定義 order。
@@ -1258,7 +1263,7 @@
                  envid={\currentitemgroup},%
                  order={\number\currentorder},%
                  userorder={\currentuserorder},%
-                 availablecolumns={\number\numexpr \tempa / \tempb\relax},
+                 availablecolumns={\ctxlua{context(c,"")}},
                  itemmaxwidth={\the\width_cit_max},
                  totalchoicenumber={\number\totalchoicenumber},
                  point={\questionparameter\c!point},
@@ -1448,7 +1453,7 @@
                      frame=\answerparameter\c!frame,
                      framecolor=\answerparameter\c!framecolor,
                      rulethickness=\answerparameter\c!rulethickness,
-                     ]
+                    ]
 
 \setupanswer[showanswer=true,
              showpoint=true,
@@ -1460,9 +1465,9 @@
              pointcolor=\answerparameter\c!color,
              answerstyle=\answerparameter\c!style,
              answercolor=\answerparameter\c!color,
-             style=\ss,
-             %before=,
-             %after=,
+             style=\ss\it,
+             before=\blank[halfline],
+             after=\blank[halfline],
              afteranswer={\par},
              showscript=false,
              %scriptcontent={},
@@ -1477,7 +1482,10 @@
              ]
 
 \tolerant\protected\def\startanswer[#1]#:#2\stopanswer{%
-  \begingroup\env_answertrue\set_envitem_counter%
+  \begingroup\lettonothing\currentanswer%釋放currentanswer
+% currentanswer 命令已經被其他環境定義為答案獲取命令，
+% 此處的 currentanswer 是定義環境命令，需要重新釋放。
+  \env_answertrue\set_envitem_counter%
   \xdef\get_writing_answer{#2}% only for writing env
 % 需要注意，该命令会传递给 dataset，不同于 writing 环境的 current_writing_answer
 % current_writing_answer 的目的是设置较短的作文答案。
@@ -1487,31 +1495,38 @@
   \doif{\answerparameter\c!showanswer}{true}{\mode_showanswertrue}%
   \doif{\answerparameter\c!showpoint}{true}{\mode_showpointtrue}%
   \answerparameter{before}%
-  \ifmode_showscript%
-    \startenv_answer%
-      \answerparameter{scriptbefore}%
-      \answerparameter{scriptcontent}%
-      \answerparameter{scriptafter}%
-    \stopenv_answer%
-  \fi%
-  \ifmode_showanswer%
-    \startenv_answer%
-    \bgroup
-        \answerparameter\c!answerstyle%
-        \switchtocolor[\answerparameter{answercolor}]%
-        \answerparameter\c!label%
-        \ifmode_showpoint%
-          \paren{\answerparameter\c!pointstyle%
-                 \switchtocolor[\answerparameter{pointcolor}]%
-                 \point_point\answerparameter{pointlabel}}
-        \fi%
-      \answer_answer%
-      \answerparameter{afteranswer}
-    \egroup
-    \useanswerstyleandcolor\c!style\c!color
-    #2
-    \stopenv_answer%
-  \fi%
+  \ifenv_material
+    \startenv_answer
+      \useanswerstyleandcolor\c!style\c!color%
+      #2
+    \stopenv_answer
+  \else%
+    \ifmode_showscript%
+      \startenv_answer%
+        \answerparameter{scriptbefore}%
+        \answerparameter{scriptcontent}%
+        \answerparameter{scriptafter}%
+      \stopenv_answer%
+    \fi%
+    \ifmode_showanswer%
+      \startenv_answer%
+      \bgroup
+          \answerparameter\c!answerstyle%
+          \switchtocolor[\answerparameter{answercolor}]%
+          \answerparameter\c!label%
+          \ifmode_showpoint%
+            \paren{\answerparameter\c!pointstyle%
+                   \switchtocolor[\answerparameter{pointcolor}]%
+                   \point_point\answerparameter{pointlabel}}
+          \fi%
+        \answer_answer%
+        \answerparameter{afteranswer}%
+      \egroup%
+      \useanswerstyleandcolor\c!style\c!color%
+      #2
+      \stopenv_answer%
+    \fi%
+  \fi
   \answerparameter{after}%
   \endgroup}
 
@@ -1628,9 +1643,9 @@
 \gdef\doxcitem[#1]#2
   {\egroup%
   \doifsomethingelse{#1}%
-  {\startcitem[#1]#2\stopcitem}%
-  {}%
-  \startcitem #2\stopcitem}%
+  {\startcitem[*]#2\stopcitem}%
+  {\startcitem #2\stopcitem}%
+  }%
 \egroup
 
 \let\fragilecitem\xcitem
@@ -2511,6 +2526,7 @@
 \def\hideanswer{\mode_showanswerfalse\setupanswer[showscript=true]}
 \let\showpoint\mode_showpointtrue
 \let\hidepoint\mode_showanswerfalse
+\let\showchekinfo\mode_checktrue
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   EXAM MODULE   %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
