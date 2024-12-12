@@ -129,12 +129,12 @@
 %D \stopitemize
 %D
 %D \startbuffer
-%D \definepapertitle[papertitles]
-%D % 第一個參數是試卷名稱，下同。
-%D % 第二個參數是父級試卷名稱，可以設置父級進行繼承。，
-%D % 第三個參數可以直接設定相關樣式和內容。下同。
-%D % 通過 list 參數可以設置順序
-%D % 預設順序為 secret,title,subject,information,notice
+%D  \definepapertitle[papertitles]
+%D  % 第一個參數是試卷名稱，下同。
+%D  % 第二個參數是父級試卷名稱，可以設置父級進行繼承。
+%D  % 第三個參數可以直接設定相關樣式和內容。下同。
+%D  % 通過 list 參數可以設置順序
+%D  % 預設順序為 secret,title,subject,information,notice
 %D \setuppapertitle [papertitles][
 %D     list={secret,title,subject,information,notice},subjectsuffix=学科试卷,
 %D     secretstyle=\ss,
@@ -167,7 +167,7 @@
 %D  \makepapertitle [papertitles]% 可以接受第二參數直接設置
 %D \stopbuffer
 %D \typebuffer
-%D \framed{\getbuffer}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% ego=section isea=subsection
 \setuplabeltext [cn] [section={第,部分},subsection={第,节},]
@@ -407,41 +407,30 @@
 \definecounter[Unicode_toplevel]        % for level 1 : question or problem
 \definecounter[Unicode_midlevel]        % for level 2 : problem or level 1
 \definecounter[Unicode_botlevel]        % for level 3 : only for level 2
-\definecounter[totalchoicenumber]       % get total number of choice
-\definecounter[currentchoicenumber]     % get order number of choice
 \definecounter[strc_close_counter]      % 为 close 环境可以继续 question 序号而设置
-\def\save_question_order%
-  {\setcounter[strc_close_counter][\currentitemnumber]%
-   \savecounter[strc_close_counter]}
-\def\restore_question_order%
-  {\restorecounter[strc_close_counter]% 继承 question 的序号
-   \scratchcounter\rawcountervalue[strc_close_counter]}
+\def\save_question_order{\setcounter[strc_close_counter][\currentitemnumber]\savecounter[strc_close_counter]}
+\def\restore_question_order{\restorecounter[strc_close_counter]\scratchcounter\rawcountervalue[strc_close_counter]}
 \def\EQuestionID{E-\somenamedheadnumber{chapter}{current}-\number\cnt_example_question}
-\def\QuestionID{\ifmode_example\EQuestionID\else%
-                \somenamedheadnumber{chapter}{current}-\rawcountervalue[Unicode]\fi}
-\def\increaseEQuestionID{\advance\cnt_example_question by 1\relax}
-\def\decreaseEQuestionID{\advance\cnt_example_question by -1\relax}
-\def\increaseQuestionID{\ifmode_example\increaseEQuestionID\else%
-                        \incrementcounter[Unicode]\fi}
-\def\decreaseQuestionID{\ifmode_example\decreaseEQuestionID\else%
-                        \decrementcounter[Unicode]\fi}
+\def\QuestionID{\ifmode_example\EQuestionID\else\somenamedheadnumber{chapter}{current}-\rawcountervalue[Unicode]\fi}
 \def\HelperID{\namedheadnumber{chapter}-\rawcountervalue[Unicode_toplevel]}
-\def\SubwritingID{\namedheadnumber{chapter}-\rawcountervalue[Unicode_toplevel]}
+\def\increaseEQuestionID{\advance\cnt_example_question by  1\relax}
+\def\decreaseEQuestionID{\advance\cnt_example_question by -1\relax}
+\def\increaseQuestionID{\ifmode_example\increaseEQuestionID\else\incrementcounter[Unicode]\fi}
+\def\decreaseQuestionID{\ifmode_example\decreaseEQuestionID\else\decrementcounter[Unicode]\fi}
 
 \definedataset[Answer_collector]
 \definedataset[Answer_collectorhelper]
 \definedataset[Choice_collector]
 \definedataset[Subwriting_collector]
-\definedataset[Fillin_collector]
 
 \definetextbackground[env_answer]
-\defineitemgroup   [env_question] %
-\setupitemgroup    [env_question] [each] [n,packed,joinedup,nowhite,continue]
-\defineitemgroup   [env_choice]   %
-\setupitemgroup    [env_choice]   [each] [A,packed,joinedup,nowhite]
-\definebar         [fillin_text]
-\defineoverlay     [normalframeOL]
-                   [\useMPgraphic{normalframeMP}]
+\defineitemgroup     [env_question] %
+\setupitemgroup      [env_question] [each] [n,packed,joinedup,nowhite,continue]
+\defineitemgroup     [env_choice]   %
+\setupitemgroup      [env_choice]   [each] [A,packed,joinedup,nowhite]
+\definebar           [fillin_text]
+\defineoverlay       [normalframeOL]
+                    [\useMPgraphic{normalframeMP}]
 \startuseMPgraphic{normalframeMP}
   draw unitsquare xyscaled (\overlaywidth, \overlayheight);
 \stopuseMPgraphic
@@ -450,9 +439,9 @@
         lua("mp.print(math.sin(" & decimal x & "))")
     enddef ;
     draw function(1, "x", "lsin(1.2*x)", 0, RuleWidth, .1pt)
-        shifted (0,RuleFactor*RuleOffset+RuleDepth)
-        withpen pencircle scaled RuleThickness
-        withcolor RuleColor ;
+         shifted (0,RuleFactor*RuleOffset+RuleDepth)
+         withpen pencircle scaled RuleThickness
+         withcolor RuleColor ;
     setbounds currentpicture to unitsquare xysized(RuleWidth,RuleHeight) ;
 \stopuseMPgraphic
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -483,43 +472,39 @@
 \definefontsynonym[NotoSansSymbols2][file:NotoSansSymbols2-Regular]
 \def\notosymb#1{\getglyphstyled{NotoSansSymbols2}{\tochar{n:#1}}}
 
-\definesymbol[marksquare][\notosymb{☐}]
-\definesymbol[markcircle][\notosymb{○}]
-
-\definesymbol[marknotcheck][\notosymb{⍻}]
-\definesymbol[markcheck][\notosymb{🗸}]
-\definesymbol[markheavycheck][\notosymb{✓}]
-\definesymbol[marksquarecheck][\notosymb{\hbox to 1em{☐\kern-.7em\relax\raise.2em\hbox{🗸}}}]
+\definesymbol[marksquare]          [\notosymb{☐}]
+\definesymbol[markcircle]          [\notosymb{○}]
+\definesymbol[marknotcheck]        [\notosymb{⍻}]
+\definesymbol[markcheck]           [\notosymb{🗸}]
+\definesymbol[markheavycheck]      [\notosymb{✓}]
+\definesymbol[marksquarecheck]     [\notosymb{\hbox to 1em{☐\kern-.7em\relax\raise.2em\hbox{🗸}}}]
 \definesymbol[marksquareheavycheck][\notosymb{\hbox to 1em{☐\kern-.7em\relax\raise.2em\hbox{✓}}}]
-\definesymbol[markcirclecheck][\notosymb{\hbox to 1em{○\kern-.7em\relax\raise.2em\hbox{🗸}}}]
+\definesymbol[markcirclecheck]     [\notosymb{\hbox to 1em{○\kern-.7em\relax\raise.2em\hbox{🗸}}}]
 \definesymbol[markcircleheavycheck][\notosymb{\hbox to 1em{○\kern-.7em\relax\raise.2em\hbox{✓}}}]
-
-\definesymbol[markcross][\notosymb{✗}]
-\definesymbol[markheavycross][\notosymb{✘}]
-\definesymbol[marksquarecross][\notosymb{\hbox to 1em{☐\kern-.75em\relax\raise.1em\hbox{✗}}}]
+\definesymbol[markcross]           [\notosymb{✗}]
+\definesymbol[markheavycross]      [\notosymb{✘}]
+\definesymbol[marksquarecross]     [\notosymb{\hbox to 1em{☐\kern-.75em\relax\raise.1em\hbox{✗}}}]
 \definesymbol[marksquareheavycross][\notosymb{\hbox to 1em{☐\kern-.75em\relax\raise.1em\hbox{✘}}}]
-\definesymbol[markcirclecross][\notosymb{\hbox to 1em{○\kern-.75em\relax\raise.2em\hbox{✗}}}]
+\definesymbol[markcirclecross]     [\notosymb{\hbox to 1em{○\kern-.75em\relax\raise.2em\hbox{✗}}}]
 \definesymbol[markcircleheavycross][\notosymb{\hbox to 1em{○\kern-.75em\relax\raise.2em\hbox{✘}}}]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\def\choice_availablecolumns{ \datasetvariable{Choice_collector}{\QuestionID}{availablecolumns}}
-\def\choice_itemmaxwidth{     \datasetvariable{Choice_collector}{\QuestionID}{itemmaxwidth}}
-\def\choice_totalchoicenumber{\datasetvariable{Choice_collector}{\QuestionID}{totalchoicenumber}}
-\def\choice_answer{           \datasetvariable{Choice_collector}{\QuestionID}{answer}}
-\def\choice_answerstatus{     \datasetvariable{Choice_collector}{\QuestionID}{answerstatus}}
-%%%%%%%%%%%%%%%%%%%%%%%%
-\def\item_totalnumber{\datasetvariable{Answer_collectorhelper}{\HelperID}{totalpitemnumber}}
-\def\item_totalpoint{ \datasetvariable{Answer_collectorhelper}{\HelperID}{totalpoint}}
-%%%%%%%%%%%%%%%%%%%%%%%%
-\def\answer_id{       \datasetvariable{Answer_collector}{\QuestionID}{id}}
-\def\answer_envid{    \datasetvariable{Answer_collector}{\QuestionID}{envid}}
-\def\answer_order{    \datasetvariable{Answer_collector}{\QuestionID}{order}}
-\def\answer_userorder{\datasetvariable{Answer_collector}{\QuestionID}{userorder}}
-\def\answer_answer{\ifmode_example You're in EXAMPLE MODE!\else
-                      \datasetvariable{Answer_collector}{\QuestionID}{answer}\fi}
-\def\answer_point{    \datasetvariable{Answer_collector}{\QuestionID}{point}}
-\def\answer_totalnumber{\datasetvariable{Answer_collector}{\QuestionID}{totalnumber}}
-\def\point_point{     \datasetvariable{Answer_collector}{\QuestionID}{point}}
-\def\point_totalpoint{\datasetvariable{Answer_collector}{\QuestionID}{totalpoint}}
+\def\choice_availablecolumns{ \unskip\datasetvariable{Choice_collector}{\QuestionID}{availablecolumns}}
+\def\choice_itemmaxwidth{     \unskip\datasetvariable{Choice_collector}{\QuestionID}{itemmaxwidth}}
+\def\choice_totalchoicenumber{\unskip\datasetvariable{Choice_collector}{\QuestionID}{totalchoicenumber}}
+\def\choice_answer{           \unskip\datasetvariable{Choice_collector}{\QuestionID}{answer}}
+\def\choice_answerstatus{     \unskip\datasetvariable{Choice_collector}{\QuestionID}{answerstatus}}
+\def\item_totalnumber{        \unskip\datasetvariable{Answer_collectorhelper}{\HelperID}{totalpitemnumber}}
+\def\item_totalpoint{         \unskip\datasetvariable{Answer_collectorhelper}{\HelperID}{totalpoint}}
+\def\answer_id{               \unskip\datasetvariable{Answer_collector}{\QuestionID}{id}}
+\def\answer_envid{            \unskip\datasetvariable{Answer_collector}{\QuestionID}{envid}}
+\def\answer_order{            \unskip\datasetvariable{Answer_collector}{\QuestionID}{order}}
+\def\answer_userorder{        \unskip\datasetvariable{Answer_collector}{\QuestionID}{userorder}}
+\def\answer_answer{           \unskip\ifmode_example You're in EXAMPLE MODE!\else%
+                              \unskip\datasetvariable{Answer_collector}{\QuestionID}{answer}\fi}
+\def\answer_point{            \unskip\datasetvariable{Answer_collector}{\QuestionID}{point}}
+\def\answer_totalnumber{      \unskip\datasetvariable{Answer_collector}{\QuestionID}{totalnumber}}
+\def\point_point{             \unskip\datasetvariable{Answer_collector}{\QuestionID}{point}}
+\def\point_totalpoint{        \unskip\datasetvariable{Answer_collector}{\QuestionID}{totalpoint}}
 \def\show_check_info{
    \ifmode_quickcheck
      \par\framed[width=\textwidth,align=flushleft]%
@@ -553,9 +538,9 @@
       \NC CUuserorder   \NC \currentuserorder       \NC Cavailable   \NC \choice_availablecolumns  \NC\NR
       \NC answer        \NC \answer_answer          \NC Canswer      \NC \choice_answer            \NC\NR
       \NC CUpoint       \NC \point_point            \NC              \NC                           \NC\NR\HL
-      \NC mode.status   \NC \mode_status            \NC CUHelperID  \NC \HelperID                \NC\NR
-      \NC level.check   \NC \level_status           \NC totalnumber \NC \item_totalnumber        \NC\NR
-      \NC Canswerstatus \NC \choice_answerstatus    \NC totalpoint  \NC \item_totalpoint         \NC\NR
+      \NC mode.status   \NC \mode_status            \NC CUHelperID   \NC \HelperID                 \NC\NR
+      \NC level.check   \NC \level_status           \NC totalnumber  \NC \item_totalnumber         \NC\NR
+      \NC Canswerstatus \NC \choice_answerstatus    \NC totalpoint   \NC \item_totalpoint          \NC\NR
     \stoptabulate}
     \par\endgroup}
 
@@ -573,27 +558,29 @@
   \else\cnt_floor=0#1#2\relax%
   \number\cnt_floor\relax\fi%
 }
-\def\collect#1{%if want show collect,show #1
+
+\def\initcollectanswer{\directlua{MultiAnswerCollector = {}}}
+\def\collectanswer#1{%if want show collect,show #1
     \directlua{table.insert(MultiAnswerCollector, [[#1]])}}
-\def\callcollection{\directlua{
+\def\collectedanswer{\directlua{
     tex.sprint(table.concat(MultiAnswerCollector, " "))
 }}
 
-\newcount\c_example_toggle
+\newcount\c_envcounter_toggle
 \def\example_toggle[#1]% 专用于测试是否开启了 example mode
     {\doif{\csname #1parameter\endcsname{example}}{true}%
-          {\mode_exampletrue\global\c_example_toggle=999\relax}}
+          {\mode_exampletrue\global\c_envcounter_toggle=999\relax}}
 
 \def\set_envitem_counter{%
-  \global\c_example_toggle=1\relax% 默認就是question環境
-  \ifenv_question   \global\c_example_toggle=1\relax\fi
-  \ifenv_problem    \global\c_example_toggle=2\relax\fi
-  \ifenv_choice     \global\c_example_toggle=3\relax\fi
-  \ifenv_material   \global\c_example_toggle=4\relax\fi
-  \ifenv_close      \global\c_example_toggle=5\relax\fi
-  \ifenv_writing    \global\c_example_toggle=6\relax\fi
-  \ifenv_subwriting \global\c_example_toggle=7\relax\fi
-  \ifenv_answer     \global\advance\c_example_toggle by 10\relax\fi}
+  \global\c_envcounter_toggle=1\relax% 默認就是question環境
+  \ifenv_question   \global\c_envcounter_toggle=1\relax\fi
+  \ifenv_problem    \global\c_envcounter_toggle=2\relax\fi
+  \ifenv_choice     \global\c_envcounter_toggle=3\relax\fi
+  \ifenv_material   \global\c_envcounter_toggle=4\relax\fi
+  \ifenv_close      \global\c_envcounter_toggle=5\relax\fi
+  \ifenv_writing    \global\c_envcounter_toggle=6\relax\fi
+  \ifenv_subwriting \global\c_envcounter_toggle=7\relax\fi
+  \ifenv_answer     \global\advance\c_envcounter_toggle by 10\relax\fi}
 
 \def\level_status{\ifenv_toplevel <env_toplevel>\else%
                   \ifenv_botlevel <env_botlevel>\else
@@ -614,7 +601,7 @@
 % 所以即便是专门测试 bot 是否开启的 3 ，
 % 也只会在关闭 top 的情况下获取正确的结果。
 
-\newcount\parentitemnumber
+\newcount\parentitemnumber% \parentitemnumber 会等于父级列表环境的序号
 \def\set_currentuserorder[#1]{% set order that user setted
     \ifcsname #1order\endcsname\else%
     \expandafter\newcount\csname #1order\endcsname\fi%
@@ -768,19 +755,18 @@
       \cnt_step_point\scratchcounter\relax
       \cnt_step_point_temp\scratchcounter\relax
     \fi%
-    \global\cnt_step_point_temp\scratchcounter\relax%
-    \ifnum\cnt_step_point=\scratchcounter\relax%
-      \global\cnt_step_point=\cnt_step_point_temp\relax%
+    \global\cnt_step_point_temp\scratchcounter\relax
+    \ifnum\cnt_step_point=\scratchcounter\relax
+      \global\cnt_step_point=\cnt_step_point_temp\relax
     \else%
-      \global\cnt_step_point=\numexpr\cnt_step_point+\cnt_step_point_temp\relax%
+      \global\cnt_step_point=\numexpr\cnt_step_point+\cnt_step_point_temp\relax
     \fi% 遞歸出總分數
     \ifenv_toplevel%
       \gdef\currenttotalpoint{\currentpoint}%
-    \else
+    \else%
       \gdef\currenttotalpoint{\the\cnt_step_point}%
     \fi%
-  \fi%
-}
+  \fi}
 
 \def\install_answer[#1]{%
   \ifx\currentmode\c!answer
@@ -794,14 +780,13 @@
     \else%
       \edef\currentanswer{\csname #1parameter\endcsname\c!answer}%
     \fi%
-  \fi%
-}
+  \fi}
 
 \tolerant\def\installpointoranswer[#1]#*[#2]{%#1 parameter %#2 modename
 %   需要更好的逻辑进行设计答案空值的情况
   \edef\currentmode{#2}% check point or answer
   \processaction[\csname     #1parameter\endcsname{show#2}][%
-            true=>\csname mode_show#2true\endcsname,
+           true=>\csname mode_show#2true\endcsname,
           false=>\csname mode_show#2false\endcsname,]%
   \install_point[#1]\install_answer[#1]\begingroup%%
   \csname ifmode_show#2\endcsname%
@@ -815,7 +800,7 @@
         \ifempty\current_answer\answer_answer% 直接獲取當前 QID 答案
         \else\currentanswer\fi% 如果非空，取設置好的答案值
       \fi%
-  \csname #1parameter\endcsname{#2label}}%
+  \csname #1parameter\endcsname{#2label}}\hairspace%
   \fi\endgroup}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1084,14 +1069,15 @@
   \set_count_envlevel  [env_question:1][question]%
   \installpointoranswer[question]      [point]%
   \installpointoranswer[question]      [answer]%
+  \initcollectanswer% 初始化多项答案收集
   \save_question_order}
 
 \def\stopquestion{%
-  \ifnum\c_example_toggle=1\relax
+  \ifnum\c_envcounter_toggle=1\relax
   \installdatacollector%
   \installdatacollectorhelper\fi%
   \stopitemgroup\endgroup%
-  \ifnum\c_example_toggle=999\relax%
+  \ifnum\c_envcounter_toggle=999\relax%
   \resetcounter [itemgroup:env_question]%
   \fi}
 
@@ -1212,7 +1198,6 @@
   else    available_columns_arg = "horizontal,two"
   end
   \stopluacode
-  \directlua{MultiAnswerCollector = {}}% 初始化選項答案收集
   \iffirstargument\setupchoice[#1]\fi%
   \startitemgroup[env_choice]%
                  [\choiceparameter{numberconversion},#1,%
@@ -1223,8 +1208,6 @@
                  false=>\mode_showanswerfalse,]%
   \totalchoicenumber   = 0\relax%
   \currentchoicenumber = 0\relax%
-  \setcounter   [totalchoicenumber]   [0]% recalculator when startitemgroup
-  \setcounter   [currentchoicenumber] [0]% recalculator when startitemgroup
   }
 
 \def\stopchoice{%
@@ -1251,24 +1234,24 @@
               \doifincsnameelse{env_choice:2}{\currentitemgroup}%
                    {}%
                    {\set_count_envlevel[env_choice:1][choice]}\fi%
-    \edef\currentchoiceanswer{\callcollection}%
+    \edef\currentchoiceanswer{\collectedanswer}%
     \ifempty\currentchoiceanswer%
       \let\prevanswer\currentanswer%
       \edef\currentanswer{\prevanswer}%
     \else%
-      \edef\currentanswer{\callcollection}%
+      \edef\currentanswer{\collectedanswer}%
     \fi%
     \setdataset [Choice_collector][\QuestionID][%收集選項信息,傳遞給下面的總收集處
                  id={\QuestionID},%
-                 envid={\currentitemgroup},%
-                 order={\number\currentorder},%
-                 userorder={\currentuserorder},%
-                 availablecolumns={\ctxlua{context(c,"")}},
-                 itemmaxwidth={\the\width_cit_max},
-                 totalchoicenumber={\number\totalchoicenumber},
-                 point={\questionparameter\c!point},
-                 answerstatus={\check_choice_answerstatus},
-                 answer={\currentanswer},]%
+              envid={\currentitemgroup},%
+              order={\number\currentorder},%
+          userorder={\currentuserorder},%
+   availablecolumns={\ctxlua{context(c,"")}},
+       itemmaxwidth={\the\width_cit_max},
+  totalchoicenumber={\number\totalchoicenumber},
+              point={\questionparameter\c!point},
+       answerstatus={\check_choice_answerstatus},
+             answer={\currentanswer},]%
     \edef\currentpoint{\questionparameter\c!point}%
     \edef\currenttotalpoint{\questionparameter\c!point}%
     \installdatacollector%
@@ -1293,7 +1276,7 @@
 %D   \stopanswer
 %D \stopwriting
 %D
-%D \startwriting[point=\getpointfromsubwriting]
+%D \startwriting
 %D 作文题目说明
 %D   \startsubwriting[point=450]
 %D     sub 作文题目说明
@@ -1550,7 +1533,7 @@
 \tolerant\protected\def\startpitem[#1]{\begingroup%
   \item_pitemtrue\increaseQuestionID%
   \iffirstargument\setuppitem[#1]\fi%
-  \startitem[\pitemparameter{reference}]%%
+  \startitem[\pitemparameter{reference}]%
     \ifnum\currentpitemnumber=0\currentpitemnumber=1\relax\fi%
     \ifenv_question% 設計上的問題，此時 pitem 處於 botlevel，否則處於 toplevel。
     \set_count_itemlevel [env_question:2] [pitem]\else\ifenv_problem%
@@ -1560,8 +1543,13 @@
   }
 
 \def\stoppitem{%
+  \ifitem_fillin%
+    \edef\currentfillinanswer{\collectedanswer}
+    \ifempty\currentfillinanswer\relax\else%
+      \edef\currentanswer{\collectedanswer}\currentanswer\fi\fi%
   \installdatacollector%
   \installdatacollectorhelper%
+  \initcollectanswer% 清空收集 fillin 的答案
   \stopitem\global\advance\currentpitemnumber by 1\relax
   \endgroup}
 
@@ -1598,11 +1586,7 @@
     \ifnum\currentchoicenumber < 1\relax
           \currentchoicenumber = 1\relax\fi%
     \ifconditional\c_strc_itemgroups_horizontal% mode_horizontal
-       \setcounter[currentchoicenumber][\currentchoicenumber]%
-       \setcounter[totalchoicenumber]  [\currentchoicenumber]%
-       \doif{#1}{*}{\savecounter[currentchoicenumber]}%
-       %if new collect command work well, savecounter can be deleted
-       \doif{#1}{*}{\collect{\convertnumber%
+       \doif{#1}{*}{\collectanswer{\convertnumber%
                    {\choiceparameter{numberconversion}}%
                    {\currentchoicenumber}}}%
     \fi%
@@ -1611,12 +1595,8 @@
       \doifelse{#1}{*}{\correct_choice{#1}{#3}}{#3}%
       % 如果 * 被設置，將該選項設為正確選項，否則顯示為其他選項
     \else%
-      \setcounter[currentchoicenumber][\currentchoicenumber]%
-      \setcounter[totalchoicenumber][\currentchoicenumber]%
-      \doifelse{#1}{*}{\correct_choice{#1}%
-      {#3\savecounter[currentchoicenumber]}}%
-      {#3}%if new collect command work well, savecounter can be deleted
-      \doif{#1}{*}{\collect{\convertnumber%
+      \doifelse{#1}{*}{\correct_choice{#1}{#3}}{#3}%
+      \doif{#1}{*}{\collectanswer{\convertnumber%
                   {\choiceparameter{numberconversion}}%
                   {\currentchoicenumber}}}%
     \fi%
@@ -1665,25 +1645,24 @@
 
 %D 新增一个 align=autoright 来让 fillin 对齐右方。但必须同时设置 n=0 才会正常工作。
 
-
 \setupbar[fillin_text]
          [ rulethickness=\fillinparameter{rulethickness},
          foregroundcolor=\fillinparameter{foregroundcolor},
-          foregroundstyle=\fillinparameter{foregroundstyle},
-                 continue=\fillinparameter{continue},
-                     unit=\fillinparameter{unit},
-                    order=\fillinparameter{order},
-                   method=\fillinparameter{method},
-                       dy=\fillinparameter{dy},
-                      max=\fillinparameter{max},
-                    width=\fillinparameter{width},
-                     left=\fillinparameter{left},
-                    right=\fillinparameter{right},
-                   repeat=\fillinparameter{repeat},
-                    color=\fillinparameter{color},
-                   offset=\fillinparameter{offset},
-                    empty=\fillinparameter{empty},
-                       mp=\fillinparameter{mp}]
+         foregroundstyle=\fillinparameter{foregroundstyle},
+                continue=\fillinparameter{continue},
+                    unit=\fillinparameter{unit},
+                   order=\fillinparameter{order},
+                  method=\fillinparameter{method},
+                      dy=\fillinparameter{dy},
+                     max=\fillinparameter{max},
+                   width=\fillinparameter{width},
+                    left=\fillinparameter{left},
+                   right=\fillinparameter{right},
+                  repeat=\fillinparameter{repeat},
+                   color=\fillinparameter{color},
+                  offset=\fillinparameter{offset},
+                   empty=\fillinparameter{empty},
+                      mp=\fillinparameter{mp}]
 \setupfillin[%foregroundcolor=,
              %before=,after=,
              %left=,right=,
@@ -1760,12 +1739,14 @@
       \fi\fi\fi%
     \egroup%
    \fi%
-  \setdataset[Fillin_collector][\QuestionID][answer={#2}]%
   \fillinparameter\c!right\fillinparameter\c!after%
   \doifelse{\fillin_align}{autoright}%
            {\parfillskip=0pt \finalhyphendemerits=0 \par}{}%
-\endgroup% 因為答案被保存在組內，必須提取出來
-\edef\currentanswer{\datasetvariable{Fillin_collector}{\QuestionID}{answer}}}
+  \endgroup% 因為答案被保存在組內，必須提取出來
+  \edef\currentfillinanswer{#2}% 如果 fillin 为空，而 pitem 含有含有答案，
+  \ifempty\currentfillinanswer\else% 应当使用 pitem 而非 fillin
+    \edef\currentanswer{\collectanswer{#2}}%
+  \fi}
 
 %D \section{設置 material 環境}
 %D 顧名思義，\tex{material} 環境用來放置大段文本材料。
