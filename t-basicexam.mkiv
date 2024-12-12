@@ -572,6 +572,7 @@
           {\mode_exampletrue\global\c_envcounter_toggle=999\relax}}
 
 \def\set_envitem_counter{%
+  \initcollectanswer% 初始化多项答案收集器
   \global\c_envcounter_toggle=1\relax% 默認就是question環境
   \ifenv_question   \global\c_envcounter_toggle=1\relax\fi
   \ifenv_problem    \global\c_envcounter_toggle=2\relax\fi
@@ -1069,7 +1070,6 @@
   \set_count_envlevel  [env_question:1][question]%
   \installpointoranswer[question]      [point]%
   \installpointoranswer[question]      [answer]%
-  \initcollectanswer% 初始化多项答案收集
   \save_question_order}
 
 \def\stopquestion{%
@@ -1745,7 +1745,8 @@
   \endgroup% 因為答案被保存在組內，必須提取出來
   \edef\currentfillinanswer{#2}% 如果 fillin 为空，而 pitem 含有含有答案，
   \ifempty\currentfillinanswer\else% 应当使用 pitem 而非 fillin
-    \edef\currentanswer{\collectanswer{#2}}%
+    \collectanswer{#2}
+    \edef\currentanswer{#2}%
   \fi}
 
 %D \section{設置 material 環境}
@@ -2026,7 +2027,7 @@
         \vtop{%
           \startchoice%
             \processcommacommand[\closetest_list]\docloseitem%
-          \stopchoice
+          \stopchoice%
         }
       }
     }%
