@@ -17,7 +17,8 @@
 \def\errorparameter#1{\begingroup
     \startalignment[center]
     \framed[align={center,lohi},width=max]{
-    \switchtocolor[blue]\tta
+    \switchtocolor[blue]\ttxx
+    Module \currentmodule : 
     There is something Wrong happened at \color[red]{\underbar{parameter:#1}}.\\
     Please check your code.\\
     }\stopalignment
@@ -309,8 +310,6 @@
 
 %D 定义关键词
 \startinterface all
-\setinterfaceconstant {true}        {true}
-\setinterfaceconstant {false}       {false}
 \setinterfaceconstant {showanswer}  {showanswer}
 \setinterfaceconstant {showpoint}   {showpoint}
 \setinterfaceconstant {answer}      {answer}
@@ -477,16 +476,16 @@
 \definesymbol[marknotcheck]        [\notosymb{⍻}]
 \definesymbol[markcheck]           [\notosymb{🗸}]
 \definesymbol[markheavycheck]      [\notosymb{✓}]
-\definesymbol[marksquarecheck]     [\notosymb{\hbox to 1em{☐\kern-.7em\relax\raise.2em\hbox{🗸}}}]
-\definesymbol[marksquareheavycheck][\notosymb{\hbox to 1em{☐\kern-.7em\relax\raise.2em\hbox{✓}}}]
-\definesymbol[markcirclecheck]     [\notosymb{\hbox to 1em{○\kern-.7em\relax\raise.2em\hbox{🗸}}}]
-\definesymbol[markcircleheavycheck][\notosymb{\hbox to 1em{○\kern-.7em\relax\raise.2em\hbox{✓}}}]
+\definesymbol[marksquarecheck]     [\notosymb{\rlap{☐}\,\raise.2em\hbox{🗸}}]
+\definesymbol[marksquareheavycheck][\notosymb{\rlap{☐}\,\raise.2em\hbox{✓}}]
+\definesymbol[markcirclecheck]     [\notosymb{\rlap{○}\,\raise.2em\hbox{🗸}}]
+\definesymbol[markcircleheavycheck][\notosymb{\rlap{○}\,\raise.2em\hbox{✓}}]
 \definesymbol[markcross]           [\notosymb{✗}]
 \definesymbol[markheavycross]      [\notosymb{✘}]
-\definesymbol[marksquarecross]     [\notosymb{\hbox to 1em{☐\kern-.75em\relax\raise.1em\hbox{✗}}}]
-\definesymbol[marksquareheavycross][\notosymb{\hbox to 1em{☐\kern-.75em\relax\raise.1em\hbox{✘}}}]
-\definesymbol[markcirclecross]     [\notosymb{\hbox to 1em{○\kern-.75em\relax\raise.2em\hbox{✗}}}]
-\definesymbol[markcircleheavycross][\notosymb{\hbox to 1em{○\kern-.75em\relax\raise.2em\hbox{✘}}}]
+\definesymbol[marksquarecross]     [\notosymb{\rlap{☐}\,\raise.1em\hbox{✗}}]
+\definesymbol[marksquareheavycross][\notosymb{\rlap{☐}\,\raise.1em\hbox{✘}}]
+\definesymbol[markcirclecross]     [\notosymb{\rlap{○}\,\raise.1em\hbox{✗}}]
+\definesymbol[markcircleheavycross][\notosymb{\rlap{○}\,\raise.1em\hbox{✘}}]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \def\choice_availablecolumns{ \unskip\datasetvariable{Choice_collector}{\QuestionID}{availablecolumns}}
 \def\choice_itemmaxwidth{     \unskip\datasetvariable{Choice_collector}{\QuestionID}{itemmaxwidth}}
@@ -560,11 +559,8 @@
 }
 
 \def\initcollectanswer{\directlua{MultiAnswerCollector = {}}}
-\def\collectanswer#1{%if want show collect,show #1
-    \directlua{table.insert(MultiAnswerCollector, [[#1]])}}
-\def\collectedanswer{\directlua{
-    tex.sprint(table.concat(MultiAnswerCollector, " "))
-}}
+\def\collectanswer#1{\directlua{table.insert(MultiAnswerCollector, [[#1]])}}
+\def\collectedanswer{\directlua{tex.sprint(table.concat(MultiAnswerCollector,","))}}
 
 \newcount\c_envcounter_toggle
 \def\example_toggle[#1]% 专用于测试是否开启了 example mode
@@ -692,33 +688,13 @@
 % 获取当前环境的答案，并传递给最终的 answer dataset
 % 但是，条件判断的套嵌还需要优化。当前(20241029)的修改后似乎增加了 0.2~0.4 秒的生成时间
 \def\pass_parameter_answer{%
-  \ifenv_choice%
-    \get_choice_answer%
-  \else%
-    \ifenv_writing%
-      \get_writing_answer%
-    \else%
-        \currentanswer%
-    \fi%
-  \fi}
+  \ifenv_writing\get_writing_answer%
+  \else\check_answer\currentanswer\fi}
 
-\def\check_env_answer[#1][#2][#3]{%
-   \doifsomethingelse{\datasetvariable{#2}{#3}{answer}}%
-    {\datasetvariable{#2}{#3}{answer}}%
-    {\tt no \color[red]{\bf #1 answer} value here,or no need here.}%
+\def\check_answer#1{\removeunwantedspaces%
+  \doifsomethingelse{#1}{#1}%
+  {{\ttxx no \color[red]{answer} value here,please check.}}%
 }
-
-\def\check_parameter_answer[#1]{%
-  \doifsomethingelse{\csname #1parameter\endcsname\c!answer}%
-    {\csname #1parameter\endcsname\c!answer}%
-    {\tt no \color[red]{\bf #1 answer} value here,or no need here.}%
-}
-
-\def\get_choice_answer{%
-    \increaseQuestionID%
-    \check_env_answer[choice][Choice_collector][\QuestionID]%
-    \decrementcounter[Unicode]}
-\let\getanswerfromchoice\get_choice_answer
 
 %%%%% NOTICE : 目前，當用戶主動輸入值和選項值發生衝突時，並未設置警告信息!!!!
 \def\getanswerforanswer{% used for answer env to auto get answer
@@ -806,10 +782,11 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \defineconversion[tnum][\addff{tabularnumbers}]
-\def\installitemgroupoption[#1][#2]{
-    \setupcounter  [itemgroup:env_#1]
-                   [  way=\csname #2parameter\endcsname\c!way]
-    \setupitemgroup[env_#1]
+\protected\def\installitemgroupoption[#1][#2]{%
+    \edef\p_env{[env_#1]}\edef\p_trueenv{#2}%
+    \setupcounter[itemgroup:env_\p_env]%
+                   [  way=\csname #2parameter\endcsname\c!way]%
+    \expandafter\setupitemgroup\p_env
                    [ left=\csname #2parameter\endcsname\c!left,
                     right=\csname #2parameter\endcsname\c!right,
                   stopper=\csname #2parameter\endcsname\c!stopper,
@@ -858,7 +835,6 @@
                 option={packed,joinedup,nowhite},
                 way=bysection,
                 numberconversion=tnum,]
-\installitemgroupoption[question][problem]
 
 %D problem 只继承了部分 itemgroup 的键值，并没有新的键值设定。
 %D 在当前(v20241023)中已经删去了设置答案和分值的设置。
@@ -933,6 +909,7 @@
 % 因為 setcountlevel 用到了 scratchcounter,這裡就必須使用新的計數器抓取命令
   \begingroup\env_problemtrue\set_envitem_counter%
   \iffirstargument\setupproblem[#1]\fi%
+  \installitemgroupoption[question][problem]%
   \edef\p_start{\problemparameter\c!start}%
   \edef\p_conversion{\problemparameter\c!numberconversion}%
   \ifempty\p_start% 避免 continue 和 start 属性冲突
@@ -1023,7 +1000,7 @@
 %D choice 環境，只需要直接為 question 環境配置分值即可。choice 環境並不能配置分數。
 
 \setupquestion [%showpoint=false,
-                %point=,
+                point=0,
                 pointstyle=\ttx,
                 %pointcolor=,
                 %pointprelabel=,
@@ -1050,11 +1027,12 @@
                 %itemalign=,
                 way=bychapter,%wont work if continue on
                 numberconversion=tnum,]
-\installitemgroupoption[question][question]
+
 
 \tolerant\protected\def\startquestion[#1]%
  {\begingroup\env_questiontrue\set_envitem_counter%%
   \iffirstargument\setupquestion[#1]\fi%
+  \installitemgroupoption[question][question]%
   \example_toggle[question]% 用於測試是否開啟 example_mode
   \edef\p_start{\questionparameter\c!start}%
   \edef\p_conversion{\questionparameter\c!numberconversion}%
@@ -1092,7 +1070,7 @@
 %D 可以通過 \type{[*]} 來標記正確答案。如果想要設置多選題，只需要對每個正確答案添加 \type{[*]} 即可。
 %D \startbuffer
 %D \setupquestion[showanswer=true]
-%D \startquestion[answer=\getanswerfromchoice]
+%D \startquestion
 %D     該環境位於 \currentitemgroup 。
 %D     \startchoice
 %D         \startcitem[*]{Some Words}\stopcitem
@@ -1101,7 +1079,7 @@
 %D         \startcitem{Some Words}\stopcitem
 %D     \stopchoice
 %D \stopquestion
-%D \startquestion[answer=\getanswerfromchoice]
+%D \startquestion
 %D     該環境位於 \currentitemgroup 。
 %D     \startchoice
 %D         \startcitem{Some More Words}\stopcitem
@@ -1110,7 +1088,7 @@
 %D         \startcitem[*]{Some More Words}\stopcitem
 %D     \stopchoice
 %D \stopquestion
-%D \startquestion[answer=\getanswerfromchoice]
+%D \startquestion
 %D     該環境位於 \currentitemgroup 。
 %D     \startchoice
 %D         \startcitem{Some More More Words}\stopcitem
@@ -1142,8 +1120,7 @@
 %D maxiwidth key is for calcaluted max width of choice and waited to be compare，
 %D notice this key is maxiwidth ,and difference from maxwidth which
 %D for setupitemgroup command
-\setupchoice [answer=\get_choice_answer,
-              answerstyle=\ss\tf,
+\setupchoice [answerstyle=\ss\tf,
               answercolor=red,
               left={},  %%%%% follow is itemize option
               right={},
@@ -1162,7 +1139,6 @@
               %itemalign=,
               way=bysection,
               numberconversion=A,]
-\installitemgroupoption[choice][choice]
 
 \tolerant\protected\def\startchoice[#1]%
  {\begingroup\env_choicetrue\set_envitem_counter%%
@@ -1185,7 +1161,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \startluacode
   tbl_num_temp = {"one","two","three","four",
-                  "five","six","senven","eight","nine"}
+                  "five","six","seven","eight","nine"}
   local   tbl_cit_count         = tex.count['current_total_choice_number']
   local   available_columns     = tex.count['current_available_columns']
           available_columns_arg = ""
@@ -1199,6 +1175,7 @@
   end
   \stopluacode
   \iffirstargument\setupchoice[#1]\fi%
+  \installitemgroupoption[choice][choice]
   \startitemgroup[env_choice]%
                  [\choiceparameter{numberconversion},#1,%
                   \ctxlua{context(available_columns_arg,"")},]%
@@ -1314,12 +1291,13 @@
               numberconversion=tnum,]
 \setupsubwriting[answer={参见参考作文。},point=0,pointlabel={分}]
 \definewriting[subwriting]
-\installitemgroupoption[question][writing]
+
 
 \tolerant\protected\def\startwriting[#1]{\begingroup%
   \env_writingtrue\set_envitem_counter%%
   \setupanswer[showanswer=false]%
   \iffirstargument\setupwriting[#1]\fi%注意，writing 没有单独的 itemgroup 环境
+  \installitemgroupoption[question][writing]
   \edef\current_writing_answer{\writingparameter\c!answer}%
   \edef\p_start{\writingparameter\c!start}%
   \edef\p_conversion{\writingparameter\c!numberconversion}%
@@ -1385,7 +1363,7 @@
 %D     \input knuthmath
 %D     \stopanswer
 %D \stopquestion
-%D \startquestion[showanswer=true,answer=\getanswerfromchoice]
+%D \startquestion[showanswer=true]
 %D     該環境位於 \currentitemgroup 。 注意：\tex{answer} 可以獲取父環境或同級環境的答案而不必再次設置。
 %D     \startchoice
 %D         \startcitem{Some Words}\stopcitem
@@ -1546,7 +1524,7 @@
   \ifitem_fillin%
     \edef\currentfillinanswer{\collectedanswer}
     \ifempty\currentfillinanswer\relax\else%
-      \edef\currentanswer{\collectedanswer}\currentanswer\fi\fi%
+      \edef\currentanswer{\collectedanswer}\fi\fi%
   \installdatacollector%
   \installdatacollectorhelper%
   \initcollectanswer% 清空收集 fillin 的答案
@@ -1604,7 +1582,87 @@
     \advance\currentchoicenumber by 1\relax%
 }
 
+%D \startquestion[showanswer=true]
+%D kk\startinlinechoice[answer=GE]
+%D     \starticitem 1H\stopicitem
+%D     \starticitem 2O\stopicitem
+%D     \starticitem 3P\stopicitem
+%D   \stopinlinechoice
+%D oo\stopquestion
+
+%D \startquestion[showanswer=true]
+%D kk\startinlinechoice[answer=GE]
+%D     \starticitem[*] 1H\stopicitem
+%D     \starticitem[*] 2O\stopicitem
+%D     \starticitem 3P\stopicitem
+%D   \stopinlinechoice
+%D oo\stopquestion
+
+\newif\ifinlinechoice_correctanswer\inlinechoice_correctanswerfalse
+\definechoice[inlinechoice]
+\tolerant\def\setupinlinechoice[#1]{\setupchoice[inlinechoice][#1]}
+\setupinlinechoice[option={text,8},
+                   correctsymbol={\symbol{marksquarecheck}},
+                   left={ (},
+                   right={) },
+                   lefttext={},
+                   righttext={},
+                   answerstyle=\ss,
+                   showanswer=,% shoule be empty before used
+                   separator={\removeunwantedspaces,\space},
+                   stopper=,]
+
+\tolerant\protected\def\startinlinechoice[#1]{\unskip\begingroup%
+   \env_choicetrue\set_envitem_counter%
+   \iffirstargument\setupinlinechoice[#1]\fi%
+   \installitemgroupoption[choice][choice]%
+   \edef\currentanswer{\namedchoiceparameter{inlinechoice}\c!answer}%
+   \startitemgroup[env_choice][text,\namedchoiceparameter{inlinechoice}\c!option]%
+   \namedchoiceparameter{inlinechoice}\c!left
+   \namedchoiceparameter{inlinechoice}\c!style
+   \begincsname\namedchoiceparameter{inlinechoice}\c!color\endcsname}
+
+\tolerant\protected\def\starticitem[#1]#:#2\stopicitem%
+{\unskip%
+ \edef\p_ic_showanswer{\namedchoiceparameter{inlinechoice}\c!showanswer}%
+ \edef\p_q_showanswer{\questionparameter\c!showanswer}%
+ \edef\p_showanswer{\ifempty\p_ic_showanswer\p_q_showanswer\else\p_ic_showanswer\fi}%
+ \edef\p_correctanswersymbol{\namedchoiceparameter{inlinechoice}{correctsymbol}}%
+ \bgroup\ifx\p_showanswer\s!true
+   \doif{#1}{*}{%
+       \inlinechoice_correctanswertrue%
+       \namedchoiceparameter{inlinechoice}\c!answerstyle
+       \begincsname\namedchoiceparameter{inlinechoice}\c!answercolor\endcsname}%
+   \fi%
+   \ifinlinechoice_correctanswer%
+     \sym{\p_correctanswersymbol}#2\collectanswer{#2}%
+   \else\startitem#2\stopitem\fi%
+ \egroup\markcontent[punctuation]{\namedchoiceparameter{inlinechoice}\c!separator}}
+
+\def\stopinlinechoice{%
+  \removemarkedcontent[punctuation]%
+  \namedchoiceparameter{inlinechoice}\c!right
+  \edef\currentinlinechoiceanswer{\collectedanswer}%
+  \ifempty\currentinlinechoiceanswer%
+    \let\prevanswer\currentanswer%
+    \edef\currentanswer{\prevanswer}%
+  \else%
+    \edef\currentanswer{\removeunwantedspaces\collectedanswer}%
+  \fi%
+  \installdatacollector%
+  \installdatacollectorhelper%
+  \stopitemgroup\unskip%
+  \endgroup}
+
 %D \section{定义同义命令}
+
+%D \startquestion[showanswer=true]
+%D \fastchoice{a,\correct{F},{[*]E},}
+%D \stopquestion
+
+%D \startquestion[showanswer=true]
+%D \fastchoicealt{a,\correct{F},{[*]sF}}
+%D \stopquestion
 
 \def\pitem{\dosingleempty\pitem_indeed}
 \def\pitem_indeed[#1]#2{
@@ -1614,6 +1672,24 @@
 \def\citem_indeed[#1]#2{%
   \startcitem[#1]{#2}\stopcitem%
 }
+\def\icitem{\dosingleempty\icitem_indeed}
+\def\icitem_indeed[#1]#2{%
+  \starticitem[#1]{#2}\stopicitem%
+}
+
+\tolerant\protected\def\fastchoice[#1]#:#2{
+  \startchoice[#1]
+    \def\citem_temp##1{\startcitem##1\stopcitem}
+    \def\correct##1{##1\collectanswer{##1}}
+    \processcommacommand[#2]\citem_temp
+  \stopchoice}
+
+\tolerant\protected\def\fastchoicealt[#1]#:#2{
+  \startinlinechoice[#1]%
+    \def\icitem_temp##1{\starticitem##1\stopicitem}%
+    \def\correct##1{##1\collectanswer{##1}}%
+    \rawprocesscommalist[#2]\icitem_temp%
+  \stopinlinechoice}
 
 %D 谨慎使用下面的 fragilecitem，他并不安全。很有可能导致错误
 
@@ -1954,7 +2030,6 @@
 %D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
 
 \setupclose[%showanswer=false,
-            answer=\getanswerfromchoice,
             reset=true,
             %mp=,
             answerstyle=\ss,
@@ -2039,7 +2114,7 @@
   \env_closetrue\set_envitem_counter%%
   \iffirstargument\setupclose[#1]\fi%
   \edef\p_reset{\closeparameter\c!reset}
-  \ifx\p_reset\c!true%
+  \ifx\p_reset\s!true%
        \close_counter_resettrue%
   \else\close_counter_resetfalse\fi%
   \restore_question_order%
@@ -2076,7 +2151,7 @@
   \begingroup\env_closetrue\set_envitem_counter%%
   \iffirstargument\setupclose[#1]\fi%
   \edef\p_reset{\closeparameter\c!reset}%
-  \ifx\p_reset\c!true\resetcounter [itemgroup:env_question]\fi%
+  \ifx\p_reset\s!true\resetcounter [itemgroup:env_question]\fi%
   \useclosestyleandcolor\c!style\c!color%
   \startitemgroup[env_question][n,continue,text,nostopper][lefttext=\closebar,righttext=]%
   \leftskip=0pt\relax\set_count_envlevel[env_question:1][question]}
