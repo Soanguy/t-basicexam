@@ -353,21 +353,24 @@
 \newif\ifcontinue_counter \continue_counterfalse
 \newif\ifclose_counter_reset\close_counter_resetfalse
 
-\newdimen\width_cit
-\newdimen\width_cit_max
-\newdimen\choice_max_compared_width%
-\newdimen\width_max_with_label
-\newdimen\label_width
-\newcount\c_totalitemnumber% for item calculate, the result of choice will pass to current_total_choice_number
-\newcount\c_currentitemnumber% for item calculate
-\newcount\c_steppoint% for point calculate
-\newcount\c_steppoint_temp%
+\newdimen\d_width_cit
+\newdimen\d_width_cit_max
+\newdimen\d_compared_maxwidth
+\newdimen\d_maxwidth_with_label
+\newcount\c_currentitemnumber% 封裝在 inititemnumber 和 incrementitemnumber 中
+\newcount\c_totalitemnumber% 封裝在 recurseditemnumber 中
+\newcount\c_steppoint% 封裝在 install_point 命令中
+\newcount\c_steppoint_temp
+\newcount\c_stepscore
+\newcount\c_stepscore_temp
+\newcount\c_closetest
+\newcount\c_closetest_tempa
+\newcount\c_example_question
+\newcount\c_envcounter_toggle
+\newcount\c_fillin_number
 \newcount\current_total_choice_number% 當前選項 ABCD 總計數, 获取已经计算后的 totalitemnumber 
 \newcount\current_available_columns%可排版的最多列數
-\newcount\cnt_closetest
-\newcount\cnt_closetest_tempa
-\newcount\tempa\newcount\tempb
-\newcount\cnt_example_question
+\newcount\parentitemnumber% \parentitemnumber 会等于父级列表环境的序号
 
 \definecounter[Unicode][way=bychapter]
 \definecounter[Unicode_toplevel]        % for level 1 : question or problem
@@ -380,15 +383,16 @@
 \def\recurseditemnumber%%遞歸出總序號
   {\ifnum\c_totalitemnumber > \c_currentitemnumber%
          \c_totalitemnumber = \c_totalitemnumber%
-   \else \c_totalitemnumber = \numexpr\c_currentitemnumber\relax%
-   \fi}%% 這三個命令可以遞歸小題總數
+   \else \c_totalitemnumber = \numexpr\c_currentitemnumber\relax\fi}
+%% 這三個命令可以遞歸小題總數， 
+%% 他們分別封裝在 set_envcounter, set_itemcount,installdatacollectorhelper 中
 \def\save_question_order{\setcounter[strc_close_counter][\currentitemnumber]\savecounter[strc_close_counter]}
 \def\restore_question_order{\restorecounter[strc_close_counter]\scratchcounter\rawcountervalue[strc_close_counter]}
-\def\EQuestionID{E-\somenamedheadnumber{chapter}{current}-\number\cnt_example_question}
+\def\EQuestionID{E-\somenamedheadnumber{chapter}{current}-\number\c_example_question}
 \def\QuestionID{\ifmode_example\EQuestionID\else\somenamedheadnumber{chapter}{current}-\rawcountervalue[Unicode]\fi}
 \def\HelperID{\namedheadnumber{chapter}-\rawcountervalue[Unicode_toplevel]}
-\def\increaseEQuestionID{\advance\cnt_example_question by  1\relax}
-\def\decreaseEQuestionID{\advance\cnt_example_question by -1\relax}
+\def\increaseEQuestionID{\advance\c_example_question by  1\relax}
+\def\decreaseEQuestionID{\advance\c_example_question by -1\relax}
 \def\increaseQuestionID{\ifmode_example\increaseEQuestionID\else\incrementcounter[Unicode]\fi}
 \def\decreaseQuestionID{\ifmode_example\decreaseEQuestionID\else\decrementcounter[Unicode]\fi}
 
@@ -397,9 +401,9 @@
 \definedataset[Subwriting_collector]
 
 \definetextbackground[env_answer]
-\defineitemgroup     [env_question] %
+\defineitemgroup     [env_question]
+\defineitemgroup     [env_choice]
 \setupitemgroup      [env_question] [each] [n,packed,joinedup,nowhite,continue]
-\defineitemgroup     [env_choice]   %
 \setupitemgroup      [env_choice]   [each] [A,packed,joinedup,nowhite]
 \definebar           [fillin_text]
 \defineoverlay       [normalframeOL][\useMPgraphic{normalframeMP}]
@@ -461,7 +465,6 @@
 \definesymbol[markcirclecross]     [\notosymb{\rlap{○}\,\raise.1em\hbox{✗}}]
 \definesymbol[markcircleheavycross][\notosymb{\rlap{○}\,\raise.1em\hbox{✘}}]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\def\choice_answer              {\datasetvariable{Choice_collector}{\QuestionID}{answer}}
 \def\choice_answerstatus        {\datasetvariable{Choice_collector}{\QuestionID}{answerstatus}}
 \def\point_totalpoint           {\datasetvariable{Answer_collector}{\QuestionID}{totalpoint}}
 \def\currentavailablecolumns    {}
@@ -497,7 +500,7 @@
 
   function formatted_report(data)
     -- 定义格式化字符串，加入竖线作为分隔符
-    local format_str = "%15s  %-15s  %15s  %-15s"
+    local format_str = "%15s  %-20s  %15s  %-20s"
 
     report("----------------------------------------------------------------")
     center_report(lines,60)
@@ -568,13 +571,14 @@
 \def\collectanswer#1{\directlua{table.insert(MultiAnswerCollector, [[#1]])}}
 \def\collectedanswer{\directlua{tex.sprint(table.concat(MultiAnswerCollector,","))}}
 
-\newcount\c_envcounter_toggle
 \def\example_toggle[#1]% 专用于测试是否开启了 example mode
     {\doif{\csname #1parameter\endcsname{example}}{true}%
           {\mode_exampletrue\global\c_envcounter_toggle=999\relax}}
 
 \def\set_envitem_counter{%
-  \initcollectanswer% 初始化多项答案收集器
+  \ifdefined\currentenvnumber
+    \edef\prevenvnumber{\currentenvnumber}%
+  \fi\initcollectanswer% 初始化多项答案收集器
   \global\c_envcounter_toggle=1\relax% 默認就是question環境
   \ifenv_question   \global\c_envcounter_toggle=1\relax\fi
   \ifenv_problem    \global\c_envcounter_toggle=2\relax\fi
@@ -583,7 +587,8 @@
   \ifenv_close      \global\c_envcounter_toggle=5\relax\fi
   \ifenv_writing    \global\c_envcounter_toggle=6\relax\fi
   \ifenv_subwriting \global\c_envcounter_toggle=7\relax\fi
-  \ifenv_answer     \global\advance\c_envcounter_toggle by 10\relax\fi}
+  \ifenv_answer     \global\advance\c_envcounter_toggle by 10\relax\fi
+  \edef\currentenvnumber{\the\c_envcounter_toggle}}
 
 \def\level_status{\ifenv_toplevel <env_toplevel>\else%
                   \ifenv_botlevel <env_botlevel>\else%
@@ -610,57 +615,51 @@
 % 所以即便是专门测试 bot 是否开启的 3 ，
 % 也只会在关闭 top 的情况下获取正确的结果。
 
-\newcount\parentitemnumber% \parentitemnumber 会等于父级列表环境的序号
-\def\set_currentuserorder[#1]{% set order that user setted
-    \ifcsname #1order\endcsname\else%
-    \expandafter\newcount\csname #1order\endcsname\fi%
-    \ifenv_toplevel\csname #1order\endcsname=\currentitemnumber\relax
-    \else          \csname #1order\endcsname=\parentitemnumber \relax
-    \fi}%专为子级设计来获取父级序号，否则直接获取当前序号
-
 \def\current_user_order#1{% get user order which can by changed by START
     \number\csname #1order\endcsname% 獲得的結果類似於 2(4)
     \ifnum\rawcountervalue[Unicode_botlevel]=0\else%
     (\rawcountervalue[Unicode_botlevel])\fi}
 
-\tolerant\def\set_count_envlevel[#1]#*[#2]{% #1 對比頂級環境項 , #2 定義 #2order
-% 通過對比 #1 和當前環境判定是否位於頂級環境
-% #2 用於定義當前環境的 order
-  \setcounter[Unicode_midlevel][0]%
-  \setcounter[Unicode_botlevel][0]%
-  \doifincsnameelse{#1}{\currentitemgroup}%
-                  {\env_topleveltrue{}}% 如果 #1 等于当前环境设为顶级
-                  {\env_toplevelfalse{}}%
-  \ifenv_toplevel\incrementcounter[Unicode_toplevel]%
-            \else\incrementcounter[Unicode_midlevel]\fi%
-  \parentitemnumber=\currentitemnumber\relax
-  \set_currentuserorder[#2]% 创建 #2order 以备使用
+\def\set_currentuserorder[#1]{% set order that user setted
+  \ifcsname #1order\endcsname\else
+    \expandafter\newcount\csname #1order\endcsname\fi
+  \ifenv_toplevel\csname #1order\endcsname=\currentitemnumber
+            \else\csname #1order\endcsname=\parentitemnumber \fi
   \edef\currentid{\QuestionID}%
   \edef\currentorder{% get unique order ( no chapter number )
     \somenamedheadnumber{chapter}{current}-%
     \rawcountervalue[Unicode_toplevel]-%
     \rawcountervalue[Unicode_midlevel]-%
     \rawcountervalue[Unicode_botlevel]}%
-  \edef\currentuserorder{\current_user_order{#2}}%获取 上面定义的 #2order
+  \edef\currentuserorder{\current_user_order{#1}}%获取 上面定义的 #1order
+}%专为子级设计来获取父级序号，否则直接获取当前序号
+
+\tolerant\def\set_count_envlevel[#1]{% #1 定義 #2order
+% 如果 cur = prev， 說明已經有了上層環境， 判定為 中層環境，
+% 如果 prev 未被定義， 說明沒有上層環境， 判定為  上層環境
+  \setcounter[Unicode_midlevel][0]%
+  \setcounter[Unicode_botlevel][0]%
+  \ifdefined\prevenvnumber
+    \ifx\currentenvnumber\prevenvnumber
+        \env_topleveltrue \incrementcounter[Unicode_toplevel]%
+   \else\env_toplevelfalse\incrementcounter[Unicode_midlevel]\fi
+   \else\env_topleveltrue \incrementcounter[Unicode_toplevel]\fi
+  \parentitemnumber=\currentitemnumber\relax
+  \set_currentuserorder[#1]% 创建 #2order 以备使用
+  \inititemnumber%初始化子題目計數器
   \expandafter\show_check_info{\check_info}%
 }
 
-\tolerant\def\set_count_itemlevel[#1]#*[#2]{%
-  \env_toplevelfalse%
-  \doifincsnameelse{#1}{\currentitemgroup}%
-                    {\env_botleveltrue{}}%
-                    {\env_botlevelfalse{}}%
-  \ifenv_botlevel\incrementcounter[Unicode_botlevel]%
-            \else\incrementcounter[Unicode_midlevel]\fi%
-  \set_currentuserorder[#2]%
-  \ifenv_subwriting\env_botleveltrue\else\fi%
-  \edef\currentid{\QuestionID}%
-  \edef\currentorder{% get unique order ( no chapter number )
-    \somenamedheadnumber{chapter}{current}-%
-    \rawcountervalue[Unicode_toplevel]-%
-    \rawcountervalue[Unicode_midlevel]-%
-    \rawcountervalue[Unicode_botlevel]}%
-  \edef\currentuserorder{\current_user_order{#2}}%
+\tolerant\def\set_count_itemlevel[#1]{%
+  \env_toplevelfalse
+  \ifdefined\prevenvnumber
+    \ifx\currentenvnumber\prevenvnumber
+        \env_botlevelfalse\incrementcounter[Unicode_midlevel]\else
+        \env_botleveltrue \incrementcounter[Unicode_botlevel]\fi
+   \else\env_botlevelfalse\incrementcounter[Unicode_midlevel]%
+  \fi\ifenv_subwriting\env_botleveltrue\fi
+  \set_currentuserorder[#1]%
+  \incrementitemnumber%增長子題目計數器
   \expandafter\show_check_info{\check_info}%
 }
 
@@ -681,6 +680,7 @@
                  totalpoint={\datasetvariable {Answer_collectorhelper}{\HelperID}{totalpoint}},]}
 
 \protected\def\installdatacollectorhelper{%
+  \recurseditemnumber%
   \setdataset [Answer_collectorhelper][\HelperID]%收集信息並在未來展開
               [totalitemnumber={\the\c_totalitemnumber},
                totalpoint={\currenttotalpoint},
@@ -935,17 +935,15 @@
                       [#1,start=\p_start]%
   \fi%
   \setupproblem[showanswer=false,showpoint=false,]%
-  \set_count_envlevel  [env_question:1][problem]%
+  \set_count_envlevel  [problem]%
   \installpointoranswer[problem]       [point]%
   \installpointoranswer[problem]       [answer]%
-  \inititemnumber%
   \ifenv_toplevel\else%
     \decreaseQuestionID%
     \parentitemnumber=\scratchcounterone\relax% 直接获取 question 的 ID
   \fi}
 
 \def\stopproblem{%
-  \recurseditemnumber%
   \installdatacollectorhelper%
   \stopitemgroup%
   \endgroup}
@@ -1058,10 +1056,10 @@
                   [#1,start=\p_start]%
   \fi\item[\questionparameter\c!reference]%
   \increaseQuestionID% 具有獨立答案，增長 QID
-  \set_count_envlevel  [env_question:1][question]%
+  \set_count_envlevel  [question]%
   \installpointoranswer[question]      [point]%
   \installpointoranswer[question]      [answer]%
-  \inititemnumber\save_question_order}
+  \save_question_order}
 
 \def\stopquestion{%
   \ifnum\c_envcounter_toggle=1\relax
@@ -1163,8 +1161,8 @@
     \expandafter\show_check_info{\check_info}%
   \else
     \ifnum\c_envcounter_toggle = 3\relax
-    \else\def\currentitemgroup{env_choice:1}\set_count_envlevel[env_choice:1][choice]\fi%
-  \fi%
+    \else \set_count_envlevel[choice]\fi
+  \fi
   \doifelsesomething{\datasetvariable{Answer_collectorhelper}{\HelperID}{totalitemnumber}}% arg_1
      {\scratchcounter\datasetvariable{Answer_collectorhelper}{\HelperID}{totalitemnumber}}% arg_2
      {\scratchcounter\zerocount}% arg_3
@@ -1207,24 +1205,20 @@
   \processaction [\choiceparameter{showanswer}][%
                   true=>\mode_showanswertrue,
                  false=>\mode_showanswerfalse,]%
-  \inititemnumber%
   }
 
 \def\stopchoice{%
-    \width_max_with_label      = \dimexpr\width_cit_max + %
+    \d_maxwidth_with_label      = \dimexpr\d_width_cit_max + %
                                  \d_strc_itemgroups_list_width\relax%
-    \recurseditemnumber%
-    \c_totalitemnumber = \numexpr\c_totalitemnumber - 1\relax
-    \choice_max_compared_width = \choiceparameter{maxiwidth}\relax%
-    \tempa                     = \dimtonum{\choice_max_compared_width}\relax%
-    \tempb                     = \dimtonum{\the\width_max_with_label}\relax%
+    \c_currentitemnumber = \numexpr\c_currentitemnumber - 1\relax
+    \d_compared_maxwidth = \choiceparameter{maxiwidth}\relax%
     \startluacode
-      local a = tex.count['tempa']
-      local b = tex.count['tempb']
+      local a = tex.dimen['d_compared_maxwidth']
+      local b = tex.dimen['d_maxwidth_with_label']
             c = math.floor(a/b)
     \stopluacode
-%   \choice_max_compared_width 是可排版的最長寬度。
-%   tempa 和 tempb 將寬度數字化，以備比較出可排版的欄數。
+%   \d_compared_maxwidth 是可排版的最長寬度。
+%   a 和 b 將寬度數字化， 以備比較出可排版的欄數。
 %   因為取消了 choice 作為上級環境時的 \set_count_envlevel 因此，重定義 order。
 %   取消原因是 讓 choice 直接獲取 question 環境的 order。
     \edef\currentchoiceanswer{\collectedanswer}%
@@ -1235,7 +1229,7 @@
       \edef\currentanswer{\collectedanswer}%
     \fi
     \def\currentavailablecolumns{\ctxlua{context(c,"")}}%
-    \def\currentitemmaxwidth    {\the\width_cit_max}%
+    \def\currentitemmaxwidth    {\the\d_width_cit_max}%
     \edef\currentpoint{\questionparameter\c!point}%
     \edef\currenttotalpoint{\questionparameter\c!point}%
     \installdatacollector%
@@ -1320,14 +1314,11 @@
   \increaseQuestionID%
   \installpointoranswer[writing][point]%
   \installpointoranswer[writing][answer]%
-  \set_count_envlevel[env_question:1][writing]%
-  \inititemnumber%
+  \set_count_envlevel  [writing]%
   \save_question_order}
 
 \def\stopwriting{%
   \ifenv_subwriting\else%
-    \incrementitemnumber%
-    \recurseditemnumber%
     \installdatacollector%
     \installdatacollectorhelper%
   \fi\stopitemgroup\endgroup}
@@ -1350,13 +1341,15 @@
         \decreaseQuestionID\increaseQuestionID%
   \else\increaseQuestionID\fi%
   %当具有多个子写作环境时，才增长 QID ，否则削减至 父级 QID（相当于继承）
-  \set_count_itemlevel[env_question:2][subwriting]%
-  \incrementitemnumber%
+  \set_count_itemlevel [subwriting]%
   \installpointoranswer[subwriting][point]%
   \installpointoranswer[subwriting][answer]%
   \def\current_writing_answer{\subwritingparameter\c!answer}%
   \save_question_order}
-\def\stopsubwriting{\recurseditemnumber\installdatacollector\installdatacollectorhelper\stopitemgroup\endgroup}
+\def\stopsubwriting{%
+  \installdatacollector
+  \installdatacollectorhelper
+  \stopitemgroup\endgroup}
 
 %D \section{设置 answer 环境}
 %D 在(v20241023)中，删除了 answer 环境的标签通过 description 来进行设置。
@@ -1525,11 +1518,10 @@
   \iffirstargument\setuppitem[#1]\fi%
   \startitem[\pitemparameter{reference}]%
     \ifenv_question% 設計上的問題，此時 pitem 處於 botlevel，否則處於 toplevel。
-    \set_count_itemlevel [env_question:2] [pitem]\else\ifenv_problem%
-    \set_count_envlevel  [env_question:2] [pitem]\fi\fi%
+    \set_count_itemlevel [pitem]\else\ifenv_problem%
+    \set_count_envlevel  [pitem]\fi\fi%
     \installpointoranswer[pitem]          [point]%
     \installpointoranswer[pitem]          [answer]%
-    \incrementitemnumber%
   }
 
 \def\stoppitem{%
@@ -1556,10 +1548,10 @@
           #2}}%%correct choice
     \else #2\fi}
 \def\get_citem_text[#1]{\setbox0=\hbox{#1}%
-    \width_cit = \the\wd0\relax%relax is neccessary
-    \ifdim \width_cit_max > \width_cit%
-           \width_cit_max = \width_cit_max%
-    \else  \width_cit_max = \width_cit%
+    \d_width_cit = \the\wd0\relax%relax is neccessary
+    \ifdim \d_width_cit_max > \d_width_cit%
+           \d_width_cit_max = \d_width_cit_max%
+    \else  \d_width_cit_max = \d_width_cit%
     \fi}%%%% 遞歸計算出最大寬度
 
 \tolerant\protected\def\startcitem[#1]#*[#2]#:#3\stopcitem{% #1 correct answer
@@ -1568,7 +1560,7 @@
     \processaction[\choiceparameter{showanswer}][%
          true=>\mode_showanswertrue,
         false=>\mode_showanswerfalse,]%
-%    \set_count_itemlevel[env_choice:2][citem]
+%    \set_count_itemlevel[citem]
 %    没有必要计算子选项的 id，choice 环境的 id 就已经足够了。
 %    同时也已经有 totalitemnumber 来获取子选项的数量了。
     \doif{#1}{*}{\choice_checktrue}%
@@ -1763,7 +1755,6 @@
               rulethickness=.05,
               foregroundstyle=\ss,]
 
-\newcount\c_fillin_number
 \tolerant\protected\def\fillin[#1]#:#2{%
   \item_pitemfalse\item_fillintrue%
   \begingroup%
@@ -1977,7 +1968,7 @@
 %%%%%%%%%%%%%%%%
 %D \section{设置 close 环境}
 
-\cnt_closetest=1\relax
+\c_closetest=1\relax
 \tolerant\protected\def\closebar#1{
   \startbar[underbar]
     \scratchcounter\numexpr16/\plustwo\relax
@@ -2047,15 +2038,15 @@
 
 
 \def\closechoice[#1]{%定義文章內的序號。這是用戶命令，用來記錄選項(定義選項列表)
-  \expandafter\gdef\csname close:\romannumerals\cnt_closetest\endcsname{#1}%
-  % cnt_closetest 用於標記選項列表，會隨著選項題目增加，無論是否啓用重置，該計數器都會記錄並自增
+  \expandafter\gdef\csname close:\romannumerals\c_closetest\endcsname{#1}%
+  % c_closetest 用於標記選項列表，會隨著選項題目增加，無論是否啓用重置，該計數器都會記錄並自增
   % 在生成選項序列時，該計數器可以進行：(1) 是否設置了選項 (2) 遞增出選項序列
   % 該計數器屬於局域，每篇文章都會重置回 1。
   \ifclose_counter_reset%
     \begingroup%
       \switchtocolor[\closeparameter{barcolor}]%
       \closeparameter{barstyle}%
-      \closebar{\number\cnt_closetest}%
+      \closebar{\number\c_closetest}%
     \endgroup%
   \else%
     \begingroup\let\par\relax% 將其封裝在局域，避免 par 命令失效
@@ -2066,7 +2057,7 @@
       \item \save_question_order%
       \stopitemgroup%
     \endgroup%
-  \fi\advance\cnt_closetest by 1\relax}
+  \fi\advance\c_closetest by 1\relax}
 
 \def\docloseitem#1{\startcitem #1\stopcitem}
 \def\close_order{%選項前的序號樣式，序號通過 tempa 設定
@@ -2076,31 +2067,31 @@
             foreground=color,
             foregroundcolor=\closeparameter\c!color,
             foregroundstyle=\closeparameter\c!style]{%
-     \convertnumber{n}{\number\cnt_closetest_tempa}%
+     \convertnumber{n}{\number\c_closetest_tempa}%
      \closeparameter\c!stopper%
      \increaseQuestionID%
      \installpointoranswer[close][answer]}%
    \hskip\closeparameter\c!distance\relax
-   \global\advance\cnt_closetest_tempa by 1\relax
+   \global\advance\c_closetest_tempa by 1\relax
   \unskip}
 
 \def\placeclosechoice{%
-  \ifnum\cnt_closetest=1\relax
+  \ifnum\c_closetest=1\relax
         \color[red]{it seems that there is no
                     "closechoice" be setted,
                      please check it!}%
   \fi%
-  \scratchcounter\numexpr\cnt_closetest-1\relax
-  \cnt_closetest=1\relax%
-  \def\closetest_list{\csname close:\romannumerals\cnt_closetest\endcsname}%
+  \scratchcounter\numexpr\c_closetest-1\relax
+  \c_closetest=1\relax%
+  \def\closetest_list{\csname close:\romannumerals\c_closetest\endcsname}%
   \useclosestyleandcolor\c!style\c!color%
    \dorecurse{\number\scratchcounter}{% start recurse
      \hbox{% start first box
        \hsize=\textwidth%
-       \edef\currentitemnumber{\the\cnt_closetest_tempa}%
+       \edef\currentitemnumber{\the\c_closetest_tempa}%
        \edef\currentcloseuserorder{%
-         \number\cnt_closetest_tempa%放置在這裡才能正確獲取題號
-         \ifnum\rawcountervalue[Unicode_botlevel]=0\relax\else% 抽出 order 定義，
+         \number\c_closetest_tempa%放置在這裡才能正確獲取題號
+         \ifnum\rawcountervalue[Unicode_botlevel]=0\else% 抽出 order 定義，
          (\rawcountervalue[Unicode_botlevel])\fi}% 因為該環境沒有上級 question 環境
        \hbox{\close_order}% close question index  box
        \hbox{\vtop{%        close question choice box start
@@ -2108,8 +2099,8 @@
             \processcommacommand[\closetest_list]\docloseitem%
           \stopchoice}}%    close question choice box stop
      }% stop first hbox
-   \advance\cnt_closetest by 1\relax}% stop reucrse
-  \cnt_closetest=1\relax%
+   \advance\c_closetest by 1\relax}% stop reucrse
+  \c_closetest=1\relax%
 }
 
 \tolerant\protected\def\startclose[#1]{\begingroup%
@@ -2120,9 +2111,9 @@
        \close_counter_resettrue%
   \else\close_counter_resetfalse\fi%
   \restore_question_order%
-  \ifclose_counter_reset\cnt_closetest_tempa=1\relax\else%
-    \cnt_closetest_tempa=\number\scratchcounter%tempa 标记文章内的序号和选项前的序号
-    \cnt_closetest_tempa=\numexpr\cnt_closetest_tempa+1\relax
+  \ifclose_counter_reset\c_closetest_tempa=1\relax\else%
+    \c_closetest_tempa=\number\scratchcounter%tempa 标记文章内的序号和选项前的序号
+    \c_closetest_tempa=\numexpr\c_closetest_tempa+1\relax
   \fi\closeparameter\c!before%
 }
 \def\stopclose{%
@@ -2156,7 +2147,7 @@
   \ifx\p_reset\s!true\resetcounter [itemgroup:env_question]\fi%
   \useclosestyleandcolor\c!style\c!color%
   \startitemgroup[env_question][n,continue,text,nostopper][lefttext=\closebar,righttext=]%
-  \leftskip=0pt\relax\set_count_envlevel[env_question:1][question]}
+  \leftskip=0pt\relax\set_count_envlevel[question]}
 
 \def\stopoptclose{\stopitemgroup\endgroup}
 
@@ -2166,7 +2157,7 @@
     \useocitemstyleandcolor\c!style\c!color%
     \let\par\relax\increaseQuestionID%                 %%% 必須命令，自增序號以備調用
     \item \parentitemnumber=\currentitemnumber\relax
-          \set_count_itemlevel[env_question:2][ocitem]%%%% 必須命令，設定序號
+          \set_count_itemlevel[ocitem]%%%% 必須命令，設定序號
           % 注意，此时 toplevel 并没有正确的关闭，因此最终的结果依然是 toplevel。
           % 但是该环境本身就被视为 toplevel                =>  5
           % 如果该环境被视为子项目时，则需要关闭 toplevel。==> 5(1)
@@ -2187,7 +2178,7 @@
   \item \parentitemnumber=\currentitemnumber\relax
         \increaseQuestionID%
         \installpointoranswer[ocitem][point]%
-        \set_count_itemlevel[env_question:2][ocitem]%
+        \set_count_itemlevel [ocitem]%
         % 关于 toplevel 的问题参见 ocitem 的解释。
         % 是否需要设置子项目还有待考虑。
         \def\prevanswer{\ocitemparameter\c!answer}
@@ -2212,9 +2203,7 @@
 %D   score\score[type=hfill]{3}\\
 %D \stoptyping
 
-\newcount\c_stepscore
 \def\score_calc#1{% only show number
-  \newcount\c_stepscore_temp%
   \global\c_stepscore_temp=#1\relax%
   \ifnum\c_stepscore=0\global\c_stepscore=#1\relax\else%
   \global\c_stepscore=\numexpr\c_stepscore+\c_stepscore_temp\relax%
@@ -2374,11 +2363,9 @@
       \startproblem
       \dorecurse{#1}{
         \startpitem
-          \ifmode_showanswer DDD \else XXXX\fi
           \longtesttxt[\romannumeral\CNUM]\fillin[]{\fillinanswer}
         \stoppitem
         \startanswer
-              \ifmode_showanswer DDD \else XXXX\fi
               \input knuthmath
             \stopanswer
         \global\advance\CNUM by 1\relax}
