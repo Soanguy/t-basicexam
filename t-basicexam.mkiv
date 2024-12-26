@@ -290,6 +290,7 @@
 \setinterfaceconstant {pointcolor}  {pointcolor}
 \setinterfaceconstant {labelstyle}  {labelstyle}
 \setinterfaceconstant {labelcolor}  {labelcolor}
+\setinterfaceconstant {autoright}   {autoright}
 \stopinterface
 %D 安装定义命名空间和环境助手
 \installnamespace          {question}
@@ -727,72 +728,97 @@
 \def\paren#1{(#1)}
 
 \def\install_point[#1]{%
-  \ifx\currentmode\c!point%
-    \ifenv_subwriting%
-      \edef\currentpoint{\namedwritingparameter{subwriting}\c!point}%
+  \edef\p_showpoint{\csname #1parameter\endcsname{showpoint}}%
+  \ifempty\p_showpoint\else
+    \ifx\p_showpoint\s!true\mode_showpointtrue
+    \else\mode_showpointfalse
+  \fi\fi
+  \ifx\currentmode\c!point
+    \ifdefined\currentpoint\edef\prevpoint{\currentpoint}\fi
+    \edef\p_point{\csname #1parameter\endcsname\c!point}%暫時定義
+    \ifempty\p_point
+      \edef\currentpoint{\prevpoint}%
     \else%
-      \edef\currentpoint{\csname #1parameter\endcsname\c!point}%
-    \fi%
+      \ifenv_subwriting
+        \edef\currentpoint{\namedwritingparameter{subwriting}\c!point}%
+      \else
+        \edef\currentpoint{\csname #1parameter\endcsname\c!point}%
+      \fi
+    \fi
     \ifempty\currentpoint% 抓取當前分數值
-      \scratchcounter\zerocount%
-    \else%
+      \scratchcounter\zerocount
+    \else
       \scratchcounter\currentpoint%
-    \fi%
-    \ifenv_toplevel% 重置分數計算
-      \c_steppoint\scratchcounter\relax
-      \c_steppoint_temp\scratchcounter\relax
-    \fi%
+    \fi
+    \ifenv_toplevel% 重置分數計算 
+      \c_steppoint\zerocount\relax
+      \c_steppoint_temp\zerocount\relax
+    \fi
     \global\c_steppoint_temp\scratchcounter\relax
-    \ifnum\c_steppoint=\scratchcounter\relax
+    \ifnum\c_steppoint=0\relax
       \global\c_steppoint=\c_steppoint_temp\relax
     \else%
       \global\c_steppoint=\numexpr\c_steppoint+\c_steppoint_temp\relax
     \fi% 遞歸出總分數
-    \ifenv_toplevel%
+    \ifenv_toplevel% 如果有子題目， 不應當 計算 question 本身的分值, 但這似乎增加了編譯次數
+      \edef\p_totalitemnumber{\datasetvariable{Answer_collector}{\QuestionID}{totalnumber}}%
+      \doifelsesomething{\p_totalitemnumber}{\scratchcounter\p_totalitemnumber}{\scratchcounter\zerocount}%
+      \ifnum\scratchcounter>1\global\c_steppoint=\numexpr\c_steppoint-\c_steppoint_temp\relax\fi
       \gdef\currenttotalpoint{\currentpoint}%
     \else%
-      \gdef\currenttotalpoint{\the\c_steppoint}%
+      \gdef\currenttotalpoint{\the\c_steppoint}% 
     \fi%
   \fi}
 
 \def\install_answer[#1]{%
+  \edef\p_showanswer{\csname  #1parameter\endcsname\c!showanswer}%
+  \ifempty\p_showanswer\else
+    \ifx\p_showanswer\s!true
+           \mode_showanswertrue
+      \else\mode_showanswerfalse
+  \fi\fi
   \ifx\currentmode\c!answer
-    \ifdefined\currentanswer\edef\prevanswer{\currentanswer}\fi%
-    \edef\current_answer{\csname #1parameter\endcsname\c!answer}%暫時定義
-    \ifenv_subwriting%
-      \edef\current_answer{\namedwritingparameter{subwriting}\c!answer}%暫時定義
-    \fi%
-    \ifempty\current_answer%
+    \ifdefined\currentanswer\edef\prevanswer{\currentanswer}\fi
+    \edef\p_answer{\csname #1parameter\endcsname\c!answer}%暫時定義
+    \ifenv_subwriting\edef\p_answer{\namedwritingparameter{subwriting}\c!answer}\fi
+    \ifempty\p_answer
       \edef\currentanswer{\prevanswer}%
     \else%
       \edef\currentanswer{\csname #1parameter\endcsname\c!answer}%
-    \fi%
+      \ifdefined\prevanswer
+        \ifx\currentanswer\prevanswer\relax\else
+          \writestatus{question info}{%
+            \currentuserorder     : Two conflicting answers have been detected,
+                                    check and delete unnecessary answers.}%
+          \writestatus{question info}{%
+            \string\prevanswer    : \prevanswer .
+            \string\currentanswer : \currentanswer .}%
+        \fi
+      \fi
+    \fi
   \fi}
+
+\tolerant\def\show_pointoranswer_text[#1]#*[#2]{
+  \csname #1parameter\endcsname{#2style}%
+  \switchtocolor[\csname #1parameter\endcsname{#2color}]%
+  \paren {\csname #1parameter\endcsname{#2prelabel}% like=>answer : blabla
+    \ifx\currentmode\c!point% if #2 = point
+      \ifenv_toplevel\point_totalpoint%
+      \else\currentpoint\fi%
+    \else% if #2 = answer。因为 currentXXXanswer 是有定义内容的，
+      \ifmode_example You're in EXAMPLE MODE!\else%
+        \datasetvariable{Answer_collector}{\QuestionID}{answer}%
+      \fi% 直接獲取當前 QID 答案
+    \fi%
+  \csname #1parameter\endcsname{#2label}}\hairspace}
 
 \tolerant\def\installpointoranswer[#1]#*[#2]{%#1 parameter %#2 modename
 %   需要更好的逻辑进行设计答案空值的情况
   \edef\currentmode{#2}% check point or answer
-  \processaction[\csname     #1parameter\endcsname{show#2}][%
-           true=>\csname mode_show#2true\endcsname,
-          false=>\csname mode_show#2false\endcsname,]%
-  \install_point[#1]\install_answer[#1]\begingroup%%
-  \csname ifmode_show#2\endcsname%
-    \csname #1parameter\endcsname{#2style}%
-    \switchtocolor[\csname #1parameter\endcsname{#2color}]%
-    \paren {\csname #1parameter\endcsname{#2prelabel}% like=>answer : blabla
-      \ifx\currentmode\c!point% if #2 = point
-        \ifenv_toplevel\point_totalpoint%
-        \else\currentpoint\fi%
-      \else% if #2 = answer。因为 currentXXXanswer 是有定义内容的，
-        \ifempty\current_answer%
-          \ifmode_example You're in EXAMPLE MODE!\else%
-            \datasetvariable{Answer_collector}{\QuestionID}{answer}%
-          \fi% 直接獲取當前 QID 答案
-        \else
-          \currentanswer%
-        \fi% 如果非空，取設置好的答案值
-      \fi%
-  \csname #1parameter\endcsname{#2label}}\hairspace%
+  \install_point[#1]\install_answer[#1]%
+  \begingroup
+  \csname ifmode_show#2\endcsname
+    \show_pointoranswer_text[#1][#2]%
   \fi\endgroup}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -891,27 +917,17 @@
 %D     \setuppitem[showanswer=true]
 %D     \startproblem[left={(},right={)},distance=1em,stopper={}]
 %D     \startpitem 該環境位於 \fillin{env_question:1}。 \stoppitem
-%D     \startanswer
-%D     	\input knuthmath
-%D     \stopanswer
+%D     \startanswer\input knuthmath\stopanswer
 %D     \startpitem 該環境位於 \fillin[mp=rules:under:wave]{env_question:1}。 \stoppitem
-%D     \startanswer
-%D     	\input knuthmath
-%D     \stopanswer
+%D     \startanswer\input knuthmath\stopanswer
 %D     \startpitem
 %D     	該環境位於 \fillin[empty=number]{env_question:2}。
 %D     \stoppitem
-%D     \startanswer
-%D     	\input knuthmath
-%D     \stopanswer
+%D     \startanswer\input knuthmath\stopanswer
 %D     \startpitem 該環境位於 \fillin[empty=yes]{env_question:3}。 \stoppitem
-%D     \startanswer
-%D     	\input knuthmath
-%D     \stopanswer
+%D     \startanswer\input knuthmath\stopanswer
 %D     \startpitem 該環境位於 \fillin[empty=yes,left={(},right={)}]{env_question:4}。 \stoppitem
-%D     \startanswer
-%D     	\input knuthmath
-%D     \stopanswer
+%D     \startanswer\input knuthmath\stopanswer
 %D     \stopproblem
 %D \stopquestion
 %D \stopbuffer
@@ -934,14 +950,14 @@
                       [\p_conversion,#1]%
                       [#1,start=\p_start]%
   \fi%
-  \setupproblem[showanswer=false,showpoint=false,]%
   \set_count_envlevel  [problem]%
-  \installpointoranswer[problem]       [point]%
-  \installpointoranswer[problem]       [answer]%
-  \ifenv_toplevel\else%
-    \decreaseQuestionID%
+  \ifenv_toplevel
+    \installpointoranswer[problem][point]%
+    \installpointoranswer[problem][answer]%
+  \else%
+    \decreaseQuestionID
     \parentitemnumber=\scratchcounterone\relax% 直接获取 question 的 ID
-  \fi}
+  \fi\removeunwantedspaces}
 
 \def\stopproblem{%
   \installdatacollectorhelper%
@@ -1002,15 +1018,13 @@
 
 %D {\bf 關於 point 和 answer 的設定: }
 %D point 的分值默認是一整個題目的總分數。如果當前字環境為 problem，只要為每個 pitem
-%D 設計了 point 的分值，該模塊就會自動計算，並通過 \tex{getpointfrompitem}
-%D 來獲取計算後的 point。answer 的獲取也是一樣。可以通過 \tex{getanswerfromchoice} 來
-%D 獲取當前環境的選項答案。需要注意的是，並沒有設計  \tex{getanswerfrompitem}。在設計時，
+%D 設計了 point 的分值，該模塊就會自動計算。answer 的獲取也是一樣。在設計時，
 %D pitem 默認是擁有多個同級項目的。也就是說，會在同一個 question 環境中，有多個子答案。
 %D 我們無法獲知應該使用哪一個作為當前環境的答案。同樣的道理，每個 question 環境內只有一個
 %D choice 環境，只需要直接為 question 環境配置分值即可。choice 環境並不能配置分數。
 
 \setupquestion [%showpoint=false,
-                point=0,
+                %point=,
                 pointstyle=\ttx,
                 %pointcolor=,
                 %pointprelabel=,
@@ -1026,7 +1040,7 @@
                 right={},
                 stopper={.~},
                 distance=0em,
-                option={packed,joinedup,nowhite},
+                option={packed,joinedup,nowhite,continue},
                 %before=,
                 %after=,
                 width=1.5em,
@@ -1038,7 +1052,6 @@
                 way=bychapter,%wont work if continue on
                 numberconversion=tnum,]
 
-
 \tolerant\protected\def\startquestion[#1]%
  {\begingroup\env_questiontrue\set_envitem_counter%%
   \iffirstargument\setupquestion[#1]\fi%
@@ -1048,7 +1061,7 @@
   \edef\p_conversion{\questionparameter\c!numberconversion}%
   \ifempty\p_start% 避免 continue 和 start 属性冲突
     \startitemgroup[env_question]%
-                  [\p_conversion,continue,#1]%
+                  [\p_conversion,#1]%
                   [#1]%
   \else
     \startitemgroup[env_question]%
@@ -1057,9 +1070,9 @@
   \fi\item[\questionparameter\c!reference]%
   \increaseQuestionID% 具有獨立答案，增長 QID
   \set_count_envlevel  [question]%
-  \installpointoranswer[question]      [point]%
-  \installpointoranswer[question]      [answer]%
-  \save_question_order}
+  \installpointoranswer[question][point]%
+  \installpointoranswer[question][answer]%
+  \save_question_order\removeunwantedspaces}
 
 \def\stopquestion{%
   \ifnum\c_envcounter_toggle=1\relax
@@ -1205,7 +1218,7 @@
   \processaction [\choiceparameter{showanswer}][%
                   true=>\mode_showanswertrue,
                  false=>\mode_showanswerfalse,]%
-  }
+  \removeunwantedspaces}
 
 \def\stopchoice{%
     \d_maxwidth_with_label      = \dimexpr\d_width_cit_max + %
@@ -1315,7 +1328,7 @@
   \installpointoranswer[writing][point]%
   \installpointoranswer[writing][answer]%
   \set_count_envlevel  [writing]%
-  \save_question_order}
+  \save_question_order\removeunwantedspaces}
 
 \def\stopwriting{%
   \ifenv_subwriting\else%
@@ -1345,7 +1358,7 @@
   \installpointoranswer[subwriting][point]%
   \installpointoranswer[subwriting][answer]%
   \def\current_writing_answer{\subwritingparameter\c!answer}%
-  \save_question_order}
+  \save_question_order\removeunwantedspaces}
 \def\stopsubwriting{%
   \installdatacollector
   \installdatacollectorhelper
@@ -1502,12 +1515,12 @@
 %D 請注意，不要同時為單個 pitem 或者 fillin 命令同時設置答案，
 %D 這可能會引起答案無法正確獲取。
 
-\setuppitem    [%showpoint=false,
-                point=0,% 必須有預設值，否則出現計數器錯誤(missing number)
+\setuppitem    [%showpoint=,
+                %point=,
                 pointstyle=\ttx,
                 %pointcolor=,
                 pointlabel={分},
-                %showanswer=false,
+                %showanswer=,
                 %answer=,
                 answerstyle=\ss,
                 answercolor=red,
@@ -1520,15 +1533,12 @@
     \ifenv_question% 設計上的問題，此時 pitem 處於 botlevel，否則處於 toplevel。
     \set_count_itemlevel [pitem]\else\ifenv_problem%
     \set_count_envlevel  [pitem]\fi\fi%
-    \installpointoranswer[pitem]          [point]%
-    \installpointoranswer[pitem]          [answer]%
-  }
+    \installpointoranswer[pitem][point]%
+    \installpointoranswer[pitem][answer]%
+  \removeunwantedspaces}
 
 \def\stoppitem{%
-  \ifitem_fillin%
-    \edef\currentfillinanswer{\collectedanswer}
-    \ifempty\currentfillinanswer\relax\else%
-      \edef\currentanswer{\collectedanswer}\fi\fi%
+  \ifitem_fillin\edef\currentanswer{\collectedanswer}\fi
   \installdatacollector%
   \installdatacollectorhelper%
   \initcollectanswer% 清空收集 fillin 的答案
@@ -1555,29 +1565,29 @@
     \fi}%%%% 遞歸計算出最大寬度
 
 \tolerant\protected\def\startcitem[#1]#*[#2]#:#3\stopcitem{% #1 correct answer
-    \ifsecondargument\setupcitem[#2]\fi%                     #2 options
-    \get_citem_text[#3]%                                     #3 choice content
-    \processaction[\choiceparameter{showanswer}][%
-         true=>\mode_showanswertrue,
-        false=>\mode_showanswerfalse,]%
+  \ifsecondargument\setupcitem[#2]\fi%                     #2 options
+  \get_citem_text[#3]%                                     #3 choice content
+  \processaction[\choiceparameter{showanswer}][%
+        true=>\mode_showanswertrue,
+      false=>\mode_showanswerfalse,]%
 %    \set_count_itemlevel[citem]
 %    没有必要计算子选项的 id，choice 环境的 id 就已经足够了。
 %    同时也已经有 totalitemnumber 来获取子选项的数量了。
-    \doif{#1}{*}{\choice_checktrue}%
-    \ifnum\c_currentitemnumber < 1\relax
-          \c_currentitemnumber = 1\relax\fi%
-    \startitem[\citemparameter\c!reference]
-    \ifconditional\c_strc_itemgroups_horizontal% mode_horizontal
-      \doifelse{#1}{*}{\correct_choice{#1}{#3}}{#3}%
-    \else%
-      \doifelse{#1}{*}{\correct_choice{#1}{#3}}{#3}%
-    \fi%
-    \stopitem%
-    \doif{#1}{*}{\collectanswer{\convertnumber%
-                {\choiceparameter{numberconversion}}%
-                {\c_currentitemnumber}}}%
-    \incrementitemnumber% 必须放置在外部，才能正常获取答案序号  
-}
+  \doif{#1}{*}{\choice_checktrue}%
+  \ifnum\c_currentitemnumber < 1\relax
+        \c_currentitemnumber = 1\relax\fi%
+  \startitem[\citemparameter\c!reference]
+  \ifconditional\c_strc_itemgroups_horizontal% mode_horizontal
+    \doifelse{#1}{*}{\correct_choice{#1}{#3}}{#3}%
+  \else%
+    \doifelse{#1}{*}{\correct_choice{#1}{#3}}{#3}%
+  \fi%
+  \stopitem%
+  \doif{#1}{*}{\collectanswer{\convertnumber%
+              {\choiceparameter{numberconversion}}%
+              {\c_currentitemnumber}}}%
+  \incrementitemnumber% 必须放置在外部，才能正常获取答案序号  
+  \removeunwantedspaces}
 
 %D \startquestion[showanswer=true]
 %D kk\startinlinechoice[answer=GE]
@@ -1617,7 +1627,8 @@
    \startitemgroup[env_choice][text,\namedchoiceparameter{inlinechoice}\c!option]%
    \namedchoiceparameter{inlinechoice}\c!left
    \namedchoiceparameter{inlinechoice}\c!style
-   \begincsname\namedchoiceparameter{inlinechoice}\c!color\endcsname}
+   \begincsname\namedchoiceparameter{inlinechoice}\c!color\endcsname
+   \removeunwantedspaces}
 
 \tolerant\protected\def\starticitem[#1]#:#2\stopicitem%
 {\unskip%
@@ -1710,7 +1721,7 @@
 %D fillin 命令主要依靠 bar 命令實現的。基本上按照修改 bar 命令即可修改 fillin 命令。
 %D fillin 命令有兩個參考 textnote 的參數： empty 和 n。
 %D empty=yes，隱藏答案；empty=number 顯示數字； empty=none 顯示答案。
-%D n=* 隱藏答案； n=NUMBER 控制 bar 的長度。
+%D n=* 隱藏答案,長度為答案長度； n=NUMBER 控制 bar 的長度。
 
 %D bar 主要有四種樣式，可以通過 mp 參數進行設置：
 %D rules:under:dots    %rules:under:random
@@ -1718,24 +1729,6 @@
 
 %D 新增一个 align=autoright 来让 fillin 对齐右方。但必须同时设置 n=0 才会正常工作。
 
-\setupbar[fillin_text]
-         [ rulethickness=\fillinparameter{rulethickness},
-         foregroundcolor=\fillinparameter{foregroundcolor},
-         foregroundstyle=\fillinparameter{foregroundstyle},
-                continue=\fillinparameter{continue},
-                    unit=\fillinparameter{unit},
-                   order=\fillinparameter{order},
-                  method=\fillinparameter{method},
-                      dy=\fillinparameter{dy},
-                     max=\fillinparameter{max},
-                   width=\fillinparameter{width},
-                    left=\fillinparameter{left},
-                   right=\fillinparameter{right},
-                  repeat=\fillinparameter{repeat},
-                   color=\fillinparameter{color},
-                  offset=\fillinparameter{offset},
-                   empty=\fillinparameter{empty},
-                      mp=\fillinparameter{mp}]
 \setupfillin[%foregroundcolor=,
              %before=,after=,
              %left=,right=,
@@ -1756,44 +1749,57 @@
               foregroundstyle=\ss,]
 
 \tolerant\protected\def\fillin[#1]#:#2{%
-  \item_pitemfalse\item_fillintrue%
-  \begingroup%
-  \iffirstargument\setupfillin[#1]\fi%
-  \removeunwantedspaces%
+  \item_pitemfalse\item_fillintrue
+  \begingroup\removeunwantedspaces
+  \iffirstargument\setupfillin[#1]\fi
+  \setupbar[fillin_text][%
+           rulethickness=\fillinparameter{rulethickness},
+         foregroundcolor=\fillinparameter{foregroundcolor},
+         foregroundstyle=\fillinparameter{foregroundstyle},
+                continue=\fillinparameter{continue},
+                    unit=\fillinparameter{unit},
+                   order=\fillinparameter{order},
+                  method=\fillinparameter{method},
+                      dy=\fillinparameter{dy},
+                     max=\fillinparameter{max},
+                   width=\fillinparameter{width},
+                    left=\fillinparameter{left},
+                   right=\fillinparameter{right},
+                  repeat=\fillinparameter{repeat},
+                   color=\fillinparameter{color},
+                  offset=\fillinparameter{offset},
+                   empty=\fillinparameter{empty},
+                      mp=\fillinparameter{mp}]%
   \global\advance\c_fillin_number by 1\relax
   \edef\p_n{\fillinparameter\c!n}%
   \edef\p_empty{\fillinparameter\c!empty}%
   \edef\p_number{\number\c_fillin_number}%
+  \edef\p_align{\fillinparameter\c!align}%
   \edef\currentbar{\fillinparameter\c!rule}%
-  \edef\fillin_align{\fillinparameter\c!align}
-  \ifmode_showanswer\setupfillin[empty=none]%
-  \else\setupfillin[empty=yes]\fi
-  \doifelse{\fillin_align}{autoright}%
-           {\unskip\nobreak\hfill\penalty20\hskip2em\hbox{}\nobreak\hfill}{\relax}%
-  \fillinparameter\c!before\fillinparameter\c!left%
+  \ifx\p_align\c!autoright
+    \unskip\nobreak\hfill\penalty50\hskip2em\hbox{}\nobreak\hfill\fi
+  \fillinparameter\c!before\fillinparameter\c!left
   \ifx\p_n\wildcardsymbol
      \donefalse
-     \ifx\p_empty\v!yes
-       \donetrue
-     \else\ifx\p_empty\v!number
-       \donetrue
-     \else\ifx\p_empty\v!none
-       \donetrue
+     \ifx\p_empty\v!yes\donetrue
+     \else\ifx\p_empty\v!number\donetrue
+     \else\ifx\p_empty\v!none\donetrue
      \fi\fi\fi
      \ifdone
-       \setupbar[\currentbar][\c!empty=\v!yes]%
-     \fi%
+      \ifmode_showanswer
+        \setupfillin[empty=none]%
+      \else
+        \setupbar[\currentbar][\c!empty=\v!yes]%
+      \fi
+      \edef\p_empty{\fillinparameter\c!empty}%
+    \fi
      \inlinebar[\currentbar]\bgroup
-       \wordboundary#2%
-       \ifx\p_empty\v!yes
-       \else\ifx\p_empty\v!number
-       \else\ifx\p_empty\v!none
-       \fi\fi\fi
-     \egroup
+        \wordboundary#2\egroup
    \else
-      \inlinebar[\currentbar]\bgroup
-      \wordboundary
-      \scratchcounter\numexpr\p_n\relax
+    \ifmode_showanswer\setupfillin[empty=none]\fi
+    \edef\p_empty{\fillinparameter\c!empty}%
+    \inlinebar[\currentbar]\bgroup
+      \wordboundary\scratchcounter\numexpr\p_n\relax
       \ifx\p_empty\v!yes
         \interwordspacesbefore\scratchcounter
         \interwordspacesafter\scratchcounter
@@ -1804,22 +1810,15 @@
       \else\ifx\p_empty\v!none
         \scratchcounter\numexpr\p_n/\plustwo\relax
         \interwordspacesbefore\scratchcounter
-        \zwnj\runninghbox{\resetbar{#2}}\zwnj
+        \zwnj{{#2}}\zwnj
         \interwordspacesafter\scratchcounter
-      \else
-        #2%
-      \fi\fi\fi%
-    \egroup%
-   \fi%
-  \fillinparameter\c!right\fillinparameter\c!after%
-  \doifelse{\fillin_align}{autoright}%
-           {\parfillskip=0pt \finalhyphendemerits=0 \par}{}%
-  \endgroup% 因為答案被保存在組內，必須提取出來
-  \edef\currentfillinanswer{#2}% 如果 fillin 为空，而 pitem 含有含有答案，
-  \ifempty\currentfillinanswer\else% 应当使用 pitem 而非 fillin
-    \collectanswer{#2}
-    \edef\currentanswer{#2}%
-  \fi}
+      \else#2\fi\fi\fi
+    \egroup
+   \fi
+  \fillinparameter\c!right\fillinparameter\c!after
+  \ifx\p_align\c!autoright
+    \parfillskip=0pt \finalhyphendemerits=0 \par\fi
+  \endgroup\edef\currentanswer{\collectanswer{#2}#2}}
 
 %D \section{設置 material 環境}
 %D 顧名思義，\tex{material} 環境用來放置大段文本材料。
@@ -1906,28 +1905,28 @@
     \par\endgroup}}
 
 \tolerant\protected\def\startmaterial[#1]{\begingroup%
-    \lettonothing\currentmaterial%%
-    \edef\p_indicator{\rootmaterialparameter\c!indicator}
-    \edef\p_reset{\namedmaterialparameter{indicator}\c!reset}
-    \processaction[\p_indicator][
-      reset=>\let\indicator_reset_helper\resetindicators,
-    continue=>\continue_countertrue\let\indicator_reset_helper\relax,]
-    \processaction[\p_reset][
-      true=>\let\indicator_reset_helper\resetindicators,
-     false=>\continue_countertrue\let\indicator_reset_helper\relax,]
+  \lettonothing\currentmaterial%%
+  \edef\p_indicator{\rootmaterialparameter\c!indicator}
+  \edef\p_reset{\namedmaterialparameter{indicator}\c!reset}
+  \processaction[\p_indicator][
+    reset=>\let\indicator_reset_helper\resetindicators,
+  continue=>\continue_countertrue\let\indicator_reset_helper\relax,]
+  \processaction[\p_reset][
+    true=>\let\indicator_reset_helper\resetindicators,
+    false=>\continue_countertrue\let\indicator_reset_helper\relax,]
   \env_materialtrue\set_envitem_counter%
   \iffirstargument\setupcurrentmaterial[#1]\fi
   \indicator_reset_helper
   \usematerialstyleandcolor\c!style\c!color%
-    \blank[\rootmaterialparameter\c!spacebefore]
-    \startalignment[\rootmaterialparameter\c!align]
-        \material_counter_parameter\c!number
-        \material_parameter\c!title
-        \material_parameter\c!author
-    \stopalignment
-    \blank[\rootmaterialparameter\c!spaceafter]
-    \setupindenting[\rootmaterialparameter{indent}]
-}
+  \blank[\rootmaterialparameter\c!spacebefore]
+  \startalignment[\rootmaterialparameter\c!align]
+      \material_counter_parameter\c!number
+      \material_parameter\c!title
+      \material_parameter\c!author
+  \stopalignment
+  \blank[\rootmaterialparameter\c!spaceafter]
+  \setupindenting[\rootmaterialparameter{indent}]
+  \removeunwantedspaces}
 \def\stopmaterial{%
     \material_parameter\c!source
     \indicator_reset_helper
@@ -1961,8 +1960,16 @@
     #2}
 \endgroup}
 
-\def\indicators{\convertedcounter[indicator]%%% TODO 增強該命令的用法
-                \incrementcounter[indicator]}
+\def\indicators{%%% TODO 增強該命令的用法
+  \ifenv_material
+    \ifmode_check\color[red]{::indicator}\fi
+    \incrementcounter[indicator]%
+    \convertedcounter[indicator]%
+  \else
+    \ifmode_check\color[red]{::helper}\fi
+    \incrementcounter[indicator_helper]%
+    \convertedcounter[indicator_helper]%
+  \fi}
 \def\resetindicators{\setcounter[indicator][0]%
                      \setcounter[indicator_helper] [0]}
 %%%%%%%%%%%%%%%%
@@ -2035,7 +2042,6 @@
             stopper=.,% set order stopper
             distance=.5em,% set order distance
             after=\blank[halfline]]
-
 
 \def\closechoice[#1]{%定義文章內的序號。這是用戶命令，用來記錄選項(定義選項列表)
   \expandafter\gdef\csname close:\romannumerals\c_closetest\endcsname{#1}%
@@ -2114,8 +2120,8 @@
   \ifclose_counter_reset\c_closetest_tempa=1\relax\else%
     \c_closetest_tempa=\number\scratchcounter%tempa 标记文章内的序号和选项前的序号
     \c_closetest_tempa=\numexpr\c_closetest_tempa+1\relax
-  \fi\closeparameter\c!before%
-}
+  \fi\closeparameter\c!before\removeunwantedspaces}
+
 \def\stopclose{%
   \closeparameter\c!after%
   \placeclosechoice%
@@ -2147,7 +2153,8 @@
   \ifx\p_reset\s!true\resetcounter [itemgroup:env_question]\fi%
   \useclosestyleandcolor\c!style\c!color%
   \startitemgroup[env_question][n,continue,text,nostopper][lefttext=\closebar,righttext=]%
-  \leftskip=0pt\relax\set_count_envlevel[question]}
+  \leftskip=0pt\relax\set_count_envlevel[question]%
+  \removeunwantedspaces}
 
 \def\stopoptclose{\stopitemgroup\endgroup}
 
@@ -2549,24 +2556,24 @@
 \startmode[teacher]
   \mode_showanswertrue
   \mode_showpointtrue
-  \setupquestion[showanswer=true,showpoint=true]
-  \setupchoice  [showanswer=true,showpoint=true]
-  \setupcitem   [showanswer=true,showpoint=true]
-  \setuppitem   [showanswer=true,showpoint=true]
-  \setupclose   [showanswer=true,showpoint=true]
-  \setupocitem  [showanswer=true,showpoint=true]
-  \setupanswer  [showanswer=true,showpoint=true,showscript=false]
+  % \setupquestion[showanswer=true,showpoint=true]
+  % \setupchoice  [showanswer=true,showpoint=true]
+  % \setupcitem   [showanswer=true,showpoint=true]
+  % \setuppitem   [showanswer=true,showpoint=true]
+  % \setupclose   [showanswer=true,showpoint=true]
+  % \setupocitem  [showanswer=true,showpoint=true]
+  % \setupanswer  [showanswer=true,showpoint=true,showscript=false]
 \stopmode
 \startmode[student]
   \mode_showanswerfalse
   \mode_showpointfalse
-  \setupquestion[showanswer=false,showpoint=true]
-  \setupchoice  [showanswer=false,showpoint=true]
-  \setupcitem   [showanswer=false,showpoint=true]
-  \setuppitem   [showanswer=false,showpoint=true]
-  \setupclose   [showanswer=false,showpoint=true]
-  \setupocitem  [showanswer=false,showpoint=true]
-  \setupanswer  [showanswer=false,showpoint=true,showscript=false]
+  % \setupquestion[showanswer=false,showpoint=true]
+  % \setupchoice  [showanswer=false,showpoint=true]
+  % \setupcitem   [showanswer=false,showpoint=true]
+  % \setuppitem   [showanswer=false,showpoint=true]
+  % \setupclose   [showanswer=false,showpoint=true]
+  % \setupocitem  [showanswer=false,showpoint=true]
+  % \setupanswer  [showanswer=false,showpoint=true,showscript=false]
 \stopmode
 \startmode[check]
   \mode_checktrue
