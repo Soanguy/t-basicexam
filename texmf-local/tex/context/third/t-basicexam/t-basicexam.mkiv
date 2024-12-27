@@ -580,7 +580,7 @@
   \ifdefined\currentenvnumber
     \edef\prevenvnumber{\currentenvnumber}%
   \fi\initcollectanswer% 初始化多项答案收集器
-  \global\c_envcounter_toggle=1\relax% 默認就是question環境
+  \global\c_envcounter_toggle=0\relax%
   \ifenv_question   \global\c_envcounter_toggle=1\relax\fi
   \ifenv_problem    \global\c_envcounter_toggle=2\relax\fi
   \ifenv_choice     \global\c_envcounter_toggle=3\relax\fi
@@ -719,6 +719,7 @@
       \datasetvariable{Answer_collector}{\QuestionID}{answer}%若是，直接获取 writing 环境的
     \else\current_writing_answer\fi%answer 键值，若否，则按照 QID 获取答案。
   \else\datasetvariable{Answer_collector}{\QuestionID}{answer}\fi}
+
 \def\getpointforanswer{% used for answer env to auto get point
   \datasetvariable{Answer_collector}{\QuestionID}{point}}
 
@@ -737,7 +738,9 @@
     \ifdefined\currentpoint\edef\prevpoint{\currentpoint}\fi
     \edef\p_point{\csname #1parameter\endcsname\c!point}%暫時定義
     \ifempty\p_point
-      \edef\currentpoint{\prevpoint}%
+      \ifenv_toplevel% 當處於頂層時， 由於 prev 也未定義， 會拋出錯誤
+      \edef\currentpoint{0}\else% 因此， 直接賦值未 0
+      \edef\currentpoint{\prevpoint}\fi
     \else%
       \ifenv_subwriting
         \edef\currentpoint{\namedwritingparameter{subwriting}\c!point}%
@@ -763,12 +766,15 @@
     \ifenv_toplevel% 如果有子題目， 不應當 計算 question 本身的分值, 但這似乎增加了編譯次數
       \edef\p_totalitemnumber{\datasetvariable{Answer_collector}{\QuestionID}{totalnumber}}%
       \doifelsesomething{\p_totalitemnumber}{\scratchcounter\p_totalitemnumber}{\scratchcounter\zerocount}%
+      \writestatus{question info}{currentsteppoint is \the\c_steppoint :: \the\c_steppoint_temp}%
+      % 不知道為什麼， 但增加輸出 steppoint 可以獲取正確的最終計數。
       \ifnum\scratchcounter>1\global\c_steppoint=\numexpr\c_steppoint-\c_steppoint_temp\relax\fi
-      \gdef\currenttotalpoint{\currentpoint}%
+      \xdef\currenttotalpoint{\currentpoint}%
     \else%
       \gdef\currenttotalpoint{\the\c_steppoint}% 
     \fi%
-  \fi}
+  \fi
+}
 
 \def\install_answer[#1]{%
   \edef\p_showanswer{\csname  #1parameter\endcsname\c!showanswer}%
@@ -815,7 +821,8 @@
 \tolerant\def\installpointoranswer[#1]#*[#2]{%#1 parameter %#2 modename
 %   需要更好的逻辑进行设计答案空值的情况
   \edef\currentmode{#2}% check point or answer
-  \install_point[#1]\install_answer[#1]%
+  \install_point[#1]%
+  \install_answer[#1]%
   \begingroup
   \csname ifmode_show#2\endcsname
     \show_pointoranswer_text[#1][#2]%
@@ -952,8 +959,6 @@
   \fi%
   \set_count_envlevel  [problem]%
   \ifenv_toplevel
-    \installpointoranswer[problem][point]%
-    \installpointoranswer[problem][answer]%
   \else%
     \decreaseQuestionID
     \parentitemnumber=\scratchcounterone\relax% 直接获取 question 的 ID
@@ -1040,7 +1045,7 @@
                 right={},
                 stopper={.~},
                 distance=0em,
-                option={packed,joinedup,nowhite,continue},
+                option={packed,joinedup,nowhite},
                 %before=,
                 %after=,
                 width=1.5em,
@@ -1061,7 +1066,7 @@
   \edef\p_conversion{\questionparameter\c!numberconversion}%
   \ifempty\p_start% 避免 continue 和 start 属性冲突
     \startitemgroup[env_question]%
-                  [\p_conversion,#1]%
+                  [\p_conversion,continue,#1]%
                   [#1]%
   \else
     \startitemgroup[env_question]%
