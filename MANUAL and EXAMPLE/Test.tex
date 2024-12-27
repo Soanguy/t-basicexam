@@ -1,0 +1,296 @@
+\usemodule[basicexam]%[mode=teacher]
+%\usemodule[basicexam][mode={teacher,check}]
+\starttext
+\section{Choice}
+
+\setupquestion[pointlabel={points},answerprelabel=answer:,]
+\setupproblem[left=(,right=),stopper=,width=\widthofstring{(00)}]
+\setupanswer[label={Answer},pointlabel={points},
+             scriptcontent={\centerline{\lightgray\ss WRITE YOUR ANSWER HERE.}\par\null\vskip2\baselineskip\relax}]
+
+\startbuffer[L-1]
+\startcitem Lorem ipsum\stopcitem
+\stopbuffer
+\startbuffer[L-2]
+\startcitem dolor sit amet\stopcitem
+\stopbuffer
+\startbuffer[L-3]
+\startcitem[*] Lorem ipsum\stopcitem
+\stopbuffer
+\startbuffer[L-4]
+\startcitem dolor sit amet\stopcitem
+\stopbuffer
+
+\startbuffer[AL-1]
+\starticitem Lorem ipsum\stopicitem
+\stopbuffer
+\startbuffer[AL-2]
+\starticitem dolor sit amet\stopicitem
+\stopbuffer
+\startbuffer[AL-3]
+\starticitem[*] Lorem ipsum\stopicitem
+\stopbuffer
+\startbuffer[AL-4]
+\starticitem dolor sit amet\stopicitem
+\stopbuffer
+
+\startbuffer[answer]
+\unprotect
+\ifmode_showanswer
+  \setupanswer[showanswer=true]
+\else
+  \setupanswer[showscript=true,showanswer=false]
+\fi
+\protect
+\startanswer
+ Here is answer.
+\stopanswer
+\stopbuffer
+
+\setupquestion[showanswer=false,point=2,showpoint=false]
+
+\startquestion
+  Lorem ipsum dolor sit amet,\fillin{K}
+  \startchoice
+    \getbuffer[L-1]\getbuffer[L-2]\getbuffer[L-3]\getbuffer[L-4]
+  \stopchoice
+  \getbuffer[answer]
+\stopquestion
+
+\startquestion
+  Lorem ipsum dolor sit amet,
+  \startchoice
+    \getbuffer[L-3]\getbuffer[L-2]\getbuffer[L-3]\getbuffer[L-4]
+  \stopchoice
+  \getbuffer[answer]
+\stopquestion
+
+\startquestion
+  Lorem ipsum dolor sit amet,
+  \fastchoice{Lorem ipsum,{[*]Lorem ipsum},Lorem ipsum,Lorem ipsum}
+  \getbuffer[answer]
+\stopquestion
+
+\startquestion
+  Lorem ipsum dolor sit amet,
+  \fastchoice{Lorem ipsum,{[*]Lorem ipsum},Lorem ipsum,Lorem ipsum}
+  \getbuffer[answer]
+\stopquestion
+
+\startquestion
+  Lorem ipsum dolor sit amet,
+  \startinlinechoice
+    \getbuffer[AL-1]\getbuffer[AL-2]\getbuffer[AL-3]\getbuffer[AL-4]
+  \stopinlinechoice
+  \getbuffer[answer]
+\stopquestion
+
+\startquestion[showanswer=false,point=2,showpoint=false]
+  Lorem ipsum dolor sit amet,
+  \fastchoicealt{Lorem ipsum,{[*]Lorem ipsum},Lorem ipsum,Lorem ipsum}
+  \getbuffer[answer]
+\stopquestion
+
+\startquestion
+  Lorem ipsum dolor sit amet,
+  \fastchoicealt{Lorem ipsum,{[*]Lorem ipsum},Lorem ipsum,Lorem ipsum}
+  \getbuffer[answer]
+\stopquestion
+
+\setupquestion[showanswer=true,point=2,showpoint=true]
+
+\startquestion
+  Lorem ipsum dolor sit amet,\fillin{K}
+  \startchoice
+    \getbuffer[L-1]\getbuffer[L-2]\getbuffer[L-3]\getbuffer[L-4]
+  \stopchoice
+  \getbuffer[answer]
+\stopquestion
+
+\startquestion
+  Lorem ipsum dolor sit amet,
+  \startchoice
+    \getbuffer[L-3]\getbuffer[L-2]\getbuffer[L-3]\getbuffer[L-4]
+  \stopchoice
+  \getbuffer[answer]
+\stopquestion
+
+\startquestion
+  Lorem ipsum dolor sit amet,
+  \fastchoice{Lorem ipsum,{[*]Lorem ipsum},Lorem ipsum,Lorem ipsum}
+  \getbuffer[answer]
+\stopquestion
+
+\startquestion
+  Lorem ipsum dolor sit amet,
+  \fastchoice{Lorem ipsum,{[*]Lorem ipsum},Lorem ipsum,Lorem ipsum}
+  \getbuffer[answer]
+\stopquestion
+
+\startquestion
+  Lorem ipsum dolor sit amet,
+  \startinlinechoice
+    \getbuffer[AL-1]\getbuffer[AL-2]\getbuffer[AL-3]\getbuffer[AL-4]
+  \stopinlinechoice
+  \getbuffer[answer]
+\stopquestion
+
+\startquestion
+  Lorem ipsum dolor sit amet,
+  \fastchoicealt{Lorem ipsum,{[*]Lorem ipsum},Lorem ipsum,Lorem ipsum}
+  \getbuffer[answer]
+\stopquestion
+
+\startquestion
+  Lorem ipsum dolor sit amet,
+  \fastchoicealt{Lorem ipsum,{[*]Lorem ipsum},Lorem ipsum,Lorem ipsum}
+  \getbuffer[answer]
+\stopquestion
+
+\section{Problem}
+
+\startbuffer
+\startpitem[answer={ccc,will be replace}]
+   Lorem ipsum dolor sit amet,
+   \fillin{Lorem ipsum,the real answer}
+\stoppitem
+\getbuffer[answer]
+\stopbuffer
+
+\setupquestion[answer=cxxx,showanswer=false,point=2,showpoint=false]
+
+\startquestion
+  Lorem ipsum dolor sit amet,
+  \startproblem
+    {\setupfillin[empty=number, n=10]\getbuffer}
+    {\setupfillin[empty=yes,    n=10]\getbuffer}
+    {\setupfillin[empty=none,   n=10]\getbuffer}
+    {\setupfillin[empty=number, n=*]\getbuffer} 
+    {\setupfillin[empty=yes,    n=*]\getbuffer}
+    {\setupfillin[empty=none,   n=*]\getbuffer}
+    {\setupfillin[empty=number, align=autoright,n=10]\getbuffer}
+    {\setupfillin[empty=yes,    align=autoright,n=10]\getbuffer}
+    {\setupfillin[empty=none,   align=autoright,n=10]\getbuffer}
+    {\setupfillin[empty=number, align=autoright,n=*]\getbuffer}
+    {\setupfillin[empty=yes,    align=autoright,n=*]\getbuffer}
+    {\setupfillin[empty=none,   align=autoright,n=*]\getbuffer}
+  \stopproblem
+\stopquestion
+
+\setupquestion[answer=cxxx,showanswer=true,point=2,showpoint=true]
+
+\startquestion
+  Lorem ipsum dolor sit amet,
+  \startproblem
+    \startpitem[answer={ccc,will be replace},point=5]
+               Lorem ipsum dolor sit amet,
+               \fillin{Lorem ipsum,the real answer 1}
+               \fillin{Lorem ipsum,the real answer 2}\stoppitem
+    {\setupfillin[empty=number, n=10]\getbuffer}
+    {\setupfillin[empty=yes,    n=10]\getbuffer}
+    {\setupfillin[empty=none,   n=10]\getbuffer}
+    {\setupfillin[empty=number, n=*]\getbuffer} 
+    {\setupfillin[empty=yes,    n=*]\getbuffer}
+    {\setupfillin[empty=none,   n=*]\getbuffer}
+    {\setupfillin[empty=number, align=autoright,n=10]\getbuffer}
+    {\setupfillin[empty=yes,    align=autoright,n=10]\getbuffer}
+    {\setupfillin[empty=none,   align=autoright,n=10]\getbuffer}
+    {\setupfillin[empty=number, align=autoright,n=*]\getbuffer}
+    {\setupfillin[empty=yes,    align=autoright,n=*]\getbuffer}
+    {\setupfillin[empty=none,   align=autoright,n=*]\getbuffer}
+  \stopproblem
+\stopquestion
+
+\section{Material}
+
+\setupquestion[answer=]
+
+\setupmaterial[title][color=green]
+\setupmaterial[author][color=gray]
+\setupmaterial[source][color=red]
+\setupmaterial[number][numberconversion=I]
+\setupmaterial[indicator][numberconversion=A]
+\startmaterial[title={Knuth 1},author={Mos},source={Yelu}]
+\input knuth\relax\indicator{Some Texts 1} \indicator{Some Texts 2} 
+\stopmaterial
+\startquestion
+  \indicator{Some Texts 1}
+  \fastchoice{Some Texts,Some Texts,Some Texts,Some Texts}
+\stopquestion
+\startquestion
+  \indicator{Some Texts 2}
+  \fastchoice{Some Texts,Some Texts,Some Texts,Some Texts}
+\stopquestion
+
+\startmaterial[title={Knuth 2},author={Mos},source={Yelu}]
+\input knuth\relax\indicator{Some Texts 3} \indicator{Some Texts 4}
+\stopmaterial
+\startquestion
+  \indicator{Some Texts 3}
+  \fastchoice{Some Texts,Some Texts,Some Texts,Some Texts}
+\stopquestion
+\startquestion
+  \indicator{Some Texts 4}
+  \fastchoice{Some Texts,Some Texts,Some Texts,Some Texts}
+\stopquestion
+
+\section{Close}
+
+\startclose
+On Oct. 11, hundreds of runners competed in a cross-country race in Minnesota.
+Melanie Bailey should have \closechoice[designed,followed,changed,finished] the
+course earlier than she did. Her \closechoice[delay,chance,trouble,excuse] came
+because she was carrying a \closechoice[judge,volunteer,classmate,competitor]
+across the finish line.
+
+As reported by a local newspaper, Bailey was more than two-thirds of the way
+through her \closechoice[race,school,town,training] when a runner in front of
+her began crying in pain. She \closechoice[agreed,returned,stopped,promised]
+to help her fellow runner, Danielle Lenoue. Bailey took her arm to see if she
+could walk forward with \closechoice[courage,aid,patience,advice] . She couldn't.
+Bailey then \closechoice[went away,stood up,stepped aside,bent down] to let Lenoue
+climb onto her back and carried her all the way to the finish line, then another
+300 feet to where Lenoue could get \closechoice[medical,public,constant,equal] attention.
+
+Once there, Lenoue was \closechoice[interrupted,assessed,identified,appreciated]
+and later taken to a hospital, where she learned that she had serious injuries in
+one of her knees. She would have struggled with extreme \closechoice[hunger,pain,cold,tiredness]
+to make it to that aid checkpoint without Bailey's help.
+
+As for Bailey, she is more \closechoice[worried,ashamed,confused,discouraged]
+about why her act is considered a big \closechoice[game,problem,lesson,deal] .
+"She was just crying. I couldn't \closechoice[leave,cure,bother,understand] her,"
+Bailey told the reporter. "I feel like I was just doing the right thing.”
+
+Although the two young women were strangers before the \closechoice[ride,test,meet,show] ,
+they've since become friends. Neither won the race, but the \closechoice[secret,display,benefit,exchange]
+of human kindness won the day.
+\stopclose
+
+
+\section{Score}
+
+\startanswer
+ some text \score{2}
+
+ some text \score{4}
+ 
+ \cdotfill\resetscore
+ 
+ \setupscore[score=calculation]
+ some text \score[type=cdotfill]{2}
+
+ some text \score[type=space]{4}
+ 
+ some text \score[type=hfill]{3}
+ 
+ \cdotfill\resetscore
+ 
+ \setupscore[score=complex]
+ some text \score{2}
+
+ some text \score{4}
+ 
+ some text \score{3}
+\stopanswer
+\stoptext
