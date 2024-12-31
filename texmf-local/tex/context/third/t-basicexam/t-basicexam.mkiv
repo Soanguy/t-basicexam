@@ -1,3 +1,4 @@
+% macros=mkvi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \module
 %D   [     file=t-basicexam,
@@ -135,6 +136,7 @@
 
 %D 定义关键词
 \startinterface all
+\setinterfaceconstant {class}          {class}
 \setinterfaceconstant {answer}         {answer}
 \setinterfaceconstant {point}          {point}
 \setinterfaceconstant {showanswer}     {showanswer}
@@ -212,7 +214,7 @@
 %% 這三個命令可以遞歸小題總數， 
 %% 他們分別封裝在 set_envcounter, set_itemcount,installdatacollectorhelper 中
 \def\save_question_order{\setcounter[strc_close_counter][\currentitemnumber]\savecounter[strc_close_counter]}
-\def\restore_question_order{\restorecounter[strc_close_counter]\scratchcounter\rawcountervalue[strc_close_counter]}
+\def\restore_question_order{\restorecounter[strc_close_counter]}
 \def\EQuestionID{E-\somenamedheadnumber{chapter}{current}-\number\c_example_question}
 \def\QuestionID{\ifmode_example\EQuestionID\else\somenamedheadnumber{chapter}{current}-\rawcountervalue[Unicode]\fi}
 \def\HelperID{\namedheadnumber{chapter}-\rawcountervalue[Unicode_toplevel]}
@@ -224,6 +226,26 @@
 \definedataset[Answer_collector]
 \definedataset[Answer_collectorhelper]
 \definedataset[Subwriting_collector]
+\newwrite\examanswer
+
+\def\exam_write_answer{%
+  \immediate\openout\examanswer=\jobname -answer.txt\relax
+  \immediate\write\examanswer{
+    \QuestionID                \space\string @
+    \currentenvironment        \space\string @
+    \currentuserorder          \space\string @
+    \pass_parameter_answer}%
+ % \closeout\examanswer
+}
+
+\ifmode_check
+  \immediate\openout\examanswer=\jobname -answer.txt\relax
+  \immediate\write\examanswer{
+    \string questionid  \space\string @
+    \string environment \space\string @
+    \string userorder   \space\string @
+    \string answer}
+\fi
 
 \definetextbackground[env_answer]
 \defineitemgroup     [env_question]
@@ -269,11 +291,11 @@
 %% ego=section isea=subsection
 \definelabelclass [exam] [0]
 \setuplabeltext   [cn]   [section={第,部分},subsection={第,节}]
-\setupexamtext    [cn]   [point={分}, answer={答案},  page={第,页},    totalpage={共,页}]
-\setupexamtext    [hans] [point={分}, answer={答案},  page={第,页},    totalpage={共,页}]% work with memos module
-\setupexamtext    [hant] [point={分}, answer={答案},  page={第,頁},    totalpage={共,頁}]% work with memos module
-\setupexamtext    [en]   [point={pts},answer={answer},page={pages},    totalpage={total,pages}]
-\setupexamtext    [ja]   [point={点}, answer={答え},  page={第,ページ},totalpage={共,ページ}]
+\setupexamtext    [cn]   [point={分}, answer={答案:},  page={第,页},    totalpage={共,页}]
+\setupexamtext    [hans] [point={分}, answer={答案:},  page={第,页},    totalpage={共,页}]% work with memos module
+\setupexamtext    [hant] [point={分}, answer={答案:},  page={第,頁},    totalpage={共,頁}]% work with memos module
+\setupexamtext    [en]   [point={pts},answer={answer:},page={pages},    totalpage={total,pages}]
+\setupexamtext    [ja]   [point={点}, answer={答え:},  page={第,ページ},totalpage={共,ページ}]
 
 \definehead [tu]   [chapter]
 \definehead [ego]  [section]       % me  latin
@@ -631,13 +653,13 @@
     \edef\prevenvnumber{\currentenvnumber}%
   \fi\initcollectanswer% 初始化多项答案收集器
   \global\c_envcounter_toggle=0\relax%
-  \ifenv_question   \global\c_envcounter_toggle=1\relax\fi
-  \ifenv_problem    \global\c_envcounter_toggle=2\relax\fi
-  \ifenv_choice     \global\c_envcounter_toggle=3\relax\fi
-  \ifenv_material   \global\c_envcounter_toggle=4\relax\fi
-  \ifenv_close      \global\c_envcounter_toggle=5\relax\fi
-  \ifenv_writing    \global\c_envcounter_toggle=6\relax\fi
-  \ifenv_subwriting \global\c_envcounter_toggle=7\relax\fi
+  \ifenv_question   \global\c_envcounter_toggle=1\relax \edef\currentenvironment  {question}\fi
+  \ifenv_problem    \global\c_envcounter_toggle=2\relax \edef\currentenvironment   {problem}\fi
+  \ifenv_choice     \global\c_envcounter_toggle=3\relax \edef\currentenvironment    {choice}\fi
+  \ifenv_material   \global\c_envcounter_toggle=4\relax \edef\currentenvironment  {material}\fi
+  \ifenv_close      \global\c_envcounter_toggle=5\relax \edef\currentenvironment     {close}\fi
+  \ifenv_writing    \global\c_envcounter_toggle=6\relax \edef\currentenvironment   {writing}\fi
+  \ifenv_subwriting \global\c_envcounter_toggle=7\relax \edef\currentenvironment{subwriting}\fi
   \ifenv_answer     \global\advance\c_envcounter_toggle by 10\relax\fi
   \edef\currentenvnumber{\the\c_envcounter_toggle}}
 
@@ -716,9 +738,10 @@
 
 \def\installdatacollector%
   {\writestatus{basicexam}{Question (\currentuserorder): answer is (\currentanswer).}%顯示題號和答案到控制檯
+  \ifmode_check\exam_write_answer\fi
   \setdataset [Answer_collector][\QuestionID]%收集答案並在未來展開
               [id={\QuestionID},%
-                envid={\the\c_envcounter_toggle :\currentitemgroup},%
+                envid={\currentenvironment : \the\c_envcounter_toggle : \currentitemgroup},%
                 order={\number\currentorder},%
                 userorder={\currentuserorder},%
                 answer={\pass_parameter_answer},%
@@ -856,15 +879,15 @@
   \switchtocolor[\csname #1parameter\endcsname{#2color}]%  
   \paren {\csname left_assigned#2label\endcsname % like=>answer : blabla
     \ifx\currentmode\c!point% if #2 = point
-      \ifenv_toplevel\point_totalpoint%
-      \else\currentpoint\fi%
+      \ifenv_toplevel\point_totalpoint
+      \else\currentpoint\fi
     \else% if #2 = answer。因为 currentXXXanswer 是有定义内容的，
-      \ifmode_example You're in EXAMPLE MODE!\else%
+      \ifmode_example You're in EXAMPLE MODE!\else
         \ifenv_writing\short_writing_answer\else
         \datasetvariable{Answer_collector}{\QuestionID}{answer}\fi
       \fi% 直接獲取當前 QID 答案
-    \fi%
-  \csname right_assigned#2label\endcsname }}}
+    \fi
+  \csname right_assigned#2label\endcsname}}}
 
 \def\p_assigned_currentlabel#1#2{%
   \expandafter\edef%
@@ -1106,7 +1129,7 @@
    \c!rightmargin=\zeropoint,
    \c!leftmargindistance=\zeropoint,
    \c!rightmargindistance=\zeropoint,
-   \c!indentnext=\v!no,
+   \c!indentnext=\v!yes,
    \c!width=.5\emwidth,
    \c!factor=0,
    \c!step=.5\emwidth, % deals with broad
@@ -1245,18 +1268,32 @@
 \tolerant\protected\def\startnamedquestion[#S#1]#*[#S#2]%
  {\begingroup\env_questiontrue\set_envitem_counter%%
   \def\currentquestion{#1}%
-  \ifparameter#2\or\setupcurrentquestion[#2]\fi%
+  \ifparameter#2\or\setupcurrentquestion[#2]\fi
   \example_toggle[question]% 用於測試是否開啟 example_mode
-  \edef\p_start{\questionparameter\c!start}
+  \edef\p_class{\questionparameter\c!class}%
+  \edef\p_start{\questionparameter\c!start}%
+  \edef\p_reset{\questionparameter\c!reset}%
+  \edef\p_option{\questionparameter\c!option}%
   \edef\p_defaultoption{n,packed,nowhite,joinedup,continue}%
-  \edef\p_option{\questionparameter\c!option}
+  \edef\p_class_optclose{optclose}%
+  \ifx\p_class\p_class_optclose
+    \env_closetrue\set_envitem_counter
+  \fi
+  \ifx\p_reset\s!true
+    \resetcounter[itemgroup:env_question]%
+  \fi
   \installitemgroupoption[question][question]%
   \startitemgroup[env_question]%
-  \item[\questionparameter\c!reference]%
-  \increaseQuestionID% 具有獨立答案，增長 QID
+  \ifx\p_class\p_class_optclose
+    \leftskip=0pt\relax
+  \else
+    \item[\questionparameter\c!reference]%
+    \increaseQuestionID% 具有獨立答案，增長 QID
+  \fi
   \set_count_envlevel  [question]%
+  \ifx\p_class\p_class_optclose\else
   \installpointoranswer[question][point]%
-  \installpointoranswer[question][answer]%
+  \installpointoranswer[question][answer]\fi
   \save_question_order\removeunwantedspaces}
 
 \protected\def\stopnamedquestion{%
@@ -1275,19 +1312,18 @@
   [%example=,
   %showpoint=false,
   %point=,
-   pointstyle=\ttx,
+  pointstyle=\ttx,
   %pointcolor=,
   %pointprelabel=,
-   pointlabel={,\examtexts{point}},
+  pointlabel={,\examtexts{point}},
   %showanswer=false,
   %answer=,
-  %answerlabel=,
-  %answerlabel=,
-   answerstyle=\ss,
-   answercolor=red,
-   indenting=no,
-   way=bychapter,
-   numberconversion=tnum,]
+  answerlabel={\examtexts{answer},},
+  answerstyle=\ss,
+  answercolor=red,
+  indenting=no,
+  way=bychapter,
+  numberconversion=tnum,]
 
 \setupquestion
   [\c!margin=\zeropoint,
@@ -1295,7 +1331,7 @@
    \c!rightmargin=\zeropoint,
    \c!leftmargindistance=\zeropoint,
    \c!rightmargindistance=\zeropoint,
-   \c!indentnext=\v!no,
+   \c!indentnext=\v!yes,
    \c!width=1.5\emwidth,
    \c!factor=0,
    \c!step=.5\emwidth, % deals with broad
@@ -1542,7 +1578,7 @@
    \c!rightmargin=\zeropoint,
    \c!leftmargindistance=\zeropoint,
    \c!rightmargindistance=\zeropoint,
-   \c!indentnext=\v!no,
+   \c!indentnext=\v!yes,
    \c!width=1\emwidth,
    \c!factor=0,
    \c!step=.5\emwidth, % deals with broad
@@ -1620,37 +1656,33 @@
 %D 如果只有同级的多个作文题目，只需要使用 writing 环境即可。
 %D 但是，当一个作文体下面有多个子题目时，需要将子题目放到 subwriting 环境当中。
 
-%D 该环境目前关于 itemgroup 的设置是直接继承自 question 环境。直接通过 \tex{setupquestion}
-%D 来进行设置皆可。
-
-% 如果含有 subwriting 环境，可以使用 \tex{getanswerfromsubwriting} 来获取总分数。
-% \startbuffer
-% \setupwriting[showanswer=true,showpoint=true]
-% \startwriting[point=45]
-%   作文题目说明
-%   \startanswer
-%     参考作文 1
-%   \stopanswer
-% \stopwriting
-%
-% \startwriting
-% 作文题目说明
-%   \startsubwriting[point=450]
-%     sub 作文题目说明
-%     \startanswer
-%       参考作文 2
-%     \stopanswer
-%   \stopsubwriting
-%   \startsubwriting[point=4588]
-%     sub 作文题目说明
-%     \startanswer
-%     参考作文 3
-%     \stopanswer
-%   \stopsubwriting
-% \stopwriting
-% \stopbuffer
-% \typebuffer
-% \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+%D \startbuffer
+%D \setupwriting[showanswer=true,showpoint=true]
+%D \startwriting[point=45]
+%D   作文题目说明
+%D   \startanswer
+%D     参考作文 1
+%D   \stopanswer
+%D \stopwriting
+%D 
+%D \startwriting
+%D 作文题目说明
+%D   \startsubwriting[point=450]
+%D     sub 作文题目说明
+%D     \startanswer
+%D       参考作文 2
+%D     \stopanswer
+%D   \stopsubwriting
+%D   \startsubwriting[point=4588]
+%D     sub 作文题目说明
+%D     \startanswer
+%D     参考作文 3
+%D     \stopanswer
+%D   \stopsubwriting
+%D \stopwriting
+%D \stopbuffer
+%D \typebuffer
+%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
 
 \installnamespace          {writing}
 \installcommandhandler \????writing   {writing}   \????writing
@@ -1715,7 +1747,7 @@
    \c!rightmargin=\zeropoint,
    \c!leftmargindistance=\zeropoint,
    \c!rightmargindistance=\zeropoint,
-   \c!indentnext=\v!no,
+   \c!indentnext=\v!yes,
    \c!width=1.5\emwidth,
    \c!factor=0,
    \c!step=.5\emwidth, % deals with broad
@@ -2039,7 +2071,7 @@
   showpoint=true,
   answer=\getanswerforanswer,
   point=\getpointforanswer,
-  answerlabel={{\examtexts{answer}:}},
+  answerlabel={{\examtexts{answer}}},
   pointlabel={,\examtexts{point}},
   pointstyle=\answerparameter\c!style,
   pointcolor=\answerparameter\c!color,
@@ -2062,25 +2094,16 @@
 \defineanswer[answer]
 
 %D \section{设置 pitem,citem 命令}
-%D 仅具有 answer point 和 reference 键值。
-
-%D 請注意，不要同時為單個 pitem 或者 fillin 命令同時設置答案，
-%D 這可能會引起答案無法正確獲取。
 
 \installnamespace                {pitem}
 \installsimplecommandhandler \????pitem     {pitem}     \????pitem
-
-% \appendtoks
-%   \setuevalue        {\currentquestion}{\directnamedquestion[\currentquestion]}%
-%   \setuevalue{\e!start\currentquestion}{\startnamedquestion [\currentquestion]}%
-%   \setuevalue{\e!stop \currentquestion}{\stopnamedquestion}%
-% \to \everydefinequestion
 
 \setuppitem    [%showpoint=,
                 %point=,
                 pointstyle=\ttx,
                 %pointcolor=,
-                pointlabel={,\examtexts{point}},,
+                pointlabel={,\examtexts{point}},
+                answerlabel={\examtexts{answer},},
                 %showanswer=,
                 %answer=,
                 answerstyle=\ss,
@@ -2508,15 +2531,6 @@
 %%%%%%%%%%%%%%%%
 %D \section{设置 close 环境}
 
-\c_closetest=1\relax
-\tolerant\protected\def\closebar#1{
-  \startbar[underbar]
-    \scratchcounter\numexpr16/\plustwo\relax
-    \interwordspacesbefore\scratchcounter
-      \zwj\runninghbox{\resetbar{#1}}\zwj
-    \interwordspacesafter\scratchcounter
-  \stopbar}
-
 %D close 環境近乎是單獨設計的。還需要改進：直接使用 itemgroup 重置，該環境主要使用兩個命令：
 %D \tex{startclose} 和 \tex{stopclose} 用來創建該環境，
 %D \tex{closechoice} 用來標記環境內的選項，該命令隨行文放置即可。選項無須再次在文章後放置，
@@ -2524,50 +2538,52 @@
 %D 因為 \type{close} 環境的子項目 \tex{closechoice} 是通過 choice 環境設置的。
 %D 因此，可以通過 \type{[*]} 來標記正確答案。
 
-%D close 環境同樣繼承了 answer 的鍵值。
-%D 此外設置了 reset 鍵來選擇是否每一篇重置選項的題號，
-%D 其他的鍵值： barcolor barstyle 設置 下划線樣式
-%D            before after style color 用於整體環境
-%D            width frame stopper distance 用於選項前題號樣式
+% D close 環境同樣繼承了 answer 的鍵值。
+% D 此外設置了 reset 鍵來選擇是否每一篇重置選項的題號，
+% D 其他的鍵值： barcolor barstyle 設置 下划線樣式
+% D            before after style color 用於整體環境
+% D            width frame stopper distance 用於選項前題號樣式
 
-%D \startbuffer
-%D \startclose
-%D On Oct. 11, hundreds of runners competed in a cross-country race in Minnesota.
-%D Melanie Bailey should have \closechoice[designed,followed,changed,finished] the
-%D course earlier than she did. Her \closechoice[delay,chance,trouble,excuse] came
-%D because she was carrying a \closechoice[judge,volunteer,classmate,competitor]
-%D across the finish line.
-%D
-%D As reported by a local newspaper, Bailey was more than two-thirds of the way
-%D through her \closechoice[race,school,town,training] when a runner in front of
-%D her began crying in pain. She \closechoice[agreed,returned,stopped,promised]
-%D to help her fellow runner, Danielle Lenoue. Bailey took her arm to see if she
-%D could walk forward with \closechoice[courage,aid,patience,advice] . She couldn't.
-%D Bailey then \closechoice[went away,stood up,stepped aside,bent down] to let Lenoue
-%D climb onto her back and carried her all the way to the finish line, then another
-%D 300 feet to where Lenoue could get \closechoice[medical,public,constant,equal] attention.
-%D
-%D Once there, Lenoue was \closechoice[interrupted,assessed,identified,appreciated]
-%D and later taken to a hospital, where she learned that she had serious injuries in
-%D one of her knees. She would have struggled with extreme \closechoice[hunger,pain,cold,tiredness]
-%D to make it to that aid checkpoint without Bailey's help.
-%D
-%D As for Bailey, she is more \closechoice[worried,ashamed,confused,discouraged]
-%D about why her act is considered a big \closechoice[game,problem,lesson,deal] .
-%D "She was just crying. I couldn't \closechoice[leave,cure,bother,understand] her,"
-%D Bailey told the reporter. "I feel like I was just doing the right thing.”
-%D
-%D Although the two young women were strangers before the \closechoice[ride,test,meet,show] ,
-%D they've since become friends. Neither won the race, but the \closechoice[secret,display,benefit,exchange]
-%D of human kindness won the day.
-%D \stopclose
-%D \stopbuffer
-%D \typebuffer
-%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+% D \startbuffer
+% D \startclose
+% D On Oct. 11, hundreds of runners competed in a cross-country race in Minnesota.
+% D Melanie Bailey should have \closechoice[designed,followed,changed,finished] the
+% D course earlier than she did. Her \closechoice[delay,chance,trouble,excuse] came
+% D because she was carrying a \closechoice[judge,volunteer,classmate,competitor]
+% D across the finish line.
+% D
+% D As reported by a local newspaper, Bailey was more than two-thirds of the way
+% D through her \closechoice[race,school,town,training] when a runner in front of
+% D her began crying in pain. She \closechoice[agreed,returned,stopped,promised]
+% D to help her fellow runner, Danielle Lenoue. Bailey took her arm to see if she
+% D could walk forward with \closechoice[courage,aid,patience,advice] . She couldn't.
+% D Bailey then \closechoice[went away,stood up,stepped aside,bent down] to let Lenoue
+% D climb onto her back and carried her all the way to the finish line, then another
+% D 300 feet to where Lenoue could get \closechoice[medical,public,constant,equal] attention.
+% D
+% D Once there, Lenoue was \closechoice[interrupted,assessed,identified,appreciated]
+% D and later taken to a hospital, where she learned that she had serious injuries in
+% D one of her knees. She would have struggled with extreme \closechoice[hunger,pain,cold,tiredness]
+% D to make it to that aid checkpoint without Bailey's help.
+% D
+% D As for Bailey, she is more \closechoice[worried,ashamed,confused,discouraged]
+% D about why her act is considered a big \closechoice[game,problem,lesson,deal] .
+% D "She was just crying. I couldn't \closechoice[leave,cure,bother,understand] her,"
+% D Bailey told the reporter. "I feel like I was just doing the right thing.”
+% D
+% D Although the two young women were strangers before the \closechoice[ride,test,meet,show] ,
+% D they've since become friends. Neither won the race, but the \closechoice[secret,display,benefit,exchange]
+% D of human kindness won the day.
+% D \stopclose
+% D \stopbuffer
+% D \typebuffer
+% D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
 
 \setupclose[%showanswer=false,
-            reset=true,
-            %mp=,
+            reset=false,
+            %barstyle=,
+            %barcolor=,
+            showpoint=false,
             answerstyle=\ss,
             answercolor=red,
             width=2em,% set order width
@@ -2576,90 +2592,102 @@
             distance=.5em,% set order distance
             after=\blank[halfline]]
 
-\def\closechoice[#1]{%定義文章內的序號。這是用戶命令，用來記錄選項(定義選項列表)
-  \expandafter\gdef\csname close:\romannumerals\c_closetest\endcsname{#1}%
+\c_closetest=1\relax
+\tolerant\protected\def\closebar#1{
+  \startbar[underbar]%
+    \scratchcounter\numexpr16/\plustwo\relax
+    \interwordspacesbefore\scratchcounter
+      \zwj\runninghbox{\resetbar{#1}}\zwj
+    \interwordspacesafter\scratchcounter
+  \stopbar}
+
+\def\closechoice[#1]{% 這是用戶命令，用來記錄選項(定義選項列表)
+  \expandafter\def\csname close:\romannumerals\c_closetest\endcsname{#1}%
   % c_closetest 用於標記選項列表，會隨著選項題目增加，無論是否啓用重置，該計數器都會記錄並自增
   % 在生成選項序列時，該計數器可以進行：(1) 是否設置了選項 (2) 遞增出選項序列
   % 該計數器屬於局域，每篇文章都會重置回 1。
-  \ifclose_counter_reset%
-    \begingroup%
-      \switchtocolor[\closeparameter{barcolor}]%
-      \closeparameter{barstyle}%
+  \ifclose_counter_reset
+    \begingroup
+      \setupbar[underbar]%
+       [color=\closeparameter{barcolor},
+        mp=\closeparameter{barstyle}]%
       \closebar{\number\c_closetest}%
-    \endgroup%
-  \else%
+    \endgroup
+  \else
     \begingroup\let\par\relax% 將其封裝在局域，避免 par 命令失效
-      \switchtocolor[\closeparameter{barcolor}]%
-      \closeparameter{barstyle}%
+       \setupbar[underbar]%
+       [color=\closeparameter{barcolor},
+        mp=\closeparameter{barstyle}]%
       \startitemgroup[env_question][n,continue,text,nostopper]%
                                    [lefttext=\closebar,righttext=]%
-      \item \save_question_order%
-      \stopitemgroup%
-    \endgroup%
+      \item \save_question_order
+      \stopitemgroup
+    \endgroup
   \fi\advance\c_closetest by 1\relax}
 
-\def\docloseitem#1{\startcitem #1\stopcitem}
 \def\close_order{%選項前的序號樣式，序號通過 tempa 設定
-  \noindent\unskip%
+  \unskip\noindent
   \inframed[width=\closeparameter\c!width,
             frame=\closeparameter\c!frame,
             foreground=color,
             foregroundcolor=\closeparameter\c!color,
             foregroundstyle=\closeparameter\c!style]{%
      \convertnumber{n}{\number\c_closetest_tempa}%
-     \closeparameter\c!stopper%
-     \increaseQuestionID%
-     \installpointoranswer[close][answer]}%
+     \closeparameter\c!stopper}%
    \hskip\closeparameter\c!distance\relax
    \global\advance\c_closetest_tempa by 1\relax
   \unskip}
 
+\def\docloseitem#1{\startcitem #1\stopcitem}
 \def\placeclosechoice{%
-  \ifnum\c_closetest=1\relax
-        \color[red]{it seems that there is no
-                    "closechoice" be setted,
-                     please check it!}%
-  \fi%
   \scratchcounter\numexpr\c_closetest-1\relax
   \c_closetest=1\relax%
-  \def\closetest_list{\csname close:\romannumerals\c_closetest\endcsname}%
-  \useclosestyleandcolor\c!style\c!color%
    \dorecurse{\number\scratchcounter}{% start recurse
-     \hbox{% start first box
-       \hsize=\textwidth%
-       \edef\currentitemnumber{\the\c_closetest_tempa}%
-       \edef\currentcloseuserorder{%
-         \number\c_closetest_tempa%放置在這裡才能正確獲取題號
-         \ifnum\rawcountervalue[Unicode_botlevel]=0\else% 抽出 order 定義，
-         (\rawcountervalue[Unicode_botlevel])\fi}% 因為該環境沒有上級 question 環境
+    \hbox{% start first box
+      \hsize=\textwidth
+      \increaseQuestionID
+      \set_count_envlevel  [close]%
+      \installpointoranswer[close][point]%
+      \installpointoranswer[close][answer]%
+      \edef\currentitemnumber{\the\c_closetest_tempa}%
+      \edef\currentuserorder{%
+        \currentitemnumber%放置在這裡才能正確獲取題號
+        \ifnum\rawcountervalue[Unicode_botlevel]=0\else% 抽出 order 定義，
+          (\rawcountervalue[Unicode_botlevel])\fi}% 因為該環境沒有上級 question 環境
        \hbox{\close_order}% close question index  box
-       \hbox{\vtop{%        close question choice box start
-          \startchoice%
-            \processcommacommand[\closetest_list]\docloseitem%
-          \stopchoice}}%    close question choice box stop
+       \hbox{\vtop{%   close question choice box start
+          \startchoice[point=\closeparameter\c!point]%
+            \processcommacommand[\csname close:\romannumerals\c_closetest\endcsname]\docloseitem%
+          \stopchoice
+          }}%    close question choice box stop
      }% stop first hbox
    \advance\c_closetest by 1\relax}% stop reucrse
   \c_closetest=1\relax%
 }
 
-\tolerant\protected\def\startclose[#1]{\begingroup%
-  \env_closetrue\set_envitem_counter%%
-  \iffirstargument\setupclose[#1]\fi%
-  \edef\p_reset{\closeparameter\c!reset}
-  \ifx\p_reset\s!true%
-       \close_counter_resettrue%
-  \else\close_counter_resetfalse\fi%
-  \restore_question_order%
-  \ifclose_counter_reset\c_closetest_tempa=1\relax\else%
-    \c_closetest_tempa=\number\scratchcounter%tempa 标记文章内的序号和选项前的序号
+\tolerant\protected\def\startclose[#1]%
+ {\begingroup\env_closetrue\set_envitem_counter
+  \iffirstargument\setupclose[#1]\fi
+  \edef\p_reset{\closeparameter\c!reset}%
+  \ifx\p_reset\s!true
+    \close_counter_resettrue
+  \else
+    \close_counter_resetfalse
+  \fi\restore_question_order
+  \ifclose_counter_reset% 如果重置， 則序號起自 1
+    \c_closetest_tempa=1\relax% tempa 标记文章内的序号和选项前的序号
+  \else % 否則， 恢復上一問題序號， 並遞增1. 
+    \c_closetest_tempa=\rawcountervalue[strc_close_counter]%
     \c_closetest_tempa=\numexpr\c_closetest_tempa+1\relax
-  \fi\closeparameter\c!before\removeunwantedspaces}
+  \fi
+  \closeparameter\c!before
+  \useclosestyleandcolor\c!style\c!color
+  \removeunwantedspaces}
 
 \def\stopclose{%
-  \closeparameter\c!after%
-  \placeclosechoice%
-  \endgroup%
-}
+  \closeparameter\c!after
+  \placeclosechoice
+  \endgroup}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{設置 optclose 環境}
@@ -2679,20 +2707,28 @@
               %color=,
               %point=,
               %showanswer=false,
-              answerlabel={answer: },
-              answercolor=red,answerstyle=\ss,]
+              pointlabel={,\examtexts{point}},
+              answerlabel={{\examtexts{answer}},},
+              answercolor=red,
+              answerstyle=\ss,]
 
-\tolerant\protected\def\startoptclose[#1]{%
-  \begingroup\env_closetrue\set_envitem_counter%%
-  \iffirstargument\setupclose[#1]\fi%
-  \edef\p_reset{\closeparameter\c!reset}%
-  \ifx\p_reset\s!true\resetcounter [itemgroup:env_question]\fi%
-  \useclosestyleandcolor\c!style\c!color%
-  \startitemgroup[env_question][n,continue,text,nostopper][lefttext=\closebar,righttext=]%
-  \leftskip=0pt\relax\set_count_envlevel[question]%
-  \removeunwantedspaces}
+\definequestion[optclose]
+\definequestion[specialocitem]
+\def\setupoptclose{\setupquestion[optclose]}
+\def\setupspecialoptclose{\setupquestion[specialocitem]}
 
-\def\stopoptclose{\stopitemgroup\endgroup}
+\setupquestion[optclose]
+ [option={n,continue,text,nostopper},
+  lefttext=\closebar,
+  righttext=,
+  reset=false,
+  class=optclose,]
+
+\setupquestion[specialocitem]
+ [option={n,continue,text,nostopper},
+  lefttext=\closebar,
+  righttext=,
+  reset=false,]
 
 \tolerant\protected\def\ocitem[#1]#:#2%
    {\begingroup%
@@ -2705,7 +2741,7 @@
           % 但是该环境本身就被视为 toplevel                =>  5
           % 如果该环境被视为子项目时，则需要关闭 toplevel。==> 5(1)
           % 另外，关闭 toplevel 需要在 set_count_itemlevel 命令之前才会生效。
-          \allowbreak\doifsomethingelse{#2}{(#2)}{}%
+          \allowbreak\doifsomethingelse{#2}{(#2)}{}% 放置選項，類似 inlinechoice
           \installpointoranswer[ocitem][point]%
           \installpointoranswer[ocitem][answer]%
           \installdatacollector%
@@ -2713,26 +2749,6 @@
           \initcollectanswer
           \save_question_order%
   \endgroup}
-
-\tolerant\protected\def\specialocitem[#1]{%
-  \begingroup\let\par\relax%
-  \iffirstargument\setupocitem[#1]\fi%
-  \useocitemstyleandcolor\c!style\c!color%
-  \startitemgroup[env_question][n,continue,text,nostopper][lefttext=\closebar,righttext=]%
-  \item \parentitemnumber=\currentitemnumber\relax
-        \increaseQuestionID%
-        \installpointoranswer[ocitem][point]%
-        \set_count_itemlevel [ocitem]%
-        % 关于 toplevel 的问题参见 ocitem 的解释。
-        % 是否需要设置子项目还有待考虑。
-        \def\prevanswer{\ocitemparameter\c!answer}
-        \installpointoranswer[ocitem][point]%
-        \installpointoranswer[ocitem][answer]%
-        \installdatacollector%
-        \installdatacollectorhelper%
-        \initcollectanswer
-        \save_question_order%
-  \stopitemgroup\removeunwantedspaces\endgroup}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{score}
@@ -2982,8 +2998,9 @@
     \dorecurse{#1}{
         \dorecurse{3}{
           \longtesttxt[\romannumeral\CNUM]
-        \global\advance\CNUM by 1\relax
-        }\ocitem[point=4,answer={\shorttesttxt[\romannumeral\DNUM]}]{\closechoicex,\closechoicex,\closechoicex}
+          \global\advance\CNUM by 1\relax
+        }\ocitem[point=4,answer={\shorttesttxt[\romannumeral\DNUM]}]%
+                {\closechoicex,\closechoicex,\closechoicex}
       \longtesttxt[\romannumeral\CNUM]}
     \stopoptclose
 }
@@ -2993,7 +3010,7 @@
         \dorecurse{3}{
           \longtesttxt[\romannumeral\CNUM]
         \global\advance\CNUM by 1\relax
-        }\specialocitem[point=2,answer={\shorttesttxt[\romannumeral\DNUM]}]
+        }\specialocitem[point=2,answer={\shorttesttxt[\romannumeral\DNUM]}]{}
         \global\advance\DNUM by 1\relax
       \longtesttxt[\romannumeral\CNUM]}
 }
@@ -3030,64 +3047,154 @@
 %\noindent\typeanswerlist[2][6]{30}
 %\type@answer@i[6*5,1,28]
 
-\newcount\qid_in_chap\qid_in_chap=1\relax
-\def\resetanswerid{\qid_in_chap=1\relax}
-\def\typeanswerbychap{\dosingleempty\typeanswerbychap_indeed}
-\def\typeanswerbychap_indeed[#1]#2{% #1 = chapter number，該命令會自行遞增計數器來獲取答案
-  \iffirstargument\qid_in_chap=#1\relax\fi%
-  \datasetvariable{Answer_collector}{#2-\the\qid_in_chap}{answer}%
-  \advance\qid_in_chap by 1\relax}
+%D \section{打印答案 / Print answer / 答えの輸出}
+
+\newcount\c_qid_answer
+
+\def\resetanswerid{\global\c_qid_answer=1\relax}
+
+%D Example 1:
+%D \starttyping
+%D \dorecurse{5}{\typeanswerbychap{1}} % grab answer from chapter 1
+%D \newcount\c_tempa\c_tempa=2\relax   % grab answer from 0-\the\c_tempa(chapter=0 qid=\the\c_tempa)
+%D \dorecurse{5}{\typeanswerbychap[\c_tempa]{0}\advance\c_tempa by 1\relax}
+%D \stoptyping
+\tolerant\def\typeanswerbychap[#1]#:#2%
+ {\begingroup% #1 = QID， #2 =chap number
+  \ifparameter#1\or
+    \doifsomethingelse{\scratchcounterone#1}{\scratchcounterone#1}{\scratchcounterone\zerocount}%
+    \c_qid_answer=\numexpr\scratchcounterone -1\relax\fi
+  \scratchcounter#2\relax
+  \global\advance\c_qid_answer by 1\relax
+  \datasetvariable{Answer_collector}{\the\scratchcounter-\the\c_qid_answer}{answer}%
+  \endgroup}
+
+%D Example 2:
+%D \starttyping
+%D \typeanswerdirect{0-5} % grab answer from chapter 0 qid 5
+%D \stoptyping
 \def\typeanswerdirect#1{% #1 = qid，需要自行輸入來獲取某個題目的答案
   \datasetvariable{Answer_collector}{#1}{answer}}
-\def\typeanswerlist{\dodoubleempty\typeanswerlist_indeed}
-\def\typeanswerlist_indeed[#1][#2]#3{%#1 = chapter number
-  \ifsecondargument\qid_in_chap=#2\fi% #2 = from which question to start
-  \dorecurse{#3}{% answer amount
-    \datasetvariable{Answer_collector}{#1-\the\qid_in_chap}{answer}%
-  \advance\qid_in_chap by 1\relax}
-}
 
-\newcount\answer@seq@tempa\answer@seq@tempa=0\relax%
-\newcount\answer@seq@tempb\answer@seq@tempb=0\relax%
-\newcount\answer@seq@tempc
-\def\type@answer@i[#1*#2,#3,#4]{% #1 for row #2 for column %
-                                % #3 chapter number #4 last answer id%
-  \answer@seq@tempc=\numexpr#4-1\relax%
-    \bTABLE
-      \dorecurse{#1}{\bTR
-        \dorecurse{#2}{%
-        \ifnum\answer@seq@tempa>\answer@seq@tempc \bTD\eTD\relax\else%
-              \advance\answer@seq@tempa by 1\relax%
-                \expanded{\bTD
-                  \datasetvariable{Answer_collector}{#3-\the\answer@seq@tempa}{userorder}
-      \eTD}\fi}
+%D Example 3:  
+%D \starttyping
+%D \typeanswerlist{30}       % type answer from chap 0 and get qid 1 - 30
+%D \typeanswerlist[1]{30}    % type answer from chap 1 and get qid 1 - 30
+%D \typeanswerlist[1][2]{30} % type answer from chap 1 and get qid 2 - 30
+%D \stoptyping
+\tolerant\protected\def\typeanswerlist[#chapno][#startno]#*#:#total{%#1 = chapter number
+  \begingroup
+  \ifparameter#chapno\or
+    \doifsomethingelse{\scratchcounterone  #chapno }{\scratchcounterone  #chapno }{\scratchcounterone  \zerocount}\fi
+  \ifparameter#startno\or
+    \doifsomethingelse{\scratchcountertwo  #startno}{\scratchcountertwo  #startno}{\scratchcountertwo  \zerocount}\fi
+  \ifparameter#total\or
+    \doifsomethingelse{\scratchcounterthree#total  }{\scratchcounterthree#total  }{\scratchcounterthree\zerocount}\fi
+  \c_qid_answer=\scratchcountertwo
+  \dorecurse{\the\scratchcounterthree}{% answer amount
+    \datasetvariable{Answer_collector}{\the\scratchcounterone-\the\c_qid_answer}{answer},%
+  \advance\c_qid_answer by 1\relax}%
+  \endgroup}
+
+%D Example 4:  
+%D \starttyping
+%D \typeanswertable[2,5]% #3 = 0 #4 = 1
+%D \typeanswertable[2,5][0]% #4 = 1
+%D \typeanswertable[2,5][0][6] % type answer in table 
+%D  ----------------------------------
+%D |  ID  |  ID  |  ID  |  ID  |  ID  | #1 = 2 
+%D |  01  |  02  |  03  |  04  |  05  | #2 = 5
+%D |  AS  |  AS  |  AS  |  AS  |  AS  | #3 = from chap 0
+%D |  01  |  02  |  03  |  04  |  05  | #4 = type start QID 6
+%D ------------------------------------
+%D \stoptyping
+\newcount\answer@seq@tempa
+\newcount\answer@seq@tempb
+\tolerant\def\typeanswertable[#rows,#columns]#*[#chapno]#*[#startno]%
+ {\begingroup
+  \ifarguments\or\or
+  \scratchcounter    \zerocount\relax
+  \scratchcounterone \plusone  \relax
+  \or
+  \doifsomethingelse{\scratchcounter    #chapno \relax}
+                    {\scratchcounter    #chapno \relax}
+                    {\scratchcounter    \zerocount\relax}
+  \scratchcounterone \plusone  \relax
+  \or
+  \doifsomethingelse{\scratchcounter    #chapno \relax}
+                    {\scratchcounter    #chapno \relax}
+                    {\scratchcounter    \zerocount\relax}
+  \doifsomethingelse{\scratchcounterone #startno\relax}
+                    {\scratchcounterone #startno\relax}
+                    {\scratchcounterone \zerocount\relax}
+  \or\fi
+  \answer@seq@tempa=\numexpr\scratchcounterone-1\relax
+  \answer@seq@tempb=\numexpr\scratchcounterone-1\relax
+  \the\answer@seq@tempa == \the\answer@seq@tempb
+  \bTABLE
+    \dorecurse{#rows}{
+      \bTR
+      \dorecurse{#columns}{\advance\answer@seq@tempa by 1\relax
+        \expanded{\bTD\tt\datasetvariable{Answer_collector}{\the\scratchcounter-\the\answer@seq@tempa}{userorder}\eTD}}%
       \eTR\bTR
-        \dorecurse{#2}{%
-          \ifnum\answer@seq@tempb>\answer@seq@tempc \bTD\eTD\relax\else%
-        \advance\answer@seq@tempb by 1\relax%
-            \expanded{\bTD
-            \datasetvariable{Answer_collector}{#3-\the\answer@seq@tempb}{answer}
-        \eTD}\fi}
-      \eTR}
-    \eTABLE
-}
+      \dorecurse{#columns}{\advance\answer@seq@tempb by 1\relax
+          \expanded{\bTD\ss\datasetvariable{Answer_collector}{\the\scratchcounter-\the\answer@seq@tempb}{answer}\eTD}}%
+      \eTR}%
+  \eTABLE
+\endgroup}
 
-\def\type@answer@ii{
-\answer_seq=0\relax
-\bTABLE
-\dorecurse{4}{\bTR
-  \dorecurse{5}{
-        \advance\answer_seq by 1\relax%
-            \expanded{\bTD\the\answer_seq\eTD}
-      \expanded{\bTD
-        \datasetvariable{Answer_collector}{\the\answer_seq}{answer}
-    \eTD}}
-\eTR}
-\eTABLE}
-%\type@answer@i{4}{5}{18}
+%D Example 5:  
+%D \starttyping
+%D \typeanswertablealt[4,2]% #3 = 0 #4 = 1
+%D \typeanswertablealt[4,2][1]% #4 = 1
+%D \typeanswertablealt[4,2][1][2] % type answer in table 
+%D  ----------------------------------
+%D |  ID  |  01  |  AS  |  01  | #1 = 4 
+%D |  ID  |  02  |  AS  |  02  | #2 = 2
+%D |  ID  |  03  |  AS  |  03  | #3 = from chap 0
+%D |  ID  |  04  |  AS  |  04  | #4 = type start QID 2
+%D ------------------------------------
+%D \stoptyping
+\tolerant\def\typeanswertablealt[#rows,#columns]#*[#chapno]#*[#startno]%
+ {\begingroup\ifarguments 0\or
+  \scratchcounter      \zerocount\relax
+  \scratchcounterthree \plusone  \relax
+  \or
+  \scratchcounter      \zerocount\relax
+  \scratchcounterthree \plusone  \relax
+  \or
+  \scratchcounterthree \plusone  \relax% for startno
+  \doifsomethingelse{\scratchcounter      #chapno \relax}
+                    {\scratchcounter      #chapno \relax}
+                    {\scratchcounter      \zerocount\relax}
+  \or
+  \doifsomethingelse{\scratchcounter      #chapno \relax}
+                    {\scratchcounter      #chapno \relax}
+                    {\scratchcounter      \zerocount\relax}
+  \doifsomethingelse{\scratchcounterthree #startno\relax}
+                    {\scratchcounterthree #startno\relax}
+                    {\scratchcounterthree \zerocount\relax}
+  \or\fi
+  \scratchcounterone #rows   \relax
+  \scratchcountertwo #columns\relax
+  \answer@seq@tempa=\numexpr\scratchcounterthree-1\relax
+  \def\getdata##1{\datasetvariable
+                 {Answer_collector}%
+                 {\the\scratchcounter-\the\answer@seq@tempa}%
+                 {##1}}%
+  \bTABLE
+    \dorecurse{\the\scratchcounterone}{\bTR
+      \dorecurse{\the\scratchcountertwo}{\advance\answer@seq@tempa by 1\relax
+        \expanded{\bTD\tt\getdata{userorder}\eTD}
+        \expanded{\bTD\ss\getdata{answer}   \eTD}
+       }
+    \eTR}
+  \eTABLE
+\endgroup}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%D \section{模式設置}
+%D \section{模式設置 / Mode Setting/ モードセット}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \definemode[teacher][keep]
 \definemode[student][keep]
