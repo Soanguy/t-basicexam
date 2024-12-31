@@ -3,7 +3,7 @@
 \starttext
 \section{Choice}
 
-\setupquestion[pointlabel={points},answerprelabel=answer:,]
+\setupquestion[pointlabel={,points},answerprelabel=answer:,]
 \setupproblem[left=(,right=),stopper=,width=\widthofstring{(00)}]
 \setupanswer[label={Answer},pointlabel={points},
              scriptcontent={\centerline{\lightgray\ss WRITE YOUR ANSWER HERE.}\par\null\vskip2\baselineskip\relax}]
@@ -22,16 +22,16 @@
 \stopbuffer
 
 \startbuffer[AL-1]
-\starticitem Lorem ipsum\stopicitem
+\startcitem Lorem ipsum\stopcitem
 \stopbuffer
 \startbuffer[AL-2]
-\starticitem dolor sit amet\stopicitem
+\startcitem dolor sit amet\stopcitem
 \stopbuffer
 \startbuffer[AL-3]
-\starticitem[*] Lorem ipsum\stopicitem
+\startcitem[*] Lorem ipsum\stopcitem
 \stopbuffer
 \startbuffer[AL-4]
-\starticitem dolor sit amet\stopicitem
+\startcitem dolor sit amet\stopcitem
 \stopbuffer
 
 \startbuffer[answer]
