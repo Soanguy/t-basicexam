@@ -135,10 +135,19 @@
 %D \section{定义其后环境所需命令}
 
 %D 定义关键词
+\definesystemconstant{close}
+\definesystemconstant{choice}
+\definesystemconstant{answer}
+\definesystemconstant{problem}
+\definesystemconstant{question}
+\definesystemconstant{material}
+\definesystemconstant{optclose}
+
 \startinterface all
 \setinterfaceconstant {class}          {class}
 \setinterfaceconstant {answer}         {answer}
 \setinterfaceconstant {point}          {point}
+\setinterfaceconstant {example}        {example}
 \setinterfaceconstant {showanswer}     {showanswer}
 \setinterfaceconstant {showpoint}      {showpoint}
 \setinterfaceconstant {answerstyle}    {answerstyle}
@@ -223,6 +232,14 @@
 \def\increaseQuestionID{\ifmode_example\increaseEQuestionID\else\incrementcounter[Unicode]\fi}
 \def\decreaseQuestionID{\ifmode_example\decreaseEQuestionID\else\decrementcounter[Unicode]\fi}
 
+\definetextbackground[env_answer]
+\defineitemgroup     [env_question]
+\defineitemgroup     [env_problem]
+\defineitemgroup     [env_example]
+\defineitemgroup     [env_choice]
+\definebar           [fillin_text]
+\definemarking       [title]
+\definemarking       [subject]
 \definedataset[Answer_collector]
 \definedataset[Answer_collectorhelper]
 \definedataset[Subwriting_collector]
@@ -247,18 +264,6 @@
     \string answer}
 \fi
 
-\definetextbackground[env_answer]
-\defineitemgroup     [env_question]
-\defineitemgroup     [env_problem]
-\defineitemgroup     [env_choice]
-\definebar           [fillin_text]
-\definemarking       [title]
-\definemarking       [subject]
-\defineoverlay       [normalframeOL][\useMPgraphic{normalframeMP}]
-
-\startuseMPgraphic{normalframeMP}
-  draw unitsquare xyscaled (\overlaywidth, \overlayheight);
-\stopuseMPgraphic
 \startuseMPgraphic{rules:under:wave}
     vardef lsin primary x =
         lua("mp.print(math.sin(" & decimal x & "))")
@@ -271,20 +276,21 @@
 \stopuseMPgraphic
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\defineconversion [hiragana]      [あ,い,う,え,お,か,き,く,け,こ,さ,し,す,せ,そ,
-                                   た,ち,つ,て,と,な,に,ぬ,ね,の,は,ひ,ふ,へ,ほ,
-                                   ま,み,む,め,も,や,ゆ,よ,ら,り,る,れ,ろ,わ,ん]
-\defineconversion [katakana]      [ア,イ,ウ,エ,オ,カ,キ,ク,ケ,コ,サ,シ,ス,セ,ソ,
-                                   タ,チ,ツ,テ,ト,ナ,ニ,ヌ,ネ,ノ,ハ,ヒ,フ,ヘ,ホ,
-                                   マ,ミ,ム,メ,モ,ヤ,ユ,ヨ,ラ,リ,ル,レ,ロ,ワ,ン]
-\defineconversion [hiragana-iroha][い,ろ,は,に,ほ,へ,と,ち,り,ぬ,る,を,わ,か,よ,
-                                   た,れ,そ,つ,ね,な,ら,む,う,ゐ,の,お,く,や,ま,
-                                   け,ふ,こ,え,て,あ,さ,き,ゆ,め,み,し,ゑ,ひ,も,
-                                   せ,す,ん]
-\defineconversion [katakana-iroha][イ,ロ,ハ,ニ,ホ,ヘ,ト,チ,リ,ヌ,ル,ヲ,ワ,カ,ヨ,
-                                   タ,レ,ソ,ツ,ネ,ナ,ラ,ム,ウ,ヰ,ノ,オ,ク,ヤ,マ,
-                                   ケ,フ,コ,エ,テ,ア,サ,キ,ユ,メ,ミ,シ,ヱ,ヒ,モ,
-                                   セ,ス,ン]
+% no need here
+%\defineconversion [hiragana]      [あ,い,う,え,お,か,き,く,け,こ,さ,し,す,せ,そ,
+%                                   た,ち,つ,て,と,な,に,ぬ,ね,の,は,ひ,ふ,へ,ほ,
+%                                   ま,み,む,め,も,や,ゆ,よ,ら,り,る,れ,ろ,わ,ん]
+%\defineconversion [katakana]      [ア,イ,ウ,エ,オ,カ,キ,ク,ケ,コ,サ,シ,ス,セ,ソ,
+%                                   タ,チ,ツ,テ,ト,ナ,ニ,ヌ,ネ,ノ,ハ,ヒ,フ,ヘ,ホ,
+%                                   マ,ミ,ム,メ,モ,ヤ,ユ,ヨ,ラ,リ,ル,レ,ロ,ワ,ン]
+%\defineconversion [hiragana-iroha][い,ろ,は,に,ほ,へ,と,ち,り,ぬ,る,を,わ,か,よ,
+%                                   た,れ,そ,つ,ね,な,ら,む,う,ゐ,の,お,く,や,ま,
+%                                   け,ふ,こ,え,て,あ,さ,き,ゆ,め,み,し,ゑ,ひ,も,
+%                                   せ,す,ん]
+%\defineconversion [katakana-iroha][イ,ロ,ハ,ニ,ホ,ヘ,ト,チ,リ,ヌ,ル,ヲ,ワ,カ,ヨ,
+%                                   タ,レ,ソ,ツ,ネ,ナ,ラ,ム,ウ,ヰ,ノ,オ,ク,ヤ,マ,
+%                                   ケ,フ,コ,エ,テ,ア,サ,キ,ユ,メ,ミ,シ,ヱ,ヒ,モ,
+%                                   セ,ス,ン]
 %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -546,6 +552,14 @@
 \def\currentitemmaxwidth        {}
 \def\currentanswerstatus        {}
 \def\example_mode{\ifmode_example NOTICE: MODE EXAMPLE IS ON !\fi}
+\def\level_status{\ifenv_toplevel <env_toplevel>\else%
+                  \ifenv_botlevel <env_botlevel>\else%
+                                  <env_midlevel>\fi\fi}
+
+\def\mode_status{\ifmode_check      <M:C>\fi%check
+                 \ifmode_showanswer <M:A>\fi%answer
+                 \ifmode_showpoint  <M:P>\fi%point
+                 \ifmode_example    <M:E>\fi}
 
 \startluacode
   local report = logs.reporter("question info")
@@ -616,15 +630,19 @@
        "             ", "                                                                    "},
 }
 
-\def\show_check_info#1{\begingroup\ifmode_check%
-  \ifdefined\currentorder%
-    \let\old_currentorder\currentorder
-    \let\old_currentorder\currentuserorder
-  \else%
-    \def\currentorder{    {\ttx currentorder didn't define}}
-    \def\currentuserorder{{\ttx currentorder didn't define}}
-  \fi%
-  \directlua{formatted_report({#1})}\fi\endgroup}
+\def\show_check_info#1%
+ {\begingroup
+  \ifmode_check%
+    \ifdefined\currentorder%
+      \let\old_currentorder\currentorder
+      \let\old_currentorder\currentuserorder
+    \else%
+      \def\currentorder{    {\ttx currentorder didn't define}}
+      \def\currentuserorder{{\ttx currentorder didn't define}}
+    \fi%
+    \directlua{formatted_report({#1})}
+  \fi
+  \endgroup}
 
 \def\dimtonum #1{\number\numexpr \dimexpr #1\relax*635/65536\relax }
 \newcount\cnt_floor
@@ -645,15 +663,12 @@
 \def\collectanswer#1{\directlua{table.insert(MultiAnswerCollector, [[#1]])}}
 \def\collectedanswer{\directlua{tex.sprint(table.concat(MultiAnswerCollector,","))}}
 
-\def\example_toggle[#1]% 专用于测试是否开启了 example mode
-    {\doif{\csname #1parameter\endcsname{example}}{true}%
-          {\mode_exampletrue\global\c_envcounter_toggle=999\relax}}
-
 \def\set_envitem_counter{%
   \ifdefined\currentenvnumber
     \edef\prevenvnumber{\currentenvnumber}%
   \fi\initcollectanswer% 初始化多项答案收集器
-  \global\c_envcounter_toggle=0\relax%
+  \ifenv_answer    \advance\c_envcounter_toggle by 10\relax\else
+                    \global\c_envcounter_toggle=0\relax%
   \ifenv_question   \global\c_envcounter_toggle=1\relax \edef\currentenvironment  {question}\fi
   \ifenv_problem    \global\c_envcounter_toggle=2\relax \edef\currentenvironment   {problem}\fi
   \ifenv_choice     \global\c_envcounter_toggle=3\relax \edef\currentenvironment    {choice}\fi
@@ -661,17 +676,10 @@
   \ifenv_close      \global\c_envcounter_toggle=5\relax \edef\currentenvironment     {close}\fi
   \ifenv_writing    \global\c_envcounter_toggle=6\relax \edef\currentenvironment   {writing}\fi
   \ifenv_subwriting \global\c_envcounter_toggle=7\relax \edef\currentenvironment{subwriting}\fi
-  \ifenv_answer     \global\advance\c_envcounter_toggle by 10\relax\fi
+  \fi
+  \doif{\csname \currentenvironment parameter\endcsname\c!example}{true}% 专用于测试是否开启了 example mode
+       {\mode_exampletrue\global\c_envcounter_toggle=999\relax}
   \edef\currentenvnumber{\the\c_envcounter_toggle}}
-
-\def\level_status{\ifenv_toplevel <env_toplevel>\else%
-                  \ifenv_botlevel <env_botlevel>\else%
-                                  <env_midlevel>\fi\fi}
-
-\def\mode_status{\ifmode_check      <M:C>\fi%check
-                 \ifmode_showanswer <M:A>\fi%answer
-                 \ifmode_showpoint  <M:P>\fi%point
-                 \ifmode_example    <M:E>\fi}
 
 %% 注意，只要某个条件不关闭，他就会一直开启。例如：
 % {\env_topleveltrue
@@ -700,6 +708,7 @@
     \rawcountervalue[Unicode_midlevel]-%
     \rawcountervalue[Unicode_botlevel]}%
   \edef\currentuserorder{\current_user_order{#1}}%获取 上面定义的 #1order
+  \expandafter\show_check_info{\check_info}%
 % % ==  \currentid ++ \currentorder @@ \currentorder
 }%专为子级设计来获取父级序号，否则直接获取当前序号
 
@@ -716,7 +725,6 @@
   \parentitemnumber=\currentitemnumber\relax
   \set_currentuserorder[#1]% 创建 #2order 以备使用
   \inititemnumber%初始化子題目計數器
-  \expandafter\show_check_info{\check_info}%
 }
 
 \tolerant\def\set_count_itemlevel[#1]{%
@@ -729,7 +737,6 @@
   \fi\ifenv_subwriting\env_botleveltrue\fi
   \set_currentuserorder[#1]%
   \incrementitemnumber%增長子題目計數器
-  \expandafter\show_check_info{\check_info}%
 }
 
 %%% id        由 章節號 + 題號 組成，題號在每一章節中重新從 1 計數
@@ -780,17 +787,6 @@
   \ifenv_writing\short_writing_answer\else
     \ifempty\currentanswer there is no answer setted.\else
   \currentanswer\fi\fi}
-
-%%%%% NOTICE : 目前，當用戶主動輸入值和選項值發生衝突時，並未設置警告信息!!!!
-\def\getanswerforanswer{% used for answer env to auto get answer
-  \ifenv_writing
-    \short_writing_answer
-  \else
-    \datasetvariable{Answer_collector}{\QuestionID}{answer}%
-  \fi}
-
-\def\getpointforanswer{% used for answer env to auto get point
-  \datasetvariable{Answer_collector}{\QuestionID}{point}}
 
 \def\check_choice_answerstatus{\ifchoice_check checked!\else%
     unchecked!please set the answer manually by add [*] parameter to citem command.\fi}
@@ -921,7 +917,8 @@
   \begingroup
   \csname ifmode_show#2\endcsname
     \show_pointoranswer_text[#1][#2]%
-  \fi\endgroup}
+  \fi
+  \endgroup}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \defineconversion[tnum][\addff{tabularnumbers}]
@@ -1015,6 +1012,231 @@
   \cdef\currentenv_counter{\v_strc_itemgroups_counter}%
 }
 
+%D \section{设置 question 环境}
+
+%D The \tex{question} environment command can be used to set the stem.
+%D Simply wrap the stem between the \tex{startquestion} \tex{stopquestion} commands.
+%D At the same time, we have defined a short command \tex{question},
+%D which is used as a synonym for \tex{startquestion} \tex{stopquestion}
+%D
+%D \startbuffer
+%D   \startquestion
+%D     The environment is located in: \currentitemgroup 。
+%D   \stopquestion
+%D   \startquestion
+%D     The environment is located in: \currentitemgroup 。
+%D   \stopquestion
+%D   \question {The environment is located in: \currentitemgroup 。}
+%D \stopbuffer
+%D \typebuffer
+%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
+%D The \tex{question} environment command inherits the option settings for
+%D the \tex{itemgroup} environment. Therefore, you can modify the environment
+%D using \tex{setupquestion} in the same way you modify \tex{itemgroup}.
+%D
+%D \bgroup
+%D   \startbuffer
+%D     \setupquestion[color=green,style=\ss,start=22,
+%D                    option={n,packed,joinedup,nowhite,}]
+%D     \startquestion
+%D       The environment is located in: \currentitemgroup 。
+%D     \stopquestion
+%D   \stopbuffer
+%D   \typebuffer
+%D   \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+%D \egroup
+
+%D question 环境可以设置 {\bf 答案} 和 {\bf 分值}。该键值详细的设置如下：
+%D \starttabulate[|l|l|l|l|]
+%D \NC showanswer \NC answer \NC answerstyle    \NC answercolor \NC\NR
+%D \NC            \NC        \NC answerlabel    \NC answerlabel \NC\NR\HL
+%D \NC showpoint  \NC point  \NC pointstyle     \NC pointcolor  \NC\NR
+%D \NC            \NC        \NC pointprelabel  \NC pointlabel  \NC\NR
+%D \stoptabulate
+
+%D \startbuffer
+%D   \setupquestion[start=1,option={n,packed,joinedup,nowhite,}]
+%D   \startquestion[showpoint=true,point=5,pointlabel={points},
+%D                  showanswer=true,answer={new answer},answerstyle={\tt},]
+%D     The environment is located in: \currentitemgroup 。
+%D   \stopquestion
+%D \stopbuffer
+%D \typebuffer
+%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
+%D 此外，question 设置了一个特殊的键值 example=true，可以是当前题目不被录入答案。
+%D 在(v20241023)中，通过不太正常的方式设置了 example 后的题目可以自动重置回到序数 1。
+%D 或许，可以设置一个新的键值，来设定 example 之后的题目是重置为 1 还是接续上一个序号。
+%D 此外，由于 question 内置了一个 item， 因此可以使用 reference 来创建引用。
+
+%D {\bf 關於 point 和 answer 的設定: }
+%D point 的分值默認是一整個題目的總分數。如果當前字環境為 problem，只要為每個 pitem
+%D 設計了 point 的分值，該模塊就會自動計算。answer 的獲取也是一樣。在設計時，
+%D pitem 默認是擁有多個同級項目的。也就是說，會在同一個 question 環境中，有多個子答案。
+%D 我們無法獲知應該使用哪一個作為當前環境的答案。同樣的道理，每個 question 環境內只有一個
+%D choice 環境，只需要直接為 question 環境配置分值即可。choice 環境並不能配置分數。
+
+\installnamespace          {question}
+\installcommandhandler \????question  {question}  \????question
+
+\appendtoks
+  \setuevalue        {\currentquestion}{\directnamedquestion[\currentquestion]}%
+  \setuevalue{\e!start\currentquestion}{\startnamedquestion [\currentquestion]}%
+  \setuevalue{\e!stop \currentquestion}{\stopnamedquestion}%
+\to \everydefinequestion
+
+\tolerant\protected\def\directnamedquestion[#S#1]#*[#S#2]{%
+  \groupedcommand{\startnamedquestion[#1][#2]}%
+                 {\stopnamedquestion}}
+
+\tolerant\protected\def\startnamedquestion[#S#1]#*[#S#2]%
+ {\begingroup
+  \scratchcounterone\currentitemnumber\relax
+% 因為 setcountlevel 用到了 scratchcounter,這裡使用新的計數器抓取命令
+  \def\currentquestion{#1}\setupcurrentquestion[#2]%
+  \edef\p_class{\questionparameter\c!class}%
+  \edef\p_start{\questionparameter\c!start}%
+  \edef\p_reset{\questionparameter\c!reset}%
+  \edef\p_option{\questionparameter\c!option}%
+  \edef\p_defaultoption{n,packed,nowhite,joinedup,continue}%
+  \ifx\p_class\s!question
+    \env_questiontrue\set_envitem_counter\fi
+  \ifx\p_class\s!problem
+    \env_problemtrue \set_envitem_counter\fi
+  \ifx\p_class\s!optclose
+    \env_closetrue   \set_envitem_counter\fi
+  \ifx\p_reset\s!true
+    \resetcounter[itemgroup:env_question]\fi
+  \ifx\p_class\s!question
+    \ifmode_example
+    \installitemgroupoption[example][question]%
+    \startitemgroup[env_example]\else
+    \installitemgroupoption[question][question]%
+    \startitemgroup[env_question]\fi
+    \item[\questionparameter\c!reference]%
+    \increaseQuestionID% 具有獨立答案，增長 QID
+    \set_count_envlevel  [question]%
+    \installpointoranswer[question][point]%
+    \installpointoranswer[question][answer]
+  \fi
+  \ifx\p_class\s!problem
+    \ifmode_example
+    \installitemgroupoption[example][question]%
+    \startitemgroup[env_example]\else
+    \installitemgroupoption[problem][question]%
+    \startitemgroup[env_problem]\fi
+    \set_count_envlevel [problem]%
+    \ifenv_toplevel\else
+      \decreaseQuestionID% 直接获取 question 的 ID
+      \parentitemnumber=\scratchcounterone\relax
+    \fi
+  \fi
+  \ifx\p_class\s!optclose
+    \ifmode_example
+    \installitemgroupoption[example][question]%
+    \startitemgroup[env_example]\else
+    \installitemgroupoption[question][question]%
+    \startitemgroup[env_question]
+    \fi
+    \leftskip=0pt\relax
+    \set_count_envlevel[question]
+  \fi
+  \save_question_order\removeunwantedspaces}
+
+\protected\def\stopnamedquestion{%
+  \ifnum\c_envcounter_toggle=1\relax
+  \installdatacollectorhelper
+  \installdatacollector\fi
+  \ifx\p_class\s!problem
+    \installdatacollectorhelper
+  \fi
+  \initcollectanswer
+  \stopitemgroup
+  \endgroup}
+
+\definequestion[question]
+
+\setupquestion
+  [class=question,
+  %example=,
+  %showpoint=false,
+  %point=,
+  pointstyle=\ttx,
+  %pointcolor=,
+  %pointprelabel=,
+  pointlabel={,\examtexts{point}},
+  %showanswer=false,
+  %answer=,
+  answerlabel={\examtexts{answer},},
+  answerstyle=\ss,
+  answercolor=red,
+  indenting=no,
+  way=bychapter,
+  numberconversion=tnum,]
+
+\setupquestion
+  [\c!margin=\zeropoint,
+   \c!leftmargin=\zeropoint,
+   \c!rightmargin=\zeropoint,
+   \c!leftmargindistance=\zeropoint,
+   \c!rightmargindistance=\zeropoint,
+   \c!indentnext=\v!yes,
+   \c!width=1.5\emwidth,
+   \c!factor=0,
+   \c!step=.5\emwidth, % deals with broad
+   \c!distance=\zeropoint,
+  %\c!align=\v!normal, % definitely not \v!normal !
+  %\c!symalign=,
+  %\c!color=,
+  %\c!indenting=, % untouched if empty
+  %\c!style=,
+   \c!marstyle=\v!type,
+  %\c!symstyle=,
+  %\c!headstyle=,
+  %\c!marcolor=,
+  %\c!symcolor=,
+  %\c!headcolor=,
+  %\c!beforehead=,
+   \c!symcolor=\itemgroupparameter\c!color, % new per 2012.01.17
+   \c!symstyle=\itemgroupparameter\c!style, % new per 2012.01.17
+   \c!afterhead=\blank,
+   \c!before=,
+   \c!inbetween=,
+   \c!after=,
+  %\c!stopper=.,
+   \c!placestopper=\v!yes,
+   \c!stopper={. },
+  %\c!inner=,
+   \c!n=2,
+   \c!items=4,
+   \c!levels=10,
+   \c!lefttext=,
+   \c!righttext=,
+   \c!start=1,
+   \c!packcriterium=\zerocount,
+   \c!criterium=\v!all, % permits 0 and negative numbers
+   \c!option={n,packed,joinedup,nowhite,continue},
+   \c!textdistance=\v!space, % none big medium small <dimension>
+   \c!lasttextseparator=\itemgroupparameter\c!textseparator,
+  %\c!lasttextseparator=,
+   \c!command=\strc_itemgroups_default_command,
+   \c!indenting=\v!next,
+  %\c!alignsymbol=v!no,
+   \c!symbol=\currentitemlevel,
+   \c!prefix=\v!no,
+  %\c!prefixstopper=.,
+  %\c!prefixseparatorset=,
+  %\c!prefixconversion=,
+  %\c!prefixconversionset=,
+  %\c!prefixset=,
+  %\c!prefixsegments=1:100,
+   \c!prefixconnector=.,
+   \c!numberseparatorset=,
+   \c!numberconversionset=,
+   \c!numberstopper=.,
+   \c!numbersegments=1]
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   EXAM MODULE   %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1099,296 +1321,14 @@
 %D In addition to this, you can define a new problem environment via \tex{defineproblem}\type{[XXX]},
 %D which will generate two new commands \tex{startXXX} , \tex{\stopXXX}
 
-\installnamespace          {problem}
-\installcommandhandler \????problem   {problem}   \????problem
-
-\appendtoks
-  \setuevalue{\e!start\currentproblem}{\startnamedproblem[\currentproblem]}%
-  \setuevalue{\e!stop \currentproblem}{\stopnamedproblem}%
-\to \everydefineproblem
-
-\tolerant\protected\def\startnamedproblem[#S#1]#*[#S#2]{%
-  \scratchcounterone\currentitemnumber\relax
-% 因為 setcountlevel 用到了 scratchcounter,這裡就必須使用新的計數器抓取命令
-  \begingroup\env_problemtrue\set_envitem_counter
-  \def\currentproblem{#1}\setupcurrentproblem[#2]%
-  \edef\p_defaultoption{n,packed,nowhite,joinedup}%
-  \edef\p_option{\problemparameter\c!option}
-  \installitemgroupoption[problem][problem]%
-  \startitemgroup[env_problem]%
-  \set_count_envlevel [problem]%
-  \ifenv_toplevel\else
-    \decreaseQuestionID
-    \parentitemnumber=\scratchcounterone\relax% 直接获取 question 的 ID
-  \fi\removeunwantedspaces}
-
-\protected\def\stopnamedproblem{%
-  \installdatacollectorhelper%
-  \initcollectanswer
-  \stopitemgroup\endgroup}
+\definequestion[problem]
+\def\setupproblem{\setupquestion[problem]}
 
 \setupproblem
-  [\c!margin=\zeropoint,
-   \c!leftmargin=\zeropoint,
-   \c!rightmargin=\zeropoint,
-   \c!leftmargindistance=\zeropoint,
-   \c!rightmargindistance=\zeropoint,
-   \c!indentnext=\v!yes,
-   \c!width=.5\emwidth,
-   \c!factor=0,
-   \c!step=.5\emwidth, % deals with broad
-   \c!distance=.5\emwidth,
-  %\c!align=\v!normal, % definitely not \v!normal !
-  %\c!symalign=,
-  %\c!color=,
-  %\c!indenting=, % untouched if empty
-  %\c!style=,
-   \c!marstyle=\v!type,
-  %\c!symstyle=,
-  %\c!headstyle=,
-  %\c!marcolor=,
-  %\c!symcolor=,
-  %\c!headcolor=,
-  %\c!beforehead=,
-   \c!symcolor=\itemgroupparameter\c!color, % new per 2012.01.17
-   \c!symstyle=\itemgroupparameter\c!style, % new per 2012.01.17
-   \c!afterhead=\blank,
-   \c!before=,
-   \c!inbetween=,
-   \c!after=,
-  %\c!stopper=.,
-   \c!placestopper=\v!yes,
-   \c!stopper={. },
-  %\c!inner=,
-   \c!n=2,
-   \c!items=4,
-   \c!levels=10,
+  [\c!class=\s!problem,
    \c!lefttext={(},
    \c!righttext={)},
-   \c!start=1,
-   \c!packcriterium=\zerocount,
-   \c!criterium=\v!all, % permits 0 and negative numbers
-   \c!option={n,packed,joinedup,nowhite},
-   \c!textdistance=\v!space, % none big medium small <dimension>
-   \c!lasttextseparator=\itemgroupparameter\c!textseparator,
-  %\c!lasttextseparator=,
-   \c!command=\strc_itemgroups_default_command,
-   \c!indenting=\v!next,
-  %\c!alignsymbol=v!no,
-   \c!symbol=\currentitemlevel,
-   \c!prefix=\v!no,
-  %\c!prefixstopper=.,
-  %\c!prefixseparatorset=,
-  %\c!prefixconversion=,
-  %\c!prefixconversionset=,
-  %\c!prefixset=,
-  %\c!prefixsegments=1:100,
-   \c!prefixconnector=.,
-   \c!numberseparatorset=,
-   \c!numberconversionset=,
-   \c!numberstopper=.,
-   \c!numbersegments=1,
-   \c!numberconversion=tnum,]
-
-\defineproblem[problem]
-
-%D \section{设置 question 环境}
-
-%D The \tex{question} environment command can be used to set the stem.
-%D Simply wrap the stem between the \tex{startquestion} \tex{stopquestion} commands.
-%D At the same time, we have defined a short command \tex{question},
-%D which is used as a synonym for \tex{startquestion} \tex{stopquestion}
-%D
-%D \startbuffer
-%D   \startquestion
-%D     The environment is located in: \currentitemgroup 。
-%D   \stopquestion
-%D   \startquestion
-%D     The environment is located in: \currentitemgroup 。
-%D   \stopquestion
-%D   \question {The environment is located in: \currentitemgroup 。}
-%D \stopbuffer
-%D \typebuffer
-%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
-
-%D The \tex{question} environment command inherits the option settings for
-%D the \tex{itemgroup} environment. Therefore, you can modify the environment
-%D using \tex{setupquestion} in the same way you modify \tex{itemgroup}.
-%D
-%D \bgroup
-%D   \startbuffer
-%D     \setupquestion[color=green,style=\ss,start=22,
-%D                    option={n,packed,joinedup,nowhite,}]
-%D     \startquestion
-%D       The environment is located in: \currentitemgroup 。
-%D     \stopquestion
-%D   \stopbuffer
-%D   \typebuffer
-%D   \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
-%D \egroup
-
-%D question 环境可以设置 {\bf 答案} 和 {\bf 分值}。该键值详细的设置如下：
-%D \starttabulate[|l|l|l|l|]
-%D \NC showanswer \NC answer \NC answerstyle    \NC answercolor \NC\NR
-%D \NC            \NC        \NC answerlabel    \NC answerlabel \NC\NR\HL
-%D \NC showpoint  \NC point  \NC pointstyle     \NC pointcolor  \NC\NR
-%D \NC            \NC        \NC pointprelabel  \NC pointlabel  \NC\NR
-%D \stoptabulate
-
-%D \startbuffer
-%D   \startquestion[showpoint=true,point=5,pointlabel={points},
-%D                  showanswer=true,answer={new answer},answerstyle={\tt},]
-%D     The environment is located in: \currentitemgroup 。
-%D   \stopquestion
-%D \stopbuffer
-%D \typebuffer
-%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
-
-%D 此外，question 设置了一个特殊的键值 example=true，可以是当前题目不被录入答案。
-%D 在(v20241023)中，通过不太正常的方式设置了 example 后的题目可以自动重置回到序数 1。
-%D 或许，可以设置一个新的键值，来设定 example 之后的题目是重置为 1 还是接续上一个序号。
-%D 此外，由于 question 内置了一个 item， 因此可以使用 reference 来创建引用。
-
-%D {\bf 關於 point 和 answer 的設定: }
-%D point 的分值默認是一整個題目的總分數。如果當前字環境為 problem，只要為每個 pitem
-%D 設計了 point 的分值，該模塊就會自動計算。answer 的獲取也是一樣。在設計時，
-%D pitem 默認是擁有多個同級項目的。也就是說，會在同一個 question 環境中，有多個子答案。
-%D 我們無法獲知應該使用哪一個作為當前環境的答案。同樣的道理，每個 question 環境內只有一個
-%D choice 環境，只需要直接為 question 環境配置分值即可。choice 環境並不能配置分數。
-
-\installnamespace          {question}
-\installcommandhandler \????question  {question}  \????question
-
-\appendtoks
-  \setuevalue        {\currentquestion}{\directnamedquestion[\currentquestion]}%
-  \setuevalue{\e!start\currentquestion}{\startnamedquestion [\currentquestion]}%
-  \setuevalue{\e!stop \currentquestion}{\stopnamedquestion}%
-\to \everydefinequestion
-
-\tolerant\protected\def\directnamedquestion[#S#1]#*[#S#2]{%
-  \groupedcommand{\startnamedquestion[#1][#2]}%
-                 {\stopnamedquestion}}
-
-\tolerant\protected\def\startnamedquestion[#S#1]#*[#S#2]%
- {\begingroup\env_questiontrue\set_envitem_counter%%
-  \def\currentquestion{#1}\setupcurrentquestion[#2]%
-  \example_toggle[question]% 用於測試是否開啟 example_mode
-  \edef\p_class{\questionparameter\c!class}%
-  \edef\p_start{\questionparameter\c!start}%
-  \edef\p_reset{\questionparameter\c!reset}%
-  \edef\p_option{\questionparameter\c!option}%
-  \edef\p_defaultoption{n,packed,nowhite,joinedup,continue}%
-  \edef\p_class_optclose{optclose}%
-  \ifx\p_class\p_class_optclose
-    \env_closetrue\set_envitem_counter
-  \fi
-  \ifx\p_reset\s!true
-    \resetcounter[itemgroup:env_question]%
-  \fi
-  \installitemgroupoption[question][question]%
-  \startitemgroup[env_question]%
-  \ifx\p_class\p_class_optclose
-    \leftskip=0pt\relax
-  \else
-    \item[\questionparameter\c!reference]%
-    \increaseQuestionID% 具有獨立答案，增長 QID
-  \fi
-  \set_count_envlevel  [question]%
-  \ifx\p_class\p_class_optclose\else
-  \installpointoranswer[question][point]%
-  \installpointoranswer[question][answer]\fi
-  \save_question_order\removeunwantedspaces}
-
-\protected\def\stopnamedquestion{%
-  \ifnum\c_envcounter_toggle=1\relax
-  \installdatacollectorhelper%
-  \installdatacollector\fi%
-  \initcollectanswer
-  \stopitemgroup\endgroup%
-  \ifnum\c_envcounter_toggle=999\relax%
-  \resetcounter [itemgroup:env_question]%
-  \fi}
-
-\definequestion[question]
-
-\setupquestion
-  [%example=,
-  %showpoint=false,
-  %point=,
-  pointstyle=\ttx,
-  %pointcolor=,
-  %pointprelabel=,
-  pointlabel={,\examtexts{point}},
-  %showanswer=false,
-  %answer=,
-  answerlabel={\examtexts{answer},},
-  answerstyle=\ss,
-  answercolor=red,
-  indenting=no,
-  way=bychapter,
-  numberconversion=tnum,]
-
-\setupquestion
-  [\c!margin=\zeropoint,
-   \c!leftmargin=\zeropoint,
-   \c!rightmargin=\zeropoint,
-   \c!leftmargindistance=\zeropoint,
-   \c!rightmargindistance=\zeropoint,
-   \c!indentnext=\v!yes,
-   \c!width=1.5\emwidth,
-   \c!factor=0,
-   \c!step=.5\emwidth, % deals with broad
-   \c!distance=\zeropoint,
-  %\c!align=\v!normal, % definitely not \v!normal !
-  %\c!symalign=,
-  %\c!color=,
-  %\c!indenting=, % untouched if empty
-  %\c!style=,
-   \c!marstyle=\v!type,
-  %\c!symstyle=,
-  %\c!headstyle=,
-  %\c!marcolor=,
-  %\c!symcolor=,
-  %\c!headcolor=,
-  %\c!beforehead=,
-   \c!symcolor=\itemgroupparameter\c!color, % new per 2012.01.17
-   \c!symstyle=\itemgroupparameter\c!style, % new per 2012.01.17
-   \c!afterhead=\blank,
-   \c!before=,
-   \c!inbetween=,
-   \c!after=,
-  %\c!stopper=.,
-   \c!placestopper=\v!yes,
-   \c!stopper={. },
-  %\c!inner=,
-   \c!n=2,
-   \c!items=4,
-   \c!levels=10,
-   \c!lefttext=,
-   \c!righttext=,
-   \c!start=1,
-   \c!packcriterium=\zerocount,
-   \c!criterium=\v!all, % permits 0 and negative numbers
-   \c!option={n,packed,joinedup,nowhite,continue},
-   \c!textdistance=\v!space, % none big medium small <dimension>
-   \c!lasttextseparator=\itemgroupparameter\c!textseparator,
-  %\c!lasttextseparator=,
-   \c!command=\strc_itemgroups_default_command,
-   \c!indenting=\v!next,
-  %\c!alignsymbol=v!no,
-   \c!symbol=\currentitemlevel,
-   \c!prefix=\v!no,
-  %\c!prefixstopper=.,
-  %\c!prefixseparatorset=,
-  %\c!prefixconversion=,
-  %\c!prefixconversionset=,
-  %\c!prefixset=,
-  %\c!prefixsegments=1:100,
-   \c!prefixconnector=.,
-   \c!numberseparatorset=,
-   \c!numberconversionset=,
-   \c!numberstopper=.,
-   \c!numbersegments=1]
+   \c!option={n,packed,joinedup,nowhite},]
 
 %D \section{设置 choice 环境}
 %D 該環境命令只能置於 \tex{question} 環境之下。該環境有一個子項目：
@@ -1887,8 +1827,6 @@
     \frozen\protected\instance\letcsname \e!stop \currentanswer\endcsname\answer_stop_instance
 \to \everydefineanswer
 
-\definesystemconstant{answer}
-
 \tolerant\protected\def\answer_direct_instance[#S#1]#:#2%
   {\begingroup
    \cdef\currentanswer{#1}%
@@ -1980,8 +1918,8 @@
 
 % unnested, as before:
 
-\permanent\tolerant\protected\def\getanswer      [#1]{\getbufferdata[\s!answer]}
-\permanent\tolerant\protected\def\getinlineanswer[#1]{\inlinebuffer [\s!answer]}
+\permanent\tolerant\protected\def\getanswerbuffer      [#1]{\getbufferdata[\s!answer]}
+\permanent\tolerant\protected\def\getinlineanswerbuffer[#1]{\inlinebuffer [\s!answer]}
 
 \defineansweralternative
   [\s!default]
@@ -1998,10 +1936,23 @@
   \doif{\answerparameter  {showscript}}{true}{\mode_showscripttrue\mode_showanswerfalse}%
   \doif{\answerparameter\c!showanswer} {true}{\mode_showanswertrue\mode_showscriptfalse}%
   \doif{\answerparameter\c!showpoint}  {true}{\mode_showpointtrue}%
+  \setuptextbackground[env_answer]%
+  [location=paragraph,width=local,
+  leftoffset=1ex,rightoffset=1ex,
+  %topoffset=.5ex,bottomoffset=.5ex,
+  before={\leftskip=0pt\startnarrower},
+  after={\stopnarrower},
+  background=\answerparameter\c!background,
+  backgroundcolor=\answerparameter\c!backgroundcolor,
+  corner=\answerparameter\c!corner,
+  frame=\answerparameter\c!frame,
+  framecolor=\answerparameter\c!framecolor,
+  rulethickness=\answerparameter\c!rulethickness,
+  ]%
   \startenv_answer
   \useanswerstyleandcolor\c!style\c!color
   \ifenv_material% 可以用来做文章翻译或内容解释，
-    \getanswer%          % 也可以直接放置在文章之后，或这每一个段落之后
+    \getanswerbuffer%          % 也可以直接放置在文章之后，或这每一个段落之后
   \else
     \ifmode_showscript
         \answerparameter{scriptcontent}%
@@ -2031,7 +1982,7 @@
       \fi\endgroup
       \ifmode_showanswer
           \answerparameter\c!inbetween
-          \getanswer
+          \getanswerbuffer
       \fi
     \fi
   \fi
@@ -2041,12 +1992,12 @@
 \tolerant\protected\def\startoldanswer[#1]#:#2\stopoldanswer%
 {\begingroup\env_answertrue\set_envitem_counter
   \lettonothing\currentanswer%釋放currentanswer
-  \lettonothing\getanswer\lettonothing\getinlineanswer
+  \lettonothing\getanswerbuffer\lettonothing\getinlineanswerbuffer
   % currentanswer 命令已經被其他環境定義為答案獲取命令，
   % 此處的 currentanswer 是定義環境命令，需要重新釋放。
   \cdef\currentanswer{#1}%
   \setupcurrentanswer[#2]%
-  \edef\getanswer{#2}%
+  \edef\getanswerbuffer{#2}%
   \usesetupsparameter\answerparameter
   \edef\p_renderingsetup{\answeralternativeparameter\c!renderingsetup}%
   \directsetup\p_renderingsetup
@@ -2058,20 +2009,18 @@
 % 如果需要為其他環境獲取解析內容， 應該需要重定義命令（answer + currentQID）
 \endgroup}
 
-\setuptextbackground
-  [env_answer]
-  [location=paragraph,width=local,
-  leftoffset=1ex,rightoffset=1ex,
-  %topoffset=.5ex,bottomoffset=.5ex,
-  before={\leftskip=0pt\startnarrower},
-  after={\stopnarrower},
-  background=\answerparameter\c!background,
-  backgroundcolor=\answerparameter\c!backgroundcolor,
-  corner=\answerparameter\c!corner,
-  frame=\answerparameter\c!frame,
-  framecolor=\answerparameter\c!framecolor,
-  rulethickness=\answerparameter\c!rulethickness,
-  ]
+\startuseMPgraphic{normalframeMP}
+  draw unitsquare xyscaled (\overlaywidth, \overlayheight);
+\stopuseMPgraphic
+\defineoverlay       [normalframeOL][\useMPgraphic{normalframeMP}]
+
+%%%%% NOTICE : 目前，當用戶主動輸入值和選項值發生衝突時，並未設置警告信息!!!!
+\def\getanswerforanswer{% used for answer env to auto get answer
+  \ifenv_writing\short_writing_answer
+  \else\datasetvariable{Answer_collector}{\QuestionID}{answer}\fi}
+
+\def\getpointforanswer{% used for answer env to auto get point
+  \datasetvariable{Answer_collector}{\QuestionID}{point}}
 
 \setupanswer
   [showanswer=true,
@@ -2832,28 +2781,128 @@
        \c_stepscore=0\relax%
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\installnamespace          {writingbox}
-\installcommandhandler \????writingbox    {writingbox}    \????writingbox
-\setupwritingbox[row=10,column=18,width=2em,height=2em,midheight=1em]
-\newcount \tbl_row
-\newcount \tbl_col
-\def\makewritingbox{\dosingleempty\makewritingbox_indeed}
-\def\makewritingbox_indeed[#1]{\begingroup%
-    \tbl_row=\writingboxparameter{row} % yoko
-    \tbl_col=\writingboxparameter{column} % tate
-    \setupTABLE[split=yes]
-    \setupTABLE[column][width=\writingboxparameter{width}]
-    \setupTABLE[row][odd][height=\writingboxparameter{midheight}]
-    \setupTABLE[row][even][height=\writingboxparameter{height}]
-    \bTABLE
-        \bTR \bTD[nc=\number\tbl_col] {} \eTD \eTR
-        \dorecurse{\number\tbl_row}{
-        \bTR
-            \dorecurse{\number\tbl_col}{\bTD {} \eTD}
-        \eTR
-        \bTR \bTD[nc=\number\tbl_col] {} \eTD \eTR}
-    \eTABLE
-\endgroup}
+%D \section{作文格 / Writing Box}
+%D
+%D \startbuffer
+%D \writingbox
+%D  [column=12,
+%D   row=15,
+%D   evencolor=blue,
+%D   oddcolor=darkgray,
+%D   evenheight=1cm,
+%D   oddheight=.5cm,
+%D   align=flushleft,
+%D   height=\textheight,
+%D   width=\textwidth,]{}
+%D \writinggrid
+%D  [cellwidth=1cm,
+%D   column=12,
+%D   row=15,
+%D   cellcolor=darkgray,
+%D   align=flushleft,
+%D   height=\textheight,
+%D   width=\textwidth,]{}
+%D \stopbuffer
+%D \typebuffer
+%D \getbuffer
+
+\startuseMPgraphic{grid:writingbox}{column,row,evenheight,oddheight,}
+  pageWidth   := OverlayWidth;
+  evenRows    := \MPvar{row};
+  evenHeight  := \MPvar{evenheight};
+  oddHeight   := \MPvar{oddheight};
+  evenColumns := \MPvar{column};
+  oddColumns  := evenColumns + 1;
+
+  %% 绘制偶数行
+  for i = 1 upto evenColumns: % 可以根据需要调整行数
+    y1 := i * (oddHeight + evenHeight) + oddHeight;
+    y2 := y1 + evenHeight;
+    for j = 0 upto evenRows - 1:
+        x1 := j  * (pageWidth / evenRows);
+        x2 := x1 + (pageWidth / evenRows);
+        draw (x1, y1) -- (x2, y1) -- (x2, y2) -- (x1, y2) -- cycle
+            withcolor \MPvar{evencolor};
+    endfor;
+  endfor;
+
+  %% 绘制奇数行
+  for i = 1 upto oddColumns: % 可以根据需要调整行数
+    y1 := i * (oddHeight + evenHeight);
+    y2 := y1 + oddHeight;
+    draw (0, y1) -- (pageWidth, y1) -- (pageWidth, y2) -- (0, y2) -- cycle
+        withcolor \MPvar{oddcolor};
+  endfor;
+\stopuseMPgraphic
+
+\defineoverlay
+[writingbox]
+[{\uniqueMPgraphic{grid:writingbox}{
+  evencolor=\framedparameter{evencolor},
+   oddcolor=\framedparameter{oddcolor},
+    column=\framedparameter{column},
+        row=\framedparameter{row},
+  evenheight=\framedparameter{evenheight},
+  oddheight=\framedparameter{oddheight},
+ }}]
+
+\defineframed[writingbox]
+ [offset=overlay,
+  background=writingbox,
+  frameoffset=.5pt,
+  column=12,
+  row=15,
+  evencolor=blue,
+  oddcolor=darkgray,
+  evenheight=1cm,
+  oddheight=.5cm,
+  align=flushleft,
+  height=\textheight,
+  width=\textwidth,
+  rulethickness=1pt]
+
+% \writingbox[column=12,row=15,]{EEE\par EEEE\par EEEE}
+
+\startuseMPgraphic{grid:writinggrid}{row,column,cellwidth,cellcolor}
+  pageWidth   := OverlayWidth;
+  m := \MPvar{row};       % 行数
+  u := \MPvar{cellwidth}; % 单位长度
+  n := \MPvar{column};    % 列数
+  % 画竖线
+  for i = 0 upto n:
+      draw (i*u, 0) -- (i*u, m*u) withcolor \MPvar{cellcolor};
+  endfor;
+
+  % 画横线
+  for j = 0 upto m:
+      draw (0, j*u) -- (n*u, j*u) withcolor \MPvar{cellcolor};
+  endfor;
+\stopuseMPgraphic
+
+\defineoverlay
+[writinggrid]
+[{\uniqueMPgraphic{grid:writinggrid}{
+    column=\framedparameter{column},
+       row=\framedparameter{row},
+ cellwidth=\framedparameter{cellwidth},
+ cellcolor=\framedparameter{cellcolor},
+ }}]
+
+\defineframed[writinggrid]
+  [offset=overlay,
+    background=writinggrid,
+    frameoffset=.5pt,
+    cellwidth=1cm,
+    column=12,
+    row=15,
+    cellcolor=darkgray,
+    align=flushleft,
+    height=\textheight,
+    width=\textwidth,
+    rulethickness=1pt]
+
+%  \writinggrid[column=12,row=15,]{EEE\par EEEE\par EEEE}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{模拟例子}
 
@@ -3157,7 +3206,7 @@
   \or\fi
   \answer@seq@tempa=\numexpr\scratchcounterone-1\relax
   \answer@seq@tempb=\numexpr\scratchcounterone-1\relax
-  \the\answer@seq@tempa == \the\answer@seq@tempb
+  % \the\answer@seq@tempa == \the\answer@seq@tempb
   \bTABLE
     \dorecurse{#rows}{
       \bTR
@@ -3168,7 +3217,7 @@
           \expanded{\bTD\ss\datasetvariable{Answer_collector}{\the\scratchcounter-\the\answer@seq@tempb}{answer}\eTD}}%
       \eTR}%
   \eTABLE
-\endgroup}
+\par\endgroup}
 
 %D Example 5:
 %D \starttyping
@@ -3217,7 +3266,7 @@
        }
     \eTR}
   \eTABLE
-\endgroup}
+\par\endgroup}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

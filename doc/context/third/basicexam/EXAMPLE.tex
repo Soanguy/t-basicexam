@@ -1,6 +1,5 @@
 \usemodule[memos]
 \usemodule[basicexam][mode=teacher,layout=twoup]
-\setuplabeltext [hans] [section={第,部分},subsection={第,节},]
 \defineenumeration[Theorem]
   [alternative=serried,
   width=fit,
@@ -1583,12 +1582,12 @@ Four days later, when I was back in Vienna, I called Gunter as promised. He pick
 \stopanswer
 
 
-%\dorecurse{75}{\typeanswerbychap{1},\quad}
-%\unprotect
-%\type@answer@i[{2}*5,1,10]\par
-%\type@answer@i[{2}*5,2,10]\par
-%\type@answer@i[{14}*5,3,75]
-%\protect
+\chapter{Answer List}
+
+\typeanswertable[2,5][1][1]
+\typeanswertable[2,5][2][1]
+\typeanswertable[11,5][3][1]
+\typeanswertable[1,5][3][56]
 
 \stoptext
 
