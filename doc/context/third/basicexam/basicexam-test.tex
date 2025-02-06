@@ -1,202 +1,470 @@
 \usemodule[basicexam]%[mode=teacher]
 %\usemodule[basicexam][mode={teacher,check}]
-\starttext
+
+\setuptextrules[style=\tf\ss,before=,after=,rulethickness=.5pt]
+\setuplayout[width=.7\paperwidth,backspace=.2\paperwidth]
 \setuphead[section][style=\ss\bfa,color=blue]
+\setuphead[subsection][style=\ss\bf,color=blue,alternative=margintext]
+\setuptyping[style=\ttxx\setuplocalinterlinespace[line=2ex],
+             option={context},
+             before={\vbox{\hrule height .5pt\par
+                     \textrule{EXAMPLE}%
+                     \hrule height .5pt\vrule width0pt depth 4pt}\par},
+              after={\vbox{\hrule height .5pt\strut}},
+             ]
+
+\starttext
+\placecontent
+
+\setupquestion[answer={default answer}]
+\setupproblem[left=(,right=),stopper=,width=\widthofstring{(00)}]
 
 \section{Choice}
 
-\setupquestion[pointlabel={,points},answerprelabel=answer:,]
-\setupproblem[left=(,right=),stopper=,width=\widthofstring{(00)}]
-\setupanswer[label={Answer},pointlabel={points},
-             scriptcontent={\centerline{\lightgray\ss WRITE YOUR ANSWER HERE.}\par\null\vskip2\baselineskip\relax}]
+\subsection{full example \& quick example}
 
-\startbuffer[L-1]
-\startcitem Lorem ipsum\stopcitem
-\stopbuffer
-\startbuffer[L-2]
-\startcitem dolor sit amet\stopcitem
-\stopbuffer
-\startbuffer[L-3]
-\startcitem[*] Lorem ipsum\stopcitem
-\stopbuffer
-\startbuffer[L-4]
-\startcitem dolor sit amet\stopcitem
-\stopbuffer
+\startbuffer
+\startquestion
+  This is the question stem of the selection question.
+  \startchoice
+    \startcitem Choice One   \stopcitem
+    \startcitem Choice Two   \stopcitem
+    \startcitem Choice Three \stopcitem
+    \startcitem Choice Four  \stopcitem
+  \stopchoice
+\stopquestion
 
-\startbuffer[AL-1]
-\startcitem Lorem ipsum\stopcitem
-\stopbuffer
-\startbuffer[AL-2]
-\startcitem dolor sit amet\stopcitem
-\stopbuffer
-\startbuffer[AL-3]
-\startcitem[*] Lorem ipsum\stopcitem
-\stopbuffer
-\startbuffer[AL-4]
-\startcitem dolor sit amet\stopcitem
+\question{This is the question stem of the selection question.
+   \choice{Choice One,Choice Two,Choice Three,Choice Four}
+}
 \stopbuffer
 
-\startbuffer[answer]
-\unprotect
-\ifmode_showanswer
-  \setupanswer[showanswer=true]
-\else
-  \setupanswer[showscript=true,showanswer=false]
-\fi
-\protect
-\startanswer
- Here is answer.
+\typebuffer
+
+\getbuffer
+
+\subsection{example with answer}
+
+\startbuffer
+\startquestion[reference=Q,
+               showanswer=true,
+               showpoint=true,
+               point=4,
+               answer=Q]
+  This is the question stem of the selection question \fillin{Answer Q}.
+  \startchoice
+    \startcitem    Choice One   \stopcitem
+    \startcitem    Choice Two   \stopcitem
+    \startcitem[*] Choice Three \stopcitem
+    \startcitem    Choice Four  \stopcitem
+  \stopchoice
+  \startanswer
+    This is a detailed explanation of this topic.
+    It should be noted that the answer will be overwritten by the next answer. 
+    Three answers are set for this question, but only the last answer will be selected in the end.
+  \stopanswer
+\stopquestion
+
+\question[reference=QQ,
+          showanswer=true,
+          showpoint=true,
+          point=4,
+          answer=QQ]
+  {This is the question stem of the selection question.\fillin{Answer QQ}.
+   \choice{Choice One,Choice Two,Choice Three,{[*]Choice Four}}
+  \startanswer
+    This is a detailed explanation of this topic.
+    It should be noted that the answer will be overwritten by the next answer. 
+    Three answers are set for this question, but only the last answer will be selected in the end.
+  \stopanswer}
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\subsection{example with script}
+
+\startbuffer
+\startquestion[reference=Q,
+               point=4,
+               answer=Q]
+  This is the question stem of the selection question \fillin{Answer Q}.
+  \startchoice
+    \startcitem    Choice One   \stopcitem
+    \startcitem    Choice Two   \stopcitem
+    \startcitem[*] Choice Three \stopcitem
+    \startcitem    Choice Four  \stopcitem
+  \stopchoice
+  \startanswer[showscript=true,showanswer=false,
+               scriptcontent={\centerline{\lightgray\ss WRITE YOUR ANSWER HERE.}\par
+                              \null\vskip2\baselineskip\relax}]
+    This is a detailed explanation of this topic.
+    It should be noted that the answer will be overwritten by the next answer. 
+    Three answers are set for this question, but only the last answer will be selected in the end.
+  \stopanswer
+\stopquestion
+
+\question{This is the question stem of the selection question.\relax
+   \choice{Choice One,Choice Two,Choice Three,Choice Four}}
+\startanswer[showscript=true,frame=off,scriptcontent=\null\blank[3*line]]
+
 \stopanswer
+
+\question{This is the question stem of the selection question.\relax
+   \choice{Choice One,Choice Two,Choice Three,Choice Four}}
 \stopbuffer
 
-\setupquestion[showanswer=false,point=2,showpoint=false]
+\typebuffer
 
-\startquestion
-  Lorem ipsum dolor sit amet,\fillin{K}
-  \startchoice
-    \getbuffer[L-1]\getbuffer[L-2]\getbuffer[L-3]\getbuffer[L-4]
+\getbuffer
+
+\subsection{adjust style}
+
+\startbuffer
+\startquestion[style=ss,pointlabel={total , pts},point=2,showpoint=true]
+  This is the question stem of the selection question.
+  \startchoice[style=tt,color=red]
+    \startcitem Choice One   \stopcitem
+    \startcitem Choice Two   \stopcitem
+    \startcitem Choice Three \stopcitem
+    \startcitem Choice Four  \stopcitem
   \stopchoice
-  \getbuffer[answer]
 \stopquestion
 
-\startquestion
-  Lorem ipsum dolor sit amet,
-  \startchoice
-    \getbuffer[L-3]\getbuffer[L-2]\getbuffer[L-3]\getbuffer[L-4]
+\startquestion[answerstyle=tt,answercolor=darkred,
+               point=2,
+               pointstyle=tt, pointcolor=darkred,
+               textstyle=ss,textcolor=blue,
+               showpoint=true,showanswer=true]
+  This is the question stem of the selection question.
+  \startchoice[answerstyle=\tt,answercolor=green,textstyle=rm,textcolor=darkred,]
+    \startcitem Choice One      \stopcitem
+    \startcitem Choice Two      \stopcitem
+    \startcitem[*] Choice Three \stopcitem
+    \startcitem Choice Four     \stopcitem
   \stopchoice
-  \getbuffer[answer]
 \stopquestion
+\stopbuffer
 
-\startquestion
-  Lorem ipsum dolor sit amet,
-  \fastchoice{Lorem ipsum,{[*]Lorem ipsum},Lorem ipsum,Lorem ipsum}
-  \getbuffer[answer]
-\stopquestion
+\typebuffer
 
-\startquestion
-  Lorem ipsum dolor sit amet,
-  \fastchoice{Lorem ipsum,{[*]Lorem ipsum},Lorem ipsum,Lorem ipsum}
-  \getbuffer[answer]
-\stopquestion
+\getbuffer
 
+\subsection{inline choice}
+
+\startbuffer
 \startquestion
-  Lorem ipsum dolor sit amet,
+  This is the question stem of the selection question.\relax
   \startinlinechoice
-    \getbuffer[AL-1]\getbuffer[AL-2]\getbuffer[AL-3]\getbuffer[AL-4]
+    \startcitem Choice One   \stopcitem
+    \startcitem Choice Two   \stopcitem
+    \startcitem Choice Three \stopcitem
+    \startcitem Choice Four  \stopcitem
   \stopinlinechoice
-  \getbuffer[answer]
 \stopquestion
 
-\startquestion[showanswer=false,point=2,showpoint=false]
-  Lorem ipsum dolor sit amet,
-  \fastchoicealt{Lorem ipsum,{[*]Lorem ipsum},Lorem ipsum,Lorem ipsum}
-  \getbuffer[answer]
-\stopquestion
+\question{This is the question stem of the selection question.\relax
+   \inlinechoice{Choice One,Choice Two,Choice Three,Choice Four}
+}
 
-\startquestion
-  Lorem ipsum dolor sit amet,
-  \fastchoicealt{Lorem ipsum,{[*]Lorem ipsum},Lorem ipsum,Lorem ipsum}
-  \getbuffer[answer]
-\stopquestion
-
-\setupquestion[showanswer=true,point=2,showpoint=true]
-
-\startquestion
-  Lorem ipsum dolor sit amet,\fillin{K}
-  \startchoice
-    \getbuffer[L-1]\getbuffer[L-2]\getbuffer[L-3]\getbuffer[L-4]
-  \stopchoice
-  \getbuffer[answer]
-\stopquestion
-
-\startquestion
-  Lorem ipsum dolor sit amet,
-  \startchoice
-    \getbuffer[L-3]\getbuffer[L-2]\getbuffer[L-3]\getbuffer[L-4]
-  \stopchoice
-  \getbuffer[answer]
-\stopquestion
-
-\startquestion
-  Lorem ipsum dolor sit amet,
-  \fastchoice{Lorem ipsum,{[*]Lorem ipsum},Lorem ipsum,Lorem ipsum}
-  \getbuffer[answer]
-\stopquestion
-
-\startquestion
-  Lorem ipsum dolor sit amet,
-  \fastchoice{Lorem ipsum,{[*]Lorem ipsum},Lorem ipsum,Lorem ipsum}
-  \getbuffer[answer]
-\stopquestion
-
-\startquestion
-  Lorem ipsum dolor sit amet,
+\startquestion[showanswer=true]
+  This is the question stem of the selection question.\relax\break
   \startinlinechoice
-    \getbuffer[AL-1]\getbuffer[AL-2]\getbuffer[AL-3]\getbuffer[AL-4]
+    \startcitem[*] Choice One\stopcitem
+    \startcitem Choice Two   \stopcitem
+    \startcitem Choice Three \stopcitem
+    \startcitem Choice Four  \stopcitem
   \stopinlinechoice
-  \getbuffer[answer]
 \stopquestion
 
+\question[showanswer=true]{This is the question stem of the selection question.\relax\break\hfill
+   \inlinechoice{Choice One,{[*]Choice Two},Choice Three,Choice Four}
+}
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\startbuffer
+\definechoice[newinlinechoice][inlinechoice=true,correctsymbol=default]
 \startquestion
-  Lorem ipsum dolor sit amet,
-  \fastchoicealt{Lorem ipsum,{[*]Lorem ipsum},Lorem ipsum,Lorem ipsum}
-  \getbuffer[answer]
+  This is the question stem of the selection question.\relax
+  \startnewinlinechoice
+    \startcitem Choice One   \stopcitem
+    \startcitem[*] Choice Two   \stopcitem
+    \startcitem Choice Three \stopcitem
+    \startcitem Choice Four  \stopcitem
+  \stopnewinlinechoice
 \stopquestion
 
-\startquestion
-  Lorem ipsum dolor sit amet,
-  \fastchoicealt{Lorem ipsum,{[*]Lorem ipsum},Lorem ipsum,Lorem ipsum}
-  \getbuffer[answer]
+\question[showanswer=true]{This is the question stem of the selection question.\relax
+   \newinlinechoice{Choice One,{[*]Choice Two},Choice Three,Choice Four}
+}
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\subsection{multichoice}
+
+\startbuffer
+\startquestion[showanswer=true]
+  This is the question stem of the selection question.\relax
+  \startchoice
+    \startcitem[*]   Choice One\stopcitem
+    \startcitem      Choice Two\stopcitem
+    \startcitem[*] Choice Three\stopcitem
+    \startcitem     Choice Four\stopcitem
+  \stopchoice
 \stopquestion
+
+\question[showanswer=true]{This is the question stem of the selection question.\relax
+   \choice{{[*]Choice One},{[*]Choice Two},Choice Three,Choice Four}
+}
+
+\startquestion[showanswer=true]
+  This is the question stem of the selection question.\relax
+  \startinlinechoice
+    \startcitem[*]   Choice One\stopcitem
+    \startcitem      Choice Two\stopcitem
+    \startcitem[*] Choice Three\stopcitem
+    \startcitem     Choice Four\stopcitem
+  \stopinlinechoice
+\stopquestion
+
+\question[showanswer=true]{This is the question stem of the selection question.\relax
+   \inlinechoice{Choice One,{[*]Choice Two},Choice Three,{[*]Choice Four}}
+}
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\subsection{more instance}
+
+\startbuffer
+  \definechoice[choiceexample]
+  \setupchoice
+    [choiceexample]
+    [option={text,6,packed,joinedup,nowhite,},
+     inlinechoice=true,
+     correctsymbol={\symbol{markcirclecheck}},
+     inlineleft={!!\nobreak},
+     inlineright={\nobreak !!},
+     answerstyle=\ss,
+     separator={\removeunwantedspaces,\space},]
+     
+\startquestion[showanswer=true]
+  This is the question stem of the selection question.\relax
+  \startchoiceexample
+    \startcitem[*]   Choice One\stopcitem
+    \startcitem      Choice Two\stopcitem
+    \startcitem[*] Choice Three\stopcitem
+    \startcitem     Choice Four\stopcitem
+  \stopchoiceexample
+\stopquestion
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\subsection{point calculation}
+
+\startbuffer
+\dorecurse{5}{\question[point=1,showpoint=true]{AXXXA\choice{XXX,YYY,ZZZ}}}
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
 
 \section{Problem}
+
+\subsection{question \& problem}
+
+\startbuffer
+\startquestion[start=1,option={n,packed,joinedup,nowhite},]
+This is the main part of the question.
+\stopquestion
+
+\question
+{This is the main part of the question.}
+
+\startproblem[textstyle=ss]
+  \startpitem  This is the first small question.\stoppitem
+  \startpitem This is the second small question.\stoppitem
+\stopproblem
+
+\startquestion
+This is the main part of the question.
+  \startproblem
+  \startpitem  This is the first small question.\stoppitem
+  \startpitem This is the second small question.\stoppitem
+  \stopproblem
+\stopquestion
+
+\question
+{This is the main part of the question.
+  \problem[textstyle=ss]
+    {\pitem{This is the first small question.}
+     \pitem{This is the second small question.}
+  }
+}
+
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\subsection{True/False questions}
+
+\startbuffer
+\startquestion
+This is the main part of the question.
+  \startproblem
+  \startpitem  \fillin{} This is the first  small question.\stoppitem
+  \startpitem  \fillin{} This is the second small question.\stoppitem
+  \stopproblem
+\stopquestion
+
+\start
+\setupfillin[empty=none,style=\tta]
+\startquestion
+This is the main part of the question.
+  \startproblem
+  \startpitem  \fillin{T} This is the first  small question.\stoppitem
+  \startpitem  \fillin{F} This is the second small question.\stoppitem
+  \startpitem  This is the first  small question.\hfill\fillin{\symbol{markcheck}}\stoppitem
+  \startpitem  This is the second small question.\hfill\fillin{\symbol{markcross}}\stoppitem
+  \stopproblem
+\stopquestion
+\stop
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\subsection{example with answer}
+
+\startbuffer
+\setupquestion[showanswer=true,showpoint=true,point=1]
+\setupanswer  [showanswer=true,showpoint=true]
+\startquestion[start=1,option={n,packed,joinedup,nowhite},answer=aaa]
+This is the main part of the question.
+\startanswer This is a detailed explanation of this topic.\stopanswer
+\stopquestion
+
+\question[answer=bbb]
+{This is the main part of the question.}
+\startanswer This is a detailed explanation of this topic.\stopanswer
+
+\startproblem[textstyle=ss]
+  \startpitem[answer=ccc,point=1]
+    This is the first small question.
+    \startanswer This is a detailed explanation of this topic.\stopanswer
+  \stoppitem
+  \startpitem[answer=ddd,point=1]
+    This is the second small question.
+    \startanswer This is a detailed explanation of this topic.\stopanswer
+  \stoppitem
+\stopproblem
+
+\startquestion
+This is the main part of the question.
+  \startproblem
+  \startpitem[answer=eee]
+    This is the first small question.
+    \startanswer This is a detailed explanation of this topic.\stopanswer
+  \stoppitem
+  \startpitem[answer=fff]
+    This is the second small question.
+    \startanswer This is a detailed explanation of this topic.\stopanswer
+  \stoppitem
+  \stopproblem
+\stopquestion
+
+\question
+{This is the main part of the question.
+  \problem[textstyle=ss]
+    {\pitem[answer=ggg]{This is the first small question.}
+     \startanswer This is a detailed explanation of this topic.\stopanswer
+     \pitem[answer=hhh]{This is the second small question.}
+     \startanswer This is a detailed explanation of this topic.\stopanswer
+     \pitem[answer=iii]{This is the second small question.}
+     \startanswer This is a detailed explanation of this topic.\stopanswer
+  }
+}
+\stopbuffer
+
+\typebuffer
+
+\start\getbuffer\stop
+
+\setupanswer
+  [scriptcontent={
+    \centerline{\lightgray
+    \ss WRITE YOUR ANSWER HERE.}\par
+    \null\vskip2\baselineskip\relax}]
 
 \startbuffer
 \startpitem[answer={ccc,will be replace}]
    Lorem ipsum dolor sit amet,
    \fillin{Lorem ipsum,the real answer}
 \stoppitem
-\getbuffer[answer]
+\startanswer
+ Here is answer.
+\stopanswer
 \stopbuffer
+
+\subsection{fillin }
 
 \setupquestion[answer=cxxx,showanswer=false,point=2,showpoint=false]
 
-\startquestion
+\startquestion[showscript=true,showanswer=false]
   Lorem ipsum dolor sit amet,
   \startproblem
-    {\setupfillin[empty=number, n=10]\getbuffer}
-    {\setupfillin[empty=yes,    n=10]\getbuffer}
-    {\setupfillin[empty=none,   n=10]\getbuffer}
-    {\setupfillin[empty=number, n=*]\getbuffer} 
-    {\setupfillin[empty=yes,    n=*]\getbuffer}
-    {\setupfillin[empty=none,   n=*]\getbuffer}
-    {\setupfillin[empty=number, align=autoright,n=10]\getbuffer}
-    {\setupfillin[empty=yes,    align=autoright,n=10]\getbuffer}
-    {\setupfillin[empty=none,   align=autoright,n=10]\getbuffer}
+    {\setupfillin[empty=number, n=5]\getbuffer}
+    {\setupfillin[empty=number, n=*]\getbuffer}
+    {\setupfillin[empty=number, align=autoright,n=5]\getbuffer}
     {\setupfillin[empty=number, align=autoright,n=*]\getbuffer}
+    
+    {\setupfillin[empty=yes,    n=5]\getbuffer}
+    {\setupfillin[empty=yes,    n=*]\getbuffer}
+    {\setupfillin[empty=yes,    align=autoright,n=5]\getbuffer}
     {\setupfillin[empty=yes,    align=autoright,n=*]\getbuffer}
+    
+    {\setupfillin[empty=none,   n=5]\getbuffer}
+    {\setupfillin[empty=none,   n=*]\getbuffer}
+    {\setupfillin[empty=none,   align=autoright,n=5]\getbuffer}
     {\setupfillin[empty=none,   align=autoright,n=*]\getbuffer}
   \stopproblem
 \stopquestion
 
 \setupquestion[answer=cxxx,showanswer=true,point=2,showpoint=true]
 
-\startquestion
+\startquestion[showanswer=true]
   Lorem ipsum dolor sit amet,
   \startproblem
     \startpitem[answer={ccc,will be replace},point=5]
                Lorem ipsum dolor sit amet,
                \fillin{Lorem ipsum,the real answer 1}
                \fillin{Lorem ipsum,the real answer 2}\stoppitem
-    {\setupfillin[empty=number, n=10]\getbuffer}
-    {\setupfillin[empty=yes,    n=10]\getbuffer}
-    {\setupfillin[empty=none,   n=10]\getbuffer}
+    {\setupfillin[empty=number, n=5]\getbuffer}
+    {\setupfillin[empty=yes,    n=5]\getbuffer}
+    {\setupfillin[empty=none,   n=5]\getbuffer}
     {\setupfillin[empty=number, n=*]\getbuffer} 
     {\setupfillin[empty=yes,    n=*]\getbuffer}
     {\setupfillin[empty=none,   n=*]\getbuffer}
-    {\setupfillin[empty=number, align=autoright,n=10]\getbuffer}
-    {\setupfillin[empty=yes,    align=autoright,n=10]\getbuffer}
-    {\setupfillin[empty=none,   align=autoright,n=10]\getbuffer}
+    {\setupfillin[empty=number, align=autoright,n=5]\getbuffer}
+    {\setupfillin[empty=yes,    align=autoright,n=5]\getbuffer}
+    {\setupfillin[empty=none,   align=autoright,n=5]\getbuffer}
     {\setupfillin[empty=number, align=autoright,n=*]\getbuffer}
     {\setupfillin[empty=yes,    align=autoright,n=*]\getbuffer}
     {\setupfillin[empty=none,   align=autoright,n=*]\getbuffer}
@@ -205,17 +473,20 @@
 
 \section{Material}
 
-\setupquestion[answer=]
-
-\setupmaterial[title][color=green]
-\setupmaterial[author][color=gray]
-\setupmaterial[source][color=red]
+\startbuffer
+\setupmaterial[title] [style=\ssa]
+\setupmaterial[author][style=\tta]
+\setupmaterial[source][style=ss]
 \setupmaterial[number][numberconversion=I]
-\setupmaterial[indicator][numberconversion=A]
+\setupmaterial[indicator][numberconversion=A,reset=true]
+
 \startmaterial[title={Knuth 1},author={Mos},source={Yelu}]
-\input knuth\relax\indicator{Some Texts 1} \indicator{Some Texts 2} 
+  \input knuth\relax
+  \indicator{Some Texts 1}
+  \indicator{Some Texts 2} 
 \stopmaterial
-\startquestion
+
+\startquestion[start=1,option={n,packed,joinedup,nowhite}]
   \indicator{Some Texts 1}
   \fastchoice{Some Texts,Some Texts,Some Texts,Some Texts}
 \stopquestion
@@ -235,6 +506,10 @@
   \indicator{Some Texts 4}
   \fastchoice{Some Texts,Some Texts,Some Texts,Some Texts}
 \stopquestion
+\stopbuffer
+
+\typebuffer
+\getbuffer
 
 \section{Close}
 
@@ -269,30 +544,101 @@ they've since become friends. Neither won the race, but the \closechoice[secret,
 of human kindness won the day.
 \stopclose
 
+\section{answer box}
+
+\startbuffer
+\dorecurse{5}{\typeanswerbychap{0},}
+
+\newcount\tempa\tempa=2\relax
+\dorecurse{5}{\typeanswerbychap[\tempa]{0},\advance\tempa by 1\relax}
+
+\typeanswerdirect{0-5}
+\stopbuffer
+
+\typebuffer
+\getbuffer
+
+\startbuffer
+\typeanswerlist{5}
+     
+\typeanswerlist[0]{5}   
+ 
+\typeanswerlist[0][2]{5}
+\stopbuffer
+
+\typebuffer
+\getbuffer
+
+\startbuffer
+\typeanswertable[2,5]          \null\par
+\typeanswertable[2,5][0]       \null\par
+\typeanswertable[2,5][0][6]    \null\par
+
+\typeanswertablealt[2,5]       \null\par
+\typeanswertablealt[2,5][0]    \null\par
+\typeanswertablealt[2,5][0][6] \null\par
+\stopbuffer
+
+\typebuffer
+\getbuffer
 
 \section{Score}
 
-\startanswer
+\startbuffer
+\startanswer[showanswer=true]
  some text \score{2}
-
  some text \score{4}
- 
- \cdotfill\resetscore
- 
+ \resetscore
  \setupscore[score=calculation]
  some text \score[type=cdotfill]{2}
-
  some text \score[type=space]{4}
- 
  some text \score[type=hfill]{3}
- 
- \cdotfill\resetscore
- 
+ \resetscore
  \setupscore[score=complex]
  some text \score{2}
-
  some text \score{4}
- 
  some text \score{3}
 \stopanswer
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\chapter{More Test}
+
+\question[point=1,showpoint=true,answer=9]
+{It should be reset back to 1 here.\choice{XXX,YYY,ZZZ}}
+
+\startquestion[point={1.5},showpoint=true]
+  \startproblem
+    \dorecurse{5}{\pitem {some texts}}
+  \stopproblem
+\stopquestion
+
+\setupwriting[showanswer=true,showpoint=true,answer=xxx]
+\setupsubwriting[answer=xxnx]
+\startwriting[point=45]
+  Explanation of the topic of the composition
+  \startanswer
+  Reference composition 1
+  \stopanswer
+\stopwriting
+\startwriting
+  Explanation of the topic of the composition
+  \startsubwriting[point=450]
+    Sub Composition Topic Description
+    \startanswer
+    Reference composition 2
+    \stopanswer
+  \stopsubwriting
+  \startsubwriting[point=4588]
+    Sub Composition Topic Description
+    \startanswer
+    Reference composition 3
+    \stopanswer
+  \stopsubwriting
+\stopwriting
+
+
 \stoptext

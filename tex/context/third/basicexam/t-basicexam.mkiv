@@ -192,10 +192,10 @@
 \newdimen\d_width_cit_max
 \newdimen\d_compared_maxwidth
 \newdimen\d_maxwidth_with_label
+\newdimen\c_steppoint% 封裝在 install_point 命令中
+\newdimen\c_steppoint_temp
 \newcount\c_currentitemnumber% 封裝在 inititemnumber 和 incrementitemnumber 中
 \newcount\c_totalitemnumber% 封裝在 recurseditemnumber 中
-\newcount\c_steppoint% 封裝在 install_point 命令中
-\newcount\c_steppoint_temp
 \newcount\c_stepscore
 \newcount\c_stepscore_temp
 \newcount\c_closetest
@@ -792,6 +792,33 @@
 
 \def\paren#1{(#1)}
 
+\startluacode
+  function FormatDim (dim)
+    local converteddimen  = tex.toscaled(dim) / 65536
+    local convertednumber = tonumber(string.format("%0.2f",converteddimen))
+    return convertednumber
+  end
+
+  function FormatNum (num)
+      if num <= 0 then
+          return 0
+      else
+          local t1, t2 = math.modf(num)
+          if t2 > 0 then
+              return num
+          else
+              return t1
+          end
+      end
+  end
+  
+  -- context(FormatDim(tex.dimen.c_steppoint))
+  -- context.par()
+  -- context(FormatNum(convertednumber))
+  -- context.par()
+  -- context(FormatNum(FormatDim(tex.dimen.c_steppoint)))
+\stopluacode
+
 \protected\def\install_point[#1]{%
   \edef\p_showpoint{\csname #1parameter\endcsname{showpoint}}%
   \ifempty\p_showpoint\else
@@ -809,25 +836,25 @@
       \edef\currentpoint{\csname #1parameter\endcsname\c!point}%
     \fi
     \ifempty\currentpoint% 抓取當前分數值
-      \scratchcounter\zerocount
+      \scratchdimen\zeropoint
     \else
-      \scratchcounter\currentpoint
+      \scratchdimen\currentpoint pt\relax
     \fi
     \ifenv_toplevel% 重置分數計算
-      \c_steppoint\zerocount
-      \c_steppoint_temp\zerocount
+      \c_steppoint\zeropoint
+      \c_steppoint_temp\zeropoint
     \fi
-    \global\c_steppoint_temp\scratchcounter
-    \global\c_steppoint=\numexpr\c_steppoint+\c_steppoint_temp\relax
+    \global\c_steppoint_temp\scratchdimen\relax
+    \global\c_steppoint=\dimexpr\c_steppoint+\c_steppoint_temp\relax
     \ifenv_toplevel% 如果有子題目， 不應當 計算 question 本身的分值,
       \doifelsesomething{\datasetvariable{Answer_collectorhelper}{\HelperID}{totalitemnumber}}%
          {\scratchcounter\datasetvariable{Answer_collectorhelper}{\HelperID}{totalitemnumber}}%
          {\scratchcounter\zerocount}%
       \ifnum\scratchcounter>0
-      \c_steppoint=\numexpr\c_steppoint-\c_steppoint_temp\relax\fi
+      \c_steppoint=\dimexpr\c_steppoint-\c_steppoint_temp\relax\fi
       \xdef\currenttotalpoint{\number\currentpoint}%
     \else%
-      \xdef\currenttotalpoint{\number\c_steppoint}%
+      \xdef\currenttotalpoint{\ctxlua{context(FormatNum(FormatDim(tex.dimen.c_steppoint)))}}%
     \fi%
     %% 此處的定義是暫時的，我們將在稍後的頂層環境中重新定義。
   \fi
@@ -1660,14 +1687,13 @@
   \save_question_order}
 
 \protected\def\stopnamedwriting{%
-  \ifenv_subwriting% 是子作文
+  \ifenv_subwriting
     \installdatacollector%
     \installdatacollectorhelper%
     \initcollectanswer
-  \else% 是作文
+  \else
     \ifnum\c_totalitemnumber>1\else
-    % \edef\currentpoint{\writingparameter\c!point}
-    % \edef\currenttotalpoint{\writingparameter\c!point}
+    %即便作文環境，內部也存在可能多個子題目，必須只有一個題目時才能執行
     \c_totalitemnumber=1\relax
     \installdatacollector%
     \installdatacollectorhelper%
@@ -2117,21 +2143,37 @@
   \edef\p_correctmark_m{*}\edef\p_correctmark_p{#1}%
   \edef\p_answerstyle{\choiceparameter\c!answerstyle}%
   \edef\p_answercolor{\choiceparameter\c!answercolor}%
-  \ifx\p_choicetype\s!true
+  \ifx\p_choicetype\s!true% if inlinechoice
     \ifx\p_correctmark_p\p_correctmark_m
-      \bgroup
-      \ifmode_showanswer
-        \ifempty\p_answerstyle
-                \dousestyleparameter{\questionparameter\c!answerstyle}%
-          \else \dousestyleparameter{\choiceparameter  \c!answerstyle}\fi
-        \ifempty\p_answercolor
-                \dousecolorparameter{\questionparameter\c!answercolor}%
-          \else \dousecolorparameter{\choiceparameter  \c!answercolor}\fi
-        \sym{\ifempty\p_correctsymbol\symbol{marksquarecheck}\else
-                     \p_correctsymbol\fi}% correct inline choice
+      \ifx\p_correctsymbol\c!default
+        \startitem[\citemparameter\c!reference]
+          \bgroup
+          \ifmode_showanswer
+            \ifempty\p_answerstyle
+                    \dousestyleparameter{\questionparameter\c!answerstyle}%
+              \else \dousestyleparameter{\choiceparameter  \c!answerstyle}\fi
+              \ifempty\p_answercolor
+                    \dousecolorparameter{\questionparameter\c!answercolor}%
+              \else \dousecolorparameter{\choiceparameter  \c!answercolor}\fi
+          \fi
+          #2\collectanswer{#2}
+          \egroup
+        \stopitem
+      \else
+        \bgroup
+        \ifmode_showanswer
+          \ifempty\p_answerstyle
+                  \dousestyleparameter{\questionparameter\c!answerstyle}%
+            \else \dousestyleparameter{\choiceparameter  \c!answerstyle}\fi
+          \ifempty\p_answercolor
+                  \dousecolorparameter{\questionparameter\c!answercolor}%
+            \else \dousecolorparameter{\choiceparameter  \c!answercolor}\fi
+          \sym{\ifempty\p_correctsymbol\symbol{marksquarecheck}\else
+                      \p_correctsymbol\fi}% correct inline choice
+        \fi
+        #2\collectanswer{#2}
+        \egroup
       \fi
-      #2\collectanswer{#2}
-      \egroup
     \else
     \startitem[\citemparameter\c!reference]#2\stopitem
     \fi
@@ -2264,11 +2306,11 @@
               max=3,
               offset=-.1,
               rulethickness=.05,
-              foregroundstyle=\ss,]
+              style=\ss,]
 
 \tolerant\protected\def\fillin[#1]#:#2{%
   \item_pitemfalse\item_fillintrue
-  \begingroup\removeunwantedspaces
+  \begingroup\null
   \global\advance\c_fillin_number by 1\relax
   \iffirstargument\setupfillin[#1]\fi
   \edef\currentfillinanswer{#2}%
@@ -2306,14 +2348,13 @@
   \setupbar[\currentbar][%
            rulethickness=\fillinparameter{rulethickness},
          foregroundcolor=\fillinparameter{foregroundcolor},
-         foregroundstyle=\fillinparameter{foregroundstyle},
+         foregroundstyle=\fillinparameter{style},
                 continue=\fillinparameter{continue},
                     unit=\fillinparameter{unit},
                    order=\fillinparameter{order},
                   method=\fillinparameter{method},
                       dy=\fillinparameter{dy},
                      max=\fillinparameter{max},
-                   width=\fillinparameter{width},
                     left=\fillinparameter{left},
                    right=\fillinparameter{right},
                   repeat=\fillinparameter{repeat},
@@ -2461,7 +2502,7 @@
 \setupmaterial [\c!source] [\c!before=\par,\c!align=flushright]
 \setupmaterial [indicator]
                [\c!style=\ssbf,
-                \c!color=red,
+                \c!color=,
                 \c!before={\;(\nobreak\,\nobreak},
                 \c!after={\nobreak\,\nobreak)\;},
                 \c!prefix=no,
