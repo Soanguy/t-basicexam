@@ -39,19 +39,49 @@
 \setupmodule[mode=student,layout=default,footer=none]
 % \doifnotmode{mkiv}{\writestatus{error}{needs luatex}\wait\end}% check context version
 
+%D 定义关键词
+\immutable\def\m!basicexam{basicexam}
+
+\definesystemconstant{close}
+\definesystemconstant{choice}
+\definesystemconstant{answer}
+\definesystemconstant{problem}
+\definesystemconstant{question}
+\definesystemconstant{material}
+\definesystemconstant{optclose}
+
+\startinterface all
+\setinterfaceconstant {class}          {class}
+\setinterfaceconstant {answer}         {answer}
+\setinterfaceconstant {point}          {point}
+\setinterfaceconstant {example}        {example}
+\setinterfaceconstant {showanswer}     {showanswer}
+\setinterfaceconstant {showpoint}      {showpoint}
+\setinterfaceconstant {answerstyle}    {answerstyle}
+\setinterfaceconstant {answercolor}    {answercolor}
+\setinterfaceconstant {answerlabel}    {answerlabel}
+\setinterfaceconstant {pointstyle}     {pointstyle}
+\setinterfaceconstant {pointcolor}     {pointcolor}
+\setinterfaceconstant {pointlabel}     {pointlabel}
+\setinterfaceconstant {autoright}      {autoright}
+\setinterfaceconstant {inlineleft}     {inlineleft}
+\setinterfaceconstant {inlineright}    {inlineright}
+\setinterfaceconstant {inlinechoice}   {inlinechoice}
+\stopinterface
+
 % 1 for module
 % 2 for question
 % 3 for papertitle
 % 9 for font
 
 \startinterface english
-  \setinterfacemessage{basicexam}{1}{There are unknown parameters in --, please check.}
-  \setinterfacemessage{basicexam}{2}{Question (--): answer is (--).}
-  \setinterfacemessage{basicexam}{3}{You defined --, but you don't assign a value to it. Please check.}
-  \setinterfacemessage{basicexam}{9}{-- is not installed, some -- will not display properly.}
+  \setinterfacemessage\m!basicexam{1}{There are unknown parameters in --, please check.}
+  \setinterfacemessage\m!basicexam{2}{Question --: answer is --.}
+  \setinterfacemessage\m!basicexam{3}{You defined --, but you don't assign a value to it. Please check.}
+  \setinterfacemessage\m!basicexam{9}{-- is not installed, some -- will not display properly.}
 \stopinterface
 
-% \showmessage{basicexam}{2}{}%
+% \showmessage\m!basicexam{2}{}%
 
 \newif\iflay_twoup   \lay_twoupfalse
 \newif\ifhdr_default \hdr_defaultfalse
@@ -61,20 +91,20 @@
      student=>{\enablemode[student]},
        check=>{\enablemode[check]},
   \v!default=>{\enablemode[student]},
-  \v!unknown=>\showmessage{basicexam}{1}{mode},
+  \v!unknown=>\showmessage\m!basicexam{1}{mode},
 ]
 
 \processallactionsinset[\currentmoduleparameter{layout}][
        twoup=>\lay_twouptrue,
         none=>\relax,
   \v!default=>\relax,
-  \v!unknown=>\showmessage{basicexam}{1}{layout},
+  \v!unknown=>\showmessage\m!basicexam{1}{layout},
 ]
 
 \processallactionsinset[\currentmoduleparameter{footer}][
         none=>{\relax},
   \v!default=>\hdr_defaulttrue,
-  \v!unknown=>\showmessage{basicexam}{1}{footer},
+  \v!unknown=>\showmessage\m!basicexam{1}{footer},
 ]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -133,34 +163,6 @@
 \fi
 
 %D \section{定义其后环境所需命令}
-
-%D 定义关键词
-\definesystemconstant{close}
-\definesystemconstant{choice}
-\definesystemconstant{answer}
-\definesystemconstant{problem}
-\definesystemconstant{question}
-\definesystemconstant{material}
-\definesystemconstant{optclose}
-
-\startinterface all
-\setinterfaceconstant {class}          {class}
-\setinterfaceconstant {answer}         {answer}
-\setinterfaceconstant {point}          {point}
-\setinterfaceconstant {example}        {example}
-\setinterfaceconstant {showanswer}     {showanswer}
-\setinterfaceconstant {showpoint}      {showpoint}
-\setinterfaceconstant {answerstyle}    {answerstyle}
-\setinterfaceconstant {answercolor}    {answercolor}
-\setinterfaceconstant {answerlabel}    {answerlabel}
-\setinterfaceconstant {pointstyle}     {pointstyle}
-\setinterfaceconstant {pointcolor}     {pointcolor}
-\setinterfaceconstant {pointlabel}     {pointlabel}
-\setinterfaceconstant {autoright}      {autoright}
-\setinterfaceconstant {inlineleft}     {inlineleft}
-\setinterfaceconstant {inlineright}    {inlineright}
-\setinterfaceconstant {inlinechoice}   {inlinechoice}
-\stopinterface
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newif\ifmode_quickcheck     \mode_quickcheckfalse
@@ -425,7 +427,7 @@
     \doifemptyelsex{\namedpapertitleparameter{\currentpapertitle}{#1style}}{}%
     \expandafter\begincsname\namedpapertitleparameter{\currentpapertitle}{#1color}\endcsname
     \doifemptyelsex{\namedpapertitleparameter{\currentpapertitle}{#1}}%
-                   {\showmessage{basicexam}{3}{#1}}%
+                   {\showmessage\m!basicexam{3}{#1}}%
     \doifemptyelsex{\namedpapertitleparameter{\currentpapertitle}{after#1}}{}%
     \par\endgroup}
 
@@ -499,7 +501,7 @@
 %D \section{设定一些可能用得到的符号 / Symbol Defination / シンボルの定義}
 
 \doifelsefontpresent{NotoSansSymbols2-Regular}{}{
-  \showmessage{basicexam}{9}{NotoSansSymbols2 font,symbol}}
+  \showmessage\m!basicexam{9}{NotoSansSymbols2 font,symbol}}
 \definefontsynonym[NotoSansSymbols2][file:NotoSansSymbols2-Regular]
 \def\notosymb#1{\getglyphstyled{NotoSansSymbols2}{\tochar{n:#1}}}
 
@@ -550,21 +552,21 @@
 \def\currentitemmaxwidth        {}
 \def\currentanswerstatus        {}
 \def\example_mode{\ifmode_example NOTICE: MODE EXAMPLE IS ON !\fi}
-\def\level_status{\ifenv_toplevel <env_toplevel>\else%
-                  \ifenv_botlevel <env_botlevel>\else%
+\def\level_status{\ifenv_toplevel <env_toplevel>\else
+                  \ifenv_botlevel <env_botlevel>\else
                                   <env_midlevel>\fi\fi}
 
-\def\mode_status{\ifmode_check      <M:C>\fi%check
-                 \ifmode_showanswer <M:A>\fi%answer
-                 \ifmode_showpoint  <M:P>\fi%point
+\def\mode_status{\ifmode_check      <M:C>\fi
+                 \ifmode_showanswer <M:A>\fi
+                 \ifmode_showpoint  <M:P>\fi
                  \ifmode_example    <M:E>\fi}
 
 \startluacode
   local report = logs.reporter("question info")
 
   local function center_text(text, total_width)
-      local text_length = #text
-      local left_padding = math.floor((total_width - text_length) / 2)
+      local text_length   = #text
+      local left_padding  = math.floor((total_width - text_length) / 2)
       local right_padding = total_width - left_padding - text_length
       return string.rep(' ', left_padding) .. text .. string.rep(' ', right_padding)
   end
@@ -577,7 +579,7 @@
   end
 
   local lines = {
-      "NOTICE: MODE CHECK   IS ON !",
+      "NOTICE: MODE CHECK IS ON !",
       "Notice,Cinfos only show choice env information",
       "CU means 'current' , if CUuserorder ≠ CUorder,",
       "It maybe because START parameter is enabled.  ",
@@ -658,7 +660,7 @@
 }
 
 \def\initcollectanswer{\directlua{MultiAnswerCollector = {}}}
-\def\collectanswer#1{\directlua{table.insert(MultiAnswerCollector, [[#1]])}}
+\def\collectanswer#1{\directlua{table.insert(MultiAnswerCollector,[[#1]])}}
 \def\collectedanswer{\directlua{tex.sprint(table.concat(MultiAnswerCollector,","))}}
 
 \def\set_envitem_counter{%
@@ -743,7 +745,7 @@
 %%% userorder 當前列表序號(可獲取被start更改後的序號)
 
 \def\installdatacollector%
-  {\writestatus{basicexam}{Question (\currentuserorder): answer is (\currentanswer).}%顯示題號和答案到控制檯
+  {\showmessage\m!basicexam{2}{\currentuserorder,\currentanswer}%顯示題號和答案到控制檯
   \ifmode_check\exam_write_answer\fi
   \setdataset [Answer_collector][\QuestionID]%收集答案並在未來展開
               [id={\QuestionID},%
@@ -862,8 +864,9 @@
   \fi}
 
 \tolerant\protected\def\show_pointoranswer_text[#1]#*[#2]{{
-  \unskip\csname #1parameter\endcsname{#2style}%
-  \switchtocolor[\csname #1parameter\endcsname{#2color}]%
+  \unskip
+  \dousestyleparameter{\csname #1parameter\endcsname{#2style}}%
+  \dousecolorparameter{\csname #1parameter\endcsname{#2color}}%
   \paren {\csname left_assigned#2label\endcsname % like=>answer : blabla
     \ifx\currentmode\c!point% if #2 = point
       \ifenv_toplevel
@@ -998,10 +1001,6 @@
   ]%
 }
 
-\protected\def\installcounteroption[#1][#2]{%
-  \cdef\currentenv_counter{\v_strc_itemgroups_counter}%
-}
-
 %D \section{设置 question 环境}
 
 %D The \tex{question} environment command can be used to set the stem.
@@ -1080,11 +1079,15 @@
   \groupedcommand{\startnamedquestion[#1][#2]}%
                  {\stopnamedquestion}}
 
-\tolerant\protected\def\startnamedquestion[#S#1]#*[#S#2]%
+\tolerant\protected\def\startnamedquestion[#S#1]#*[#S#2]#*[#S#3]#*%
  {\begingroup
+  \edef\currentquestion{#1}%
+  \ifarguments\or
+    \or\setupcurrentquestion[#2]%
+    \or\setupcurrentquestion[#3]%
+  \fi
   \scratchcounterone\currentitemnumber\relax
 % 因為 setcountlevel 用到了 scratchcounter,這裡使用新的計數器抓取命令
-  \def\currentquestion{#1}\setupcurrentquestion[#2]%
   \edef\p_class{\questionparameter\c!class}%
   \edef\p_start{\questionparameter\c!start}%
   \edef\p_reset{\questionparameter\c!reset}%
@@ -1103,19 +1106,19 @@
     \installitemgroupoption[example][question]%
     \startitemgroup[env_example]\else
     \installitemgroupoption[question][question]%
-    \startitemgroup[env_question]\fi
+    \startitemgroup[env_question][#2]\fi
     \item[\questionparameter\c!reference]%
     \increaseQuestionID% 具有獨立答案，增長 QID
     \set_count_envlevel  [question]%
     \installpointoranswer[question][point]%
-    \installpointoranswer[question][answer]
+    \installpointoranswer[question][answer]%
   \fi
   \ifx\p_class\s!problem
     \ifmode_example
     \installitemgroupoption[example][question]%
     \startitemgroup[env_example]\else
     \installitemgroupoption[problem][question]%
-    \startitemgroup[env_problem]\fi
+    \startitemgroup[env_problem][#2]\fi
     \set_count_envlevel [problem]%
     \ifenv_toplevel\else
       \decreaseQuestionID% 直接获取 question 的 ID
@@ -1127,12 +1130,12 @@
     \installitemgroupoption[example][question]%
     \startitemgroup[env_example]\else
     \installitemgroupoption[question][question]%
-    \startitemgroup[env_question]
+    \startitemgroup[env_question][#2]%
     \fi
     \leftskip=0pt\relax
-    \set_count_envlevel[question]
-  \fi
-  \save_question_order\removeunwantedspaces}
+    \set_count_envlevel[question]%
+  \fi\usequestionstyleandcolor\c!textstyle\c!textcolor
+  \save_question_order}
 
 \protected\def\stopnamedquestion{%
   \ifnum\c_envcounter_toggle=1\relax
@@ -1408,7 +1411,7 @@
     \processcommacommand[#3]\citem_temp
   \stopnamedchoice\endgroup}
 
-\tolerant\protected\def\startnamedchoice[#S#1]#*[#S#2]%
+\tolerant\protected\def\startnamedchoice[#S#1]#*[#S#2]#*%
  {\begingroup\def\currentchoice{#1}%
   \ifnum\c_envcounter_toggle = 2\relax
     \errmessage{you cannot put choice in problem environment.
@@ -1454,12 +1457,12 @@
   \stopluacode
   \edef\currentrealavailablecolumns{\ctxlua{context(available_columns_arg,"")}}%
   \setupcurrentchoice[#2]%
-  \edef\currentanswer  {\choiceparameter\c!answer      }%
-  \edef\p_option       {\choiceparameter\c!option      }%
-  \edef\p_showanswer   {\choiceparameter\c!showanswer  }%
-  \edef\p_choicetype   {\choiceparameter\c!inlinechoice}%
-  \edef\p_correctsymbol{\choiceparameter{correctsymbol}}%
-  \edef\p_defaultoption{A,packed,nowhite,joinedup}%
+  \edef\p_option            {\choiceparameter\c!option      }%
+  \edef\p_showanswer        {\choiceparameter\c!showanswer  }%
+  \edef\p_choicetype        {\choiceparameter\c!inlinechoice}%
+  \edef\p_correctsymbol     {\choiceparameter{correctsymbol}}%
+  \edef\p_defaultoption     {A,packed,nowhite,joinedup      }%
+  \edef\currentchoiceanswer {\choiceparameter\c!answer      }%
   \installitemgroupoption[choice][choice]%
   \ifx\p_choicetype\s!true
     \startitemgroup[env_choice][text,\p_option]\else
@@ -1469,7 +1472,7 @@
     \ifx\p_showanswer\s!true
          \mode_showanswertrue
     \else\mode_showanswerfalse\fi
-  \fi\removeunwantedspaces}
+  \fi\usechoicestyleandcolor\c!textstyle\c!textcolor}
 
 \protected\def\stopnamedchoice{%
   \removemarkedcontent[inlinechoice_punctuation]%
@@ -1486,9 +1489,9 @@
 %%   因為取消了 choice 作為上級環境時的 \set_count_envlevel 因此，重定義 order。
 %%   取消原因是 讓 choice 直接獲取 question 環境的 order。
   \edef\currentchoiceanswer{\collectedanswer}%
-  \ifempty\currentchoiceanswer
-    \edef\currentanswer{\prevanswer}% 讓 choice 繼承 前一個答案
-  \else
+  \ifempty\currentchoiceanswer 
+    \edef\currentanswer{\currentanswer}% 讓 choice 繼承 前一個答案
+  \else 
     \edef\currentanswer{\collectedanswer}%
   \fi
   \def\currentavailablecolumns{\ctxlua{context(c,"")}}%
@@ -1515,7 +1518,7 @@
    \c!width=1\emwidth,
    \c!factor=0,
    \c!step=.5\emwidth, % deals with broad
-   \c!distance=.5\emwidth,
+   \c!distance=.2\emwidth,
   %\c!align=\v!normal, % definitely not \v!normal !
   %\c!symalign=,
   %\c!color=,
@@ -1625,8 +1628,9 @@
   \setuevalue{\e!stop \currentwriting}{\stopnamedwriting}%
 \to \everydefinewriting
 
-\tolerant\protected\def\startnamedwriting[#S#1]#*[#S#2]
-  {\begingroup\env_writingtrue\set_envitem_counter
+\tolerant\protected\def\startnamedwriting[#S#1]#*[#S#2]#*%
+  {\begingroup\env_writingtrue\env_subwritingfalse
+  \set_envitem_counter
   \edef\currentwriting{#1}%
   \setupanswer[showanswer=false]%
   \setupcurrentwriting[#2]%注意，writing 没有单独的 itemgroup 环境
@@ -1641,18 +1645,19 @@
     \env_subwritingtrue
     \set_envitem_counter
     \ifnum\currentitemnumber=1\relax
-          \decreaseQuestionID\increaseQuestionID
-    \else\increaseQuestionID\fi
+          \decreaseQuestionID
+          \increaseQuestionID
+    \else \increaseQuestionID\fi
     \set_count_itemlevel[subwriting]%
   % 当具有多个子写作环境时，才增长 QID ，
   % 否则削减至 父级 QID（相当于继承）
   \else
     \increaseQuestionID
-    \set_count_envlevel[writing]
+    \set_count_envlevel[writing]%
   \fi
   \installpointoranswer[writing][point]%
   \installpointoranswer[writing][answer]%
-  \save_question_order\removeunwantedspaces}
+  \save_question_order}
 
 \protected\def\stopnamedwriting{%
   \ifenv_subwriting% 是子作文
@@ -1660,15 +1665,15 @@
     \installdatacollectorhelper%
     \initcollectanswer
   \else% 是作文
+    \ifnum\c_totalitemnumber>1\else
     % \edef\currentpoint{\writingparameter\c!point}
     % \edef\currenttotalpoint{\writingparameter\c!point}
     \c_totalitemnumber=1\relax
     \installdatacollector%
     \installdatacollectorhelper%
-    \initcollectanswer
+    \initcollectanswer\fi
   \fi
   \stopitemgroup\endgroup}
-
 
 \setupwriting
   [\c!answer={参见参考作文。},
@@ -1832,7 +1837,7 @@
    % 具備簡單的樣式控制和控制答案顯隱。
    % \setupanswer[command=\groupedcommand{\bf}{},style=,color=,showanswer=]
 
-\permanent\protected\def\startanswer
+\permanent\protected\def\startanswer%
   {\begingroup
    \edef\currentanswer_bak{\currentanswer}%
    \lettonothing\currentanswer
@@ -1853,7 +1858,7 @@
    \checkanswerparent
    \doifelsenextoptionalcs\answer_start_delayed_parameters\answer_start_indeed}
 
-\protected\tolerant\def\answer_start_instance[#S#1]#*[#S#2]%
+\protected\tolerant\def\answer_start_instance[#S#1]#*[#S#2]#*%
   {\begingroup\env_answertrue\set_envitem_counter
    \edef\currentanswer_bak{\currentanswer}% 備份之前的答案
  %  \lettonothing\currentanswer%釋放currentanswer
@@ -1874,29 +1879,35 @@
      {\csstring\startanswer}%
      {\csstring\stopanswer}}
 
-\permanent\protected\def\stopanswer
-  {\answerparameter\c!before
-   \dostarttagged\t!answer\currentanswer
-   \begingroup
-   \useanswerstyleandcolor\c!style\c!color
-   \usealignparameter\answerparameter
-   \edef\currentansweralternative{\answerparameter\c!alternative}%
-   \ifcsname\currentansweralternativehash\s!parent\endcsname \else
-     \let\currentansweralternative\s!default
-   \fi
-   \usesetupsparameter\answerparameter
-   \edef\p_renderingsetup{\answeralternativeparameter\c!renderingsetup}%
-   \directsetup\p_renderingsetup
-   \tolerant\protected\xdef\getanswercontent[##1]% only for writing env
-     {\getbufferdata[\s!answer]}%
-% 需要注意，该命令会传递给 dataset，不同于 writing 环境的 currentanswer
-% currentanswer 的目的是设置较短的作文答案。
-% getanswercontent 则是设置完整的作文答案。
-% 如果需要為其他環境獲取解析內容， 應該需要重定義命令（answer + currentQID）
-   \endgroup
-   \dostoptagged
-   \answerparameter\c!after
-   \endgroup}
+\permanent\protected\def\stopanswer{%
+  \doif{\answerparameter  {showscript}}{true}{\mode_showscripttrue\mode_showanswerfalse}%
+  \doif{\answerparameter\c!showanswer} {true}{\mode_showanswertrue\mode_showscriptfalse}%
+  \doif{\answerparameter\c!showpoint}  {true}{\mode_showpointtrue}%
+  \ifmode_showscript\donetrue\fi
+  \ifmode_showanswer\donetrue\fi
+  \ifmode_showpoint \donetrue\fi
+  \ifdone
+    \answerparameter\c!before
+    \dostarttagged\t!answer\currentanswer
+    \begingroup
+    \useanswerstyleandcolor\c!style\c!color
+    \usealignparameter\answerparameter
+    \edef\currentansweralternative{\answerparameter\c!alternative}%
+    \ifcsname\currentansweralternativehash\s!parent\endcsname \else
+      \let\currentansweralternative\s!default
+    \fi
+    \usesetupsparameter\answerparameter
+    \edef\p_renderingsetup{\answeralternativeparameter\c!renderingsetup}%
+    \directsetup\p_renderingsetup
+    \tolerant\protected\xdef\getanswercontent[##1]% only for writing env
+      {\getbufferdata[\s!answer]}%
+    % 需要注意，该命令会传递给 dataset，不同于 writing 环境的 currentanswer
+    % currentanswer 的目的是设置较短的作文答案。
+    % getanswercontent 则是设置完整的作文答案。
+    % 如果需要為其他環境獲取解析內容， 應該需要重定義命令（answer + currentQID）
+    \endgroup\dostoptagged
+    \answerparameter\c!after
+  \fi\endgroup}
 
 \aliased\let\answer_stop_instance\stopanswer
 
@@ -1922,9 +1933,6 @@
 % \stopsetups
 
 \startsetups[\????answerrenderings:\s!default]
-  \doif{\answerparameter  {showscript}}{true}{\mode_showscripttrue\mode_showanswerfalse}%
-  \doif{\answerparameter\c!showanswer} {true}{\mode_showanswertrue\mode_showscriptfalse}%
-  \doif{\answerparameter\c!showpoint}  {true}{\mode_showpointtrue}%
   \setuptextbackground[env_answer]%
   [location=paragraph,width=local,
   leftoffset=1ex,rightoffset=1ex,
@@ -2012,8 +2020,8 @@
   \datasetvariable{Answer_collector}{\QuestionID}{point}}
 
 \setupanswer
-  [showanswer=true,
-  showpoint=true,
+  [showanswer=false,
+  showpoint=false,
   answer=\getanswerforanswer,
   point=\getpointforanswer,
   answerlabel={{\examtexts{answer}}},
@@ -2056,7 +2064,7 @@
                 %reference=,
                 ]
 
-\tolerant\protected\def\startpitem[#1]{\begingroup%
+\tolerant\protected\def\startpitem[#1]#*{\begingroup%
   \item_pitemtrue\increaseQuestionID%
   \iffirstargument\setuppitem[#1]\fi%
   \startitem[\pitemparameter{reference}]%
@@ -2064,8 +2072,7 @@
     \set_count_itemlevel [pitem]\else\ifenv_problem%
     \set_count_envlevel  [pitem]\fi\fi%
     \installpointoranswer[pitem][point]%
-    \installpointoranswer[pitem][answer]%
-  \removeunwantedspaces}
+    \installpointoranswer[pitem][answer]}
 
 \def\stoppitem{%
   \ifitem_fillin\edef\currentanswer{\collectedanswer}\fi
@@ -2115,13 +2122,13 @@
       \bgroup
       \ifmode_showanswer
         \ifempty\p_answerstyle
-                \questionparameter\c!answerstyle
-          \else\choiceparameter  \c!answerstyle\fi
+                \dousestyleparameter{\questionparameter\c!answerstyle}%
+          \else \dousestyleparameter{\choiceparameter  \c!answerstyle}\fi
         \ifempty\p_answercolor
-                \switchtocolor[\questionparameter\c!answercolor]%
-          \else \switchtocolor[\choiceparameter  \c!answercolor]\fi
+                \dousecolorparameter{\questionparameter\c!answercolor}%
+          \else \dousecolorparameter{\choiceparameter  \c!answercolor}\fi
         \sym{\ifempty\p_correctsymbol\symbol{marksquarecheck}\else
-                    \p_correctsymbol\fi}% correct inline choice
+                     \p_correctsymbol\fi}% correct inline choice
       \fi
       #2\collectanswer{#2}
       \egroup
@@ -2133,12 +2140,12 @@
       \startitem[\citemparameter\c!reference]%
         \bgroup
           \ifmode_showanswer
-              \ifempty\p_answerstyle
-                      \questionparameter\c!answerstyle
-              \else   \choiceparameter  \c!answerstyle\fi
+            \ifempty\p_answerstyle
+                    \dousestyleparameter{\questionparameter\c!answerstyle}%
+              \else \dousestyleparameter{\choiceparameter  \c!answerstyle}\fi
               \ifempty\p_answercolor
-                      \switchtocolor[\questionparameter\c!answercolor]%
-              \else   \switchtocolor[\choiceparameter  \c!answercolor]\fi
+                    \dousecolorparameter{\questionparameter\c!answercolor}%
+              \else \dousecolorparameter{\choiceparameter  \c!answercolor}\fi
           \fi
           #2
         \egroup
@@ -2218,36 +2225,41 @@
 \let\fragilecitem\xcitem
 
 %D \section{設置 fillin 命令}
-%D 該命令建議在 pitem 環境內進行使用。
-%D 當然，同時由於 pitem 本身也有 answer 鍵值，可以通過該鍵值進行設定。
-
-%D fillin 命令主要依靠 bar 命令實現的。基本上按照修改 bar 命令即可修改 fillin 命令。
-%D fillin 命令有兩個參考 textnote 的參數： empty 和 n。
-%D empty=yes，隱藏答案；empty=number 顯示數字； empty=none 顯示答案。
-%D n=* 隱藏答案,長度為答案長度； n=NUMBER 控制 bar 的長度。
+%D The command is recommended to be used within the pitem environment.
+%D Of course, since pitem itself also has an answer key, it can be set through this key.
+%D 
+%D The fillin command mainly relies on the bar command. 
+%D Basically, modifying the bar command can modify the fillin command.
+%D The fillin command has two parameters that refer to textnote: empty and n.
+%D empty=yes hides the answer; empty=number shows the number and hides the answer; empty=none shows the answer.
+%D n=* hides the answer, with a length equal to the answer length; n=NUMBER controls the length of the bar.
 
 %D bar 主要有四種樣式，可以通過 mp 參數進行設置：
 %D rules:under:dots    %rules:under:random
 %D rules:under:dash    %rules:under:wave
 
-%D 新增一个 align=autoright 来让 fillin 对齐右方。但必须同时设置 n=0 才会正常工作。
+%D 新增一个 align=autoright 来让 fillin 对齐右方。
 
-\installnamespace          {fillin}
-\installcommandhandler \????fillin    {fillin}    \????fillin
+\installnamespace {fillin}
+\installnamespace {fillinalternative}
+\installnamespace {fillinrenderings}
+
+\installcommandhandler \????fillin            {fillin}            \????fillin
+\installcommandhandler \????fillinalternative {fillinalternative} \????fillinalternative
 
 \setupfillin[%foregroundcolor=,
              %before=,after=,
              %left=,right=,
              %repeat=,mp=
               rule=fillin_text,% 引用 bar 命令
-              empty=none,
+              empty=yes,
               continue=yes,
               unit=em,
               order=foreground,
               method=0,
               %color=gray,
               width=4em,
-              n=10,
+              n=4,
               dy=-0.4,
               max=3,
               offset=-.1,
@@ -2257,8 +2269,41 @@
 \tolerant\protected\def\fillin[#1]#:#2{%
   \item_pitemfalse\item_fillintrue
   \begingroup\removeunwantedspaces
+  \global\advance\c_fillin_number by 1\relax
   \iffirstargument\setupfillin[#1]\fi
-  \setupbar[fillin_text][%
+  \edef\currentfillinanswer{#2}%
+  \edef\p_n{\fillinparameter\c!n}%
+  \edef\p_empty{\fillinparameter\c!empty}%
+  \edef\p_number{\number\c_fillin_number}%
+  \edef\p_align{\fillinparameter\c!align}%
+  \edef\currentbar{\fillinparameter\c!rule}%
+  \edef\currentfillinalternative{\fillinparameter\c!alternative}%
+  \ifcsname\currentfillinalternativehash\s!parent\endcsname\else
+    \let\currentfillinalternative\s!default
+  \fi
+  \usesetupsparameter\fillinparameter
+  \edef\p_renderingsetup{\fillinalternativeparameter\c!renderingsetup}%
+  \ifx\p_align\c!autoright
+    \unskip\nobreak\hfill
+    \penalty50\hskip2em\hbox{}\nobreak\hfill
+  \fi
+  \usefillinstyleandcolor\c!style\c!color
+  \fillinparameter\c!before
+  \fillinparameter\c!left
+  \directsetup\p_renderingsetup
+  \fillinparameter\c!right
+  \fillinparameter\c!after
+  \ifx\p_align\c!autoright
+    \parfillskip=0pt \finalhyphendemerits=0 \par\fi
+  \aftergrouped{\edef\currentanswer{\collectanswer{#2}#2}}%
+  \endgroup\item_fillinfalse}
+
+\definefillinalternative
+  [\s!default]
+  [\c!renderingsetup=\????fillinrenderings:\s!default]
+
+\startsetups[\????fillinrenderings:\s!default]
+  \setupbar[\currentbar][%
            rulethickness=\fillinparameter{rulethickness},
          foregroundcolor=\fillinparameter{foregroundcolor},
          foregroundstyle=\fillinparameter{foregroundstyle},
@@ -2276,59 +2321,42 @@
                   offset=\fillinparameter{offset},
                    empty=\fillinparameter{empty},
                       mp=\fillinparameter{mp}]%
-  \global\advance\c_fillin_number by 1\relax
-  \edef\p_n{\fillinparameter\c!n}%
-  \edef\p_empty{\fillinparameter\c!empty}%
-  \edef\p_number{\number\c_fillin_number}%
-  \edef\p_align{\fillinparameter\c!align}%
-  \edef\currentbar{\fillinparameter\c!rule}%
-  \ifx\p_align\c!autoright
-    \unskip\nobreak\hfill
-    \penalty50\hskip2em\hbox{}\nobreak\hfill
-  \fi
-  \fillinparameter\c!before
-  \fillinparameter\c!left
   \ifx\p_n\wildcardsymbol
-     \donefalse
-     \ifx\p_empty\v!yes\donetrue
-     \else\ifx\p_empty\v!number\donetrue
-     \else\ifx\p_empty\v!none\donetrue
-     \fi\fi\fi
-     \ifdone
-      \ifmode_showanswer
-        \setupfillin[empty=none]%
-      \else
-        \setupbar[\currentbar][\c!empty=\v!yes]%
-      \fi
+      \ifmode_showanswer\setupfillin[empty=none]\fi
       \edef\p_empty{\fillinparameter\c!empty}%
-    \fi
-     \inlinebar[\currentbar]\bgroup
-        \wordboundary#2\egroup
-   \else
-    \ifmode_showanswer\setupfillin[empty=none]\fi
-    \edef\p_empty{\fillinparameter\c!empty}%
-    \inlinebar[\currentbar]\bgroup
-      \wordboundary\scratchcounter\numexpr\p_n\relax
-      \ifx\p_empty\v!yes
-        \interwordspacesbefore\scratchcounter
-        \interwordspacesafter\scratchcounter
-      \else\ifx\p_empty\v!number
-        \interwordspacesbefore\scratchcounter
+      \ifx\p_empty\v!number
+        \inlinebar[\currentbar]\bgroup
+        \interwordspacesbefore2
         \zwnj\runninghbox{\resetbar\p_number}\zwnj
-        \interwordspacesafter\scratchcounter
-      \else\ifx\p_empty\v!none
-        \scratchcounter\numexpr\p_n/\plustwo\relax
-        \interwordspacesbefore\scratchcounter
-        \zwnj{{#2}}\zwnj
-        \interwordspacesafter\scratchcounter
-      \else#2\fi\fi\fi
-    \egroup
-   \fi
-  \fillinparameter\c!right\fillinparameter\c!after
-  \ifx\p_align\c!autoright
-    \parfillskip=0pt \finalhyphendemerits=0 \par\fi
-  \aftergrouped{\edef\currentanswer{\collectanswer{#2}#2}}
-  \endgroup}
+        \interwordspacesafter2
+        \egroup
+      \else
+        \inlinebar[\currentbar]\bgroup
+          \wordboundary\zwnj\currentfillinanswer\zwnj
+          \egroup
+      \fi
+    \else
+      \ifmode_showanswer\setupfillin[empty=none]\fi
+      \edef\p_empty{\fillinparameter\c!empty}%
+      \inlinebar[\currentbar]\bgroup
+        \wordboundary\scratchcounter\numexpr\p_n\relax
+        \ifx\p_empty\v!yes
+          \interwordspacesbefore\scratchcounter
+          \interwordspacesafter\scratchcounter
+        \else\ifx\p_empty\v!number
+          \interwordspacesbefore\scratchcounter
+          \zwnj\runninghbox{\resetbar\p_number}\zwnj
+          \interwordspacesafter\scratchcounter
+        \else\ifx\p_empty\v!none
+          \scratchcounter\numexpr\p_n/\plustwo\relax
+          \interwordspacesbefore\scratchcounter
+          \zwnj{{\currentfillinanswer}}\zwnj
+          \interwordspacesafter\scratchcounter
+        \else\currentfillinanswer\fi\fi
+        \fi
+      \egroup
+    \fi
+\stopsetups
 
 %D \section{設置 material 環境}
 %D 顧名思義，\tex{material} 環境用來放置大段文本材料。
@@ -2434,8 +2462,8 @@
 \setupmaterial [indicator]
                [\c!style=\ssbf,
                 \c!color=red,
-                \c!before={ (~},
-                \c!after={~) },
+                \c!before={\;(\nobreak\,\nobreak},
+                \c!after={\nobreak\,\nobreak)\;},
                 \c!prefix=no,
                 \c!numberconversion=cn,
                 \c!type=line,
@@ -2470,7 +2498,7 @@
     \namedmaterialparameter\currentmaterial\c!after
     \par\endgroup}}
 
-\tolerant\protected\def\startmaterial[#1]{\begingroup%
+\tolerant\protected\def\startmaterial[#1]#*{\begingroup%
   \lettonothing\currentmaterial%%
   \edef\p_indicator{\rootmaterialparameter\c!indicator}
   \edef\p_reset{\namedmaterialparameter{indicator}\c!reset}
@@ -2491,8 +2519,7 @@
       \material_parameter\c!author
   \stopalignment
   \blank[\rootmaterialparameter\c!spaceafter]
-  \setupindenting[\rootmaterialparameter{indent}]
-  \removeunwantedspaces}
+  \setupindenting[\rootmaterialparameter{indent}]}
 \def\stopmaterial{%
     \material_parameter\c!source
     \indicator_reset_helper
@@ -2520,23 +2547,24 @@
             [line=>\let\indicator_type\underbar,%
              none=>\let\indicator_type\relax]%
   \usematerialstyleandcolor\c!style\c!color%
-  \indicator_type{%
+  \indicator_type\bgroup
   \namedmaterialparameter\currentmaterial\c!before%
   \ifmode_check%
-    \ifenv_material\color[red]{material}\else\color[red]{\currentitemgroup}\fi%
-    \ifcontinue_counter\color[red]{continue}\fi%
+    \ifenv_material\color[red]{material}\else\color[red]{\currentitemgroup}\fi
+    \ifcontinue_counter\color[red]{continue}\fi
   \fi%
   \ifenv_material%
-    \ifmode_check\color[red]{::indicator}\fi%
+    \ifmode_check\color[red]{::indicator}\fi
     \incrementcounter[\currentmaterial]%
     \convertedcounter[\currentmaterial]%
   \else%
-    \ifmode_check\color[red]{::helper}\fi%
+    \ifmode_check\color[red]{::helper}\fi
     \incrementcounter[indicator_helper]%
     \convertedcounter[indicator_helper]%
   \fi%
-  \namedmaterialparameter\currentmaterial\c!after%
-  \penalty0\relax#2}
+  \namedmaterialparameter\currentmaterial\c!after
+  \penalty0\relax
+    #2\egroup
   \endgroup}
 
 \def\indicators{%%% TODO 增強該命令的用法
@@ -2552,6 +2580,88 @@
 \def\resetindicators{\setcounter[indicator][0]%
                      \setcounter[indicator_helper] [0]}
 %%%%%%%%%%%%%%%%
+%D \section{Chinese Verse}
+\installnamespace          {verse}
+\installcommandhandler \????verse            {verse}            \????verse
+\def\c!verse{verse}
+\def\c!skip{skip}
+
+\defineverse[\c!title]
+\defineverse[\c!author]
+\setupverse            [%title=,author=,source={KKK},skip=both,
+                        \c!sample={一二三四五六七}, \c!skip=\v!left]
+\setupverse [\c!title] [\c!align=center,    \c!style=bf,\c!skip=\v!both,\c!before=,\c!after=]
+\setupverse [\c!author][\c!align=flushright,\c!style=it,\c!skip=\v!both,\c!before=,\c!after=]
+\setupverse [\c!source][\c!align=flushright,\c!style=it,\c!skip=\v!both,\c!before=,\c!after=]
+
+\newdimen\d_temp_leftskip
+\newdimen\d_temp_maxwidth
+\def\c_verse_skip{%
+ \ifx\verse_skip\v!left\leftskip\d_temp_leftskip\relax\fi
+ \ifx\verse_skip\v!right\rightskip\d_temp_leftskip\relax\fi
+ \ifx\verse_skip\v!both
+   \leftskip\d_temp_leftskip\relax
+   \rightskip\leftskip\relax
+ \fi}
+
+\def\verse_element#1%
+  {\begingroup%
+  \edef\currentverse{#1}%
+  \edef\verse_skip{\namedverseparameter\currentverse\c!skip}
+  \c_verse_skip
+  \namedverseparameter\currentverse\c!before
+  \startalignment[\namedverseparameter\currentverse\c!align]
+  \useversestyleandcolor\c!style\c!color
+  \rootverseparameter\currentverse
+  \stopalignment
+  \namedverseparameter\currentverse\c!after
+  \endgroup}
+
+\tolerant\protected\def\startverse[#1]#*%
+  {\begingroup\parindent0pt\relax\let\\\par
+  \iffirstargument\setupverse[#1]\fi
+  \edef\verse_skip{\verseparameter\c!skip}
+  \setwidthof{\verseparameter\c!sample}\to\d_temp_maxwidth
+  \d_temp_leftskip=\dimexpr.5\textwidth-.5\d_temp_maxwidth\relax
+  \ifx\verse_skip\v!none\relax\else
+    \c_verse_skip
+  \fi
+  \verseparameter\c!before
+  \verse_element \c!title
+  \verse_element \c!author
+  \useversestyleandcolor\c!style\c!color
+  \ifx\verse_skip\v!none
+  \startalignment[\verseparameter\c!align]\fi}
+
+\def\stopverse{\par\ifx\verse_skip\v!none\stopalignment\fi
+  \leftskip0pt\rightskip\leftskip\relax
+  \verse_element\c!source\verseparameter\c!after\endgroup}
+
+% \setupverse [\c!sample={滾滾長江東逝水浪花淘盡英雄},\c!skip=\v!left,before=\blank,after=\blank]
+% \setupverse [\c!title] [\c!align=center,\c!style=bf,\c!skip=\v!both]
+% \setupverse [\c!author][\c!align=flushright,\c!style=it,\c!skip=\v!both]
+% \setupverse [\c!source][\c!align=flushright,\c!style=it,\c!skip=\v!both]
+
+% \startbuffer
+% \startverse[title=临江仙 $\cdot$ 滚滚长江东逝水,author=明 $\cdot$ 杨慎]
+% 滾滾長江東逝水浪花淘盡英雄\\
+% 是非成敗轉頭空\\
+% 青山依舊在 幾度夕陽紅\\
+% 白髮漁樵江渚上 慣看秋月春風\\
+% 一壺濁酒喜相逢\\
+% 古今多少事 都付笑談中
+% \stopverse
+% \stopbuffer
+
+% \getbuffer
+
+% \setupverse[skip=none,align=center]
+% \getbuffer
+
+% \setupverse [\c!sample={\rma\bf滾滾長江東逝水浪花淘盡英雄},\c!skip=\v!left,style=\rma\bf]
+% \setupverse [\c!title] [style=ssa]
+% \getbuffer
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{Multilingual support}
 % \installlanguage [hans] [patterns={zh,en}]% install simplified  chinese
 % \installlanguage [hant] [patterns={zh,en}]% install traditional chinese
@@ -2756,7 +2866,7 @@
   \c_closetest=1\relax%
 }
 
-\tolerant\protected\def\startclose[#1]%
+\tolerant\protected\def\startclose[#1]#*%
  {\begingroup\env_closetrue\set_envitem_counter
   \iffirstargument\setupclose[#1]\fi
   \edef\p_reset{\closeparameter\c!reset}%
@@ -2772,8 +2882,7 @@
     \c_closetest_tempa=\numexpr\c_closetest_tempa+1\relax
   \fi
   \closeparameter\c!before
-  \useclosestyleandcolor\c!style\c!color
-  \removeunwantedspaces}
+  \useclosestyleandcolor\c!style\c!color}
 
 \def\stopclose{%
   \closeparameter\c!after
@@ -3315,7 +3424,8 @@
   \ifparameter#chapno\or
     \doifsomethingelse{\scratchcounterone  #chapno }{\scratchcounterone  #chapno }{\scratchcounterone  \zerocount}\fi
   \ifparameter#startno\or
-    \doifsomethingelse{\scratchcountertwo  #startno}{\scratchcountertwo  #startno}{\scratchcountertwo  \zerocount}\fi
+    \doifsomethingelse{\scratchcountertwo  #startno}{\scratchcountertwo  #startno}{\scratchcountertwo  \plusone  }
+    \else\scratchcountertwo\plusone\fi
   \ifparameter#total\or
     \doifsomethingelse{\scratchcounterthree#total  }{\scratchcounterthree#total  }{\scratchcounterthree\zerocount}\fi
   \c_qid_answer=\scratchcountertwo
