@@ -57,6 +57,7 @@
 \setinterfaceconstant {example}        {example}
 \setinterfaceconstant {showanswer}     {showanswer}
 \setinterfaceconstant {showpoint}      {showpoint}
+\setinterfaceconstant {showscript}     {showscript}
 \setinterfaceconstant {answerstyle}    {answerstyle}
 \setinterfaceconstant {answercolor}    {answercolor}
 \setinterfaceconstant {answerlabel}    {answerlabel}
@@ -67,6 +68,7 @@
 \setinterfaceconstant {inlineleft}     {inlineleft}
 \setinterfaceconstant {inlineright}    {inlineright}
 \setinterfaceconstant {inlinechoice}   {inlinechoice}
+\setinterfaceconstant {recordanswer}   {recordanswer}
 \stopinterface
 
 % 1 for module
@@ -75,10 +77,12 @@
 % 9 for font
 
 \startinterface english
-  \setinterfacemessage\m!basicexam{1}{There are unknown parameters in --, please check.}
-  \setinterfacemessage\m!basicexam{2}{Question --: answer is --.}
-  \setinterfacemessage\m!basicexam{3}{You defined --, but you don't assign a value to it. Please check.}
-  \setinterfacemessage\m!basicexam{9}{-- is not installed, some -- will not display properly.}
+  \setinterfacemessage\m!basicexam{1}  {There are unknown parameters in --, please check.}
+  \setinterfacemessage\m!basicexam{2}  {Question   --: answer is --.}
+  \setinterfacemessage\m!basicexam{200}{QuestionID --: order  is --.}
+  \setinterfacemessage\m!basicexam{201}{You should define at least one instance for the current environment.}
+  \setinterfacemessage\m!basicexam{3}  {You defined --, but you don't assign a value to it. Please check.}
+  \setinterfacemessage\m!basicexam{9}  {-- is not installed, some -- will not display properly.}
 \stopinterface
 
 % \showmessage\m!basicexam{2}{}%
@@ -165,6 +169,9 @@
 %D \section{定义其后环境所需命令}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newif\ifonearguments        \oneargumentsfalse
+\newif\iftwoarguments        \twoargumentsfalse
+\newif\ifthreearguments      \threeargumentsfalse
 \newif\ifmode_quickcheck     \mode_quickcheckfalse
 \newif\ifmode_check          \mode_checkfalse
 \newif\ifmode_showanswer     \mode_showanswerfalse
@@ -179,7 +186,8 @@
 \newif\ifenv_writing         \env_writingfalse
 \newif\ifenv_subwriting      \env_subwritingfalse
 \newif\ifenv_answer          \env_answerfalse
-\newif\ifenv_toplevel        \env_topleveltrue
+\newif\ifenv_subquestion     \env_subquestionfalse
+\newif\ifenv_toplevel        \env_toplevelfalse
 \newif\ifenv_botlevel        \env_botlevelfalse
 \newif\ifitem_pitem          \item_pitemfalse
 \newif\ifitem_fillin         \item_fillinfalse
@@ -194,6 +202,7 @@
 \newdimen\d_maxwidth_with_label
 \newdimen\c_steppoint% 封裝在 install_point 命令中
 \newdimen\c_steppoint_temp
+\newdimen\c_bottotalpoint
 \newcount\c_currentitemnumber% 封裝在 inititemnumber 和 incrementitemnumber 中
 \newcount\c_totalitemnumber% 封裝在 recurseditemnumber 中
 \newcount\c_stepscore
@@ -207,25 +216,36 @@
 \newcount\current_available_columns%可排版的最多列數
 \newcount\parentitemnumber% \parentitemnumber 会等于父级列表环境的序号
 
-\definecounter[Unicode][way=bychapter]
+\definecounter[Unicode][way=bychapter,start=1]
 \definecounter[Unicode_toplevel]        % for level 1 : question or problem
 \definecounter[Unicode_midlevel]        % for level 2 : problem or level 1
 \definecounter[Unicode_botlevel]        % for level 3 : only for level 2
 \definecounter[strc_close_counter]      % 为 close 环境可以继续 question 序号而设置
 
-\def\inititemnumber{\c_currentitemnumber=0\relax\c_totalitemnumber=0\relax}
+\def\inititemnumber     {\global        \c_currentitemnumber =  0\relax
+                         \global        \c_totalitemnumber   =  0\relax}
 \def\incrementitemnumber{\global\advance\c_currentitemnumber by 1\relax}
 \def\recurseditemnumber%%遞歸出總序號
-  {\ifnum       \c_totalitemnumber > \c_currentitemnumber%
-         \global\c_totalitemnumber = \c_totalitemnumber%
-   \else \global\c_totalitemnumber = \numexpr\c_currentitemnumber\relax\fi}
+  {\ifnum      \c_totalitemnumber > \c_currentitemnumber
+        \global\c_totalitemnumber = \c_totalitemnumber
+  \else \global\c_totalitemnumber = \numexpr\c_currentitemnumber\relax\fi
+  \ifenv_toplevel
+        \ifnum \c_totalitemnumber = 0 \c_totalitemnumber\plusone\relax\fi 
+  \else \ifenv_botlevel
+        \xdef\item_bottotalitemnumber_temp{\the\c_totalitemnumber}%
+  \else
+        \global\c_totalitemnumber = \rawcountervalue[Unicode_midlevel]\fi\fi}
 %% 這三個命令可以遞歸小題總數，
 %% 他們分別封裝在 set_envcounter, set_itemcount,installdatacollectorhelper 中
 \def\save_question_order{\setcounter[strc_close_counter][\currentitemnumber]\savecounter[strc_close_counter]}
 \def\restore_question_order{\restorecounter[strc_close_counter]}
 \def\EQuestionID{E-\somenamedheadnumber{chapter}{current}-\number\c_example_question}
 \def\QuestionID{\ifmode_example\EQuestionID\else\somenamedheadnumber{chapter}{current}-\rawcountervalue[Unicode]\fi}
-\def\HelperID{\namedheadnumber{chapter}-\rawcountervalue[Unicode_toplevel]}
+\def\NextQuestionID{\ifmode_example\EQuestionID\else\somenamedheadnumber{chapter}{current}-\nextcountervalue[Unicode]\fi}
+\def\PrevQuestionID{\ifmode_example\EQuestionID\else\somenamedheadnumber{chapter}{current}-\Prevcountervalue[Unicode]\fi}
+\def\HelperID{\namedheadnumber{chapter}-\rawcountervalue[Unicode_toplevel]\ifenv_botlevel -\rawcountervalue[Unicode_midlevel]\else\fi}
+\def\topHelperID{\namedheadnumber{chapter}-\rawcountervalue[Unicode_toplevel]}
+\def\midHelperID{\namedheadnumber{chapter}-\rawcountervalue[Unicode_toplevel]-\rawcountervalue[Unicode_midlevel]}
 \def\increaseEQuestionID{\advance\c_example_question by  1\relax}
 \def\decreaseEQuestionID{\advance\c_example_question by -1\relax}
 \def\increaseQuestionID{\ifmode_example\increaseEQuestionID\else\incrementcounter[Unicode]\fi}
@@ -247,20 +267,24 @@
 \def\exam_write_answer{%
   \immediate\openout\examanswer=\jobname -answer.txt\relax
   \immediate\write\examanswer{
-    \QuestionID                \space\string @
-    \currentenvironment        \space\string @
-    \currentuserorder          \space\string @
-    \pass_parameter_answer}%
- % \closeout\examanswer
+    \QuestionID           \space\string @
+    \currentenvironment   \space\string @
+    \currentuserorder     \space\string @
+    \currentanswer        \space\string @
+    \currentorder         \space\string @
+    \datasetvariable{Answer_collector}{\QuestionID}{totalnumber}
+                          \space\string @}% \closeout\examanswer
 }
 
 \ifmode_check
   \immediate\openout\examanswer=\jobname -answer.txt\relax
   \immediate\write\examanswer{
-    \string questionid  \space\string @
-    \string environment \space\string @
-    \string userorder   \space\string @
-    \string answer}
+    \string questionid      \space\string @
+    \string environment     \space\string @
+    \string userorder       \space\string @
+    \string answer          \space\string @
+    \string currentorder    \space\string @
+    \string totalitemnumber \space\string @}
 \fi
 
 \startuseMPgraphic{rules:under:wave}
@@ -334,6 +358,585 @@
   \stopsetups
   \setupfootertexts[\setups{hdr:infos}]
 \fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\choice_answerstatus        {\datasetvariable{Choice_collector}{\QuestionID}{answerstatus}}
+\def\point_totalpoint           {\datasetvariable{Answer_collector}{\currentQuestionID}{totalpoint}}
+\def\point_bottotalpoint        {\datasetvariable{Answer_collector}{\currentQuestionID}{bottotalpoint}}
+\def\item_totalitemnumber       {\datasetvariable{Answer_collector}{\currentQuestionID}{totalitemnumber}}
+\def\item_bottotalitemnumber    {\datasetvariable{Answer_collector}{\currentQuestionID}{bottotalitemnumber}}
+\def\point_point                {\datasetvariable{Answer_collector}{\currentQuestionID}{point}}
+\def\answer_answer              {\datasetvariable{Answer_collector}{\currentQuestionID}{answer}}
+\def\currentavailablecolumns    {}
+\def\currentrealavailablecolumns{}
+\def\currentitemmaxwidth        {}
+\def\currentanswerstatus        {}
+\def\example_mode{\ifmode_example NOTICE: MODE EXAMPLE IS ON !\fi}
+\def\currentlevel{\ifenv_toplevel <env_toplevel>\else
+                  \ifenv_botlevel <env_botlevel>\else
+                                  <env_midlevel>\fi\fi}
+
+\def\mode_status{\ifmode_check      <M:C>\fi
+                 \ifmode_showanswer <M:A>\fi
+                 \ifmode_showpoint  <M:P>\fi
+                 \ifmode_example    <M:E>\fi}
+
+\startluacode
+  local report = logs.reporter("question info")
+
+  local function center_text(text, total_width)
+      local text_length   = #text
+      local left_padding  = math.floor((total_width - text_length) / 2)
+      local right_padding = total_width - left_padding - text_length
+      return string.rep(' ', left_padding) .. text .. string.rep(' ', right_padding)
+  end
+
+  local function center_report(centerinfos)
+      for _, row in ipairs(centerinfos) do
+          local centered_line = center_text(row, 60)
+          report(centered_line)
+      end
+  end
+
+  local lines = {
+      "NOTICE: MODE CHECK IS ON !",
+      "Notice,Cinfos only show choice env information",
+      "CU means 'current' , if CUuserorder ≠ CUorder,",
+      "It maybe because START parameter is enabled.  ",
+      "Notice,MODE EXAMPLE wont provide data infos   "
+  }
+
+  function formatted_report(data)
+    -- 定义格式化字符串，加入竖线作为分隔符
+    local format_str = "%15s  %-20s  %15s  %-20s"
+
+    report("----------------------------------------------------------------")
+    center_report(lines,60)
+
+    -- 输出数据
+    for _, row in ipairs(data) do
+        report(format_str:format(row[1], row[2], row[3], row[4]))
+    end
+    report("----------------------------------------------------------------")
+  end
+\stopluacode
+
+\def\check_info{
+  {"","\example_mode","",""},
+  {"Name         ", "Content                                                             ",
+   "Cinfos       ", "Content                                                             "},
+  {"CUitemgroup  ", "\datasetvariable{Answer_collector}{\QuestionID}{envid}              ",
+   "CUparen      ", "\currentparentitemgroup                                             "},
+  {"QuestionID   ", "\QuestionID                                                         ",
+   "HelperID     ", "\HelperID                                                           "},
+  {"order        ", "\currentorder                                                       ",
+   "userorder    ", "\currentuserorder                                                   "},
+  {"point        ", "\datasetvariable{Answer_collector}    {\QuestionID}{point}          ",
+   "             ", "                                                                    "},
+  {"totalnumber  ", "\datasetvariable{Answer_collector}    {\QuestionID}{totalnumber}    ",
+   "Htotalnumber ", "\datasetvariable{Answer_collectorhelper}{\HelperID}{totalitemnumber}"},
+  {"totalpoint   ", "\datasetvariable{Answer_collector}    {\QuestionID}{totalpoint}     ",
+   "Htotalpoint  ", "\datasetvariable{Answer_collectorhelper}{\HelperID}{totalpoint}     "},
+  {"CUCmaxwidth  ", "\datasetvariable{Answer_collectorhelper}{\HelperID}{itemmaxwidth}   ",
+   "Cavailable   ", "\datasetvariable{Answer_collectorhelper}{\HelperID}{availablecolumns}&%
+                     \datasetvariable{Answer_collectorhelper}{\HelperID}{realavailablecolumns}"},
+  {"answer       ", "\datasetvariable{Answer_collector}    {\QuestionID}{answer}         ",
+   "             ", "                                                                    "},
+  {"Hanswer      ", "\datasetvariable{Answer_collectorhelper}{\HelperID}{answer}         ",
+   "             ", "                                                                    "},
+  {"mode.status  ", "\mode_status                                                        ",
+   "level.check  ", "\currentlevel                                                       "},
+  {"Canswerstatus", "\choice_answerstatus                                                ",
+   "             ", "                                                                    "},
+}
+
+\def\show_check_info#1%
+ {\begingroup
+  \ifmode_check%
+    \ifdefined\currentorder%
+      \let\old_currentorder\currentorder
+      \let\old_currentorder\currentuserorder
+    \else%
+      \def\currentorder{    {\ttx currentorder didn't define}}%
+      \def\currentuserorder{{\ttx currentorder didn't define}}%
+    \fi%
+    \directlua{formatted_report({#1})}%
+  \fi
+  \endgroup}
+
+\def\initcollectanswer{\directlua{MultiAnswerCollector = {}}}
+\def\collectanswer#1{\directlua{table.insert(MultiAnswerCollector,[[#1]])}}
+\def\collectedanswer{\directlua{tex.sprint(table.concat(MultiAnswerCollector,","))}}
+
+
+\def\set_envitem_counter{%
+  \initcollectanswer% 初始化多项答案收集器
+  \ifdefined\currentenvnumber
+        \edef\prevenvnumber{\currentenvnumber}\fi
+  \ifenv_answer    \advance\c_envcounter_toggle by 10\relax\else
+                    \global\c_envcounter_toggle=0\relax%
+  \ifenv_question   \global\c_envcounter_toggle=1\relax \edef\currentenvironment  {question}\fi
+  \ifenv_problem    \global\c_envcounter_toggle=2\relax \edef\currentenvironment   {problem}\fi
+  \ifenv_choice     \global\c_envcounter_toggle=3\relax \edef\currentenvironment    {choice}\fi
+  \ifenv_material   \global\c_envcounter_toggle=4\relax \edef\currentenvironment  {material}\fi
+  \ifenv_close      \global\c_envcounter_toggle=5\relax \edef\currentenvironment     {close}\fi
+  \ifenv_writing    \global\c_envcounter_toggle=6\relax \edef\currentenvironment   {writing}\fi
+  \ifenv_subwriting \global\c_envcounter_toggle=7\relax \edef\currentenvironment{subwriting}\fi
+  \fi
+  \doif{\csname \currentenvironment parameter\endcsname\c!example}{true}% 测试是否开启 example mode
+       {\mode_exampletrue\global\c_envcounter_toggle=999\relax}%
+  \edef\currentenvnumber{\the\c_envcounter_toggle}}
+
+%% 注意，只要某个条件不关闭，他就会一直开启。例如：
+% {\env_topleveltrue
+%    1. \ifenv_toplevel top \else bot \fi  % top
+%    \env_toplevelfalse\env_botleveltrue   % 关闭了 toplevel 才能正确输出
+%    2. \ifenv_toplevel top \else bot \fi  % bot
+%    3. \ifenv_botlevel bot \else top \fi} % bot
+% 一定要关闭，因为默认并没有设置 top 和 bot 的二元关系。
+% 所以即便是专门测试 bot 是否开启的 3 ，
+% 也只会在关闭 top 的情况下获取正确的结果。
+
+\def\current_user_order#1% get user order which can by changed by START
+ {\number \csname #1order\endcsname% 獲得的結果類似於 2(4)
+  \ifenv_toplevel\else
+    (\ifnum \rawcountervalue[Unicode_midlevel]=0\else
+            \rawcountervalue[Unicode_midlevel]\fi 
+      \ifnum\rawcountervalue[Unicode_botlevel]=0\else
+      \ifnum\rawcountervalue[Unicode_midlevel]>0 -\fi
+            \rawcountervalue[Unicode_botlevel]\fi
+  )\fi}
+
+\def\set_currentuserorder[#1]{% set order that user setted
+  \ifcsname #1order\endcsname\else
+    \expandafter\newcount\csname #1order\endcsname\fi
+  \ifenv_toplevel\csname #1order\endcsname=\currentitemnumber
+            \else\csname #1order\endcsname=\parentitemnumber \fi
+  \edef\currentid{\QuestionID}%
+  \edef\currentorder{% get unique order ( no chapter number )
+    \somenamedheadnumber{chapter}{current}-%
+    \rawcountervalue[Unicode_toplevel]-%
+    \rawcountervalue[Unicode_midlevel]-%
+    \rawcountervalue[Unicode_botlevel]}%
+  \xdef\currentuserorder{\current_user_order{#1}}%获取 上面定义的 #1order
+  \expandafter\show_check_info{\check_info}%
+% % ==  \currentid ++ \currentorder @@ \currentorder
+}%专为子级设计来获取父级序号，否则直接获取当前序号
+
+\tolerant\def\set_count_envlevel[#1]{% #1 定義 #2order
+  \env_topleveltrue
+  \ifdefined\prevenvnumber
+        \env_toplevelfalse
+        \doifelse{\prevlevel}%
+          {<env_midlevel>}%
+          {\env_botleveltrue \incrementitemnumber               }%
+          {\env_botlevelfalse\incrementitemnumber\inititemnumber}%
+  \else \env_topleveltrue    \inititemnumber\fi
+  \edef\prevlevel{\currentlevel}%
+  \xdef\currentQuestionID{\ifmode_example\EQuestionID\else
+      \somenamedheadnumber{chapter}{current}-\rawcountervalue[Unicode]\fi}%
+  \ifenv_toplevel
+      \setcounter[Unicode_midlevel][0]%
+      \setcounter[Unicode_botlevel][0]%
+      \incrementcounter[Unicode_toplevel]%
+      \c_steppoint     \zeropoint
+      \c_steppoint_temp\zeropoint% 重置分數計算
+      \c_bottotalpoint \zeropoint
+      \parentitemnumber\currentitemnumber
+      \edef\item_bottotalitemnumber_temp{0}%
+  \else\ifenv_botlevel
+      \incrementcounter[Unicode_botlevel]
+  \else
+      \edef\item_bottotalitemnumber_temp{0}%
+      \setcounter[Unicode_botlevel][0]%
+      \incrementcounter[Unicode_midlevel]\fi
+  \fi
+  \set_currentuserorder[#1]% 创建 #2order 以备使用
+}
+
+%%% id        由 章節號 + 題號 組成，題號在每一章節中重新從 1 計數
+%%% envid     當前列表名稱和層數
+%%% order     當前子題號，例如 第一題 ： 1 第六題第三小題 ： 6(3)
+%%% userorder 當前列表序號(可獲取被start更改後的序號)
+
+\def\installdatacollector%
+  {%\showmessage\m!basicexam{2}{\currentuserorder,\currentanswer}%顯示題號和答案到控制檯
+   %\showmessage\m!basicexam{200}{\QuestionID,\currentorder}%
+  \ifmode_check\exam_write_answer\fi
+  \setdataset [Answer_collector][\QuestionID]%收集答案並在未來展開
+              [ id={\QuestionID},%
+                envid={\currentenvironment :\the\c_envcounter_toggle :\currentitemgroup},%
+                order={\number\currentorder},%
+                userorder={\currentuserorder},%
+                answer={\currentanswer},%
+                point={\currentpoint},%
+                totalnumber={\datasetvariable{Answer_collectorhelper}{\HelperID}{totalitemnumber}},
+                bottotalitemnumber={\datasetvariable{Answer_collectorhelper}{\HelperID}{bottotalitemnumber}},
+                totalpoint={\datasetvariable {Answer_collectorhelper}{\HelperID}{totalpoint}},
+                bottotalpoint={\datasetvariable{Answer_collectorhelper}{\HelperID}{bottotalpoint}},]}
+
+\protected\def\installdatacollectorhelper{%
+  \increaseQuestionID% 具有獨立答案，增長 QID
+  \recurseditemnumber%
+  \ifdefined\currenttotalbotpoint\else\edef\currenttotalbotpoint{\currenttotalpoint}\fi
+  \setdataset [Answer_collectorhelper][\HelperID]%收集信息並在未來展開
+              [totalitemnumber={\the\c_totalitemnumber},
+               bottotalitemnumber={\item_bottotalitemnumber_temp},
+               totalpoint={\currenttotalpoint},
+               bottotalpoint={\currenttotalbotpoint},
+               availablecolumns={\currentavailablecolumns},
+               realavailablecolumns={\currentrealavailablecolumns},
+               itemmaxwidth={\currentitemmaxwidth},
+               answer={\currentanswer},
+               answerstatus={\check_answerstatus},
+              ]\initcollectanswer
+}
+
+% 环境层级一览
+% question 环境                 % close 环境                      % material 环境
+%    choice 环境                %       closechoice 项目    ⭕    % question 环境
+%       citem 项目        ⭕    % optclose 环境                   %    choice 环境
+%    problem 环境               %       ocitem 项目         ⭕    %       citem 项目    ⭕
+%       pitem 项目        ⭕    %       specialocitem 项目  ⭕
+%         fillin 项目     ⭕
+% ======================================================================================
+% writing 环境            ⭕
+%     subwriting 环境
+%
+
+% 获取当前环境的答案，并传递给最终的 answer dataset
+\def\check_answerstatus{\ifempty\currentanswer there is no answer setted.\else setted answer.\fi}
+
+\def\paren#1{(#1)}
+
+\startluacode
+  function FormatDim (dim)
+    local converteddimen  = tex.toscaled(dim) / 65536
+    local convertednumber = tonumber(string.format("%0.2f",converteddimen))
+    return convertednumber
+  end
+
+  function FormatNum (num)
+      if num <= 0 then
+          return 0
+      else
+          local t1, t2 = math.modf(num)
+          if t2 > 0 then
+              return num
+          else
+              return t1
+          end
+      end
+  end
+  
+  -- context(FormatDim(tex.dimen.c_steppoint))
+  -- context.par()
+  -- context(FormatNum(convertednumber))
+  -- context.par()
+  -- context(FormatNum(FormatDim(tex.dimen.c_steppoint)))
+\stopluacode
+
+\newcount\c_subitem_state\c_subitem_state=0
+
+\protected\def\install_point[#1][#2]{%
+  \edef\currentmode{#2}%
+  \edef\currentpoint{\csname #1parameter\endcsname\c!point}%
+  \edef\prevpoint{\currentprevpoint}%
+  \ifx\currentmode\c!point
+    \ifempty\currentpoint
+      \edef\currentpoint{\ifenv_toplevel 0\else\ifempty\prevpoint 0\else\prevpoint\fi\fi}%
+    \else
+      \edef\currentpoint{\csname #1parameter\endcsname\c!point}%
+    \fi
+    \ifenv_toplevel
+      \ifempty\currentpoint
+        \edef\currenttoppoint{0}\else
+        \ifdefined\steptotalmidpoint
+          \edef\currenttoppoint{\steptotalmidpoint}%
+          \edef\currentpoint{\steptotalmidpoint}%
+          \global\c_subitem_state2\relax\else 
+          \edef\currenttoppoint{\currentpoint}\fi\fi
+        \ifempty\currentpoint% 抓取當前分數值
+            \scratchdimen\zeropoint      \else
+            \scratchdimen\currentpoint pt\relax
+        \fi
+        \global\c_steppoint_temp\scratchdimen\relax
+        \global\c_steppoint=\dimexpr\c_steppoint+\c_steppoint_temp\relax
+        \xdef\currenttotaltoppoint{\ctxlua{context(FormatNum(FormatDim(tex.dimen.c_steppoint)))}}%
+        \ifnum\rawcountervalue[Unicode_midlevel]=0
+          \xdef\currenttotalpoint{\csname #1parameter\endcsname\c!point}\else
+          \xdef\currenttotalpoint{\currenttotaltoppoint}%
+        \fi
+    \else
+      \ifenv_botlevel
+        \global\c_subitem_state3\relax
+        \ifempty\currentpoint
+          \edef\currentbotpoint{0}\else
+          \edef\currentbotpoint{\currentpoint}\fi
+          \ifempty\currentpoint% 抓取當前分數值
+            \scratchdimen\zeropoint      \else
+            \scratchdimen\currentpoint pt\relax
+          \fi
+          \global\c_steppoint_temp\scratchdimen\relax
+          \global\c_steppoint    =\dimexpr\c_steppoint    +\c_steppoint_temp\relax
+          \global\c_bottotalpoint=\dimexpr\c_bottotalpoint+\c_steppoint_temp\relax
+          \xdef\steptotalbotpoint   {\ctxlua{context(FormatNum(FormatDim(tex.dimen.c_steppoint)))}}%
+          \xdef\currenttotalbotpoint{\ctxlua{context(FormatNum(FormatDim(tex.dimen.c_bottotalpoint)))}}%
+          \xdef\currenttotalpoint   {\steptotalbotpoint}%
+      \else
+        \ifempty\currentpoint
+          \edef\currentmidpoint{0}\else
+          \ifdefined\currenttotalbotpoint
+            \edef\currentmidpoint{\currenttotalbotpoint}%
+            \ifnum\c_subitem_state=3\edef\currentpoint{0}\fi
+            \global\c_subitem_state2\relax
+            \else
+            \edef\currentmidpoint{\currentpoint}\fi\fi
+          \ifempty\currentpoint% 抓取當前分數值
+            \scratchdimen\zeropoint      \else
+            \scratchdimen\currentpoint pt\relax
+          \fi
+          \c_bottotalpoint\zeropoint% 重置 midlevel 分数
+          \global\c_steppoint_temp\scratchdimen\relax
+          \global\c_steppoint=\dimexpr\c_steppoint+\c_steppoint_temp\relax
+          \global\c_bottotalpoint=\dimexpr\c_bottotalpoint+\c_steppoint_temp\relax
+          \xdef\steptotalmidpoint   {\ctxlua{context(FormatNum(FormatDim(tex.dimen.c_steppoint)))}}%
+          \xdef\currenttotalpoint   {\steptotalmidpoint}%
+          \ifdefined\currenttotalbotpoint\xdef\currenttotalmidpoint{\currenttotalbotpoint}\fi
+      \fi
+    \fi
+  \fi}
+
+\def\install_answer[#1][#2]{%
+  \edef\currentmode{#2}%
+  \ifx\currentmode\c!answer
+    \edef\prevanswer{\currentprevanswer}%
+    \edef\p_answer{\csname #1parameter\endcsname\c!answer}%暫時定義
+    \ifempty\p_answer
+      \edef\currentanswer{\prevanswer}%empty : \currentanswer
+    \else%
+      \ifempty\prevanswer
+        \edef\currentanswer{\csname #1parameter\endcsname\c!answer}%not empty : \currentanswer
+      \else
+        \edef\currentanswer{\prevanswer}%
+      \fi
+      \ifempty\prevanswer\else
+        \ifx\currentanswer\prevanswer\relax\else
+          \writestatus{question info}{%
+            \currentuserorder     : Two conflicting answers have been detected,
+                                    check and delete unnecessary answers.}%
+          \writestatus{question info}{%
+            \string\prevanswer    : \prevanswer .
+            \string\currentanswer : \currentanswer .}%
+        \fi
+      \fi
+    \fi
+  \fi
+}
+
+\installnamespace {examinfo}
+\installframedcommandhandler \????examinfo  {examinfo}  \????examinfo
+
+\appendtoks
+    \frozen\instance\protected\edefcsname\e!start\currentexaminfo\endcsname{\framed_examinfo_start[\currentexaminfo]}%
+    \frozen\instance\protected\edefcsname\e!stop \currentexaminfo\endcsname{\framed_examinfo_stop                   }%
+\to \everydefineexaminfo
+
+\unexpanded\def\framed_examinfo_start[#1]%
+ {\bgroup\edef\currentexaminfo{#1}%
+  \dontleavehmode
+  \inheritedexaminfoframed\bgroup
+  \examinfoparameter\c!left}
+
+\unexpanded\def\framed_examinfo_stop%
+ {\examinfoparameter\c!right\egroup\egroup}
+
+\setupexaminfo[frame=off,location=low,left=(,right=),offset=0pt]
+
+\defineexaminfo[closeexaminfo]    [width=2em]
+\defineexaminfo[questionexaminfo]
+\defineexaminfo[writingexaminfo]
+\defineexaminfo[answerexaminfo]
+\defineexaminfo[pitemexaminfo] 
+\defineexaminfo[ocitemexaminfo]
+
+\tolerant\protected\def\showpointoranswer[#1]#*[#2]%
+ {\edef\currentmode{#2}% check point or answer
+  \edef\p_showanswer {\csname #1parameter\endcsname\c!showanswer}%
+  \edef\p_showpoint  {\csname #1parameter\endcsname\c!showpoint }%
+  \edef\p_showscript {\csname #1parameter\endcsname\c!showscript}%
+  \edef\p_totalpoint {\csname #1parameter\endcsname {totalpoint}}%
+  \edef\p_totalanswer{\csname #1parameter\endcsname{totalanswer}}%
+  \ifempty\p_showanswer\else
+    \ifx\p_showanswer\s!true
+            \mode_showanswertrue
+      \else \mode_showanswerfalse
+  \fi\fi
+  \ifempty\p_showpoint\else
+    \ifx\p_showpoint\s!true
+          \mode_showpointtrue
+    \else \mode_showpointfalse
+  \fi\fi
+  \ifempty\p_showscript\else
+    \ifx\p_showscript\s!true
+          \mode_showscripttrue
+    \else \mode_showscriptfalse
+  \fi\fi
+  \begingroup
+    \p_assigned_currentlabel{#1}{#2}%
+    \expandafter\expandafter
+      \expandafter\p_pass_currentlabel
+        \expandafter\expandafter
+          \expandafter[\csname p_current#1#2label\endcsname]{#2}%
+    \def\left_assignedlabel {\csname  left_assigned#2label\endcsname}%
+    \def\right_assignedlabel{\csname right_assigned#2label\endcsname}%
+    \csname ifmode_show#2\endcsname
+      \dousestyleparameter    {\csname #1parameter\endcsname{#2style}}%
+      \dousecolorparameter    {\csname #1parameter\endcsname{#2color}}%
+      \csname\e!start #1examinfo\endcsname
+        \left_assignedlabel% like=>answer : blabla
+          \ifx\currentmode\c!point% if #2 = point
+            \ifempty\p_totalpoint
+              \ifenv_toplevel
+                \datasetvariable{Answer_collectorhelper}{\topHelperID}{totalpoint}%
+              \else
+                \ifenv_botlevel\point_point\else
+                  \doifsomethingelse{\item_bottotalitemnumber}{\scratchcounter\item_bottotalitemnumber}{\scratchcounter\zerocount}
+                  \ifnum\scratchcounter=\zerocount\relax
+                    \point_point\else
+                    \datasetvariable{Answer_collectorhelper}{\midHelperID}{bottotalpoint}%
+                  \fi
+                \fi
+             \fi
+            \else\p_totalpoint\fi
+          \else% if #2 = answer。因为 currentXXXanswer 是有定义内容的，
+            \ifmode_example You're in EXAMPLE MODE!\else
+              \ifempty\p_totalanswer
+                % {\tt \darkyellow \currentQuestionID : \datasetvariable{Answer_collector}{\currentQuestionID}{answer}
+                %       \darkred    \HelperID :     \datasetvariable{Answer_collectorhelper}{\HelperID}{answer}
+                %       \black      \topHelperID :: \datasetvariable{Answer_collectorhelper}{\topHelperID}{answer}
+                %       \green      \midHelperID :: \datasetvariable{Answer_collectorhelper}{\midHelperID}{answer}  }
+                \answer_answer
+              \else
+                \p_totalanswer
+              \fi
+            \fi% 直接獲取當前 QID 答案
+          \fi
+        \right_assignedlabel
+      \csname\e!stop #1examinfo\endcsname
+    \fi
+  \endgroup
+  \ifdefined\currentprevpoint\else
+    \edef\currentprevpoint{\csname #1parameter\endcsname\c!point}\fi
+  \ifdefined\currentprevanswer
+    \ifenv_toplevel \edef\currentprevanswer{\csname #1parameter\endcsname\c!answer}\fi
+  \else
+    \edef\currentprevanswer{\csname #1parameter\endcsname\c!answer}\fi}
+
+\def\p_assigned_currentlabel#1#2{%
+  \expandafter\edef%
+    \csname p_current#1#2label%
+      \expandafter\expandafter
+        \expandafter\endcsname
+          \expandafter\expandafter
+            \expandafter{%
+              \csname #1parameter\endcsname{#2label}}}
+
+\def\p_pass_currentlabel[#1]{\p_assign_currentlabel[#1,,]}
+\def\p_assign_currentlabel[#1,#2,#3]#4%
+ {\expandafter\def\csname  left_assigned#4label\endcsname {#1}%
+  \expandafter\def\csname right_assigned#4label\endcsname {#2}}
+
+\tolerant\protected\def\calcpointoranswer[#1]#*[#2]%#1 parameter %#2 modename
+  {\install_point[#1][#2]\install_answer[#1][#2]}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\defineconversion[tnum][\addff{tabularnumbers}]
+\protected\def\installitemgroupoption[#1][#2]{%
+  \setupitemgroup[env_#1][each][
+                \c!margin={\csname #2parameter\endcsname\c!margin},%
+            \c!leftmargin={\csname #2parameter\endcsname\c!leftmargin},%
+           \c!rightmargin={\csname #2parameter\endcsname\c!rightmargin},%
+    \c!leftmargindistance={\csname #2parameter\endcsname\c!leftmargindistance},%
+   \c!rightmargindistance={\csname #2parameter\endcsname\c!rightmargindistance},%
+            \c!indentnext={\csname #2parameter\endcsname\c!indentnext},%
+                 \c!width={\csname #2parameter\endcsname\c!width},%
+                \c!factor={\csname #2parameter\endcsname\c!factor},%
+              \c!distance={\csname #2parameter\endcsname\c!distance},%
+                  \c!step={\csname #2parameter\endcsname\c!step},%
+                 \c!align={\csname #2parameter\endcsname\c!align},%
+              \c!symalign={\csname #2parameter\endcsname\c!symalign},%
+                 \c!color={\csname #2parameter\endcsname\c!color},%
+             \c!indenting={\csname #2parameter\endcsname\c!indenting},%
+                 \c!style={\csname #2parameter\endcsname\c!style},%
+              \c!marstyle={\csname #2parameter\endcsname\c!marstyle},%
+              \c!symstyle={\csname #2parameter\endcsname\c!symstyle},%
+             \c!headstyle={\csname #2parameter\endcsname\c!headstyle},%
+              \c!marcolor={\csname #2parameter\endcsname\c!marcolor},%
+              \c!symcolor={\csname #2parameter\endcsname\c!symcolor},%
+             \c!headcolor={\csname #2parameter\endcsname\c!headcolor},%
+            \c!beforehead={\csname #2parameter\endcsname\c!beforehead},%
+              \c!symcolor={\csname #2parameter\endcsname\c!symcolor},%
+              \c!symstyle={\csname #2parameter\endcsname\c!symstyle},%
+             \c!afterhead={\csname #2parameter\endcsname\c!afterhead},%
+                \c!before={\csname #2parameter\endcsname\c!before},%
+             \c!inbetween={\csname #2parameter\endcsname\c!inbetween},%
+                 \c!after={\csname #2parameter\endcsname\c!after},%
+               \c!stopper={\csname #2parameter\endcsname\c!stopper},%
+          \c!placestopper={\csname #2parameter\endcsname\c!placestopper},%
+               \c!stopper={\csname #2parameter\endcsname\c!stopper},%
+                 \c!inner={\csname #2parameter\endcsname\c!inner},%
+                     \c!n={\csname #2parameter\endcsname\c!n},%
+                 \c!items={\csname #2parameter\endcsname\c!items},%
+                \c!levels={\csname #2parameter\endcsname\c!levels},%
+              \c!lefttext={\csname #2parameter\endcsname\c!lefttext},%
+             \c!righttext={\csname #2parameter\endcsname\c!righttext},%
+                  \c!left={\csname #2parameter\endcsname\c!left},%
+                 \c!right={\csname #2parameter\endcsname\c!right},%
+         \c!packcriterium={\csname #2parameter\endcsname\c!packcriterium},%
+             \c!criterium={\csname #2parameter\endcsname\c!criterium},%
+          \c!textdistance={\csname #2parameter\endcsname\c!textdistance},%
+     \c!lasttextseparator={\csname #2parameter\endcsname\c!lasttextseparator},%
+     \c!lasttextseparator={\csname #2parameter\endcsname\c!lasttextseparator},%
+               \c!command={\csname #2parameter\endcsname\c!command},%
+             \c!indenting={\csname #2parameter\endcsname\c!indenting},%
+           \c!alignsymbol={\csname #2parameter\endcsname\c!alignsymbol},%
+                \c!symbol={\csname #2parameter\endcsname\c!symbol},%
+                \c!option={\csname #2parameter\endcsname\c!option},%
+              %  \c!start={\csname #2parameter\endcsname\c!start},%
+                 \c!start={\csname #2parameter\endcsname\c!start},%
+                 \c!state={\csname #2parameter\endcsname\c!state},% % beware, "" == start
+                   \c!way={\csname #2parameter\endcsname\c!way},% % wont work if continue on
+                \c!prefix={\csname #2parameter\endcsname\c!prefix},%
+    \c!prefixseparatorset={\csname #2parameter\endcsname\c!prefixseparatorset},%
+      \c!prefixconversion={\csname #2parameter\endcsname\c!prefixconversion},%
+   \c!prefixconversionset={\csname #2parameter\endcsname\c!prefixconversionset},%
+         \c!prefixstarter={\csname #2parameter\endcsname\c!prefixstarter},%
+         \c!prefixstopper={\csname #2parameter\endcsname\c!prefixstopper},%
+             \c!prefixset={\csname #2parameter\endcsname\c!prefixset},%
+        \c!prefixsegments={\csname #2parameter\endcsname\c!prefixsegments},%
+             \c!prefixset={\csname #2parameter\endcsname\c!prefixset},%
+       \c!prefixconnector={\csname #2parameter\endcsname\c!prefixconnector},%
+    \c!numberseparatorset={\csname #2parameter\endcsname\c!numberseparatorset},%
+      \c!numberconversion={\csname #2parameter\endcsname\c!numberconversion},%
+   \c!numberconversionset={\csname #2parameter\endcsname\c!numberconversionset},%
+         \c!numberstarter={\csname #2parameter\endcsname\c!numberstarter},%
+         \c!numberstopper={\csname #2parameter\endcsname\c!numberstopper},%
+        \c!numbersegments={\csname #2parameter\endcsname\c!numbersegments},
+  %               \c!prefix={\csname #2parameter\endcsname\c!prefix},%
+  %        \c!prefixstopper={\csname #2parameter\endcsname\c!prefixstopper},%
+  %   \c!prefixseparatorset={\csname #2parameter\endcsname\c!prefixseparatorset},%
+  %     \c!prefixconversion={\csname #2parameter\endcsname\c!prefixconversion},%
+  %  \c!prefixconversionset={\csname #2parameter\endcsname\c!prefixconversionset},%
+  %            \c!prefixset={\csname #2parameter\endcsname\c!prefixset},%
+  %       \c!prefixsegments={\csname #2parameter\endcsname\c!prefixsegments},%
+  %      \c!prefixconnector={\csname #2parameter\endcsname\c!prefixconnector},%
+  %   \c!numberseparatorset={\csname #2parameter\endcsname\c!numberseparatorset},%
+  %  \c!numberconversionset={\csname #2parameter\endcsname\c!numberconversionset},%
+        %  \c!numberstopper={\csname #2parameter\endcsname\c!numberstopper},%
+        % \c!numbersegments={\csname #2parameter\endcsname\c!numbersegments},
+  ]%
+}
 
 %%%%% setupinfos 设置试卷抬头信息和格式
 %D \section{繪製卷頭 / print title / タイトルの作成}
@@ -441,9 +1044,9 @@
   \usesetupsparameter\papertitleparameter
   \edef\p_renderingsetup{\papertitlealternativeparameter\c!renderingsetup}%
   \directsetup\p_renderingsetup
-  \marking[subject]{\papertitleparameter{subject}
-                    \papertitleparameter{subjectsuffix}}
-  \marking[title]{\papertitleparameter\c!title}
+  \marking[subject]{\papertitleparameter{subject}%
+                    \papertitleparameter{subjectsuffix}}%
+  \marking[title]{\papertitleparameter\c!title}%
   \endgroup}
 
 %D At the same time, you can define your own test paper title template through {\bf alternative}.
@@ -543,491 +1146,6 @@
 %D \VL                                      \NC                              \NC\NR
 %D \stoptabulate
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\def\choice_answerstatus        {\datasetvariable{Choice_collector}{\QuestionID}{answerstatus}}
-\def\point_totalpoint           {\datasetvariable{Answer_collector}{\QuestionID}{totalpoint}}
-\def\point_point                {\datasetvariable{Answer_collector}{\QuestionID}{point}}
-\def\currentavailablecolumns    {}
-\def\currentrealavailablecolumns{}
-\def\currentitemmaxwidth        {}
-\def\currentanswerstatus        {}
-\def\example_mode{\ifmode_example NOTICE: MODE EXAMPLE IS ON !\fi}
-\def\level_status{\ifenv_toplevel <env_toplevel>\else
-                  \ifenv_botlevel <env_botlevel>\else
-                                  <env_midlevel>\fi\fi}
-
-\def\mode_status{\ifmode_check      <M:C>\fi
-                 \ifmode_showanswer <M:A>\fi
-                 \ifmode_showpoint  <M:P>\fi
-                 \ifmode_example    <M:E>\fi}
-
-\startluacode
-  local report = logs.reporter("question info")
-
-  local function center_text(text, total_width)
-      local text_length   = #text
-      local left_padding  = math.floor((total_width - text_length) / 2)
-      local right_padding = total_width - left_padding - text_length
-      return string.rep(' ', left_padding) .. text .. string.rep(' ', right_padding)
-  end
-
-  local function center_report(centerinfos)
-      for _, row in ipairs(centerinfos) do
-          local centered_line = center_text(row, 60)
-          report(centered_line)
-      end
-  end
-
-  local lines = {
-      "NOTICE: MODE CHECK IS ON !",
-      "Notice,Cinfos only show choice env information",
-      "CU means 'current' , if CUuserorder ≠ CUorder,",
-      "It maybe because START parameter is enabled.  ",
-      "Notice,MODE EXAMPLE wont provide data infos   "
-  }
-
-  function formatted_report(data)
-    -- 定义格式化字符串，加入竖线作为分隔符
-    local format_str = "%15s  %-20s  %15s  %-20s"
-
-    report("----------------------------------------------------------------")
-    center_report(lines,60)
-
-    -- 输出数据
-    for _, row in ipairs(data) do
-        report(format_str:format(row[1], row[2], row[3], row[4]))
-    end
-    report("----------------------------------------------------------------")
-  end
-\stopluacode
-
-\def\check_info{
-  {"","\example_mode","",""},
-  {"Name         ", "Content                                                             ",
-   "Cinfos       ", "Content                                                             "},
-  {"CUitemgroup  ", "\datasetvariable{Answer_collector}{\QuestionID}{envid}              ",
-   "CUparen      ", "\currentparentitemgroup                                             "},
-  {"QuestionID   ", "\QuestionID                                                         ",
-   "HelperID     ", "\HelperID                                                           "},
-  {"order        ", "\currentorder                                                       ",
-   "userorder    ", "\currentuserorder                                                   "},
-  {"point        ", "\datasetvariable{Answer_collector}    {\QuestionID}{point}          ",
-   "             ", "                                                                    "},
-  {"totalnumber  ", "\datasetvariable{Answer_collector}    {\QuestionID}{totalnumber}    ",
-   "Htotalnumber ", "\datasetvariable{Answer_collectorhelper}{\HelperID}{totalitemnumber}"},
-  {"totalpoint   ", "\datasetvariable{Answer_collector}    {\QuestionID}{totalpoint}     ",
-   "Htotalpoint  ", "\datasetvariable{Answer_collectorhelper}{\HelperID}{totalpoint}     "},
-  {"CUCmaxwidth  ", "\datasetvariable{Answer_collectorhelper}{\HelperID}{itemmaxwidth}   ",
-   "Cavailable   ", "\datasetvariable{Answer_collectorhelper}{\HelperID}{availablecolumns} &
-                     \datasetvariable{Answer_collectorhelper}{\HelperID}{realavailablecolumns}"},
-  {"answer       ", "\datasetvariable{Answer_collector}    {\QuestionID}{answer}         ",
-   "             ", "                                                                    "},
-  {"Hanswer      ", "\datasetvariable{Answer_collectorhelper}{\HelperID}{answer}         ",
-   "             ", "                                                                    "},
-  {"mode.status  ", "\mode_status                                                        ",
-   "level.check  ", "\level_status                                                       "},
-  {"Canswerstatus", "\choice_answerstatus                                                ",
-   "             ", "                                                                    "},
-}
-
-\def\show_check_info#1%
- {\begingroup
-  \ifmode_check%
-    \ifdefined\currentorder%
-      \let\old_currentorder\currentorder
-      \let\old_currentorder\currentuserorder
-    \else%
-      \def\currentorder{    {\ttx currentorder didn't define}}
-      \def\currentuserorder{{\ttx currentorder didn't define}}
-    \fi%
-    \directlua{formatted_report({#1})}
-  \fi
-  \endgroup}
-
-\def\dimtonum #1{\number\numexpr \dimexpr #1\relax*635/65536\relax }
-\newcount\cnt_floor
-\def\floor#1{\floorhelper#1.\relax}
-\def\floorhelper#1.#2\relax{\ifx\relax#2\relax#1%
-    \else\if.#2#1\else\floorhelphelper{#1}#2\fi\fi}
-\def\floorhelphelper#1#2.{\ifnum#2>0%
-    \floorhelphelphelper#1\relax\relax\relax\else#1\fi}
-\def\floorhelphelphelper#1#2\relax{%
-  \if-#1\relax-\cnt_floor=0#2\relax%
-  \advance\cnt_floor by 1\relax%
-  \number\cnt_floor\relax%
-  \else\cnt_floor=0#1#2\relax%
-  \number\cnt_floor\relax\fi%
-}
-
-\def\initcollectanswer{\directlua{MultiAnswerCollector = {}}}
-\def\collectanswer#1{\directlua{table.insert(MultiAnswerCollector,[[#1]])}}
-\def\collectedanswer{\directlua{tex.sprint(table.concat(MultiAnswerCollector,","))}}
-
-\def\set_envitem_counter{%
-  \ifdefined\currentenvnumber
-    \edef\prevenvnumber{\currentenvnumber}%
-  \fi\initcollectanswer% 初始化多项答案收集器
-  \ifenv_answer    \advance\c_envcounter_toggle by 10\relax\else
-                    \global\c_envcounter_toggle=0\relax%
-  \ifenv_question   \global\c_envcounter_toggle=1\relax \edef\currentenvironment  {question}\fi
-  \ifenv_problem    \global\c_envcounter_toggle=2\relax \edef\currentenvironment   {problem}\fi
-  \ifenv_choice     \global\c_envcounter_toggle=3\relax \edef\currentenvironment    {choice}\fi
-  \ifenv_material   \global\c_envcounter_toggle=4\relax \edef\currentenvironment  {material}\fi
-  \ifenv_close      \global\c_envcounter_toggle=5\relax \edef\currentenvironment     {close}\fi
-  \ifenv_writing    \global\c_envcounter_toggle=6\relax \edef\currentenvironment   {writing}\fi
-  \ifenv_subwriting \global\c_envcounter_toggle=7\relax \edef\currentenvironment{subwriting}\fi
-  \fi
-  \doif{\csname \currentenvironment parameter\endcsname\c!example}{true}% 专用于测试是否开启了 example mode
-       {\mode_exampletrue\global\c_envcounter_toggle=999\relax}
-  \edef\currentenvnumber{\the\c_envcounter_toggle}}
-
-%% 注意，只要某个条件不关闭，他就会一直开启。例如：
-% {\env_topleveltrue
-%    1. \ifenv_toplevel top \else bot \fi  % top
-%    \env_toplevelfalse\env_botleveltrue   % 关闭了 toplevel 才能正确输出
-%    2. \ifenv_toplevel top \else bot \fi  % bot
-%    3. \ifenv_botlevel bot \else top \fi} % bot
-% 一定要关闭，因为默认并没有设置 top 和 bot 的二元关系。
-% 所以即便是专门测试 bot 是否开启的 3 ，
-% 也只会在关闭 top 的情况下获取正确的结果。
-
-\def\current_user_order#1{% get user order which can by changed by START
-    \number\csname #1order\endcsname% 獲得的結果類似於 2(4)
-    \ifnum\rawcountervalue[Unicode_botlevel]=0\else%
-    (\rawcountervalue[Unicode_botlevel])\fi}
-
-\def\set_currentuserorder[#1]{% set order that user setted
-  \ifcsname #1order\endcsname\else
-    \expandafter\newcount\csname #1order\endcsname\fi
-  \ifenv_toplevel\csname #1order\endcsname=\currentitemnumber
-            \else\csname #1order\endcsname=\parentitemnumber \fi
-  \edef\currentid{\QuestionID}%
-  \edef\currentorder{% get unique order ( no chapter number )
-    \somenamedheadnumber{chapter}{current}-%
-    \rawcountervalue[Unicode_toplevel]-%
-    \rawcountervalue[Unicode_midlevel]-%
-    \rawcountervalue[Unicode_botlevel]}%
-  \edef\currentuserorder{\current_user_order{#1}}%获取 上面定义的 #1order
-  \expandafter\show_check_info{\check_info}%
-% % ==  \currentid ++ \currentorder @@ \currentorder
-}%专为子级设计来获取父级序号，否则直接获取当前序号
-
-\tolerant\def\set_count_envlevel[#1]{% #1 定義 #2order
-% 如果 cur = prev， 說明已經有了上層環境， 判定為 中層環境，
-% 如果 prev 未被定義， 說明沒有上層環境， 判定為  上層環境
-  \setcounter[Unicode_midlevel][0]%
-  \setcounter[Unicode_botlevel][0]%
-  \ifdefined\prevenvnumber
-    \ifx\currentenvnumber\prevenvnumber
-        \env_topleveltrue \incrementcounter[Unicode_toplevel]%
-   \else\env_toplevelfalse\incrementcounter[Unicode_midlevel]\fi
-   \else\env_topleveltrue \incrementcounter[Unicode_toplevel]\fi
-  \parentitemnumber=\currentitemnumber\relax
-  \set_currentuserorder[#1]% 创建 #2order 以备使用
-  \inititemnumber%初始化子題目計數器
-}
-
-\tolerant\def\set_count_itemlevel[#1]{%
-  \env_toplevelfalse
-  \ifdefined\prevenvnumber
-    \ifx\currentenvnumber\prevenvnumber
-        \env_botlevelfalse\incrementcounter[Unicode_midlevel]\else
-        \env_botleveltrue \incrementcounter[Unicode_botlevel]\fi
-   \else\env_botlevelfalse\incrementcounter[Unicode_midlevel]%
-  \fi\ifenv_subwriting\env_botleveltrue\fi
-  \set_currentuserorder[#1]%
-  \incrementitemnumber%增長子題目計數器
-}
-
-%%% id        由 章節號 + 題號 組成，題號在每一章節中重新從 1 計數
-%%% envid     當前列表名稱和層數
-%%% order     當前子題號，例如 第一題 ： 1 第六題第三小題 ： 6(3)
-%%% userorder 當前列表序號(可獲取被start更改後的序號)
-
-\def\installdatacollector%
-  {\showmessage\m!basicexam{2}{\currentuserorder,\currentanswer}%顯示題號和答案到控制檯
-  \ifmode_check\exam_write_answer\fi
-  \setdataset [Answer_collector][\QuestionID]%收集答案並在未來展開
-              [id={\QuestionID},%
-                envid={\currentenvironment : \the\c_envcounter_toggle : \currentitemgroup},%
-                order={\number\currentorder},%
-                userorder={\currentuserorder},%
-                answer={\pass_parameter_answer},%
-                point={\currentpoint},%
-                totalnumber={\datasetvariable{Answer_collectorhelper}{\HelperID}{totalitemnumber}},%
-                totalpoint={\datasetvariable {Answer_collectorhelper}{\HelperID}{totalpoint}},]}
-
-\protected\def\installdatacollectorhelper{%
-  \recurseditemnumber%
-  \setdataset [Answer_collectorhelper][\HelperID]%收集信息並在未來展開
-              [totalitemnumber={\the\c_totalitemnumber},
-               totalpoint={\currenttotalpoint},
-               availablecolumns={\currentavailablecolumns},
-               realavailablecolumns={\currentrealavailablecolumns},
-               itemmaxwidth={\currentitemmaxwidth},
-               answer={\currentanswer},
-               answerstatus={\check_answerstatus},
-              ]%
-}
-
-% 环境层级一览
-% question 环境                 % close 环境                      % material 环境
-%    choice 环境                %       closechoice 项目    ⭕    % question 环境
-%       citem 项目        ⭕    % optclose 环境                   %    choice 环境
-%    problem 环境               %       ocitem 项目         ⭕    %       citem 项目    ⭕
-%       pitem 项目        ⭕    %       specialocitem 项目  ⭕
-%         fillin 项目     ⭕
-% ======================================================================================
-% writing 环境            ⭕
-%     subwriting 环境
-%
-
-% 获取当前环境的答案，并传递给最终的 answer dataset
-\def\pass_parameter_answer{%
-  \ifenv_writing\short_writing_answer\else
-    \ifempty\currentanswer there is no answer setted.\else
-  \currentanswer\fi\fi}
-
-\def\check_answerstatus{}
-
-\def\paren#1{(#1)}
-
-\startluacode
-  function FormatDim (dim)
-    local converteddimen  = tex.toscaled(dim) / 65536
-    local convertednumber = tonumber(string.format("%0.2f",converteddimen))
-    return convertednumber
-  end
-
-  function FormatNum (num)
-      if num <= 0 then
-          return 0
-      else
-          local t1, t2 = math.modf(num)
-          if t2 > 0 then
-              return num
-          else
-              return t1
-          end
-      end
-  end
-  
-  -- context(FormatDim(tex.dimen.c_steppoint))
-  -- context.par()
-  -- context(FormatNum(convertednumber))
-  -- context.par()
-  -- context(FormatNum(FormatDim(tex.dimen.c_steppoint)))
-\stopluacode
-
-\protected\def\install_point[#1]{%
-  \edef\p_showpoint{\csname #1parameter\endcsname{showpoint}}%
-  \ifempty\p_showpoint\else
-    \ifx\p_showpoint\s!true\mode_showpointtrue
-    \else\mode_showpointfalse
-  \fi\fi
-  \ifx\currentmode\c!point
-    \ifdefined\currentpoint\edef\prevpoint{\currentpoint}\fi
-    \edef\p_point{\csname #1parameter\endcsname\c!point}%暫時定義
-    \ifempty\p_point
-      \ifenv_toplevel% 當處於頂層時， 由於 prev 也未定義， 會拋出錯誤
-      \edef\currentpoint{0}\else% 因此， 直接賦值未 0
-      \edef\currentpoint{\prevpoint}\fi
-    \else%
-      \edef\currentpoint{\csname #1parameter\endcsname\c!point}%
-    \fi
-    \ifempty\currentpoint% 抓取當前分數值
-      \scratchdimen\zeropoint
-    \else
-      \scratchdimen\currentpoint pt\relax
-    \fi
-    \ifenv_toplevel% 重置分數計算
-      \c_steppoint\zeropoint
-      \c_steppoint_temp\zeropoint
-    \fi
-    \global\c_steppoint_temp\scratchdimen\relax
-    \global\c_steppoint=\dimexpr\c_steppoint+\c_steppoint_temp\relax
-    \ifenv_toplevel% 如果有子題目， 不應當 計算 question 本身的分值,
-      \doifelsesomething{\datasetvariable{Answer_collectorhelper}{\HelperID}{totalitemnumber}}%
-         {\scratchcounter\datasetvariable{Answer_collectorhelper}{\HelperID}{totalitemnumber}}%
-         {\scratchcounter\zerocount}%
-      \ifnum\scratchcounter>0
-      \c_steppoint=\dimexpr\c_steppoint-\c_steppoint_temp\relax\fi
-      \xdef\currenttotalpoint{\number\currentpoint}%
-    \else%
-      \xdef\currenttotalpoint{\ctxlua{context(FormatNum(FormatDim(tex.dimen.c_steppoint)))}}%
-    \fi%
-    %% 此處的定義是暫時的，我們將在稍後的頂層環境中重新定義。
-  \fi
-}
-
-\def\install_answer[#1]{%
-  \edef\p_showanswer{\csname  #1parameter\endcsname\c!showanswer}%
-  \ifempty\p_showanswer\else
-    \ifx\p_showanswer\s!true
-           \mode_showanswertrue
-      \else\mode_showanswerfalse
-  \fi\fi
-  \ifx\currentmode\c!answer
-    \ifdefined\currentanswer\edef\prevanswer{\currentanswer}\fi
-    \edef\p_answer{\csname #1parameter\endcsname\c!answer}%暫時定義
-    \ifenv_subwriting\edef\p_answer{\writingparameter\c!answer}\fi
-    \ifempty\p_answer
-      \edef\currentanswer{\prevanswer}%
-    \else%
-      \edef\currentanswer{\csname #1parameter\endcsname\c!answer}%
-      \ifdefined\prevanswer
-        \ifempty\prevanswer\else
-          \ifx\currentanswer\prevanswer\relax\else
-            \writestatus{question info}{%
-              \currentuserorder     : Two conflicting answers have been detected,
-                                      check and delete unnecessary answers.}%
-            \writestatus{question info}{%
-              \string\prevanswer    : \prevanswer .
-              \string\currentanswer : \currentanswer .}%
-          \fi
-        \fi
-      \fi
-    \fi
-  \fi}
-
-\tolerant\protected\def\show_pointoranswer_text[#1]#*[#2]{{
-  \unskip
-  \dousestyleparameter{\csname #1parameter\endcsname{#2style}}%
-  \dousecolorparameter{\csname #1parameter\endcsname{#2color}}%
-  \paren {\csname left_assigned#2label\endcsname % like=>answer : blabla
-    \ifx\currentmode\c!point% if #2 = point
-      \ifenv_toplevel
-        \point_totalpoint
-      \else
-        \ifenv_answer\point_point\else
-        \currentpoint\fi
-      \fi
-    \else% if #2 = answer。因为 currentXXXanswer 是有定义内容的，
-      \ifmode_example You're in EXAMPLE MODE!\else
-        \ifenv_writing\short_writing_answer\else
-        \datasetvariable{Answer_collector}{\QuestionID}{answer}\fi
-      \fi% 直接獲取當前 QID 答案
-    \fi
-  \csname right_assigned#2label\endcsname}}}
-
-\def\p_assigned_currentlabel#1#2{%
-  \expandafter\edef%
-    \csname p_current#1#2label%
-      \expandafter\expandafter%
-        \expandafter\endcsname%
-          \expandafter\expandafter%
-            \expandafter{%
-              \csname #1parameter\endcsname{#2label}}}
-
-\def\p_pass_currentlabel[#1]{\p_assign_currentlabel[#1,,]}
-\def\p_assign_currentlabel[#1,#2,#3]#4%
- {\expandafter\def\csname  left_assigned#4label\endcsname {#1}%
-  \expandafter\def\csname right_assigned#4label\endcsname {#2}}
-
-\tolerant\protected\def\installpointoranswer[#1]#*[#2]{%#1 parameter %#2 modename
-  \edef\currentmode{#2}% check point or answer
-  \install_point[#1]%
-  \install_answer[#1]%
-  \p_assigned_currentlabel{#1}{#2}%
-  \expandafter\expandafter%
-    \expandafter\p_pass_currentlabel%
-      \expandafter\expandafter%
-        \expandafter[%
-            \csname p_current#1#2label\endcsname]{#2}%
-  \begingroup
-  \csname ifmode_show#2\endcsname
-    \show_pointoranswer_text[#1][#2]%
-  \fi
-  \endgroup}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\defineconversion[tnum][\addff{tabularnumbers}]
-\protected\def\installitemgroupoption[#1][#2]{%
-  \setupitemgroup[env_#1][each][
-                \c!margin={\csname #2parameter\endcsname\c!margin},%
-            \c!leftmargin={\csname #2parameter\endcsname\c!leftmargin},%
-           \c!rightmargin={\csname #2parameter\endcsname\c!rightmargin},%
-    \c!leftmargindistance={\csname #2parameter\endcsname\c!leftmargindistance},%
-   \c!rightmargindistance={\csname #2parameter\endcsname\c!rightmargindistance},%
-            \c!indentnext={\csname #2parameter\endcsname\c!indentnext},%
-                 \c!width={\csname #2parameter\endcsname\c!width},%
-                \c!factor={\csname #2parameter\endcsname\c!factor},%
-              \c!distance={\csname #2parameter\endcsname\c!distance},%
-                  \c!step={\csname #2parameter\endcsname\c!step},%
-                 \c!align={\csname #2parameter\endcsname\c!align},%
-              \c!symalign={\csname #2parameter\endcsname\c!symalign},%
-                 \c!color={\csname #2parameter\endcsname\c!color},%
-             \c!indenting={\csname #2parameter\endcsname\c!indenting},%
-                 \c!style={\csname #2parameter\endcsname\c!style},%
-              \c!marstyle={\csname #2parameter\endcsname\c!marstyle},%
-              \c!symstyle={\csname #2parameter\endcsname\c!symstyle},%
-             \c!headstyle={\csname #2parameter\endcsname\c!headstyle},%
-              \c!marcolor={\csname #2parameter\endcsname\c!marcolor},%
-              \c!symcolor={\csname #2parameter\endcsname\c!symcolor},%
-             \c!headcolor={\csname #2parameter\endcsname\c!headcolor},%
-            \c!beforehead={\csname #2parameter\endcsname\c!beforehead},%
-              \c!symcolor={\csname #2parameter\endcsname\c!symcolor},%
-              \c!symstyle={\csname #2parameter\endcsname\c!symstyle},%
-             \c!afterhead={\csname #2parameter\endcsname\c!afterhead},%
-                \c!before={\csname #2parameter\endcsname\c!before},%
-             \c!inbetween={\csname #2parameter\endcsname\c!inbetween},%
-                 \c!after={\csname #2parameter\endcsname\c!after},%
-               \c!stopper={\csname #2parameter\endcsname\c!stopper},%
-          \c!placestopper={\csname #2parameter\endcsname\c!placestopper},%
-               \c!stopper={\csname #2parameter\endcsname\c!stopper},%
-                 \c!inner={\csname #2parameter\endcsname\c!inner},%
-                     \c!n={\csname #2parameter\endcsname\c!n},%
-                 \c!items={\csname #2parameter\endcsname\c!items},%
-                \c!levels={\csname #2parameter\endcsname\c!levels},%
-              \c!lefttext={\csname #2parameter\endcsname\c!lefttext},%
-             \c!righttext={\csname #2parameter\endcsname\c!righttext},%
-                  \c!left={\csname #2parameter\endcsname\c!left},%
-                 \c!right={\csname #2parameter\endcsname\c!right},%
-         \c!packcriterium={\csname #2parameter\endcsname\c!packcriterium},%
-             \c!criterium={\csname #2parameter\endcsname\c!criterium},%
-          \c!textdistance={\csname #2parameter\endcsname\c!textdistance},%
-     \c!lasttextseparator={\csname #2parameter\endcsname\c!lasttextseparator},%
-     \c!lasttextseparator={\csname #2parameter\endcsname\c!lasttextseparator},%
-               \c!command={\csname #2parameter\endcsname\c!command},%
-             \c!indenting={\csname #2parameter\endcsname\c!indenting},%
-           \c!alignsymbol={\csname #2parameter\endcsname\c!alignsymbol},%
-                \c!symbol={\csname #2parameter\endcsname\c!symbol},%
-                \c!option={\csname #2parameter\endcsname\c!option},%
-              %  \c!start={\csname #2parameter\endcsname\c!start},%
-                 \c!start={\csname #2parameter\endcsname\c!start},%
-                 \c!state={\csname #2parameter\endcsname\c!state},% % beware, "" == start
-                   \c!way={\csname #2parameter\endcsname\c!way},% % wont work if continue on
-                \c!prefix={\csname #2parameter\endcsname\c!prefix},%
-    \c!prefixseparatorset={\csname #2parameter\endcsname\c!prefixseparatorset},%
-      \c!prefixconversion={\csname #2parameter\endcsname\c!prefixconversion},%
-   \c!prefixconversionset={\csname #2parameter\endcsname\c!prefixconversionset},%
-         \c!prefixstarter={\csname #2parameter\endcsname\c!prefixstarter},%
-         \c!prefixstopper={\csname #2parameter\endcsname\c!prefixstopper},%
-             \c!prefixset={\csname #2parameter\endcsname\c!prefixset},%
-        \c!prefixsegments={\csname #2parameter\endcsname\c!prefixsegments},%
-             \c!prefixset={\csname #2parameter\endcsname\c!prefixset},%
-       \c!prefixconnector={\csname #2parameter\endcsname\c!prefixconnector},%
-    \c!numberseparatorset={\csname #2parameter\endcsname\c!numberseparatorset},%
-      \c!numberconversion={\csname #2parameter\endcsname\c!numberconversion},%
-   \c!numberconversionset={\csname #2parameter\endcsname\c!numberconversionset},%
-         \c!numberstarter={\csname #2parameter\endcsname\c!numberstarter},%
-         \c!numberstopper={\csname #2parameter\endcsname\c!numberstopper},%
-        \c!numbersegments={\csname #2parameter\endcsname\c!numbersegments},
-  %               \c!prefix={\csname #2parameter\endcsname\c!prefix},%
-  %        \c!prefixstopper={\csname #2parameter\endcsname\c!prefixstopper},%
-  %   \c!prefixseparatorset={\csname #2parameter\endcsname\c!prefixseparatorset},%
-  %     \c!prefixconversion={\csname #2parameter\endcsname\c!prefixconversion},%
-  %  \c!prefixconversionset={\csname #2parameter\endcsname\c!prefixconversionset},%
-  %            \c!prefixset={\csname #2parameter\endcsname\c!prefixset},%
-  %       \c!prefixsegments={\csname #2parameter\endcsname\c!prefixsegments},%
-  %      \c!prefixconnector={\csname #2parameter\endcsname\c!prefixconnector},%
-  %   \c!numberseparatorset={\csname #2parameter\endcsname\c!numberseparatorset},%
-  %  \c!numberconversionset={\csname #2parameter\endcsname\c!numberconversionset},%
-        %  \c!numberstopper={\csname #2parameter\endcsname\c!numberstopper},%
-        % \c!numbersegments={\csname #2parameter\endcsname\c!numbersegments},
-  ]%
-}
-
 %D \section{设置 question 环境}
 
 %D The \tex{question} environment command can be used to set the stem.
@@ -1097,81 +1215,98 @@
 \installcommandhandler \????question  {question}  \????question
 
 \appendtoks
-  \setuevalue        {\currentquestion}{\directnamedquestion[\currentquestion]}%
-  \setuevalue{\e!start\currentquestion}{\startnamedquestion [\currentquestion]}%
-  \setuevalue{\e!stop \currentquestion}{\stopnamedquestion}%
+  \frozen\instance\protected\edefcsname        \currentquestion\endcsname{\directnamedquestion[\currentquestion]}%
+  \frozen\instance\protected\edefcsname\e!start\currentquestion\endcsname{\startnamedquestion [\currentquestion]}%
+  \frozen\instance\protected\edefcsname\e!stop \currentquestion\endcsname{\stopnamedquestion}%
 \to \everydefinequestion
 
-\tolerant\protected\def\directnamedquestion[#S#1]#*[#S#2]{%
-  \groupedcommand{\startnamedquestion[#1][#2]}%
-                 {\stopnamedquestion}}
+\tolerant\protected\def\directnamedquestion[#1]#*[#S#2]#*[#S#3]#*%
+ {\groupedcommand{\startnamedquestion[#1][#2][#3]}{\stopnamedquestion}}
 
 \tolerant\protected\def\startnamedquestion[#S#1]#*[#S#2]#*[#S#3]#*%
- {\begingroup
-  \edef\currentquestion{#1}%
+ {\begingroup\edef\currentquestion{#1}%
   \ifarguments\or
-    \or\setupcurrentquestion[#2]%
-    \or\setupcurrentquestion[#3]%
+    \or\setupquestion[#2]%
+      \edef\p_class{\questionparameter\c!class}%
+      \ifx\p_class\s!problem
+        \setupitemgroup[env_problem][#2]%
+      \else
+        \setupitemgroup[env_question][#2]\fi
+    \or\setupquestion[#3]%
+      \edef\p_class{\questionparameter\c!class}%
+      \ifx\p_class\s!problem
+        \setupitemgroup[env_problem][#2][#3]%
+      \else
+        \setupitemgroup[env_question][#2][#3]\fi
   \fi
-  \scratchcounterone\currentitemnumber\relax
-% 因為 setcountlevel 用到了 scratchcounter,這裡使用新的計數器抓取命令
   \edef\p_class{\questionparameter\c!class}%
   \edef\p_start{\questionparameter\c!start}%
   \edef\p_reset{\questionparameter\c!reset}%
   \edef\p_option{\questionparameter\c!option}%
   \edef\p_defaultoption{n,packed,nowhite,joinedup,continue}%
   \ifx\p_class\s!question
-    \env_questiontrue\set_envitem_counter\fi
-  \ifx\p_class\s!problem
-    \env_problemtrue \set_envitem_counter\fi
-  \ifx\p_class\s!optclose
-    \env_closetrue   \set_envitem_counter\fi
-  \ifx\p_reset\s!true
-    \resetcounter[itemgroup:env_question]\fi
-  \ifx\p_class\s!question
+    \env_questiontrue\set_envitem_counter
+    \ifx\p_reset\s!true\resetcounter[itemgroup:env_question]\fi
     \ifmode_example
-    \installitemgroupoption[example][question]%
-    \startitemgroup[env_example]\else
-    \installitemgroupoption[question][question]%
-    \startitemgroup[env_question][#2]\fi
-    \item[\questionparameter\c!reference]%
-    \increaseQuestionID% 具有獨立答案，增長 QID
-    \set_count_envlevel  [question]%
-    \installpointoranswer[question][point]%
-    \installpointoranswer[question][answer]%
-  \fi
-  \ifx\p_class\s!problem
-    \ifmode_example
-    \installitemgroupoption[example][question]%
-    \startitemgroup[env_example]\else
-    \installitemgroupoption[problem][question]%
-    \startitemgroup[env_problem][#2]\fi
-    \set_count_envlevel [problem]%
-    \ifenv_toplevel\else
-      \decreaseQuestionID% 直接获取 question 的 ID
-      \parentitemnumber=\scratchcounterone\relax
+      \installitemgroupoption[example][question]%
+      \startitemgroup[env_example]\else
+      \installitemgroupoption[question][question]%
+      \startitemgroup[env_question]%
     \fi
+    \item[\questionparameter\c!reference]%
+    \set_count_envlevel  [question]%
+  \fi
+  \ifx\p_class\s!problem
+    \ifdefined\currentenvnumber\else\env_topleveltrue\fi
+    \env_problemtrue\set_envitem_counter
+    \ifx\p_reset\s!true\resetcounter[itemgroup:env_problem]\fi
+    \ifmode_example
+      \installitemgroupoption[example][question]%
+      \startitemgroup[env_example]\else
+      \installitemgroupoption[problem][question]%
+      \startitemgroup[env_problem]%
+    \fi
+    \inititemnumber
+    \edef\currentanswer{\questionparameter\c!answer}%
+    \edef\currentpoint {\questionparameter\c!point }%
   \fi
   \ifx\p_class\s!optclose
+    \env_closetrue\set_envitem_counter
+    \ifx\p_reset\s!true\resetcounter[itemgroup:env_question]\fi
     \ifmode_example
-    \installitemgroupoption[example][question]%
-    \startitemgroup[env_example]\else
-    \installitemgroupoption[question][question]%
-    \startitemgroup[env_question][#2]%
+      \installitemgroupoption[example][question]%
+      \startitemgroup[env_example]\else
+      \installitemgroupoption[question][question]%
+      \startitemgroup[env_question]%
     \fi
     \leftskip=0pt\relax
-    \set_count_envlevel[question]%
-  \fi\usequestionstyleandcolor\c!textstyle\c!textcolor
+  \fi
+  % 应对 problem 不开启 point 和 answer 导致后续环境无法继承状态的问题
+  \ifmode_showanswer\edef\temp_showanswer{}\fi
+  \ifmode_showpoint \edef\temp_showpoint{ }\fi
+  \showpointoranswer[question][point]%
+  \showpointoranswer[question][answer]%
+  \ifdefined\temp_showanswer\mode_showanswertrue\fi
+  \ifdefined\temp_showpoint \mode_showpointtrue \fi
+  \usequestionstyleandcolor\c!textstyle\c!textcolor
   \save_question_order}
 
 \protected\def\stopnamedquestion{%
-  \ifnum\c_envcounter_toggle=1\relax
-  \installdatacollectorhelper
-  \installdatacollector\fi
-  \ifx\p_class\s!problem
-    \installdatacollectorhelper
+  \ifx\p_class\s!question
+    \ifenv_toplevel
+      \ifnum\c_envcounter_toggle=1\relax% 当前环境为 question
+        \ifnum\rawcountervalue[Unicode_midlevel]=0% 且只有一个子题目即题目本身
+          \calcpointoranswer[question][answer]%
+          \calcpointoranswer[question][point]%
+          \installdatacollector\installdatacollectorhelper
+       \fi
+      \fi
+    \else
+      \calcpointoranswer[question][answer]%
+      \calcpointoranswer[question][point]%
+      \installdatacollector\installdatacollectorhelper
+    \fi
   \fi
-  \initcollectanswer
   \stopitemgroup
   \endgroup}
 
@@ -1189,8 +1324,8 @@
   %showanswer=false,
   %answer=,
   answerlabel={\examtexts{answer},},
-  answerstyle=\ss,
-  answercolor=red,
+  answerstyle=ttx,
+  %answerstyle=,
   indenting=no,
   way=bychapter,
   numberconversion=tnum,]
@@ -1345,10 +1480,23 @@
 \definequestion[problem]
 \def\setupproblem{\setupquestion[problem]}
 
+\setupproblem[showanswer=false,showpoint=false]
+
+\definequestion[subquestion]
+\def\setupsubquestion{\setupquestion[subquestion]}
+
 \setupproblem
   [\c!class=\s!problem,
-   \c!lefttext={(},
-   \c!righttext={)},
+   \c!left=(,\c!lefttext=(,
+   \c!right=),\c!righttext=),
+   \c!stopper=,
+   \c!option={n,packed,joinedup,nowhite},]
+
+\setupsubquestion
+  [\c!class=\s!problem,
+   \c!left=(,\c!lefttext=(,
+   \c!right=),\c!righttext=),
+   \c!stopper=,
    \c!option={n,packed,joinedup,nowhite},]
 
 %D \section{设置 choice 环境}
@@ -1422,24 +1570,34 @@
   \setuevalue{\e!stop \currentchoice}{\stopnamedchoice}%
 \to \everydefinechoice
 
-\setupchoice [answerstyle=\ss\tf,
+\setupchoice [answerstyle=\ss,
               answercolor=red,
               inlinechoice=false,
               point=\questionparameter\c!point,
-              maxiwidth=.9\textwidth,
+              maxiwidth=.9\hsize,
               numberconversion=A,]
 
-\tolerant\protected\def\directnamedchoice[#1]#*[#2]#*#:#3%
+\setvalue{\??itemgroupkeyword\v!vertical}{\setfalse\c_strc_itemgroups_horizontal
+                                          \setfalse\c_strc_itemgroups_collecting
+                                          \setfalse\c_strc_itemgroups_inline
+                                          \setfalse\c_strc_itemgroups_joined
+                                          \strc_itemgroups_process_set_option_unpack}
+
+\tolerant\protected\def\directnamedchoice[#S#1]#*[#S#2]#*[#S#3]#:#4%
 {\begingroup
-  \def\currentchoice{#1}\setupcurrentchoice[#2]%
-  \startnamedchoice[#1]%
+  \startnamedchoice[#1][#2][#3]%
     \def\citem_temp##1{\startcitem##1\stopcitem}%
     \def\correct##1{##1\collectanswer{##1}}%
-    \processcommacommand[#3]\citem_temp
+    \processcommacommand[#4]\citem_temp
   \stopnamedchoice\endgroup}
 
-\tolerant\protected\def\startnamedchoice[#S#1]#*[#S#2]#*%
+\tolerant\protected\def\startnamedchoice[#S#1]#*[#S#2]#*[#S#3]#*%
  {\begingroup\def\currentchoice{#1}%
+  \ifarguments
+    \or\oneargumentstrue
+    \or\twoargumentstrue  \setupcurrentchoice[#2]%
+    \or\threeargumentstrue\setupcurrentchoice[#3]%
+  \fi
   \ifnum\c_envcounter_toggle = 2\relax
     \errmessage{you cannot put choice in problem environment.
                 choice env can only be putted in question environment.}\fi
@@ -1483,7 +1641,6 @@
   end
   \stopluacode
   \edef\currentrealavailablecolumns{\ctxlua{context(available_columns_arg,"")}}%
-  \setupcurrentchoice[#2]%
   \edef\p_option            {\choiceparameter\c!option      }%
   \edef\p_showanswer        {\choiceparameter\c!showanswer  }%
   \edef\p_choicetype        {\choiceparameter\c!inlinechoice}%
@@ -1492,8 +1649,25 @@
   \edef\currentchoiceanswer {\choiceparameter\c!answer      }%
   \installitemgroupoption[choice][choice]%
   \ifx\p_choicetype\s!true
-    \startitemgroup[env_choice][text,\p_option]\else
-    \startitemgroup[env_choice][\ctxlua{context(available_columns_arg,"")},\p_option]\fi
+    \ifthreearguments      \startitemgroup[env_choice][text,#2][#3]%
+      \else\iftwoarguments \startitemgroup[env_choice][text,#2][#2]%
+      \else\ifonearguments \startitemgroup[env_choice][text,\p_option]%
+        \fi
+      \fi
+    \fi
+  \else
+    \ifthreearguments
+        \startitemgroup[env_choice][\ctxlua{context(available_columns_arg,"")},#2][#3]%
+      \else\iftwoarguments
+        \startitemgroup[env_choice][\ctxlua{context(available_columns_arg,"")},#2][#2]%
+      \else\ifonearguments 
+        \startitemgroup[env_choice][\ctxlua{context(available_columns_arg,"")},\p_option]%
+      \else
+        \errmessage{You should define at least one instance for the current environment.}%
+        \fi
+      \fi
+    \fi
+  \fi
   \choiceparameter\c!inlineleft
   \ifmode_showanswer\else
     \ifx\p_showanswer\s!true
@@ -1503,9 +1677,9 @@
 
 \protected\def\stopnamedchoice{%
   \removemarkedcontent[inlinechoice_punctuation]%
-  \d_maxwidth_with_label = \dimexpr\d_width_cit_max     +
-                           \d_strc_itemgroups_list_width   \relax
-  \d_compared_maxwidth   = \choiceparameter{maxiwidth}     \relax
+  \d_maxwidth_with_label = \dimexpr\d_width_cit_max +
+                           \d_strc_itemgroups_list_width\relax
+  \d_compared_maxwidth   = \choiceparameter{maxiwidth}  \relax
   \startluacode
     local a = tex.dimen['d_compared_maxwidth']
     local b = tex.dimen['d_maxwidth_with_label']
@@ -1516,8 +1690,8 @@
 %%   因為取消了 choice 作為上級環境時的 \set_count_envlevel 因此，重定義 order。
 %%   取消原因是 讓 choice 直接獲取 question 環境的 order。
   \edef\currentchoiceanswer{\collectedanswer}%
-  \ifempty\currentchoiceanswer 
-    \edef\currentanswer{\currentanswer}% 讓 choice 繼承 前一個答案
+  \ifempty\currentchoiceanswer
+    \edef\currentanswer{\currentprevanswer}% 讓 choice 繼承 前一個答案
   \else 
     \edef\currentanswer{\collectedanswer}%
   \fi
@@ -1528,9 +1702,7 @@
     {\scratchcountertwo\zerocount}%
   \edef\currentpoint     {\the\scratchcountertwo}%
   \edef\currenttotalpoint{\the\scratchcountertwo}%
-  \installdatacollector%
-  \installdatacollectorhelper%
-  \initcollectanswer
+  \installdatacollector\installdatacollectorhelper
   \choiceparameter\c!inlineright
   \stopitemgroup
   \endgroup}
@@ -1608,7 +1780,7 @@
                    inlineright={\nobreak ) },
                    %lefttext={},
                    %righttext={},
-                   answerstyle=\ss,
+                   answerstyle=ttx,
                    %stopper=,
                    %showanswer=,% shoule be empty before used
                    separator={\removeunwantedspaces,\space},
@@ -1656,55 +1828,37 @@
 \to \everydefinewriting
 
 \tolerant\protected\def\startnamedwriting[#S#1]#*[#S#2]#*%
-  {\begingroup\env_writingtrue\env_subwritingfalse
-  \set_envitem_counter
+  {\begingroup\env_subwritingfalse
+  \env_writingtrue\set_envitem_counter
   \edef\currentwriting{#1}%
-  \setupanswer[showanswer=false]%
   \setupcurrentwriting[#2]%注意，writing 没有单独的 itemgroup 环境
-  \edef\short_writing_answer{\writingparameter\c!answer}%
-  \edef\currentanswer{\writingparameter\c!answer}%
-  \edef\getanswercontent{}%
   \edef\p_writingtype{\writingparameter{subwriting}}%
   \installitemgroupoption[question][writing]%
   \startitemgroup[env_question]%
   \item[\writingparameter\c!reference]%
   \ifx\p_writingtype\s!true
-    \env_subwritingtrue
-    \set_envitem_counter
-    \ifnum\currentitemnumber=1\relax
-          \decreaseQuestionID
-          \increaseQuestionID
-    \else \increaseQuestionID\fi
-    \set_count_itemlevel[subwriting]%
-  % 当具有多个子写作环境时，才增长 QID ，
-  % 否则削减至 父级 QID（相当于继承）
-  \else
-    \increaseQuestionID
-    \set_count_envlevel[writing]%
+    \env_subwritingtrue\set_envitem_counter
   \fi
-  \installpointoranswer[writing][point]%
-  \installpointoranswer[writing][answer]%
+  \set_count_envlevel[writing]%
+  \showpointoranswer[writing][point]%
+  \showpointoranswer[writing][answer]%
   \save_question_order}
 
 \protected\def\stopnamedwriting{%
+  \calcpointoranswer[writing][point]%
+  \calcpointoranswer[writing][answer]%
   \ifenv_subwriting
-    \installdatacollector%
-    \installdatacollectorhelper%
-    \initcollectanswer
+    \installdatacollector\installdatacollectorhelper
   \else
     \ifnum\c_totalitemnumber>1\else
     %即便作文環境，內部也存在可能多個子題目，必須只有一個題目時才能執行
     \c_totalitemnumber=1\relax
-    \installdatacollector%
-    \installdatacollectorhelper%
-    \initcollectanswer\fi
+    \installdatacollector\installdatacollectorhelper\fi
   \fi
   \stopitemgroup\endgroup}
 
 \setupwriting
-  [\c!answer={参见参考作文。},
-   \c!pointlabel={,\examtexts{point}},
-   \c!margin=\zeropoint,
+  [\c!margin=\zeropoint,
    \c!leftmargin=\zeropoint,
    \c!rightmargin=\zeropoint,
    \c!leftmargindistance=\zeropoint,
@@ -1765,13 +1919,25 @@
    \c!numberstopper=.,
    \c!numbersegments=1]
 
+\setupwriting
+  [\c!answer={参见参考作文。},
+   \c!answerstyle=\ttx,
+   \c!answercolor=,
+   \c!answerlabel={\examtexts{answer},},
+   \c!pointstyle=\ttx,
+  %\c!pointcolor=,
+   \c!pointlabel={,\examtexts{point}},
+   totalanswer={参见参考作文。},
+  ]
+
 \definewriting[writing]
 \definewriting[subwriting]
 \def\setupsubwriting{\setupwriting[subwriting]}
 \setupsubwriting
   [answer={参见参考作文。},
    subwriting=true,
-   pointlabel={,\examtexts{point}},]
+   pointlabel={,\examtexts{point}},
+   totalanswer=\writingparameter\c!answer,]
 
 %D \section{设置 answer 环境}
 %D 在(v20241023)中，删除了 answer 环境的标签通过 description 来进行设置。
@@ -1854,10 +2020,10 @@
    \ifmode_showanswer
      \useanswerstyleandcolor\c!style\c!color
      \answerparameter\s!command
-     {#2}
+     {#2}%
    \fi
    \endgroup
-   \edef\currentanswer{#2\collectanswer{#2}}
+   \edef\currentanswer{#2\collectanswer{#2}}%
    \edef\prevanswer   {\currentanswer}}
    % 只有一個功能， 收集答案。
    % 具備簡單的樣式控制和控制答案顯隱。
@@ -1885,25 +2051,26 @@
    \doifelsenextoptionalcs\answer_start_delayed_parameters\answer_start_indeed}
 
 \protected\tolerant\def\answer_start_instance[#S#1]#*[#S#2]#*%
-  {\begingroup\env_answertrue\set_envitem_counter
-   \edef\currentanswer_bak{\currentanswer}% 備份之前的答案
+  {\begingroup
+  \env_answertrue\set_envitem_counter
+  \edef\currentanswer_bak{\currentanswer}% 備份之前的答案
  %  \lettonothing\currentanswer%釋放currentanswer
 % currentanswer 命令已經被其他環境定義為答案獲取命令，
 % 此處的 currentanswer 是定義環境命令，需要重新釋放。
-   \cdef\currentanswer{#1}%
-   \setupcurrentanswer[#2]%
-   \grabbufferdatadirect
+  \cdef\currentanswer{#1}%
+  \setupcurrentanswer[#2]%
+  \grabbufferdatadirect
    % {\s!answer:\currentanswer}%
-     {\s!answer}% unnested, as before
-     {\e!start\currentanswer}%
-     {\e!stop \currentanswer}}
+    {\s!answer}% unnested, as before
+    {\e!start\currentanswer}%
+    {\e!stop \currentanswer}}
 
 \def\answer_start_indeed
   {\grabbufferdatadirect
    % {\s!answer:\currentanswer}%
-     {\s!answer}% unnested, as before
-     {\csstring\startanswer}%
-     {\csstring\stopanswer}}
+    {\s!answer}% unnested, as before
+    {\csstring\startanswer}%
+    {\csstring\stopanswer}}
 
 \permanent\protected\def\stopanswer{%
   \doif{\answerparameter  {showscript}}{true}{\mode_showscripttrue\mode_showanswerfalse}%
@@ -1960,18 +2127,18 @@
 
 \startsetups[\????answerrenderings:\s!default]
   \setuptextbackground[env_answer]%
-  [location=paragraph,width=local,
-  leftoffset=1ex,rightoffset=1ex,
-  %topoffset=.5ex,bottomoffset=.5ex,
-  before={\leftskip=0pt\startnarrower},
-  after={\stopnarrower},
-  background=\answerparameter\c!background,
-  backgroundcolor=\answerparameter\c!backgroundcolor,
-  corner=\answerparameter\c!corner,
-  frame=\answerparameter\c!frame,
-  framecolor=\answerparameter\c!framecolor,
-  rulethickness=\answerparameter\c!rulethickness,
-  ]%
+    [location=paragraph,width=local,
+    leftoffset=1ex,rightoffset=1ex,
+    %topoffset=.5ex,bottomoffset=.5ex,
+    before={\leftskip=0pt\startnarrower},
+    after={\stopnarrower},
+    background=\answerparameter\c!background,
+    backgroundcolor=\answerparameter\c!backgroundcolor,
+    corner=\answerparameter\c!corner,
+    frame=\answerparameter\c!frame,
+    framecolor=\answerparameter\c!framecolor,
+    rulethickness=\answerparameter\c!rulethickness,
+    ]%
   \startenv_answer
   \useanswerstyleandcolor\c!style\c!color
   \ifenv_material% 可以用来做文章翻译或内容解释，
@@ -1990,7 +2157,7 @@
             \expandafter[%
                 \csname p_currentansweranswerlabel\endcsname]{answer}%
       \ifmode_showanswer
-        \show_pointoranswer_text[answer][answer]%
+        \showpointoranswer[answer][answer]%
       \fi\endgroup
       \begingroup
       \edef\currentmode{point}%
@@ -2001,7 +2168,7 @@
             \expandafter[%
                 \csname p_currentanswerpointlabel\endcsname]{point}%
       \ifmode_showpoint
-        \show_pointoranswer_text[answer][point]%
+        \showpointoranswer[answer][point]%
       \fi\endgroup
       \ifmode_showanswer
           \answerparameter\c!inbetween
@@ -2013,7 +2180,8 @@
 \stopsetups
 
 \tolerant\protected\def\startoldanswer[#1]#:#2\stopoldanswer%
-{\begingroup\env_answertrue\set_envitem_counter
+{\begingroup
+  \env_answertrue\set_envitem_counter
   \lettonothing\currentanswer%釋放currentanswer
   \lettonothing\getanswerbuffer\lettonothing\getinlineanswerbuffer
   % currentanswer 命令已經被其他環境定義為答案獲取命令，
@@ -2038,17 +2206,13 @@
 \defineoverlay       [normalframeOL][\useMPgraphic{normalframeMP}]
 
 %%%%% NOTICE : 目前，當用戶主動輸入值和選項值發生衝突時，並未設置警告信息!!!!
-\def\getanswerforanswer{% used for answer env to auto get answer
-  \ifenv_writing\short_writing_answer
-  \else\datasetvariable{Answer_collector}{\QuestionID}{answer}\fi}
+\def\getanswerforanswer{\datasetvariable{Answer_collector}{\QuestionID}{answer}}
 
 \def\getpointforanswer{% used for answer env to auto get point
   \datasetvariable{Answer_collector}{\QuestionID}{point}}
 
 \setupanswer
-  [showanswer=false,
-  showpoint=false,
-  answer=\getanswerforanswer,
+  [answer=\getanswerforanswer,
   point=\getpointforanswer,
   answerlabel={{\examtexts{answer}}},
   pointlabel={,\examtexts{point}},
@@ -2085,27 +2249,28 @@
                 answerlabel={\examtexts{answer},},
                 %showanswer=,
                 %answer=,
-                answerstyle=\ss,
-                answercolor=red,
+                answerstyle=ttx,
+                %answerstyle=,
                 %reference=,
                 ]
 
-\tolerant\protected\def\startpitem[#1]#*{\begingroup%
-  \item_pitemtrue\increaseQuestionID%
+\tolerant\protected\def\startpitem[#1]#*%
+ {\begingroup
+  \item_pitemtrue\set_envitem_counter
   \iffirstargument\setuppitem[#1]\fi%
+  \edef\p_answer{\pitemparameter\c!recordanswer}%
   \startitem[\pitemparameter{reference}]%
-    \ifenv_question% 設計上的問題，此時 pitem 處於 botlevel，否則處於 toplevel。
-    \set_count_itemlevel [pitem]\else\ifenv_problem%
-    \set_count_envlevel  [pitem]\fi\fi%
-    \installpointoranswer[pitem][point]%
-    \installpointoranswer[pitem][answer]}
+    \set_count_envlevel [pitem]
+    \showpointoranswer[pitem][point]%
+    \showpointoranswer[pitem][answer]%
+}
 
 \def\stoppitem{%
-  \ifitem_fillin\edef\currentanswer{\collectedanswer}\fi
-  \installdatacollector%
-  \installdatacollectorhelper%
-  \initcollectanswer% 清空收集 fillin 的答案
-  \stopitem\endgroup}
+  \ifx\p_answer\s!false\else
+    \calcpointoranswer[pitem][answer]%
+    \calcpointoranswer[pitem][point]%
+    \installdatacollector\installdatacollectorhelper
+  \fi\stopitem\endgroup}
 
 %D [*](用于标记正确答案)
 
@@ -2138,6 +2303,15 @@
 \endgroup
 }
 
+\edef\applychoicestyleandcolor{%
+  \ifempty\p_answerstyle
+        \dousestyleparameter{\questionparameter\c!answerstyle}%
+  \else \dousestyleparameter{\choiceparameter  \c!answerstyle}\fi
+  \ifempty\p_answercolor
+        \dousecolorparameter{\questionparameter\c!answercolor}%
+  \else \dousecolorparameter{\choiceparameter  \c!answercolor}\fi
+}
+
 \protected\def\check_correct_choice#1#2{%
   \usecitemstyleandcolor\c!style\c!color
   \edef\p_correctmark_m{*}\edef\p_correctmark_p{#1}%
@@ -2146,56 +2320,36 @@
   \ifx\p_choicetype\s!true% if inlinechoice
     \ifx\p_correctmark_p\p_correctmark_m
       \ifx\p_correctsymbol\c!default
-        \startitem[\citemparameter\c!reference]
+        \startitem[\citemparameter\c!reference]%
           \bgroup
-          \ifmode_showanswer
-            \ifempty\p_answerstyle
-                    \dousestyleparameter{\questionparameter\c!answerstyle}%
-              \else \dousestyleparameter{\choiceparameter  \c!answerstyle}\fi
-              \ifempty\p_answercolor
-                    \dousecolorparameter{\questionparameter\c!answercolor}%
-              \else \dousecolorparameter{\choiceparameter  \c!answercolor}\fi
-          \fi
-          #2\collectanswer{#2}
+          \ifmode_showanswer\applychoicestyleandcolor\fi
+          #2\collectanswer{#2}%
           \egroup
         \stopitem
       \else
         \bgroup
-        \ifmode_showanswer
-          \ifempty\p_answerstyle
-                  \dousestyleparameter{\questionparameter\c!answerstyle}%
-            \else \dousestyleparameter{\choiceparameter  \c!answerstyle}\fi
-          \ifempty\p_answercolor
-                  \dousecolorparameter{\questionparameter\c!answercolor}%
-            \else \dousecolorparameter{\choiceparameter  \c!answercolor}\fi
+        \ifmode_showanswer\applychoicestyleandcolor
           \sym{\ifempty\p_correctsymbol\symbol{marksquarecheck}\else
                       \p_correctsymbol\fi}% correct inline choice
         \fi
-        #2\collectanswer{#2}
+        #2\collectanswer{#2}%
         \egroup
       \fi
     \else
     \startitem[\citemparameter\c!reference]#2\stopitem
     \fi
-  \else
-    \ifx\p_correctmark_p\p_correctmark_m
+  \else% 如果不是 inlinechoice
+    \ifx\p_correctmark_p\p_correctmark_m% 如果标记正确答案
       \startitem[\citemparameter\c!reference]%
         \bgroup
-          \ifmode_showanswer
-            \ifempty\p_answerstyle
-                    \dousestyleparameter{\questionparameter\c!answerstyle}%
-              \else \dousestyleparameter{\choiceparameter  \c!answerstyle}\fi
-              \ifempty\p_answercolor
-                    \dousecolorparameter{\questionparameter\c!answercolor}%
-              \else \dousecolorparameter{\choiceparameter  \c!answercolor}\fi
-          \fi
+          \ifmode_showanswer\applychoicestyleandcolor\fi
           #2
         \egroup
       \stopitem
-        \edef\currentanswerindex{\the\c_currentitemnumber}%
-        \edef\correct_choice_index{\convertnumber{\choiceparameter{numberconversion}}{\currentanswerindex}}%
-        \collectanswer{\correct_choice_index}% collect current normal answer
-    \else
+      \edef\currentanswerindex{\the\c_currentitemnumber}%
+      \edef\correct_choice_index{\convertnumber{\choiceparameter{numberconversion}}{\currentanswerindex}}%
+      \collectanswer{\correct_choice_index}% collect current normal answer
+    \else% 必须分离已标记和未标记的答案，来进行正确的样式设置
       \startitem[\citemparameter\c!reference]#2\stopitem
     \fi%
   \fi
@@ -2214,7 +2368,6 @@
   \ifsecondargument\setupcitem[#2]\fi%                     #2 option
   \get_citem_text[#3]%                                     #3 choice content
   \edef\p_correctmark_p{#1}\edef\p_correctmark_m{*}%
-%  \set_count_itemlevel[citem]
   \incrementitemnumber
   \check_correct_choice{#1}{#3}%
   \removeunwantedspaces}
@@ -2238,16 +2391,16 @@
   \startcitem[#1]{#2}\stopcitem}
 
 \tolerant\protected\def\fastchoice[#1]#:#2{
-  \startchoice[#1]
-    \def\citem_temp##1{\startcitem##1\stopcitem}
-    \def\correct##1{##1\collectanswer{##1}}
+  \startchoice[#1]%
+    \def\citem_temp##1{\startcitem##1\stopcitem}%
+    \def\correct##1{##1\collectanswer{##1}}%
     \processcommacommand[#2]\citem_temp
   \stopchoice}
 
 \tolerant\protected\def\fastchoicealt[#1]#:#2{
-  \startinlinechoice[#1]
-    \def\citem_temp##1{\startcitem##1\stopcitem}
-    \def\correct##1{##1\collectanswer{##1}}
+  \startinlinechoice[#1]%
+    \def\citem_temp##1{\startcitem##1\stopcitem}%
+    \def\correct##1{##1\collectanswer{##1}}%
     \processcommacommand[#2]\citem_temp
   \stopinlinechoice}
 
@@ -2309,36 +2462,41 @@
               style=\ss,]
 
 \tolerant\protected\def\fillin[#1]#:#2{%
-  \item_pitemfalse\item_fillintrue
-  \begingroup\null
-  \global\advance\c_fillin_number by 1\relax
-  \iffirstargument\setupfillin[#1]\fi
-  \edef\currentfillinanswer{#2}%
-  \edef\p_n{\fillinparameter\c!n}%
-  \edef\p_empty{\fillinparameter\c!empty}%
-  \edef\p_number{\number\c_fillin_number}%
-  \edef\p_align{\fillinparameter\c!align}%
-  \edef\currentbar{\fillinparameter\c!rule}%
-  \edef\currentfillinalternative{\fillinparameter\c!alternative}%
-  \ifcsname\currentfillinalternativehash\s!parent\endcsname\else
-    \let\currentfillinalternative\s!default
-  \fi
-  \usesetupsparameter\fillinparameter
-  \edef\p_renderingsetup{\fillinalternativeparameter\c!renderingsetup}%
-  \ifx\p_align\c!autoright
-    \unskip\nobreak\hfill
-    \penalty50\hskip2em\hbox{}\nobreak\hfill
-  \fi
-  \usefillinstyleandcolor\c!style\c!color
-  \fillinparameter\c!before
-  \fillinparameter\c!left
-  \directsetup\p_renderingsetup
-  \fillinparameter\c!right
-  \fillinparameter\c!after
-  \ifx\p_align\c!autoright
-    \parfillskip=0pt \finalhyphendemerits=0 \par\fi
-  \aftergrouped{\edef\currentanswer{\collectanswer{#2}#2}}%
-  \endgroup\item_fillinfalse}
+  \begingroup
+    \item_fillintrue\null
+    \global\advance\c_fillin_number by 1\relax
+    \iffirstargument\setupfillin[#1]\fi
+    \edef\currentfillinanswer{#2}%
+    \edef\p_n{\fillinparameter\c!n}%
+    \edef\p_empty{\fillinparameter\c!empty}%
+    \edef\p_number{\number\c_fillin_number}%
+    \edef\p_align{\fillinparameter\c!align}%
+    \edef\currentbar{\fillinparameter\c!rule}%
+    \edef\currentfillinalternative{\fillinparameter\c!alternative}%
+    \ifcsname\currentfillinalternativehash\s!parent\endcsname\else
+      \let\currentfillinalternative\s!default
+    \fi
+    \usesetupsparameter\fillinparameter
+    \edef\p_renderingsetup{\fillinalternativeparameter\c!renderingsetup}%
+    \ifx\p_align\c!autoright
+      \unskip\nobreak\hfill
+      \penalty50\hskip2em\hbox{}\nobreak\hfill
+    \fi
+    \usefillinstyleandcolor\c!style\c!color
+    \fillinparameter\c!before
+    \fillinparameter\c!left
+    \directsetup\p_renderingsetup
+    \fillinparameter\c!right
+    \fillinparameter\c!after
+    \ifx\p_align\c!autoright
+      \parfillskip=0pt \finalhyphendemerits=0 \par\fi
+    \edef\currentanswer      {#2\collectanswer{#2}}%
+    \edef\currentfillinanswer{\collectedanswer}%
+    \ifempty\currentfillinanswer
+         \edef\currentanswer{\currentprevanswer}% 讓 fillin 繼承 前一個答案
+    \else\edef\currentanswer{\collectedanswer}%
+    \fi\aftergrouped{\xdef\currentprevanswer{\collectedanswer}}%
+    \endgroup}
 
 \definefillinalternative
   [\s!default]
@@ -2522,7 +2680,7 @@
 \def\material_counter_parameter#1%
   {\begingroup
     \def\currentmaterial{#1}%
-    \setupalign[\namedmaterialparameter\c!title\c!align]
+    \setupalign[\namedmaterialparameter\c!title\c!align]%
     \usematerialstyleandcolor\c!style\c!color
     \namedmaterialparameter\currentmaterial\c!before
     \incrementcounter[#1]\convertedcounter[#1]%
@@ -2532,7 +2690,7 @@
 \def\material_parameter#1%creat new element in material
   {{\begingroup
     \def\currentmaterial{#1}%
-    \setupalign[\namedmaterialparameter\currentmaterial\c!align]
+    \setupalign[\namedmaterialparameter\currentmaterial\c!align]%
     \usematerialstyleandcolor\c!style\c!color
     \namedmaterialparameter\currentmaterial\c!before
     \rootmaterialparameter\currentmaterial
@@ -2541,26 +2699,27 @@
 
 \tolerant\protected\def\startmaterial[#1]#*{\begingroup%
   \lettonothing\currentmaterial%%
-  \edef\p_indicator{\rootmaterialparameter\c!indicator}
-  \edef\p_reset{\namedmaterialparameter{indicator}\c!reset}
+  \edef\p_indicator{\rootmaterialparameter\c!indicator}%
+  \edef\p_reset{\namedmaterialparameter{indicator}\c!reset}%
   \processaction[\p_indicator][
     reset=>\let\indicator_reset_helper\resetindicators,
-  continue=>\continue_countertrue\let\indicator_reset_helper\relax,]
+  continue=>\continue_countertrue\let\indicator_reset_helper\relax,]%
   \processaction[\p_reset][
     true=>\let\indicator_reset_helper\resetindicators,
-    false=>\continue_countertrue\let\indicator_reset_helper\relax,]
+    false=>\continue_countertrue\let\indicator_reset_helper\relax,]%
   \env_materialtrue\set_envitem_counter%
   \iffirstargument\setupcurrentmaterial[#1]\fi
   \indicator_reset_helper
   \usematerialstyleandcolor\c!style\c!color%
-  \blank[\rootmaterialparameter\c!spacebefore]
-  \startalignment[\rootmaterialparameter\c!align]
+  \blank[\rootmaterialparameter\c!spacebefore]%
+  \startalignment[\rootmaterialparameter\c!align]%
       \material_counter_parameter\c!number
       \material_parameter\c!title
       \material_parameter\c!author
   \stopalignment
-  \blank[\rootmaterialparameter\c!spaceafter]
+  \blank[\rootmaterialparameter\c!spaceafter]%
   \setupindenting[\rootmaterialparameter{indent}]}
+
 \def\stopmaterial{%
     \material_parameter\c!source
     \indicator_reset_helper
@@ -2593,16 +2752,14 @@
   \ifmode_check%
     \ifenv_material\color[red]{material}\else\color[red]{\currentitemgroup}\fi
     \ifcontinue_counter\color[red]{continue}\fi
-  \fi%
-  \ifenv_material%
-    \ifmode_check\color[red]{::indicator}\fi
+  \fi
+  \ifenv_material
     \incrementcounter[\currentmaterial]%
     \convertedcounter[\currentmaterial]%
-  \else%
-    \ifmode_check\color[red]{::helper}\fi
+  \else
     \incrementcounter[indicator_helper]%
     \convertedcounter[indicator_helper]%
-  \fi%
+  \fi
   \namedmaterialparameter\currentmaterial\c!after
   \penalty0\relax
     #2\egroup
@@ -2610,11 +2767,9 @@
 
 \def\indicators{%%% TODO 增強該命令的用法
   \ifenv_material
-    \ifmode_check\color[red]{::indicator}\fi
     \incrementcounter[indicator]%
     \convertedcounter[indicator]%
   \else
-    \ifmode_check\color[red]{::helper}\fi
     \incrementcounter[indicator_helper]%
     \convertedcounter[indicator_helper]%
   \fi}
@@ -2648,7 +2803,7 @@
 \def\verse_element#1%
   {\begingroup%
   \edef\currentverse{#1}%
-  \edef\verse_skip{\namedverseparameter\currentverse\c!skip}
+  \edef\verse_skip{\namedverseparameter\currentverse\c!skip}%
   \c_verse_skip
   \namedverseparameter\currentverse\c!before
   \startalignment[\namedverseparameter\currentverse\c!align]
@@ -2661,7 +2816,7 @@
 \tolerant\protected\def\startverse[#1]#*%
   {\begingroup\parindent0pt\relax\let\\\par
   \iffirstargument\setupverse[#1]\fi
-  \edef\verse_skip{\verseparameter\c!skip}
+  \edef\verse_skip{\verseparameter\c!skip}%
   \setwidthof{\verseparameter\c!sample}\to\d_temp_maxwidth
   \d_temp_leftskip=\dimexpr.5\textwidth-.5\d_temp_maxwidth\relax
   \ifx\verse_skip\v!none\relax\else
@@ -2821,13 +2976,12 @@
 \installnamespace          {close}
 \installcommandhandler \????close     {close}     \????close
 
-\setupclose[%showanswer=false,
-            reset=false,
+\setupclose[reset=false,
             %barstyle=,
             %barcolor=,
-            showpoint=false,
-            answerstyle=\ss,
-            answercolor=red,
+            answerstyle=ttx,
+            pointstyle=ttx,
+            %answerstyle=,
             width=2em,% set order width
             frame=off,% set order frame
             stopper=.,% set order stopper
@@ -2885,40 +3039,44 @@
   \scratchcounter\numexpr\c_closetest-1\relax
   \c_closetest=1\relax%
    \dorecurse{\number\scratchcounter}{% start recurse
-    \hbox{% start first box
-      \hsize=\textwidth
-      \increaseQuestionID
-      \set_count_envlevel  [close]%
-      \installpointoranswer[close][point]%
-      \installpointoranswer[close][answer]%
+    \hbox to\hsize{% start first box
+      \set_count_envlevel[close]%
+      \ifmode_showanswer\edef\temp_showanswer{}\fi
+      \ifmode_showpoint \edef\temp_showpoint{ }\fi
+      \showpointoranswer[close][point]%
+      \showpointoranswer[close][answer]%
+      \ifdefined\temp_showanswer\mode_showanswertrue\fi
+      \ifdefined\temp_showpoint \mode_showpointtrue \fi
       \edef\currentitemnumber{\the\c_closetest_tempa}%
       \edef\currentuserorder{%
         \currentitemnumber%放置在這裡才能正確獲取題號
         \ifnum\rawcountervalue[Unicode_botlevel]=0\else% 抽出 order 定義，
           (\rawcountervalue[Unicode_botlevel])\fi}% 因為該環境沒有上級 question 環境
-       \hbox{\close_order}% close question index  box
-       \hbox{\vtop{%   close question choice box start
-          \startchoice[point=\closeparameter\c!point]%
-            \processcommacommand[\csname close:\romannumerals\c_closetest\endcsname]\docloseitem%
-          \stopchoice
-          }}%    close question choice box stop
+       % close question index  box
+      \close_order
+      \hbox{%   close question choice box start
+        % \scratchdimen=\closeparameter\c!width\relax
+        % \hsize=\dimexpr\textwidth-\scratchdimen\relax
+        \startchoice[][point=\closeparameter\c!point]%
+          \processcommacommand[\csname close:\romannumerals\c_closetest\endcsname]\docloseitem%
+        \stopchoice
+      }%    close question choice box stop
      }% stop first hbox
    \advance\c_closetest by 1\relax}% stop reucrse
   \c_closetest=1\relax%
 }
 
 \tolerant\protected\def\startclose[#1]#*%
- {\begingroup\env_closetrue\set_envitem_counter
+ {\begingroup
+  \env_closetrue\set_envitem_counter
   \iffirstargument\setupclose[#1]\fi
   \edef\p_reset{\closeparameter\c!reset}%
-  \ifx\p_reset\s!true
-    \close_counter_resettrue
-  \else
-    \close_counter_resetfalse
-  \fi\restore_question_order
+  \ifx\p_reset\s!true\close_counter_resettrue
+  \else\close_counter_resetfalse\fi
+  \restore_question_order
   \ifclose_counter_reset% 如果重置， 則序號起自 1
     \c_closetest_tempa=1\relax% tempa 标记文章内的序号和选项前的序号
-  \else % 否則， 恢復上一問題序號， 並遞增1.
+  \else% 否則， 恢復上一問題序號， 並遞增1.
     \c_closetest_tempa=\rawcountervalue[strc_close_counter]%
     \c_closetest_tempa=\numexpr\c_closetest_tempa+1\relax
   \fi
@@ -2973,12 +3131,13 @@
 
 \setupocitem [%answer=,
               %color=,
-              %point=,
+              point=\currentprevpoint,
               %showanswer=false,
               pointlabel={,\examtexts{point}},
               answerlabel={{\examtexts{answer}},},
-              answercolor=red,
-              answerstyle=\ss,]
+              %answerstyle=,
+              pointstyle=ttx,
+              answerstyle=ttx,]
 
 \definequestion[optclose]
 \definequestion[specialocitem]
@@ -2990,6 +3149,8 @@
   lefttext=\closebar,
   righttext=,
   reset=false,
+  showanswer=false,
+  showpoint=false,
   class=optclose,]
 
 \setupquestion[specialocitem]
@@ -2999,25 +3160,21 @@
   reset=false,]
 
 \tolerant\protected\def\ocitem[#1]#:#2%
-   {\begingroup%
-    \iffirstargument\setupocitem[#1]\fi%
-    \useocitemstyleandcolor\c!style\c!color%
-    \let\par\relax\increaseQuestionID%
+   {\begingroup
+    \iffirstargument\setupocitem[#1]\fi
+    \useocitemstyleandcolor\c!style\c!color
+    \let\par\relax
     \item \parentitemnumber=\currentitemnumber\relax
-          \set_count_itemlevel[ocitem]%%%% 必須命令，設定序號
-          % 注意，此时 toplevel 并没有正确的关闭，因此最终的结果依然是 toplevel。
-          % 但是该环境本身就被视为 toplevel                =>  5
-          % 如果该环境被视为子项目时，则需要关闭 toplevel。==> 5(1)
-          % 另外，关闭 toplevel 需要在 set_count_itemlevel 命令之前才会生效。
+          \set_count_envlevel[ocitem]%
+          \ocitemparameter\c!left
           \allowbreak\doifsomethingelse{#2}{(#2)}{}% 放置選項，類似 inlinechoice
-          \edef\currentpoint{\ocitemparameter\c!point}%
-          \edef\currentanswer{\ocitemparameter\c!answer}%
-          \installpointoranswer[ocitem][point]%
-          \installpointoranswer[ocitem][answer]%
-          \installdatacollector%
-          \installdatacollectorhelper%
-          \initcollectanswer
-          \save_question_order%
+          \showpointoranswer[ocitem][point]%
+          \showpointoranswer[ocitem][answer]%
+          \ocitemparameter\c!right
+          \calcpointoranswer[ocitem][answer]%
+          \calcpointoranswer[ocitem][point]%
+          \installdatacollector\installdatacollectorhelper
+          \save_question_order
   \endgroup}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -3429,7 +3586,7 @@
 
 \newcount\c_qid_answer
 
-\def\resetanswerid{\global\c_qid_answer=1\relax}
+\def\resetanswerid{\global\c_qid_answer=0\relax}
 
 %D Example 1:
 %D \starttyping
@@ -3465,8 +3622,8 @@
   \ifparameter#chapno\or
     \doifsomethingelse{\scratchcounterone  #chapno }{\scratchcounterone  #chapno }{\scratchcounterone  \zerocount}\fi
   \ifparameter#startno\or
-    \doifsomethingelse{\scratchcountertwo  #startno}{\scratchcountertwo  #startno}{\scratchcountertwo  \plusone  }
-    \else\scratchcountertwo\plusone\fi
+    \doifsomethingelse{\scratchcountertwo  #startno}{\scratchcountertwo  #startno}{\scratchcountertwo  \zerocount}
+    \else\scratchcountertwo\zerocount\fi
   \ifparameter#total\or
     \doifsomethingelse{\scratchcounterthree#total  }{\scratchcounterthree#total  }{\scratchcounterthree\zerocount}\fi
   \c_qid_answer=\scratchcountertwo
@@ -3493,23 +3650,22 @@
  {\begingroup
   \ifarguments\or\or
   \scratchcounter    \zerocount\relax
-  \scratchcounterone \plusone  \relax
+  \scratchcounterone \zerocount\relax
   \or
-  \doifsomethingelse{\scratchcounter    #chapno \relax}
-                    {\scratchcounter    #chapno \relax}
-                    {\scratchcounter    \zerocount\relax}
-  \scratchcounterone \plusone  \relax
+  \doifsomethingelse{\scratchcounter    #chapno \relax}%
+                    {\scratchcounter    #chapno \relax}%
+                    {\scratchcounter    \zerocount\relax}%
+                     \scratchcounterone \zerocount\relax
   \or
-  \doifsomethingelse{\scratchcounter    #chapno \relax}
-                    {\scratchcounter    #chapno \relax}
-                    {\scratchcounter    \zerocount\relax}
-  \doifsomethingelse{\scratchcounterone #startno\relax}
-                    {\scratchcounterone #startno\relax}
-                    {\scratchcounterone \zerocount\relax}
+  \doifsomethingelse{\scratchcounter    #chapno \relax}%
+                    {\scratchcounter    #chapno \relax}%
+                    {\scratchcounter    \zerocount\relax}%
+  \doifsomethingelse{\scratchcounterone #startno\relax}%
+                    {\scratchcounterone #startno\relax}%
+                    {\scratchcounterone \zerocount\relax}%
   \or\fi
   \answer@seq@tempa=\numexpr\scratchcounterone-1\relax
   \answer@seq@tempb=\numexpr\scratchcounterone-1\relax
-  % \the\answer@seq@tempa == \the\answer@seq@tempb
   \bTABLE
     \dorecurse{#rows}{
       \bTR
@@ -3537,22 +3693,22 @@
 \tolerant\def\typeanswertablealt[#rows,#columns]#*[#chapno]#*[#startno]%
  {\begingroup\ifarguments 0\or
   \scratchcounter      \zerocount\relax
-  \scratchcounterthree \plusone  \relax
+  \scratchcounterthree \zerocount\relax
   \or
   \scratchcounter      \zerocount\relax
-  \scratchcounterthree \plusone  \relax
+  \scratchcounterthree \zerocount\relax
   \or
-  \scratchcounterthree \plusone  \relax% for startno
-  \doifsomethingelse{\scratchcounter      #chapno \relax}
-                    {\scratchcounter      #chapno \relax}
-                    {\scratchcounter      \zerocount\relax}
+  \scratchcounterthree \zerocount\relax% for startno
+  \doifsomethingelse{\scratchcounter      #chapno \relax}%
+                    {\scratchcounter      #chapno \relax}%
+                    {\scratchcounter      \zerocount\relax}%
   \or
-  \doifsomethingelse{\scratchcounter      #chapno \relax}
-                    {\scratchcounter      #chapno \relax}
-                    {\scratchcounter      \zerocount\relax}
-  \doifsomethingelse{\scratchcounterthree #startno\relax}
-                    {\scratchcounterthree #startno\relax}
-                    {\scratchcounterthree \zerocount\relax}
+  \doifsomethingelse{\scratchcounter      #chapno \relax}%
+                    {\scratchcounter      #chapno \relax}%
+                    {\scratchcounter      \zerocount\relax}%
+  \doifsomethingelse{\scratchcounterthree #startno\relax}%
+                    {\scratchcounterthree #startno\relax}%
+                    {\scratchcounterthree \zerocount\relax}%
   \or\fi
   \scratchcounterone #rows   \relax
   \scratchcountertwo #columns\relax
@@ -3564,10 +3720,10 @@
   \bTABLE
     \dorecurse{\the\scratchcounterone}{\bTR
       \dorecurse{\the\scratchcountertwo}{\advance\answer@seq@tempa by 1\relax
-        \expanded{\bTD\tt\getdata{userorder}\eTD}
-        \expanded{\bTD\ss\getdata{answer}   \eTD}
-       }
-    \eTR}
+        \expanded{\bTD\tt\getdata{userorder}\eTD}%
+        \expanded{\bTD\ss\getdata{answer}   \eTD}%
+       }%
+    \eTR}%
   \eTABLE
 \par\endgroup}
 
