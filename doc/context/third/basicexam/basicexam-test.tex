@@ -1,8 +1,9 @@
 \usemodule[basicexam]%[mode=teacher]
 %\usemodule[basicexam][mode={teacher,check}]
 
+\setupinteraction[state=start]
 \setuptextrules[style=\tf\ss,before=,after=,rulethickness=.5pt]
-\setuplayout[width=.7\paperwidth,backspace=.2\paperwidth]
+\setuplayout[width=.75\paperwidth,backspace=.2\paperwidth]
 \setuphead[section][style=\ss\bfa,color=blue]
 \setuphead[subsection][style=\ss\bf,color=blue,alternative=margintext]
 \setuptyping[style=\ttxx\setuplocalinterlinespace[line=2ex],
@@ -14,9 +15,11 @@
              ]
 
 \starttext
+\dontcomplain
+
 \placecontent
 
-\setupquestion[answer={default answer}]
+\setupquestion[answer={default answer},point=1]
 \setupproblem[left=(,right=),stopper=,width=\widthofstring{(00)}]
 
 \section{Choice}
@@ -37,6 +40,22 @@
 \question{This is the question stem of the selection question.
    \choice{Choice One,Choice Two,Choice Three,Choice Four}
 }
+
+\start
+\startquestion
+  This is the question stem of the selection question.
+  \startchoice[8]
+    \startcitem Choice One   \stopcitem
+    \startcitem Choice Two   \stopcitem
+    \startcitem Choice Three \stopcitem
+    \startcitem Choice Four  \stopcitem
+  \stopchoice
+\stopquestion
+
+\question{This is the question stem of the selection question.
+   \choice[8]{Choice One,Choice Two,Choice Three,Choice Four}
+}
+\stop
 \stopbuffer
 
 \typebuffer
@@ -71,12 +90,14 @@
           point=4,
           answer=QQ]
   {This is the question stem of the selection question.\fillin{Answer QQ}.
-   \choice{Choice One,Choice Two,Choice Three,{[*]Choice Four}}
+  \choice{Choice One,Choice Two,Choice Three,{[*]Choice Four}}
   \startanswer
-    This is a detailed explanation of this topic.
-    It should be noted that the answer will be overwritten by the next answer. 
-    Three answers are set for this question, but only the last answer will be selected in the end.
-  \stopanswer}
+  This is a detailed explanation of this topic.
+  It should be noted that the answer will be overwritten by the next answer. 
+  Three answers are set for this question, but only the last answer will be selected in the end.
+  \stopanswer
+  }
+
 \stopbuffer
 
 \typebuffer
@@ -87,6 +108,7 @@
 
 \startbuffer
 \startquestion[reference=Q,
+               showpoint=true,
                point=4,
                answer=Q]
   This is the question stem of the selection question \fillin{Answer Q}.
@@ -105,13 +127,15 @@
   \stopanswer
 \stopquestion
 
-\question{This is the question stem of the selection question.\relax
+\question[showpoint=true,point=4,]
+  {This is the question stem of the selection question.\relax
    \choice{Choice One,Choice Two,Choice Three,Choice Four}}
 \startanswer[showscript=true,frame=off,scriptcontent=\null\blank[3*line]]
 
 \stopanswer
 
-\question{This is the question stem of the selection question.\relax
+\question[showpoint=true,point=4,]
+  {This is the question stem of the selection question.\relax
    \choice{Choice One,Choice Two,Choice Three,Choice Four}}
 \stopbuffer
 
@@ -188,6 +212,20 @@
 \getbuffer
 
 \startbuffer
+\startquestion
+  This is the question stem of the selection question.\relax
+  \startchoice[vertical,text][]
+    \startcitem Choice One   \stopcitem
+    \startcitem[*] Choice Two   \stopcitem
+    \startcitem Choice Three \stopcitem
+    \startcitem Choice Four  \stopcitem
+  \stopchoice
+\stopquestion
+
+\question[showanswer=true]{This is the question stem of the selection question.\relax
+   \choice[vertical,text][]{Choice One,{[*]Choice Two},Choice Three,Choice Four}
+}
+
 \definechoice[newinlinechoice][inlinechoice=true,correctsymbol=default]
 \startquestion
   This is the question stem of the selection question.\relax
@@ -283,7 +321,7 @@
 
 \getbuffer
 
-\section{Problem}
+\section{Question}
 
 \subsection{question \& problem}
 
@@ -295,10 +333,27 @@ This is the main part of the question.
 \question
 {This is the main part of the question.}
 
-\startproblem[textstyle=ss]
-  \startpitem  This is the first small question.\stoppitem
-  \startpitem This is the second small question.\stoppitem
-\stopproblem
+\startquestion
+This is the main part of the question.
+  \startquestion
+    This is the main part of the question.
+      \startquestion
+        This is the main part of the question.
+      \stopquestion
+  \stopquestion
+  \startquestion
+    This is the main part of the question.
+      \startquestion
+        This is the main part of the question.
+      \stopquestion
+      \startquestion
+        This is the main part of the question.
+      \stopquestion
+      \startquestion
+        This is the main part of the question.
+      \stopquestion
+  \stopquestion
+\stopquestion
 
 \startquestion
 This is the main part of the question.
@@ -315,7 +370,6 @@ This is the main part of the question.
      \pitem{This is the second small question.}
   }
 }
-
 \stopbuffer
 
 \typebuffer
@@ -364,17 +418,6 @@ This is the main part of the question.
 \question[answer=bbb]
 {This is the main part of the question.}
 \startanswer This is a detailed explanation of this topic.\stopanswer
-
-\startproblem[textstyle=ss]
-  \startpitem[answer=ccc,point=1]
-    This is the first small question.
-    \startanswer This is a detailed explanation of this topic.\stopanswer
-  \stoppitem
-  \startpitem[answer=ddd,point=1]
-    This is the second small question.
-    \startanswer This is a detailed explanation of this topic.\stopanswer
-  \stoppitem
-\stopproblem
 
 \startquestion
 This is the main part of the question.
@@ -425,9 +468,10 @@ This is the main part of the question.
 
 \subsection{fillin }
 
+\start
 \setupquestion[answer=cxxx,showanswer=false,point=2,showpoint=false]
 
-\startquestion[showscript=true,showanswer=false]
+\startquestion[showanswer=false]
   Lorem ipsum dolor sit amet,
   \startproblem
     {\setupfillin[empty=number, n=5]\getbuffer}
@@ -470,6 +514,7 @@ This is the main part of the question.
     {\setupfillin[empty=none,   align=autoright,n=*]\getbuffer}
   \stopproblem
 \stopquestion
+\stop
 
 \section{Material}
 
@@ -513,7 +558,7 @@ This is the main part of the question.
 
 \section{Close}
 
-\startclose
+\startclose[showanswer=true,showpoint=true,point=5,answer=nil]
 On Oct. 11, hundreds of runners competed in a cross-country race in Minnesota.
 Melanie Bailey should have \closechoice[designed,followed,changed,finished] the
 course earlier than she did. Her \closechoice[delay,chance,trouble,excuse] came
@@ -607,12 +652,40 @@ of human kindness won the day.
 
 \chapter{More Test}
 
+\question[I][answer=1,showanswer=true,showpoint=true]
+  {one nest\answer{explain}}\answer{explain}
+
+\question[I][answer=1,showanswer=true,showpoint=true]{one nest
+  \question[A][answer=2]{two nest
+    \question[I][answer=3]{three nest\answer{explain}}\answer{explain}
+    \question[I][answer=4]{three nest\answer{explain}}\answer{explain}
+    \question[I][answer=5]{three nest\answer{explain}}\answer{explain}
+  }
+  \question[n][answer=2]{two nest
+    \question[I][answer=6]{three nest\answer{explain}}\answer{explain}
+    \question[I][answer=7]{three nest\answer{explain}}\answer{explain}
+    \question[I][answer=8]{three nest\answer{explain}}\answer{explain}
+  }
+}
+
+\question[showanswer=true,showpoint=true]{new test
+  \problem{
+    \pitem[answer=A]{new test 1\answer{explain}}\answer{explain}
+    \pitem[answer=B]{new test 2\answer{explain}}\answer{explain}
+    \pitem[answer=C]{new test 3\answer{explain}}\answer{explain}
+  }
+}
+
+
 \question[point=1,showpoint=true,answer=9]
 {It should be reset back to 1 here.\choice{XXX,YYY,ZZZ}}
+\startanswer[showanswer=true,showpoint=true]
+   some text
+\stopanswer
 
-\startquestion[point={1.5},showpoint=true]
+\startquestion[point={1.5},showanswer=true,showpoint=true]
   \startproblem
-    \dorecurse{5}{\pitem {some texts}}
+    \dorecurse{5}{\pitem[answer=123] {some texts}}
   \stopproblem
 \stopquestion
 
