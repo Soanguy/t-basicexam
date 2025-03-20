@@ -1,11 +1,11 @@
-\usemodule[basicexam]%[mode=teacher]
+\usemodule[basicexam][layout=twoup,mode={teacher}]
 %\usemodule[basicexam][mode={teacher,check}]
 
 \setupinteraction[state=start]
 \setuptextrules[style=\tf\ss,before=,after=,rulethickness=.5pt]
 \setuplayout[width=.75\paperwidth,backspace=.2\paperwidth]
-\setuphead[section][style=\ss\bfa,color=blue]
-\setuphead[subsection][style=\ss\bf,color=blue,alternative=margintext]
+\setuphead[section][style=\ss\bfb,color=black]
+\setuphead[subsection][style=\ss\bf,color=blue]
 \setuptyping[style=\ttxx\setuplocalinterlinespace[line=2ex],
              option={context},
              before={\vbox{\hrule height .5pt\par
@@ -20,7 +20,7 @@
 \placecontent
 
 \setupquestion[answer={default answer},point=1]
-\setupproblem[left=(,right=),stopper=,width=\widthofstring{(00)}]
+\setupproblem [left=(,right=),stopper=,width=\widthofstring{(00)}]
 
 \section{Choice}
 
@@ -54,6 +54,14 @@
 
 \question{This is the question stem of the selection question.
    \choice[8]{Choice One,Choice Two,Choice Three,Choice Four}
+}
+
+\startplacefigure [location={none,right,2*hang}]
+  \externalfigure [][height=5\baselineskip]
+\stopplacefigure
+\question
+{\input knuthmath
+\choice[one,vertical]{Choice One,Choice Two,Choice Three,Choice Four}
 }
 \stop
 \stopbuffer
@@ -314,7 +322,9 @@
 \subsection{point calculation}
 
 \startbuffer
-\dorecurse{5}{\question[point=1,showpoint=true]{AXXXA\choice{XXX,YYY,ZZZ}}}
+\question[point={1.5},showpoint=true]{AXXXA\choice{dummy text,XXX,YYY,ZZZ}}
+\question[point={2.2},showpoint=true]{AXXXA\choice{dummy text dummy text,XXX,YYY,ZZZ}}
+\question[point={1.8},showpoint=true]{AXXXA\choice{dummy text dummy text dummy text dummy text,XXX,YYY,ZZZ}}
 \stopbuffer
 
 \typebuffer
@@ -533,11 +543,11 @@ This is the main part of the question.
 
 \startquestion[start=1,option={n,packed,joinedup,nowhite}]
   \indicator{Some Texts 1}
-  \fastchoice{Some Texts,Some Texts,Some Texts,Some Texts}
+  \choice{Some Texts,Some Texts,Some Texts,Some Texts}
 \stopquestion
 \startquestion
   \indicator{Some Texts 2}
-  \fastchoice{Some Texts,Some Texts,Some Texts,Some Texts}
+  \choice{Some Texts,Some Texts,Some Texts,Some Texts}
 \stopquestion
 
 \startmaterial[title={Knuth 2},author={Mos},source={Yelu}]
@@ -545,11 +555,11 @@ This is the main part of the question.
 \stopmaterial
 \startquestion
   \indicator{Some Texts 3}
-  \fastchoice{Some Texts,Some Texts,Some Texts,Some Texts}
+  \choice{Some Texts,Some Texts,Some Texts,Some Texts}
 \stopquestion
 \startquestion
   \indicator{Some Texts 4}
-  \fastchoice{Some Texts,Some Texts,Some Texts,Some Texts}
+  \choice{Some Texts,Some Texts,Some Texts,Some Texts}
 \stopquestion
 \stopbuffer
 
@@ -657,14 +667,14 @@ of human kindness won the day.
 
 \question[I][answer=1,showanswer=true,showpoint=true]{one nest
   \question[A][answer=2]{two nest
-    \question[I][answer=3]{three nest\answer{explain}}\answer{explain}
-    \question[I][answer=4]{three nest\answer{explain}}\answer{explain}
-    \question[I][answer=5]{three nest\answer{explain}}\answer{explain}
+    \question[I][answer=3]{three nest\answer{explain in question}}\answer{explain out question}
+    \question[I][answer=4]{three nest\answer{explain in question}}\answer{explain out question}
+    \question[I][answer=5]{three nest\answer{explain in question}}\answer{explain out question}
   }
   \question[n][answer=2]{two nest
-    \question[I][answer=6]{three nest\answer{explain}}\answer{explain}
-    \question[I][answer=7]{three nest\answer{explain}}\answer{explain}
-    \question[I][answer=8]{three nest\answer{explain}}\answer{explain}
+    \question[I][answer=6]{three nest\answer{explain in question}}\answer{explain out question}
+    \question[I][answer=7]{three nest\answer{explain in question}}\answer{explain out question}
+    \question[I][answer=8]{three nest\answer{explain in question}}\answer{explain out question}
   }
 }
 
