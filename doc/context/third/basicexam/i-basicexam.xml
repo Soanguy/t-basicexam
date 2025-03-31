@@ -4,6 +4,11 @@
 
 <cd:interface xmlns:cd="http://www.pragma-ade.com/commands">
 
+    <cd:define name="value-style">
+        <cd:constant type="cd:style"/>
+        <cd:constant type="cd:command"/>
+    </cd:define>
+
     <cd:define name="keyword-setupitemgroup">
         <cd:keywords list="yes" optional="yes">
             <cd:constant type="intro"/>
@@ -592,7 +597,7 @@
             <cd:parameter name="pointlabel">
                 <cd:constant type="cd:text"/>
             </cd:parameter>
-            <cd:inherit name="setupquestion"/>
+            <cd:inherit name="setupitemgroup"/>
         </cd:assignments>
     </cd:define>
 
@@ -646,17 +651,29 @@
             <cd:parameter name="pointlabel">
                 <cd:constant type="cd:text"/>
             </cd:parameter>
-            <cd:inherit name="setupquestion"/>
+            <cd:inherit name="setupitemgroup"/>
         </cd:assignments>
     </cd:define>
 
-    <cd:define name="mixed-setupanswer">
+    <cd:define name="assignment-setupanswer">
         <cd:assignments list="yes">
             <cd:parameter name="style">
                 <cd:resolve name="value-style"/>
             </cd:parameter>
             <cd:parameter name="color">
                 <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="align">
+                <cd:inherit name="setupalign"/>
+            </cd:parameter>
+            <cd:parameter name="before">
+                <cd:constant type="cd:command"/>
+            </cd:parameter>
+            <cd:parameter name="after">
+                <cd:constant type="cd:command"/>
+            </cd:parameter>
+            <cd:parameter name="inbetween">
+                <cd:constant type="cd:command"/>
             </cd:parameter>
             <cd:parameter name="showanswer">
                 <cd:constant type="true"/>
@@ -709,10 +726,196 @@
         </cd:assignments>
     </cd:define>
 
+    <cd:define name="assignment-setupexaminfo">
+        <cd:assignments list="yes">
+            <cd:parameter name="style">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="color">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="left">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="right">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="alternative">
+                <cd:constant type="default" default="yes"/>
+                <cd:constant type="frame"/>
+                <cd:constant type="cd:name"/>
+            </cd:parameter>
+        </cd:assignments>
+    </cd:define>
+
+    <cd:define name="assignment-setuppapertitle">
+        <cd:assignments list="yes">
+            <cd:parameter name="style">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="color">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="align">
+                <cd:inherit name="setupalign"/>
+            </cd:parameter>
+            <cd:parameter name="list">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="title">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="subject">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="subjectsuffix">
+                <cd:constant type="secret,title,subject,information,signinformation,notice"  default="yes"/>
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="alternative">
+                <cd:constant type="default" default="yes"/>
+                <cd:constant type="cd:name"/>
+            </cd:parameter>
+            <cd:parameter name="LISTKEY">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="LISTKEYstyle">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="LISTKEYcolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="LISTKEYalign">
+                <cd:inherit name="setupalign"/>
+            </cd:parameter>
+        </cd:assignments>
+    </cd:define>
+
+    <cd:define name="assignment-setupexamitem">
+        <cd:assignments list="yes" optional="yes">
+            <cd:parameter name="style">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="color">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="showanswer">
+                <cd:constant type="true"/>
+                <cd:constant type="false"/>
+            </cd:parameter>
+            <cd:parameter name="showpoint">
+                <cd:constant type="true"/>
+                <cd:constant type="false"/>
+            </cd:parameter>
+            <cd:parameter name="answer">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="totalanswer">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="answerstyle">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="answercolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="answerlabel">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="point">
+                <cd:constant type="cd:number"/>
+            </cd:parameter>
+            <cd:parameter name="totalpoint">
+                <cd:constant type="cd:number"/>
+            </cd:parameter>
+            <cd:parameter name="pointstyle">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="pointcolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="pointlabel">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="reference">
+                <cd:constant type="cd:reference"/>
+            </cd:parameter>
+        </cd:assignments>
+    </cd:define>
+
+    <cd:define name="assignment-setupfillin">
+        <cd:assignments list="yes">
+            <cd:parameter name="style">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="color">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="before">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="after">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="left">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="right">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="empty">
+                <cd:constant type="yes" default="yes"/>
+                <cd:constant type="number"/>
+                <cd:constant type="none"/>
+            </cd:parameter>
+            <cd:parameter name="alternative">
+                <cd:constant type="default" default="yes"/>
+                <cd:constant type="frame"/>
+                <cd:constant type="simple"/>
+                <cd:constant type="cd:name"/>
+            </cd:parameter>
+            <cd:inherit name="setupbar"/>
+            </>
+            <cd:inherit name="setupframed"/>
+        </cd:assignments>
+    </cd:define>
+
+    <cd:command name="defineexaminfo" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupexaminfo"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="definepapertitle" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setuppapertitle"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
     <cd:command name="definequestion" level="style" category="structure" file="t-basicexam.mklx">
         <cd:arguments>
-            <cd:resolve name="keyword-name"/>
-            <cd:resolve name="keyword-name-optional"/>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
             <cd:assignments list="yes" optional="yes">
                 <cd:inherit name="setupquestion"/>
             </cd:assignments>
@@ -721,8 +924,12 @@
 
     <cd:command name="definechoice" level="style" category="structure" file="t-basicexam.mklx">
         <cd:arguments>
-            <cd:resolve name="keyword-name"/>
-            <cd:resolve name="keyword-name-optional"/>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
             <cd:assignments list="yes" optional="yes">
                 <cd:inherit name="setupchoice"/>
             </cd:assignments>
@@ -731,21 +938,109 @@
 
     <cd:command name="definewriting" level="style" category="structure" file="t-basicexam.mklx">
         <cd:arguments>
-            <cd:resolve name="keyword-name"/>
-            <cd:resolve name="keyword-name-optional"/>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
             <cd:assignments list="yes" optional="yes">
                 <cd:inherit name="setupwriting"/>
             </cd:assignments>
         </cd:arguments>
     </cd:command>
 
+    <cd:command name="definematerial" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupmaterial"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
     <cd:command name="defineanswer" level="style" category="structure" file="t-basicexam.mklx">
         <cd:arguments>
-            <cd:resolve name="keyword-name"/>
-            <cd:resolve name="keyword-name-optional"/>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
             <cd:assignments list="yes" optional="yes">
                 <cd:inherit name="setupanswer"/>
             </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="defineexamitem" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupexamitem"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="definefillin" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupfillin"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="defineverse" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupverse"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="setupexaminfo" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:resolve name="assignment-setupexaminfo"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="setuppapertitle" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:resolve name="assignment-setuppapertitle"/>
         </cd:arguments>
     </cd:command>
 
@@ -773,18 +1068,14 @@
         </cd:arguments>
     </cd:command>
 
-    <cd:command name="setupquestions" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
+    <cd:command name="setupchoice" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
         <cd:arguments>
             <cd:keywords list="yes" optional="yes">
                 <cd:constant type="cd:name"/>
-                <cd:constant type="cd:number" prefix="cd:name" method="range"/>
             </cd:keywords>
-            <cd:resolve name="mixed-setupitemgroup"/>
-        </cd:arguments>
-    </cd:command>
-
-    <cd:command name="setupchoice" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
-        <cd:arguments>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
             <cd:resolve name="mixed-setupchoice"/>
         </cd:arguments>
     </cd:command>
@@ -797,6 +1088,12 @@
 
     <cd:command name="setupwriting" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
         <cd:arguments>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
             <cd:resolve name="mixed-setupwriting"/>
         </cd:arguments>
     </cd:command>
@@ -809,28 +1106,228 @@
 
     <cd:command name="setupanswer" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
         <cd:arguments>
-            <cd:resolve name="mixed-setupanswer"/>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:resolve name="assignment-setupanswer"/>
         </cd:arguments>
     </cd:command>
 
-    <cd:command name="itemgroup" type="environment" generated="yes" variant="instance" level="document" category="structure" file="t-basicexam.mklx">
-        <cd:sequence>
-            <cd:instance value="itemgroup"/>
-        </cd:sequence>
+    <cd:command name="setuppitem" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:resolve name="assignment-setupexamitem"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="setupcitem" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:resolve name="assignment-setupexamitem"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="setupfillin" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
         <cd:arguments>
             <cd:keywords list="yes" optional="yes">
-                <cd:inherit name="setupitemgroup"/>
+                <cd:constant type="cd:name"/>
             </cd:keywords>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:resolve name="assignment-setupfillin"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:define name="instance-question">
+        <cd:constant value="question"/>
+        <cd:constant value="subquestion"/>
+        <cd:constant value="problem"/>
+    </cd:define>
+
+    <cd:command name="question" generated="yes" variant="instance" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:sequence>
+            <cd:instance value="question"/>
+        </cd:sequence>
+        <cd:arguments>
+            <cd:resolve name="keyword-setupitemgroup"/>
             <cd:assignments list="yes" optional="yes">
-                <cd:inherit name="setupitemgroup"/>
+                <cd:inherit name="setupquestion"/>
             </cd:assignments>
+            <cd:resolve name="argument-text"/>
         </cd:arguments>
         <cd:instances>
-            <cd:resolve name="instance-itemgroup"/>
+            <cd:resolve name="instance-question"/>
         </cd:instances>
     </cd:command>
 
-    <cd:command name="itemgroup" type="environment" level="document" category="structure" file="t-basicexam.mklx">
+    <cd:command name="question" type="environment" generated="yes" variant="instance" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:sequence>
+            <cd:instance value="question"/>
+        </cd:sequence>
+        <cd:arguments>
+            <cd:resolve name="keyword-setupitemgroup"/>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupquestion"/>
+            </cd:assignments>
+        </cd:arguments>
+        <cd:instances>
+            <cd:resolve name="instance-question"/>
+        </cd:instances>
+    </cd:command>
+
+    <cd:define name="instance-choice">
+        <cd:constant value="choice"/>
+        <cd:constant value="inlinechoice"/>
+    </cd:define>
+
+    <cd:command name="choice" generated="yes" variant="instance" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:sequence>
+            <cd:instance value="choice"/>
+        </cd:sequence>
+        <cd:arguments>
+            <cd:resolve name="keyword-setupitemgroup"/>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupchoice"/>
+            </cd:assignments>
+            <cd:resolve name="argument-text"/>
+        </cd:arguments>
+        <cd:instances>
+            <cd:resolve name="instance-choice"/>
+        </cd:instances>
+    </cd:command>
+
+    <cd:command name="choice" type="environment" generated="yes" variant="instance" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:sequence>
+            <cd:instance value="choice"/>
+        </cd:sequence>
+        <cd:arguments>
+            <cd:resolve name="keyword-setupitemgroup"/>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupchoice"/>
+            </cd:assignments>
+        </cd:arguments>
+        <cd:instances>
+            <cd:resolve name="instance-choice"/>
+        </cd:instances>
+    </cd:command>
+
+    <cd:define name="instance-writing">
+        <cd:constant value="writing"/>
+        <cd:constant value="subwriting"/>
+    </cd:define>
+
+    <cd:command name="writing" generated="yes" variant="instance" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:sequence>
+            <cd:instance value="writing"/>
+        </cd:sequence>
+        <cd:arguments>
+            <cd:resolve name="keyword-setupitemgroup"/>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupwriting"/>
+            </cd:assignments>
+            <cd:resolve name="argument-text"/>
+        </cd:arguments>
+        <cd:instances>
+            <cd:resolve name="instance-writing"/>
+        </cd:instances>
+    </cd:command>
+
+    <cd:command name="writing" type="environment" generated="yes" variant="instance" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:sequence>
+            <cd:instance value="writing"/>
+        </cd:sequence>
+        <cd:arguments>
+            <cd:resolve name="keyword-setupitemgroup"/>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupwriting"/>
+            </cd:assignments>
+        </cd:arguments>
+        <cd:instances>
+            <cd:resolve name="instance-writing"/>
+        </cd:instances>
+    </cd:command>
+
+    <cd:define name="instance-answer">
+        <cd:constant value="answer"/>
+    </cd:define>
+
+    <cd:command name="answer" generated="yes" variant="instance" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:sequence>
+            <cd:instance value="answer"/>
+        </cd:sequence>
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupanswer"/>
+            </cd:assignments>
+            <cd:resolve name="argument-text"/>
+        </cd:arguments>
+        <cd:instances>
+            <cd:resolve name="instance-answer"/>
+        </cd:instances>
+    </cd:command>
+
+    <cd:command name="answer" type="environment" generated="yes" variant="instance" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:sequence>
+            <cd:instance value="answer"/>
+        </cd:sequence>
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupanswer"/>
+            </cd:assignments>
+        </cd:arguments>
+        <cd:instances>
+            <cd:resolve name="instance-answer"/>
+        </cd:instances>
+    </cd:command>
+
+    <cd:command name="pitem" type="environment" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:resolve name="assignment-setupexamitem" optional="yes"/>
+            <cd:resolve name="string-content"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="citem" type="environment" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords optional="yes">
+                <cd:constant type="*"/>
+            </cd:keywords>
+            <cd:resolve name="assignment-setupexamitem"/>
+            <cd:resolve name="string-content"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="pitem" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:resolve name="assignment-setupexamitem"/>
+            <cd:resolve name="argument-text"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="citem" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords optional="yes">
+                <cd:constant type="*"/>
+            </cd:keywords>
+            <cd:resolve name="assignment-setupexamitem"/>
+            <cd:resolve name="argument-text"/>
+        </cd:arguments>
+    </cd:command>
+<!--    <cd:command name="description" generated="yes" variant="example" level="document" category="structure" file="strc-des.mkvi">
+        <cd:sequence>
+            <cd:variable value="description"/>
+        </cd:sequence>
+        <cd:arguments>
+            <cd:resolve name="keyword-reference-list-optional"/>
+            <cd:resolve name="argument-text-optional"/>
+            <cd:resolve name="string-content"/>
+            <cd:delimiter name="par"/>
+        </cd:arguments>
+    </cd:command>-->
+
+<!--    <cd:command name="itemgroup" type="environment" level="document" category="structure" file="t-basicexam.mklx">
         <cd:arguments>
             <cd:resolve name="keyword-name"/>
             <cd:keywords list="yes" optional="yes">
@@ -840,81 +1337,6 @@
                 <cd:inherit name="setupitemgroup"/>
             </cd:assignments>
         </cd:arguments>
-    </cd:command>
-
-    <cd:command name="item" scope="itemgroup" level="document" category="structure" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:resolve name="keyword-reference-list-optional"/>
-        </cd:arguments>
-    </cd:command>
-
-    <cd:command name="noitem" scope="itemgroup" level="document" category="structure" file="t-basicexam.mklx"/>
-
-    <cd:command name="itemtag" scope="itemgroup" level="document" category="structure" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:resolve name="keyword-reference-list-optional"/>
-        </cd:arguments>
-    </cd:command>
-
-    <cd:command name="item" type="environment" scope="itemgroup" level="document" category="structure" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:resolve name="keyword-reference-list-optional"/>
-        </cd:arguments>
-    </cd:command>
-
-    <cd:command name="head" type="environment" scope="itemgroup" level="document" category="structure" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:resolve name="keyword-reference-list-optional"/>
-            <cd:resolve name="argument-text"/>
-        </cd:arguments>
-    </cd:command>
-
-    <cd:command name="specialitem" type="environment" variant="item" scope="itemgroup" level="document" category="structure" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:keywords optional="yes">
-                <cd:constant type="item" default="yes"/>
-            </cd:keywords>
-            <cd:resolve name="keyword-reference-list-optional"/>
-        </cd:arguments>
-    </cd:command>
-
-    <cd:command name="specialitem" type="environment" variant="symbol" scope="itemgroup" level="document" category="structure" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:keywords>
-                <cd:constant type="sym"/>
-                <cd:constant type="ran"/>
-                <cd:constant type="mar"/>
-            </cd:keywords>
-            <cd:resolve name="argument-text"/>
-        </cd:arguments>
-    </cd:command>
-
-    <cd:command name="specialitem" type="environment" variant="none" scope="itemgroup" level="document" category="structure" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:keywords>
-                <cd:constant type="sub"/>
-                <cd:constant type="its"/>
-                <cd:constant type="no"/>
-            </cd:keywords>
-        </cd:arguments>
-    </cd:command>
-
-    <cd:command name="itemgrouptable" type="environment" generated="yes" variant="instance" level="document" category="tables" file="t-basicexam.mklx">
-        <cd:sequence>
-            <cd:instance value="itemgroup"/>
-            <cd:string value="table"/>
-        </cd:sequence>
-        <cd:arguments>
-            <cd:keywords list="yes" optional="yes">
-                <cd:inherit name="setupitemgroup"/>
-            </cd:keywords>
-            <cd:assignments list="yes" optional="yes">
-                <cd:inherit name="setupitemgroup"/>
-            </cd:assignments>
-        </cd:arguments>
-        <cd:instances>
-            <cd:resolve name="instance-itemgroup"/>
-        </cd:instances>
-    </cd:command>
+    </cd:command>-->
 
 </cd:interface>
