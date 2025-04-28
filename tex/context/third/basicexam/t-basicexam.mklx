@@ -71,6 +71,10 @@
 \setinterfaceconstant {inlineright}    {inlineright}
 \setinterfaceconstant {inlinechoice}   {inlinechoice}
 \setinterfaceconstant {recordanswer}   {recordanswer}
+\setinterfaceconstant {entrystyle}     {entrystyle}
+\setinterfaceconstant {entrycolor}     {entrycolor}
+\setinterfaceconstant {infostyle}      {infostyle}
+\setinterfaceconstant {infocolor}      {infocolor}
 \stopinterface
 
 % 1 for module
@@ -1079,7 +1083,8 @@
 \startsetups[\????papertitlerenderings:\s!default]
   \edef\currentlist{\papertitleparameter\c!list}
   \edef\currenttitle{\papertitleparameter\c!title}
-  \expandafter\expandafter\expandafter\tu\expandafter{\currenttitle}
+  \doifinset{title}{\currentlist}{%
+    \expandafter\expandafter\expandafter\tu\expandafter{\currenttitle}}{}%
   \processcommacommand[\currentlist]\definepapertitlevariable
 \stopsetups
 
@@ -1122,53 +1127,6 @@
 %% \makepapertitle[newpaper][title=OOOOOOO]
 %% quickly get elements at header and footer:
 %% \getmarking[title][page][first] :: \getmarking[title][current]
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%D \section{设定一些可能用得到的符号 / Symbol Defination / シンボルの定義}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\doifelsefontpresent{NotoSansSymbols2-Regular}{}{
-  \showmessage\m!basicexam{9}{NotoSansSymbols2 font,symbol}}
-\definefontsynonym[NotoSansSymbols2][file:NotoSansSymbols2-Regular]
-\def\notosymb#1{\getglyphstyled{NotoSansSymbols2}{\tochar{n:#1}}}
-
-\definesymbol[marksquare]          [\notosymb{☐}]
-\definesymbol[markcircle]          [\notosymb{○}]
-\definesymbol[marknotcheck]        [\notosymb{⍻}]
-\definesymbol[markcheck]           [\notosymb{🗸}]
-\definesymbol[markheavycheck]      [\notosymb{✓}]
-\definesymbol[marksquarecheck]     [\notosymb{\rlap{☐}\,\raise.2em\hbox{🗸}}]
-\definesymbol[marksquareheavycheck][\notosymb{\rlap{☐}\,\raise.2em\hbox{✓}}]
-\definesymbol[markcirclecheck]     [\notosymb{\rlap{○}\,\raise.2em\hbox{🗸}}]
-\definesymbol[markcircleheavycheck][\notosymb{\rlap{○}\,\raise.2em\hbox{✓}}]
-\definesymbol[markcross]           [\notosymb{✗}]
-\definesymbol[markheavycross]      [\notosymb{✘}]
-\definesymbol[marksquarecross]     [\notosymb{\rlap{☐}\,\raise.1em\hbox{✗}}]
-\definesymbol[marksquareheavycross][\notosymb{\rlap{☐}\,\raise.1em\hbox{✘}}]
-\definesymbol[markcirclecross]     [\notosymb{\rlap{○}\,\raise.1em\hbox{✗}}]
-\definesymbol[markcircleheavycross][\notosymb{\rlap{○}\,\raise.1em\hbox{✘}}]
-
-%D It is important to note that these symbols require
-%D the font {\bf NotoSansSymbols2} to be pre-installed.
-%D
-%D \starttabulate[|l|r|l|r|]
-%D \NC \type{\symbol{marksquare}}           \NC \symbol{marksquare}
-%D \VL \type{\symbol{markcircle}}           \NC \symbol{markcircle}          \NC\NR\HL
-%D \NC \type{\symbol{markcheck}}            \NC \symbol{markcheck}
-%D \VL \type{\symbol{markcross}}            \NC \symbol{markcross}           \NC\NR
-%D \NC \type{\symbol{markheavycheck}}       \NC \symbol{markheavycheck}
-%D \VL \type{\symbol{markheavycross}}       \NC \symbol{markheavycross}      \NC\NR
-%D \NC \type{\symbol{marksquarecheck}}      \NC \symbol{marksquarecheck}
-%D \VL \type{\symbol{marksquarecross}}      \NC \symbol{marksquarecross}     \NC\NR
-%D \NC \type{\symbol{marksquareheavycheck}} \NC \symbol{marksquareheavycheck}
-%D \VL \type{\symbol{marksquareheavycross}} \NC \symbol{marksquareheavycross}\NC\NR
-%D \NC \type{\symbol{markcirclecheck}}      \NC \symbol{markcirclecheck}
-%D \VL \type{\symbol{markcirclecross}}      \NC \symbol{markcirclecross}     \NC\NR
-%D \NC \type{\symbol{markcircleheavycheck}} \NC \symbol{markcircleheavycheck}
-%D \VL \type{\symbol{markcircleheavycross}} \NC \symbol{markcircleheavycross}\NC\NR
-%D \NC \type{\symbol{marknotcheck}}         \NC \symbol{marknotcheck}
-%D \VL                                      \NC                              \NC\NR
-%D \stoptabulate
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{设置 question 环境}
@@ -1429,9 +1387,9 @@
    \c!indentnext=\v!yes,
    \c!width=1.5\emwidth,
    \c!factor=0,
-   \c!step=.5\emwidth, % deals with broad
+   \c!step=.5\emwidth, 
    \c!distance=\zeropoint,
-  %\c!align=\v!normal, % definitely not \v!normal !
+  %\c!align=\v!normal, 
   %\c!symalign=,
   %\c!color=,
   %\c!indenting=, % untouched if empty
@@ -1461,7 +1419,7 @@
    \c!start=1,
    \c!packcriterium=\zerocount,
    \c!criterium=\v!all, % permits 0 and negative numbers
-   \c!option={n,packed,joinedup,nowhite,continue},
+   \c!option={n,packed,joinedup,continue},
    \c!textdistance=\v!space, % none big medium small <dimension>
    \c!lasttextseparator=\itemgroupparameter\c!textseparator,
   %\c!lasttextseparator=,
@@ -1490,6 +1448,7 @@
   [\c!left=(,\c!lefttext=(,
    \c!right=),\c!righttext=),
    \c!stopper=,
+   \c!distance=.5em,
    \c!option={n,packed,joinedup,nowhite,continue},]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1552,15 +1511,17 @@
   [\c!class=\s!problem,
    \c!showanswer=false,
    \c!showpoint=false,
-   \c!left=(,\c!lefttext=(,
+   \c!left=(, \c!lefttext=(,
    \c!right=),\c!righttext=),
    \c!stopper=,
+   \c!distance=.5em,
    \c!option={n,packed,joinedup,nowhite},]
 
 \setupsubquestion
   [\c!left=(,\c!lefttext=(,
    \c!right=),\c!righttext=),
    \c!stopper=,
+   \c!distance=.5em,
    \c!option={n,packed,joinedup,nowhite},]
 
 %D userquestion 和 useritem 是为了应对本模块未曾考虑到的题型而设计的通用型 macro，
@@ -1842,9 +1803,9 @@
    \c!indentnext=\v!yes,
    \c!width=1\emwidth,
    \c!factor=0,
-   \c!step=.5\emwidth, % deals with broad
+   \c!step=.5\emwidth, 
    \c!distance=.2\emwidth,
-  %\c!align=\v!normal, % definitely not \v!normal !
+  %\c!align=\v!normal, 
   %\c!symalign=,
   %\c!color=,
   %\c!indenting=, % untouched if empty
@@ -2084,9 +2045,9 @@
    \c!indentnext=\v!yes,
    \c!width=1.5\emwidth,
    \c!factor=0,
-   \c!step=.5\emwidth, % deals with broad
+   \c!step=.5\emwidth, 
    \c!distance=\zeropoint,
-  %\c!align=\v!normal, % definitely not \v!normal !
+  %\c!align=\v!normal, 
   %\c!symalign=,
   %\c!color=,
   %\c!indenting=, % untouched if empty
@@ -2239,10 +2200,11 @@
 \tolerant\protected\def\answer_direct_instance[#S#1]#:#2%
   {\begingroup
   \env_answertrue
-  \env_questionfalse   \env_problemfalse \env_choicefalse
-  \env_materialfalse   \env_closefalse   \env_writingfalse
-  \env_subwritingfalse \item_pitemfalse  \item_fillinfalse
-  \item_inlinechoicefalse             \set_envitem_counter
+  % \env_questionfalse   \env_problemfalse \env_choicefalse
+  % \env_materialfalse   \env_closefalse   \env_writingfalse
+  % \env_subwritingfalse \item_pitemfalse  \item_fillinfalse
+  % \item_inlinechoicefalse             
+  \set_envitem_counter
   \edef\currentanswer_bak{\currentanswer}%
   \cdef\currentanswer{#1}%
   \edef\getanswerbuffer{#2}%
@@ -2277,34 +2239,13 @@
     \answerparameter\c!after
   \fi\xdef\getanswercontent{\getanswerbuffer}\endgroup}
 
-\permanent\protected\def\startanswer%
-  {\begingroup
-   \edef\currentanswer_bak{\currentanswer}%
-   \lettonothing\currentanswer
-   \doifelsenextoptionalcs\answer_start_delayed\answer_start_indeed}
-
-\def\answer_start_delayed[#S#1]%
-  {\doifelseassignmentcs{#1}%
-     \answer_start_delayed_parameters
-     \answer_start_delayed_name
-   [#1]}
-
-\def\answer_start_delayed_parameters[#S#1]%
-  {\setupcurrentanswer[#1]%
-   \answer_start_indeed}
-
-\def\answer_start_delayed_name[#1]%
-  {\cdef\currentanswer{#1}%
-   \checkanswerparent
-   \doifelsenextoptionalcs\answer_start_delayed_parameters\answer_start_indeed}
-
 \protected\tolerant\def\answer_start_instance[#S#1]#*[#S#2]#*%
   {\begingroup
   \env_answertrue
-  \env_questionfalse   \env_problemfalse \env_choicefalse
-  \env_materialfalse   \env_closefalse   \env_writingfalse
-  \env_subwritingfalse \item_pitemfalse  \item_fillinfalse
-  \item_inlinechoicefalse
+  % \env_questionfalse   \env_problemfalse \env_choicefalse
+  % \env_materialfalse   \env_closefalse   \env_writingfalse
+  % \env_subwritingfalse \item_pitemfalse  \item_fillinfalse
+  % \item_inlinechoicefalse
   \set_envitem_counter
   \edef\currentanswer_bak{\currentanswer}% 備份之前的答案
  % \lettonothing\currentanswer%釋放currentanswer
@@ -2317,13 +2258,6 @@
     {\s!answer}% unnested, as before
     {\e!start\currentanswer}%
     {\e!stop \currentanswer}}
-
-\def\answer_start_indeed
-  {\grabbufferdatadirect
-   % {\s!answer:\currentanswer}%
-    {\s!answer}% unnested, as before
-    {\csstring\startanswer}%
-    {\csstring\stopanswer}}
 
 \permanent\protected\def\stopanswer{%
   \edef\p_showanswer{\answerparameter\c!showanswer}%
@@ -2344,6 +2278,7 @@
     \leftskip0pt\relax\rightskip\leftskip\relax
     \answerparameter\c!before
     \begingroup
+    \userlanguage[\answerparameter{userlanguage}]%
     \useanswerstyleandcolor\c!style\c!color
     \usealignparameter\answerparameter
     \edef\currentansweralternative{\answerparameter\c!alternative}%
@@ -2354,8 +2289,9 @@
     \edef\p_renderingsetup{\answeralternativeparameter\c!renderingsetup}%
     \directsetup\p_renderingsetup
     \endgroup
+    \xdef\getanswercontent{\getanswerbuffer}
     \answerparameter\c!after
-  \fi \xdef\getanswercontent{\getanswerbuffer}\endgroup}
+  \fi \endgroup}
 
 \aliased\let\answer_stop_instance\stopanswer
 
@@ -2377,29 +2313,10 @@
   [\s!none]
   [\c!renderingsetup=\????answerrenderings:\s!none]
 
-% \startsetups[\????answerrenderings:\s!default]
-%     \answerparameter\c!before
-%     \usesetupsparameter\answerparameter
-%     \getbufferdata[\s!answer]
-%     \answerparameter\c!after
-% \stopsetups
-
 \startsetups[\????answerrenderings:\s!none]
 \stopsetups
 
 \startsetups[\????answerrenderings:\s!default]
-  \setuptextbackground[env:answer]%
-    [location=paragraph,width=local,
-    leftoffset=1ex,rightoffset=1ex,
-    before=,after=,
-    %topoffset=.5ex,bottomoffset=.5ex,
-    background=\answerparameter\c!background,
-    backgroundcolor=\answerparameter\c!backgroundcolor,
-    corner=\answerparameter\c!corner,
-    frame=\answerparameter\c!frame,
-    framecolor=\answerparameter\c!framecolor,
-    rulethickness=\answerparameter\c!rulethickness,
-    ]%
   \starttextbackground[env:answer]
   \ifenv_material% 可以用来做文章翻译或内容解释，
     \getanswerbuffer% 也可以直接放置在文章之后，或这每一个段落之后
@@ -2410,10 +2327,8 @@
       \noindent
       \showpointoranswer[answer][answer]%
       \showpointoranswer[answer][point]%
-      \ifmode_showanswer
-          \answerparameter\c!inbetween
-          \getanswerbuffer
-      \fi
+      \answerparameter\c!inbetween
+      \getanswerbuffer
     \fi
   \fi
   \stoptextbackground
@@ -2424,8 +2339,6 @@
   \env_answertrue\set_envitem_counter
   \lettonothing\currentanswer%釋放currentanswer
   \lettonothing\getanswerbuffer\lettonothing\getinlineanswerbuffer
-  % currentanswer 命令已經被其他環境定義為答案獲取命令，
-  % 此處的 currentanswer 是定義環境命令，需要重新釋放。
   \cdef\currentanswer{#1}%
   \setupcurrentanswer[#2]%
   \edef\getanswerbuffer{#2}%
@@ -2434,22 +2347,12 @@
   \directsetup\p_renderingsetup
   \tolerant\protected\xdef\getanswercontent[##1]% only for writing env
     {#2}%%
-% 需要注意，该命令会传递给 dataset，不同于 writing 环境的 currentanswer
-% currentanswer 的目的是设置较短的作文答案。
-% getanswercontent 则是设置完整的作文答案。
-% 如果需要為其他環境獲取解析內容， 應該需要重定義命令（answer + currentQID）
-\endgroup}
+  \endgroup}
 
 \startuseMPgraphic{normalframeMP}
   draw unitsquare xyscaled (\overlaywidth, \overlayheight);
 \stopuseMPgraphic
 \defineoverlay       [normalframeOL][\useMPgraphic{normalframeMP}]
-
-%%%%% NOTICE : 目前，當用戶主動輸入值和選項值發生衝突時，並未設置警告信息!!!!
-\def\getanswerforanswer{\datasetvariable{ExamDataset}{\QuestionID}{answer}}
-
-\def\getpointforanswer{% used for answer env to auto get point
-  \datasetvariable{ExamDataset}{\QuestionID}{point}}
 
 \setupanswer
   [\c!answerlabel={{\examtexts{answer}}},
@@ -2466,14 +2369,22 @@
   %\c!showscript=true,
   scriptcontent={\noindent\ssx\gray Write Answer Here},
   \c!alternative=\s!default,
-  \c!background=normalframeOL,%% for env_answer textbackground
+  userlanguage=\currentmainlanguage,
+  ]
+  
+\defineanswer[answer]
+
+\setuptextbackground[env:answer]%
+  [location=paragraph,width=local,
+  leftoffset=1ex,rightoffset=1ex,
+  before=,after=,\c!frame=on,
+  %topoffset=.5ex,bottomoffset=.5ex,
+  \c!background=normalframeOL,% for env_answer textbackground
   %\c!backgroundcolor=,
   %\c!corner=,
-  \c!frame=on,
   %\c!framecolor=,
   %\c!rulethickness=,
   ]
-\defineanswer[answer]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{设置 pitem,citem 命令}
@@ -2658,7 +2569,7 @@
 %D empty=yes hides the answer; empty=number shows the number and hides the answer; empty=none shows the answer.
 %D n=* hides the answer, with a length equal to the answer length; n=NUMBER controls the length of the bar.
 
-%D bar 主要有四種樣式，可以通過 mp 參數進行設置：
+%D There are four main styles of bar, which can be set by mp parameters:
 %D rules:under:dots    %rules:under:random
 %D rules:under:dash    %rules:under:wave
 
@@ -2671,10 +2582,15 @@
 \installframedcommandhandler\????fillin            {fillin}            \????fillin
 \installcommandhandler      \????fillinalternative {fillinalternative} \????fillinalternative
 
+\appendtoks
+  \frozen\instance\protected\edefcsname \currentfillin\endcsname{\directnamedfillin[\currentfillin]}%
+\to \everydefinefillin
+
 \setupfillin[%foregroundcolor=,
              %before=,after=,
              %left=,right=,
              %repeat=,mp=
+              alternative=default,
               rule=FillinText,% 引用 bar 命令
               empty=yes,
               continue=yes,
@@ -2687,17 +2603,17 @@
               dy=-0.4,
               max=3,
               offset=-.1,
-              rulethickness=.05,
+              rulethickness=.5pt,
               style=\ss,]
 
 % \setupfillin[width=fit,offset=0pt,location=low] %if alternative=framed
 
-\tolerant\protected\def\fillin[#1]#:#2{%
+\tolerant\protected\def\directnamedfillin[#1]#*[#2]#:#3{%
   \begingroup
-    \item_fillintrue\null
+    \edef\currentfillin{#1}\item_fillintrue
+    \ifparameters\or\or\setupcurrentfillin[#2]\or\setupfillin[#2]\fi
     \global\advance\c_fillinnumber by 1\relax
-    \iffirstargument\setupfillin[#1]\fi
-    \edef\currentfillinanswer{#2}%
+    \def\currentfillinanswer{\usefillinstyleandcolor\c!answerstyle\c!answercolor\answer_answer}%
     \edef\p_number{\number\c_fillinnumber}%
     \edef\p_align{\fillinparameter\c!align}%
     \edef\currentfillinalternative{\fillinparameter\c!alternative}%
@@ -2708,7 +2624,9 @@
     \edef\p_renderingsetup{\fillinalternativeparameter\c!renderingsetup}%
     \ifx\p_align\c!autoright
       \unskip\nobreak\hfill
-      \penalty50\hskip2em\hbox{}\nobreak\hfill
+      \penalty50\null\;\nobreak\hfill
+    \else
+      \allowbreak
     \fi
     \usefillinstyleandcolor\c!style\c!color
     \fillinparameter\c!before
@@ -2717,14 +2635,17 @@
     \fillinparameter\c!right
     \fillinparameter\c!after
     \ifx\p_align\c!autoright
-      \parfillskip=0pt \finalhyphendemerits=0 \par\fi
-    \edef\currentanswer      {#2\collectanswer{#2}}%
-    \edef\currentfillinanswer{\collectedanswer}%
+      \parfillskip=0pt \finalhyphendemerits=0 \par
+    \else
+      \allowbreak
+    \fi
+    \edef\currentanswer      {#3\collectanswer{#3}}%
+    \edef\currentfillinanswer{#3}%
     \ifempty\currentfillinanswer
          \edef\currentanswer{\currentprevanswer}% 讓 fillin 繼承 前一個答案
     \else\edef\currentanswer{\collectedanswer}%
-    \fi\aftergrouped{\xdef\currentprevanswer{\collectedanswer}}%
-    \endgroup}
+    \fi\xdef\currentprevanswer{\currentanswer}
+  \endgroup}
 
 \definefillinalternative
   [\s!default]
@@ -2757,47 +2678,89 @@
                       mp=\fillinparameter{mp}]%
   \edef\p_n{\fillinparameter\c!n}%
   \edef\p_empty{\fillinparameter\c!empty}%
-  \ifx\p_n\wildcardsymbol
-      \ifmode_showanswer\setupfillin[empty=none]\fi
-      \edef\p_empty{\fillinparameter\c!empty}%
-      \ifx\p_empty\v!number
-        \inlinebar[\currentbar]\bgroup
-        \interwordspacesbefore2
-        \zwnj\runninghbox{\resetbar\p_number}\zwnj
-        \interwordspacesafter2
-        \egroup
-      \else
-        \inlinebar[\currentbar]\bgroup
-          \wordboundary\zwnj\currentfillinanswer\zwnj
-          \egroup
-      \fi
-    \else
+  \ifchknum\p_n\or
       \ifmode_showanswer\setupfillin[empty=none]\fi
       \edef\p_empty{\fillinparameter\c!empty}%
       \inlinebar[\currentbar]\bgroup
         \wordboundary\scratchcounter\numexpr\p_n\relax
         \ifx\p_empty\v!yes
           \interwordspacesbefore\scratchcounter
-          \interwordspacesafter\scratchcounter
-        \else\ifx\p_empty\v!number
+          \interwordspacesafter \scratchcounter
+        \fi
+        \ifx\p_empty\v!number
           \interwordspacesbefore\scratchcounter
           \zwnj\runninghbox{\resetbar\p_number}\zwnj
           \interwordspacesafter\scratchcounter
-        \else\ifx\p_empty\v!none
+        \fi
+        \ifx\p_empty\v!none
           \scratchcounter\numexpr\p_n/\plustwo\relax
-          \interwordspacesbefore\scratchcounter
-          \zwnj{{\currentfillinanswer}}\zwnj
-          \interwordspacesafter\scratchcounter
-        \else\currentfillinanswer\fi\fi
+          {{\interwordspacesbefore\scratchcounter
+          \zwnj\currentfillinanswer\zwnj
+          \interwordspacesafter\scratchcounter}}%
         \fi
       \egroup
+    \else
+      \ifx\p_n\wildcardsymbol
+        \ifmode_showanswer\setupfillin[empty=none]\fi
+        \edef\p_empty{\fillinparameter\c!empty}%
+        \inlinebar[\currentbar]\bgroup
+        \ifx\p_empty\v!number
+          \interwordspacesbefore2
+          \zwnj\runninghbox{\resetbar\p_number}\zwnj
+          \interwordspacesafter2
+        \else
+          \wordboundary\zwnj\currentfillinanswer\zwnj
+        \fi
+        \egroup
+      \fi
+      \ifx\p_n\c!max
+        \ifmode_showanswer\setupfillin[empty=none]\fi
+        \edef\p_empty{\fillinparameter\c!empty}%
+        \ifx\p_empty\v!number
+          \inlinebar[\currentbar]\bgroup
+          \interwordspacesbefore2
+          \zwnj\hfill\runninghbox{\resetbar\p_number}\hfill\zwnj
+          \interwordspacesafter2
+          \egroup
+        \else
+          \inlinebar[\currentbar]\bgroup
+            \wordboundary\zwnj\currentfillinanswer\hfill\zwnj
+            \egroup
+        \fi
+      \fi
     \fi
 \stopsetups
 
 \startsetups[\????fillinrenderings:\s!frame]
   \edef\p_n{\fillinparameter\c!n}%
   \edef\p_empty{\fillinparameter\c!empty}%
-  \ifx\p_n\wildcardsymbol
+  \ifchknum\p_n\or
+    \ifmode_showanswer\setupfillin[empty=none]\fi
+    \edef\p_empty{\fillinparameter\c!empty}%
+      \wordboundary\scratchcounter\numexpr\p_n\relax
+      \ifx\p_empty\v!yes
+        \inheritedfillinframed\bgroup
+          \interwordspacesbefore\scratchcounter
+          \interwordspacesafter \scratchcounter
+        \egroup
+      \fi
+      \ifx\p_empty\v!number
+        \inheritedfillinframed\bgroup
+          \interwordspacesbefore\scratchcounter
+          \zwnj\p_number\zwnj
+          \interwordspacesafter\scratchcounter
+        \egroup
+      \fi
+      \ifx\p_empty\v!none
+        \inheritedfillinframed\bgroup
+          \scratchcounter\numexpr\p_n/\plustwo\relax
+          {{\interwordspacesbefore\scratchcounter
+          \zwnj\currentfillinanswer\zwnj
+          \interwordspacesafter\scratchcounter}}%
+        \egroup
+      \fi
+  \else
+    \ifx\p_n\wildcardsymbol
       \ifmode_showanswer\setupfillin[empty=none]\fi
       \edef\p_empty{\fillinparameter\c!empty}%
       \ifx\p_empty\v!number
@@ -2811,39 +2774,36 @@
         \wordboundary\zwnj\currentfillinanswer\zwnj
         \egroup
       \fi
-    \else
+    \fi
+    \ifx\p_n\c!max
       \ifmode_showanswer\setupfillin[empty=none]\fi
       \edef\p_empty{\fillinparameter\c!empty}%
-        \wordboundary\scratchcounter\numexpr\p_n\relax
-        \ifx\p_empty\v!yes
-          \inheritedfillinframed\bgroup
-          \interwordspacesbefore\scratchcounter
-          \interwordspacesafter\scratchcounter
-          \egroup
-        \else\ifx\p_empty\v!number
-          \inheritedfillinframed\bgroup
-          \interwordspacesbefore\scratchcounter
-          \zwnj\p_number\zwnj
-          \interwordspacesafter\scratchcounter
-          \egroup
-        \else\ifx\p_empty\v!none
-          \inheritedfillinframed\bgroup
-          \scratchcounter\numexpr\p_n/\plustwo\relax
-          \interwordspacesbefore\scratchcounter
-          \zwnj{{\currentfillinanswer}}\zwnj
-          \interwordspacesafter\scratchcounter
-          \egroup
-        \else\currentfillinanswer\fi\fi
-        \fi
-    \fi
+      \ifx\p_empty\v!number
+        \inheritedfillinframed\bgroup
+        \interwordspacesbefore2
+        \zwnj\p_number\hfill\zwnj
+        \interwordspacesafter2
+        \egroup
+      \else
+        \inheritedfillinframed\bgroup
+        \wordboundary\zwnj\currentfillinanswer\hfill\zwnj
+        \egroup
+      \fi
+    \fi 
+  \fi
 \stopsetups
 
 \startsetups[\????fillinrenderings:simple]
   \ifmode_showanswer
-     \currentfillinanswer
+    \currentfillinanswer
+  \else
+    \leavevmode\leaders\hrule height 1pt\hfill\kern0pt
   \fi
 \stopsetups
 
+\definefillin[fillin]
+\definefillin[fillinframe]  [alternative=frame,offset=0pt,location=low,left=\thinspace,right=\thinspace,align=lohi]
+\definefillin[fillinbracket][fillinframe][left=(,right=),align=autoright,framecolor=transparent]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{設置 material 環境}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2884,7 +2844,7 @@
 %D \startmaterial[title={Knuth},author={Mos},source={Yelu}]
 %D \input knuth
 %D \stopmaterial
-%D \startmaterial[indent=no]
+%D \startmaterial[indenting=no]
 %D   \startcolumns[n=2,separator=rule]
 %D     \input knuth
 %D     \indicator{mark 1}
@@ -2916,8 +2876,8 @@
 \installcounterassociation {material}
 
 \appendtoks
-   \registermaterialcounter\currentmaterial
-   \definecounter[\currentmaterial]%
+   \registermaterialcounter{material:\currentmaterial}
+   \definecounter[material:\currentmaterial]%
 \to \everydefinematerial
 
 \appendtoks
@@ -2934,11 +2894,12 @@
                 %\c!style=,
                 \c!spacebefore=1em,
                 \c!spaceafter=1em,
+                \s!number=true,
                 %\c!title=,
                 %\c!author=,
                 %\c!source=,
                 \c!indicator=continue,
-                indent={first,always,2em},]
+                indenting={first,always,2em},]
 \setupmaterial [\c!number] [\c!before={(},\c!after={)},
                             \c!prefix=no,\c!start=0,
                             \c!style=\namedmaterialparameter\c!title\c!style,
@@ -2973,7 +2934,7 @@
     \setupalign[\namedmaterialparameter\c!title\c!align]%
     \usematerialstyleandcolor\c!style\c!color
     \namedmaterialparameter\currentmaterial\c!before
-    \incrementcounter[#1]\convertedcounter[#1]%
+    \incrementcounter[material:#1]\convertedcounter[material:#1]%
     \namedmaterialparameter\currentmaterial\c!after
    \endgroup}
 
@@ -2989,6 +2950,9 @@
 
 \tolerant\protected\def\startmaterial[#1]#*{\begingroup%
   \lettonothing\currentmaterial%%
+  \env_materialtrue\set_envitem_counter%
+  \iffirstargument\setupcurrentmaterial[#1]\fi
+  \edef\p_number{\rootmaterialparameter\c!number}%
   \edef\p_indicator{\rootmaterialparameter\c!indicator}%
   \edef\p_reset{\namedmaterialparameter{indicator}\c!reset}%
   \processaction[\p_indicator][
@@ -2997,21 +2961,23 @@
   \processaction[\p_reset][
     true=>\let\indicator_reset_helper\resetindicators,
     false=>\continue_countertrue\let\indicator_reset_helper\relax,]%
-  \env_materialtrue\set_envitem_counter%
-  \iffirstargument\setupcurrentmaterial[#1]\fi
   \indicator_reset_helper
   \usematerialstyleandcolor\c!style\c!color%
+  \rootmaterialparameter\c!before
   \blank[\rootmaterialparameter\c!spacebefore]%
   \startalignment[\rootmaterialparameter\c!align]%
+    \ifx\p_number\s!true
       \material_counter_parameter\c!number
-      \material_parameter\c!title
-      \material_parameter\c!author
+    \fi
+    \material_parameter\c!title
+    \material_parameter\c!author
   \stopalignment
   \blank[\rootmaterialparameter\c!spaceafter]%
   \setupindenting[\rootmaterialparameter{indent}]}
 
 \def\stopmaterial{%
     \material_parameter\c!source
+    \rootmaterialparameter\c!after
     \indicator_reset_helper
     \endgroup}
 
@@ -3044,8 +3010,8 @@
     \ifcontinue_counter\color[red]{continue}\fi
   \fi
   \ifenv_material
-    \incrementcounter[\currentmaterial]%
-    \convertedcounter[\currentmaterial]%
+    \incrementcounter[material:\currentmaterial]%
+    \convertedcounter[material:\currentmaterial]%
   \else
     \incrementcounter[indicator_helper]%
     \convertedcounter[indicator_helper]%
@@ -3055,15 +3021,50 @@
     #2\egroup
   \endgroup}
 
+\tolerant\protected\def\copycurrentindicator[#1]#:#2%
+  {\begingroup\def\currentmaterial{indicator}%
+  \setupmaterial[\currentmaterial][#1]%
+  \edef\indicator_type{\namedmaterialparameter\currentmaterial\c!type}%
+  \edef\indicator_reset{\namedmaterialparameter\currentmaterial\c!reset}%
+  \namedmaterialparameter\currentmaterial\c!style
+  \setupbars
+    [\c!method=\namedmaterialparameter\currentmaterial\c!method,% new: 0=center nested, 1=stack nested
+    \c!continue=\namedmaterialparameter\currentmaterial\c!continue,
+    \c!empty=\namedmaterialparameter\currentmaterial\c!empty,   % new: yes = hide text
+    \c!offset=\namedmaterialparameter\currentmaterial\c!offset, % upwards, replaces: topoffset bottomoffset
+    \c!dy=\namedmaterialparameter\currentmaterial\c!dy,
+    \c!max=\namedmaterialparameter\currentmaterial\c!max,
+    \c!style=\namedmaterialparameter\currentmaterial\c!style,
+    \c!rulethickness=\namedmaterialparameter\currentmaterial\c!rulethickness,
+    \c!order=\namedmaterialparameter\currentmaterial\c!order,
+    \c!unit=\namedmaterialparameter\currentmaterial\c!unit,  % so now we are relative
+    \c!color=\namedmaterialparameter\currentmaterial\c!color]% replaces: rulecolor
+  \processaction[\indicator_type]%
+            [line=>\let\indicator_type\underbar,%
+             none=>\let\indicator_type\relax]%
+  \usematerialstyleandcolor\c!style\c!color%
+  \indicator_type\bgroup
+  \namedmaterialparameter\currentmaterial\c!before%
+  \ifmode_debug
+    \ifenv_material\color[red]{material}\else\color[red]{\currentitemgroup}\fi
+    \ifcontinue_counter\color[red]{continue}\fi
+  \fi
+  \ifenv_material\convertedcounter[material:\currentmaterial]%
+  \else          \convertedcounter[indicator_helper]\fi
+  \namedmaterialparameter\currentmaterial\c!after
+  \penalty0\relax
+    #2\egroup
+  \endgroup}
+
 \def\indicators{%%% TODO 增強該命令的用法
   \ifenv_material
-    \incrementcounter[indicator]%
-    \convertedcounter[indicator]%
+    \incrementcounter[material:indicator]%
+    \convertedcounter[material:indicator]%
   \else
     \incrementcounter[indicator_helper]%
     \convertedcounter[indicator_helper]%
   \fi}
-\def\resetindicators{\setcounter[indicator][0]%
+\def\resetindicators{\setcounter[material:indicator][0]%
                      \setcounter[indicator_helper] [0]}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -3150,80 +3151,6 @@
 % \setupverse [\c!sample={\rma\bf滾滾長江東逝水浪花淘盡英雄},\c!skip=\v!left,style=\rma\bf]
 % \setupverse [\c!title] [style=ssa]
 % \getbuffer
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%D \section{Multilingual support}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \installlanguage [hans] [patterns={zh,en}]% install simplified  chinese
-% \installlanguage [hant] [patterns={zh,en}]% install traditional chinese
-
-% \setuplanguage[en]
-%   [script=,
-%    patterns=,
-%    font=pagella,
-%    align={bottom,width},
-%    interlinespace=2.8ex,
-%    indenting=none,
-%   ]
-
-% \setuplanguage[cn]
-%   [script=nihongo,
-%    patterns={zh,en},
-%    font=pagella,% 需要修改為對應的中文字體
-%    align={height,hanging,justified},
-%    interlinespace=1.5em,
-%    indenting={first,always,2em},
-%   ]
-
-% \setuplanguage[hans]
-%   [script=nihongo,
-%    patterns={zh,en},
-%    font=pagella,% 需要修改為對應的中文字體
-%    align={height,hanging,justified},
-%    interlinespace=1.5em,
-%    indenting={first,always,2em},
-%   ]
-
-% \setuplanguage[hant]
-%   [script=nihongo,
-%    patterns={zh,en},
-%    font=pagella,% 需要修改為對應的中文字體
-%    align={height,hanging,justified},
-%    interlinespace=1.5em,
-%    indenting={first,always,2em},
-%   ]
-
-% \setuplanguage[ja]
-%   [script=nihongo,
-%    patterns=en,
-%    font=pagella,% 需要修改為對應的日文字體
-%    align={height,hanging,justified},
-%    interlinespace=1.5em,
-%    indenting={first,always,1em},
-%   ]
-
-% \appendtoks
-%   \setupalign[\languageparameter\c!align]
-%   \setscript[\languageparameter{script}]
-%   \switchtobodyfont[\languageparameter\c!font]
-%   \setupindenting[\languageparameter\c!indenting]
-%   \setupinterlinespace[line=\languageparameter{interlinespace}]
-% \to \everylanguage
-
-%D \startlanguage[en]
-%D lipsum
-%D \stoplanguage
-%D
-%D \startlanguage[cn]
-%D 亂數假文
-%D \stoplanguage
-%D
-%D \startlanguage[hans]
-%D 亂數假文
-%D \stoplanguage
-%D
-%D \startlanguage[ja]
-%D ダミーテキスト
-%D \stoplanguage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{设置 close 环境}
@@ -3236,7 +3163,7 @@
 %D 因為 \type{close} 環境的子項目 \tex{closechoice} 是通過 choice 環境設置的。
 %D 因此，可以通過 \type{[*]} 來標記正確答案。
 
-%D close 環境同樣繼承了 answer 的鍵值。
+%D The environment also inherits the key values of the answer.
 %D 此外設置了 reset 鍵來選擇是否每一篇重置選項的題號，
 %D 其他的鍵值： barcolor barstyle 設置 下划線樣式
 %D            before after style color 用於整體環境
@@ -3442,9 +3369,9 @@
   \c!indentnext=\v!yes,
   \c!width=1.5\emwidth,
   \c!factor=0,
-  \c!step=.5\emwidth, % deals with broad
+  \c!step=.5\emwidth, 
   \c!distance=\zeropoint,
-  %\c!align=\v!normal, % definitely not \v!normal !
+  %\c!align=\v!normal, 
   %\c!symalign=,
   %\c!color=,
   %\c!indenting=, % untouched if empty
@@ -3520,7 +3447,8 @@
     \set_count_envlevel[ocitem]%
     \restore_question_order
     \incrementcounter[strc_question_order]%
-    \parentitemnumber=\rawcountervalue[strc_question_order]\fi}
+    \parentitemnumber=\rawcountervalue[strc_question_order]\fi
+  \usealignparameter\examitemparameter}
 
 \def\stopoptclose{%
   \ifcontinue_counter
@@ -3851,6 +3779,52 @@
   \eTABLE
 \par\endgroup}
 
+\tolerant\def\typeanswertableX[#rows,#columns]#*[#chapno]#*[#startno]#*[#stopno]
+ {\begingroup
+  \ifarguments\or\or
+  \scratchcounter    \zerocount\relax
+  \scratchcounterone \zerocount\relax
+  \or
+  \doifsomethingelse{\scratchcounter    #chapno \relax}%
+                    {\scratchcounter    #chapno \relax}%
+                    {\scratchcounter    \zerocount\relax}%
+                     \scratchcounterone \zerocount\relax
+  \or
+  \doifsomethingelse{\scratchcounter    #chapno \relax}%
+                    {\scratchcounter    #chapno \relax}%
+                    {\scratchcounter    \zerocount\relax}%
+  \doifsomethingelse{\scratchcounterone #startno          \relax}%
+                    {\scratchcounterone \numexpr#startno-1\relax}%
+                    {\scratchcounterone \zerocount        \relax}%
+  \or
+  \doifsomethingelse{\scratchcounter    #chapno \relax}%
+                    {\scratchcounter    #chapno \relax}%
+                    {\scratchcounter    \zerocount\relax}%
+  \doifsomethingelse{\scratchcounterone #startno          \relax}%
+                    {\scratchcounterone \numexpr#startno-1\relax}%
+                    {\scratchcounterone \zerocount        \relax}%
+  \doifsomethingelse{\scratchcountertwo #stopno           \relax}%
+                    {\scratchcountertwo \numexpr#stopno   \relax}%
+                    {\scratchcountertwo \zerocount        \relax}%
+  \fi
+  \answer@seq@tempa=\numexpr\scratchcounterone\relax
+  \answer@seq@tempb=\numexpr\scratchcounterone\relax
+  \bTABLE
+    \dorecurse{#rows}{
+      \bTR
+      \dorecurse{#columns}{%
+        \ifnum\answer@seq@tempa<\scratchcountertwo
+        \expanded{\bTD\tt\datasetvariable{ExamDataset}{\jobname-\the\scratchcounter-\the\answer@seq@tempa}{userorder}\eTD}
+        \advance\answer@seq@tempa by 1\relax\fi}%
+      \eTR\bTR
+      \dorecurse{#columns}{%
+          \ifnum\answer@seq@tempb<\scratchcountertwo
+          \expanded{\bTD\ss\datasetvariable{ExamDataset}{\jobname-\the\scratchcounter-\the\answer@seq@tempb}{answer}\eTD}
+          \advance\answer@seq@tempb by 1\relax\fi}%
+      \eTR}%
+  \eTABLE
+\par\endgroup}
+
 %D Example 5:
 %D \starttyping
 %D \typeanswertablealt[4,2]% #3 = 0 #4 = 1
@@ -3901,6 +3875,461 @@
   \eTABLE
 \par\endgroup}
 
+%%%%
+\startluacode
+-- Function to draw matching lines with labels
+function MP.lianxian(widthes, sort_code, before_items, after_items)
+  local before_list = string.explode(before_items, ",")
+  local after_list = string.explode(after_items, ",")
+  local widthes_list = utilities.parsers.settings_to_array(widthes)
+  local sort_code_list = {}
+
+  -- Parse sort_code into a numeric list
+  for i, line in ipairs(string.explode(sort_code)) do
+    sort_code_list[i] = tonumber(line)
+  end
+
+  -- Define anchor points
+  mp.fprint([[pair a[];]])
+
+  -- Draw labels and set anchor points
+  for i, line in ipairs(sort_code_list) do
+    local before_label = string.strip(before_list[i])
+    local after_label = string.strip(after_list[line])
+
+    mp.fprint([[a[%s] := (0, -(bbheight(currentpicture)+BaseLineSkip));]], i)
+    mp.fprint([[label.lft(textext("\hbox{\strut %s}"), a[%s]);]],before_label, i)
+    mp.fprint([[label.rt(textext("\hbox{\strut %s}"), a[%s]) shifted (%s,0);]],after_label, i, widthes_list[2])
+    end
+
+  -- Draw connecting lines
+  for i, line in ipairs(sort_code_list) do
+    mp.fprint([[draw a[%s]--a[%s]+(%s,0) withcolor red;]], i, line, widthes_list[2])
+  end
+end
+
+return MP.lianxian
+\stopluacode
+
+% Macro to simplify calling the Lua function
+\def\lianxian[#1][#2]#3#4{%
+  \dontleavehmode
+  \startMPcode
+    lua.MP.lianxian("#1", "#2", "#3", "#4");
+  \stopMPcode
+}
+
+%% from https://github.com/Fusyong/ConTeXt-templates-for-workbook-and-examination-paper
+% Example usage
+%D \startbuffer
+%D \lianxian[8em,2.5cm,8em][231465]{
+%D   牛顿定律,麦克斯韦方程组,薛定谔方程,
+%D   牛顿定律,薛定谔方程,麦克斯韦方程组
+%D }{
+%D   经典力学,电磁场理论,量子力学,
+%D   经典力学,薛定谔方程,电磁场理论}
+%D \stopbuffer
+%D \typebuffer\getbuffer
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%D \section{设定一些可能用得到的符号 / Symbol Defination / シンボルの定義}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\doifelsefontpresent{NotoSansSymbols2-Regular}{}{
+  \showmessage\m!basicexam{9}{NotoSansSymbols2 font,symbol}}
+\definefontsynonym[NotoSansSymbols2][file:NotoSansSymbols2-Regular]
+\def\notosymb#1{\getglyphstyled{NotoSansSymbols2}{\tochar{n:#1}}}
+
+\definesymbol[marksquare]          [\notosymb{☐}]
+\definesymbol[markcircle]          [\notosymb{○}]
+\definesymbol[marknotcheck]        [\notosymb{⍻}]
+\definesymbol[markcheck]           [\notosymb{🗸}]
+\definesymbol[markheavycheck]      [\notosymb{✓}]
+\definesymbol[marksquarecheck]     [\notosymb{\rlap{☐}\,\raise.2em\hbox{🗸}}]
+\definesymbol[marksquareheavycheck][\notosymb{\rlap{☐}\,\raise.2em\hbox{✓}}]
+\definesymbol[markcirclecheck]     [\notosymb{\rlap{○}\,\raise.2em\hbox{🗸}}]
+\definesymbol[markcircleheavycheck][\notosymb{\rlap{○}\,\raise.2em\hbox{✓}}]
+\definesymbol[markcross]           [\notosymb{✗}]
+\definesymbol[markheavycross]      [\notosymb{✘}]
+\definesymbol[marksquarecross]     [\notosymb{\rlap{☐}\,\raise.1em\hbox{✗}}]
+\definesymbol[marksquareheavycross][\notosymb{\rlap{☐}\,\raise.1em\hbox{✘}}]
+\definesymbol[markcirclecross]     [\notosymb{\rlap{○}\,\raise.1em\hbox{✗}}]
+\definesymbol[markcircleheavycross][\notosymb{\rlap{○}\,\raise.1em\hbox{✘}}]
+
+%D It is important to note that these symbols require
+%D the font {\bf NotoSansSymbols2} to be pre-installed.
+%D
+%D \starttabulate[|l|r|l|r|]
+%D \NC \type{\symbol{marksquare}}           \NC \symbol{marksquare}
+%D \VL \type{\symbol{markcircle}}           \NC \symbol{markcircle}          \NC\NR\HL
+%D \NC \type{\symbol{markcheck}}            \NC \symbol{markcheck}
+%D \VL \type{\symbol{markcross}}            \NC \symbol{markcross}           \NC\NR
+%D \NC \type{\symbol{markheavycheck}}       \NC \symbol{markheavycheck}
+%D \VL \type{\symbol{markheavycross}}       \NC \symbol{markheavycross}      \NC\NR
+%D \NC \type{\symbol{marksquarecheck}}      \NC \symbol{marksquarecheck}
+%D \VL \type{\symbol{marksquarecross}}      \NC \symbol{marksquarecross}     \NC\NR
+%D \NC \type{\symbol{marksquareheavycheck}} \NC \symbol{marksquareheavycheck}
+%D \VL \type{\symbol{marksquareheavycross}} \NC \symbol{marksquareheavycross}\NC\NR
+%D \NC \type{\symbol{markcirclecheck}}      \NC \symbol{markcirclecheck}
+%D \VL \type{\symbol{markcirclecross}}      \NC \symbol{markcirclecross}     \NC\NR
+%D \NC \type{\symbol{markcircleheavycheck}} \NC \symbol{markcircleheavycheck}
+%D \VL \type{\symbol{markcircleheavycross}} \NC \symbol{markcircleheavycross}\NC\NR
+%D \NC \type{\symbol{marknotcheck}}         \NC \symbol{marknotcheck}
+%D \VL                                      \NC                              \NC\NR
+%D \stoptabulate
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%D \section{Multilingual support}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\installnamespace          {userlanguage}
+\installcommandhandler \????userlanguage {userlanguage} \????userlanguage
+
+\let\sys_language\language
+
+\appendtoks
+  \ifcsname\currentuserlanguage\endcsname
+  \letcsname\currentuserlanguage\endcsname\relax
+  \frozen\instance\protected\edefcsname        \currentuserlanguage\endcsname{\userlanguage      [\currentuserlanguage]}\else
+  \frozen\instance\protected\edefcsname        \currentuserlanguage\endcsname{\userlanguage      [\currentuserlanguage]}\fi
+  \frozen\instance\protected\edefcsname\e!start\currentuserlanguage\endcsname{\startuserlanguage [\currentuserlanguage]}%
+  \frozen\instance\protected\edefcsname\e!stop \currentuserlanguage\endcsname{\stopuserlanguage}%
+\to \everydefineuserlanguage
+
+\setupuserlanguage[en][
+  bodyfont=modern,
+  fallbackfont=none,
+  script=latin,
+  patterns=en,
+  align={bottom,width},
+  interlinespace=2.8ex,
+  indenting=none,]
+
+\setupuserlanguage[cn][
+  bodyfont=sourcehans,
+  fallbackfont=ebgaramond,
+  patterns={zh,en},
+  script=hanzi,
+  interlinespace=1.5em,
+  align={height,hanging,justified},
+  indenting={first,always,2em},]
+
+\setupuserlanguage[hans][
+  bodyfont=sourcehans,
+  fallbackfont=playfair,
+  patterns={zh,en},
+  script=hanzi,
+  interlinespace=1.5em,
+  align={height,hanging,justified},
+  indenting={first,always,2em},]
+
+\setupuserlanguage[hant][
+  bodyfont=lihant,
+  fallbackfont=cormorantlight,
+  patterns={zh,en},
+  script=hanzi,
+  interlinespace=1.5em,
+  align={height,hanging,justified},
+  indenting={first,always,2em},]
+
+\setupuserlanguage[ja][
+  bodyfont=ryumin,
+  fallbackfont=ibmplex,
+  patterns={ja,en},
+  script=nihongo,
+  interlinespace=1.5em,
+  align={height,hanging,justified},
+  indenting={first,always,1em},]
+
+\tolerant\protected\def\userlanguage[#1]#*[#2]#*%
+ {\edef\currentuserlanguage{#1}%
+  \ifarguments\or\or
+    \setuplanguage[#1][#2]%
+    \setupuserlanguage[#1][#2]\fi
+  \sys_language[#1]%
+  % \usereferenceparameter\userlanguageparameter
+  \setlocalscript[\userlanguageparameter{script}]%
+  % \setups{fallbacks:reset}%
+  \setups{fallback:\userlanguageparameter{fallbackfont}}%
+  \usebodyfontparameter\userlanguageparameter
+  \useuserlanguagestyleandcolor\c!style\c!color
+  \ifhmode\else\par
+    \edef\p_language_interlinespace{\userlanguageparameter\c!interlinespace}%
+    \usealignparameter\userlanguageparameter%
+    \setupwhitespace[\userlanguageparameter{whitespace}]%
+    \useindentingparameter\userlanguageparameter
+    \dosetupcheckedinterlinespace\p_language_interlinespace
+  \fi}
+
+\tolerant\protected\def\startuserlanguage[#1]#*[#2]#*%
+ {\begingroup
+  \edef\currentuserlanguage{#1}%
+  \userlanguage[#1][#2]}
+
+\def\stopuserlanguage{\par\endgroup}
+
+\defineuserlanguage[en]
+\defineuserlanguage[cn]
+\defineuserlanguage[hans]
+\defineuserlanguage[hant]
+\defineuserlanguage[ja]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%D \section{Extra Command}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\setupcircledtext{\setupMPvariables[circlednum]}
+\setupcircledtext[frametype=square,% only one value
+                  framecolor=black,
+                  fillcolor=white,
+                  dashcolor=transparent,
+                  dashlinewidth=.1pt,
+                  color=black, % change font color
+                  radius=0.5,% if = 0 will be square,if = 0.5 will be circle
+                  effect=normal,
+                  scaled=.8,
+                  yoffset=0pt,
+                  style=\rmx,
+                  dashskipwidth=.08BodyFontSize,% if = 0 ,will be undashed
+                  ]
+
+\startuseMPgraphic{circlednum}%
+                  {frametype,framecolor,fillcolor,color,dashcolor,
+                   radius,scale,fontsize,dashlinewidth,dashskipwidth}
+  path square  ; square := roundedsquare(1,1,\MPvar{radius}) scaled BodyFontSize ;
+  picture p    ; p      := dashpattern(on    \MPvar{dashskipwidth}  off  \MPvar{dashskipwidth}) ;
+  path ti      ; ti     := (.50BodyFontSize,0              )--(.50BodyFontSize,   BodyFontSize) ;
+  path it      ; it     := (0              ,.50BodyFontSize)--(BodyFontSize   ,.50BodyFontSize) ;
+  path xi      ; xi     := (.13BodyFontSize,.13BodyFontSize)--(.88BodyFontSize,.88BodyFontSize) ;
+  path ix      ; ix     := xi reflectedabout ( (.5BodyFontSize,0) ,        (.5BodyFontSize,5) ) ;
+  picture ftxt ; ftxt   := image(
+     draw   \MPvar{frametype} withcolor \MPvar{framecolor} ;
+     fill   \MPvar{frametype} withcolor \MPvar{fillcolor}  ;
+     draw   ti                withcolor \MPvar{dashcolor}
+                              dashed p withpen pencircle scaled \MPvar{dashlinewidth};
+     draw   it                withcolor \MPvar{dashcolor}
+                              dashed p withpen pencircle scaled \MPvar{dashlinewidth};% +
+     draw   xi                withcolor \MPvar{dashcolor}
+                              dashed p withpen pencircle scaled \MPvar{dashlinewidth};
+     draw   ix                withcolor \MPvar{dashcolor}
+                              dashed p withpen pencircle scaled \MPvar{dashlinewidth};% x
+     label("\MPvar{style}\effect[\MPvar{effect}]{\MPtext{framednum}}",\MPvar{frametype})
+                              withcolor \MPvar{color}      ;
+                     );
+  %ftxt := ftxt shifted (0,\MPvar{yoffset}) ; 
+  draw ftxt scaled \MPvar{scaled};
+\stopuseMPgraphic
+
+%%% autocircled will scale fontsize to fit circle
+\tolerant\protected\def\autocircled[#1]#:#2{%
+  \ifnum#2 < 100\setupcircledtext[style=\tfx]\else%
+  \ifnum#2 > 99 \setupcircledtext[style=\tfxx]\fi\fi%
+  \circledtext[#1]{#2}}
+
+\def\circledtext{\dosingleempty\docircledtext}
+\def\docircledtext[#1]#2%
+ {\begingroup% for circled number graphic(CNG)
+ \iffirstargument\setupMPvariables[circlednum][#1]\fi
+    \setMPtext{framednum}{#2}% for framed number in CNG
+    \vbox{\useMPgraphic{circlednum}}%
+    \endgroup}
+
+\def\negativecircledconversion#1{{%
+  \setupcircledtext[framecolor=black,color=black,fillcolor=white,radius=0.5,]\circledtext{#1}}}
+\def\circledconversion#1{{%
+  \setupcircledtext[framecolor=black,fillcolor=black,color=white,radius=0.5,]\circledtext{#1}}}
+\def\negativesquaredconversion#1{{%
+  \setupcircledtext[framecolor=black,fillcolor=white,color=black,radius=0,  ]\circledtext{#1}}}
+\def\squaredconversion#1{{%
+  \setupcircledtext[framecolor=black,fillcolor=black,color=white,radius=0,  ]\circledtext{#1}}}
+\def\negativeroundsquaredconversion#1{{%
+  \setupcircledtext[framecolor=black,color=black,fillcolor=white,radius=0.2,]\circledtext{#1}}}
+\def\roundsquaredconversion#1{{%
+  \setupcircledtext[framecolor=black,fillcolor=black,color=white,radius=0.2,]\circledtext{#1}}}
+  
+\defcsname circlednum:Co:cn\endcsname#1{\circledconversion             {\chinesenumerals{#1}}}
+\defcsname circlednum:CO:cn\endcsname#1{\negativecircledconversion     {\chinesenumerals{#1}}}
+\defcsname circlednum:Cr:cn\endcsname#1{\roundsquaredconversion        {\chinesenumerals{#1}}}
+\defcsname circlednum:CR:cn\endcsname#1{\negativeroundsquaredconversion{\chinesenumerals{#1}}}
+\defcsname circlednum:Cs:cn\endcsname#1{\squaredconversion             {\chinesenumerals{#1}}}
+\defcsname circlednum:CS:cn\endcsname#1{\negativesquaredconversion     {\chinesenumerals{#1}}}
+
+\defcsname circlednum:Co:hira\endcsname#1{\circledconversion             {\convertnumber{hiragana}{#1}}}
+\defcsname circlednum:CO:hira\endcsname#1{\negativecircledconversion     {\convertnumber{hiragana}{#1}}}
+\defcsname circlednum:Cr:hira\endcsname#1{\roundsquaredconversion        {\convertnumber{hiragana}{#1}}}
+\defcsname circlednum:CR:hira\endcsname#1{\negativeroundsquaredconversion{\convertnumber{hiragana}{#1}}}
+\defcsname circlednum:Cs:hira\endcsname#1{\squaredconversion             {\convertnumber{hiragana}{#1}}}
+\defcsname circlednum:CS:hira\endcsname#1{\negativesquaredconversion     {\convertnumber{hiragana}{#1}}}
+
+\defcsname circlednum:Co:kata\endcsname#1{\circledconversion             {\convertnumber{katakana}{#1}}}
+\defcsname circlednum:CO:kata\endcsname#1{\negativecircledconversion     {\convertnumber{katakana}{#1}}}
+\defcsname circlednum:Cr:kata\endcsname#1{\roundsquaredconversion        {\convertnumber{katakana}{#1}}}
+\defcsname circlednum:CR:kata\endcsname#1{\negativeroundsquaredconversion{\convertnumber{katakana}{#1}}}
+\defcsname circlednum:Cs:kata\endcsname#1{\squaredconversion             {\convertnumber{katakana}{#1}}}
+\defcsname circlednum:CS:kata\endcsname#1{\negativesquaredconversion     {\convertnumber{katakana}{#1}}}
+
+\defineconversion[Co:num][\circledconversion]
+\defineconversion[CO:num][\negativecircledconversion]
+\defineconversion[Cr:num][\roundsquaredconversion]
+\defineconversion[CR:num][\negativeroundsquaredconversion]
+\defineconversion[Cs:num][\squaredconversion]
+\defineconversion[CS:num][\negativesquaredconversion]
+
+\defineconversion[Co:cn][\csname circlednum:Co:cn\endcsname]
+\defineconversion[CO:cn][\csname circlednum:CO:cn\endcsname]
+\defineconversion[Cr:cn][\csname circlednum:Cr:cn\endcsname]
+\defineconversion[CR:cn][\csname circlednum:CR:cn\endcsname]
+\defineconversion[Cs:cn][\csname circlednum:Cs:cn\endcsname]
+\defineconversion[CS:cn][\csname circlednum:CS:cn\endcsname]
+
+\defineconversion[Co:hira][\csname circlednum:Co:hira\endcsname]
+\defineconversion[CO:hira][\csname circlednum:CO:hira\endcsname]
+\defineconversion[Cr:hira][\csname circlednum:Cr:hira\endcsname]
+\defineconversion[CR:hira][\csname circlednum:CR:hira\endcsname]
+\defineconversion[Cs:hira][\csname circlednum:Cs:hira\endcsname]
+\defineconversion[CS:hira][\csname circlednum:CS:hira\endcsname]
+
+\defineconversion[Co:kata][\csname circlednum:Co:kata\endcsname]
+\defineconversion[CO:kata][\csname circlednum:CO:kata\endcsname]
+\defineconversion[Cr:kata][\csname circlednum:Cr:kata\endcsname]
+\defineconversion[CR:kata][\csname circlednum:CR:kata\endcsname]
+\defineconversion[Cs:kata][\csname circlednum:Cs:kata\endcsname]
+\defineconversion[CS:kata][\csname circlednum:CS:kata\endcsname]
+
+%\circledtext{9}FF\circledtext{99}\circledtext{999}
+%\autocircled{9}FF\autocircled{99}\autocircled{999}
+%\startitemize[circlednum,packed]
+%    \item First,
+%    \item second,
+%    \item third.
+%\stopitemize
+
+\defineframed[lexicalframe][
+  corner=00,location=high,offset=0pt,
+  loffset=2pt,roffset=2pt,radius=2pt,
+  framecolor=blue,foregroundcolor=blue,
+  foregroundstyle=ssxx]
+
+\defineframed[lexicalinnerframe][lexicalframe]
+\setupframed [lexicalinnerframe][
+  offset=none,toffset=2pt,boffset=2pt,
+  foregroundcolor=white,
+  background=color,backgroundcolor=blue,
+  foregroundstyle=\definedfont[Sans at 8pt]]
+
+\defineframed[grammarframe][lexicalframe]
+\setupframed [grammarframe][foregroundstyle=ssx]
+
+\installnamespace          {lexicalentry}
+\installcommandhandler \????lexicalentry     {lexicalentry}     \????lexicalentry
+
+\setuplexicalentry[
+  language=ja,
+  style=\definedfont[Serif at 11pt],
+  before=\blank[halfline],
+  entrystyle=ssa,
+  entrycolor=blue,
+  infostyle=ssx,
+  antonymlabel=対,
+  examplelabel=例,
+  referlabel=参考,
+  junctionlabel=接続,
+  alias=〜,
+  entrycommand=,]
+
+\tolerant\protected\def\startlexicalentry[#1]#*#:#2%
+ {\begingroup
+  \setuplexicalentry[#1]%
+  \setcounter[grammarlists][0]%
+  \setcounter[meaninglists][0]%
+  \setcounter[summarylists][0]%
+  \setcounter[examplelists][0]%
+  \setcounter[comparinglists][0]%
+  \setcounter[itemgroup:env:question][0]
+  \def\antonym##1 {\thinspace{\lexicalinnerframe{\lexicalentryparameter{antonymlabel}}  
+                  \uselexicalentrystyleandcolor\c!infostyle\c!infocolor 
+                  ##1}\thinspace}%
+  \def\example##1 {\thinspace{\lexicalinnerframe{\lexicalentryparameter{examplelabel}}  
+                  \uselexicalentrystyleandcolor\c!infostyle\c!infocolor 
+                  }\thinspace}%
+  \def\refer##1   {\thinspace{\lexicalinnerframe{\lexicalentryparameter{referlabel}}
+                  \uselexicalentrystyleandcolor\c!infostyle\c!infocolor 
+                  ##1}\thinspace}%
+  \def\junction##1{\thinspace{\lexicalinnerframe{\lexicalentryparameter{junctionlabel}}
+                  \uselexicalentrystyleandcolor\c!infostyle\c!infocolor 
+                  ##1}\thinspace}%
+  \def\alias      {\lexicalentryparameter{alias}}%
+  \edef\p_accent  {\lexicalentryparameter{accent}}%
+  \edef\p_class   {\lexicalentryparameter{class}}%
+  \startuserlanguage[\lexicalentryparameter{language}]%
+  \setupindenting[none]%
+  \lexicalentryparameter\c!before
+  \uselexicalentrystyleandcolor\c!style\c!color
+  \bgroup
+    \uselexicalentrystyleandcolor\c!entrystyle\c!entrycolor
+    \lexicalentryparameter{entrycommand}{#2}%
+  \egroup
+  \lexicalentryparameter\c!inbetween
+  \ifhastok={#1}
+    \processcommacommand[\p_class]{\thinspace\lexicalframe}%
+    \bgroup
+      \setupframed[lexicalframe][width=\bodyfontsize]
+      \processcommacommand[\p_accent]{\thinspace\lexicalframe}%
+    \egroup
+  \else
+    \processcommacommand[#1]{\thinspace\lexicalframe}%
+  \fi}
+
+\def\stoplexicalentry{%
+  \lexicalentryparameter\c!after
+   \stopuserlanguage
+  \endgroup}
+
+\tolerant\protected\def\lexicalentry[#1]#*#:#2#3
+  {\startlexicalentry[#1]{#2}#3\stoplexicalentry}
+
+\defineitemgroup  [lexicallists]  [levels=4]
+\setupitemgroup   [lexicallists]  [each] [before=,after=,left=,right=,width=1.5em,
+                                          lefttext=,righttext=,
+                                          indenting=no,stopper=,symalign=center,]
+\setupitemgroup   [lexicallists]  [1]    [Cr:kata,text,packed,joinedup,nowhite]
+\setupitemgroup   [lexicallists]  [2]    [CR:num, text,packed,joinedup,nowhite]
+\setupitemgroup   [lexicallists]  [3]    [Co:num, text,packed,joinedup,nowhite]
+\setupitemgroup   [lexicallists]  [4]    [R,      text,packed,joinedup,nowhite][stopper=.]
+
+\defineenumeration[grammarlists]                 [counter=grammarlists]
+\defineenumeration[meaninglists]  [grammarlists] [counter=meaninglists]
+\defineenumeration[examplelists]  [grammarlists] [counter=examplelists]
+\defineenumeration[summarylists]  [grammarlists] [counter=summarylists]
+\defineenumeration[junctionlists] [grammarlists] [counter=junctionlists]
+\defineenumeration[comparinglists][grammarlists] [counter=comparinglists]
+
+\setupenumeration[grammarlists][
+  text={文法},
+  headcommand=\grammarframe,
+  headstyle=ss,
+  width=fit,
+  alternative=series,
+  indenting={yes,first,always,2em},
+  %margin=2em,
+  before=\par,inbetween=,after=\par,]
+
+\setupenumeration[meaninglists]  [text={意味}]
+\setupenumeration[examplelists]  [text={例文}]
+\setupenumeration[junctionlists] [text={接続}]
+\setupenumeration[comparinglists][text={対比}]
+\setupenumeration[summarylists]  [text={まとめ},number=no]
+
+\definehighlight [lexicalemph]   [style=\groupedcommand{\ss\underbar}{}]
+%D startbuffer
+%D \lexicalentry[class=名,accent=1]{太陽}{
+%D   \startlexicallists
+%D     \item 太陽系の中心をなし、地球にもっとも近い恒星。お日さま。\antonym{太陰}。
+%D     \item 光明・希望の象徴。「心の\alias」
+%D   \stoplexicallists
+%D   }
+%D \stopbuffer
+%D \typebuffer\getbuffer
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{模式設置 / Mode Setting/ モードセット}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -3918,16 +4347,23 @@
 \startmode[check]
   \mode_checktrue
 \stopmode
+\def\showchekinfo     {\mode_checktrue}
+
 \def\showanswer{\mode_showanswertrue \setupanswer[showscript=false]}
 \def\hideanswer{\mode_showanswerfalse\setupanswer[showscript=true]}
-\let\showpoint\mode_showpointtrue
-\let\hidepoint\mode_showanswerfalse
-\let\showchekinfo\mode_checktrue
-\let\enableshowanswer \mode_showanswertrue
-\let\enableshowpoint  \mode_showpointtrue
-\let\disableshowanswer\mode_showanswerfalse
-\let\disableshowpoint \mode_showpointfalse
+
+\def\showpoint        {\mode_showpointtrue}
+\def\hidepoint        {\mode_showpointfalse}
+
+\def\enableshowanswer {\mode_showanswertrue}
+\def\disableshowanswer{\mode_showanswerfalse}
+
+\def\enableshowpoint  {\mode_showpointtrue}
+\def\disableshowpoint {\mode_showpointfalse}
+
 \initcollectanswer
+\doifmodeelse{student}{\setupfillin[n=8]}{\setupfillin[n=4]}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   EXAM MODULE   %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
