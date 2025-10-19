@@ -1,0 +1,227 @@
+\definefontfeature [simplified-chinese] [default]
+                   %[language=zhs,pwid=yes,kern=yes]
+\definefontfeature [traditional-chinese][default]
+                   %[language=zht,pwid=yes,kern=yes]
+\definefontfeature [japanese]           [default]
+                   %[language=jan,pwid=yes,kern=yes]
+\definefontfeature [chinese][simplified-chinese]
+\definefontfeature [boldslanted]        [default]
+                   [effect={width=0.30,auto=yes,slant=.2}]
+% ##############################################################################
+% #####################  tsuku - font - define #################################
+% ##############################################################################
+% ------------------------------------------------------
+% min bmin | aoldmin boldmin coldmin | antimin | newsmin
+%   go     |           oldgo         | antigo  |
+%          |        ard     brd      |
+% ------------------------------------------------------
+\starttypescriptcollection[tsuku]
+\starttypescript [serif] [tsukuminpr6n] % Min
+%   \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Light]       [name:tsukuminpr6nl]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Regular]     [name:tsukuminpr6nr]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Bold]        [name:tsukuminpr6nb]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Italic]      [name:utrilloprom]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-BoldItalic]  [name:utrilloprodb]
+\stoptypescript
+\starttypescript [serif] [tsukubminpr6n] % B Min
+%   \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Light]       [name:tsukubminpr6nl]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Regular]     [name:tsukubminpr6nr]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Bold]        [name:tsukubminpr6nb]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Italic]      [name:utrilloprom]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-BoldItalic]  [name:utrilloprodb]
+\stoptypescript
+\starttypescript [serif] [tsukuantiquemin] % Antique Min
+%   \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Light]       [name:tsukuantiquelminstdl]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Regular]     [name:tsukuantiquesminstdl]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Bold]        [name:tsukuantiquelminstdl]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Italic]      [name:utrilloprom]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-BoldItalic]  [name:utrilloprodb]
+\stoptypescript
+\starttypescript [serif] [tsukuaoldminpr6n] % A Old Min
+%   \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Light]      [name:tsukuaoldminpr6nl]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Regular]    [name:tsukuaoldminpr6nr]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Bold]       [name:tsukuaoldminpr6nd]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Italic]     [name:utrilloprom]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-BoldItalic] [name:utrilloprodb]
+\stoptypescript
+\starttypescript [serif] [tsukuboldminpr6n] % B Old Min
+%   \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Light]      [name:tsukuboldminpr6nl]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Regular]    [name:tsukuboldminpr6nr]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Bold]       [name:tsukuboldminpr6nd]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Italic]     [name:utrilloprom]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-BoldItalic] [name:utrilloprodb]
+\stoptypescript
+\starttypescript [serif] [tsukucoldminpr6n] % C Old Min
+%   \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Light]      [name:tsukucoldminpr6nl]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Regular]    [name:tsukucoldminpr6nr]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Bold]       [name:tsukucoldminpr6nd]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Italic]     [name:utrilloprom]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-BoldItalic] [name:utrilloprodb]
+\stoptypescript
+\starttypescript [sans] [tsukugopr5]
+%   \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Light]       [name:tsukugopr5l]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Regular]     [name:tsukugopr5r]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Bold]        [name:tsukugopr5b]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Italic]      [name:utrilloprom]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-BoldItalic]  [name:utrilloprodb]
+\stoptypescript
+\starttypescript [sans] [tsukuantiquego] % Antique Go
+%   \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Light]       [name:tsukuantiquelgostdb]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Regular]     [name:tsukuantiquesgostdb]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Bold]        [name:tsukuantiquelgostdb]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Italic]      [name:utrilloprom]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-BoldItalic]  [name:utrilloprodb]
+\stoptypescript
+\starttypescript [sans] [tsukuoldgothic]
+%   \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Light]      [name:tsukuoldgothicstdbl]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Regular]    [name:tsukuoldgothicstdb]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Bold]       [name:tsukuoldgothicstdb]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-Italic]     [name:utrilloprom]
+    \definefontsynonym [\typescriptprefix{n:\typescripttwo}-BoldItalic] [name:utrilloprodb]
+\stoptypescript
+\starttypescript [serif] [tsukuminpr6n,tsukubminpr6n,tsukuantiquemin,tsukuaoldminpr6n,tsukuboldminpr6n,tsukucoldminpr6n][name]
+    \setups[font:fallback:serif]
+%   \definefontsynonym [Serif]           [\typescriptprefix{n:\typescripttwo}-Light]      [features=chinese,fallbacks=fallback-serif]
+    \definefontsynonym [Serif]           [\typescriptprefix{n:\typescripttwo}-Regular]    [features=chinese,fallbacks=fallback-serif]
+    \definefontsynonym [SerifBold]       [\typescriptprefix{n:\typescripttwo}-Bold]       [features=chinese,fallbacks=fallback-serifbold]
+    \definefontsynonym [SerifItalic]     [\typescriptprefix{n:\typescripttwo}-Italic]     [features=chinese,fallbacks=fallback-serifitalic]
+    \definefontsynonym [SerifBoldItalic] [\typescriptprefix{n:\typescripttwo}-BoldItalic] [features=chinese,fallbacks=fallback-serifbolditalic]
+\stoptypescript
+\starttypescript [sans] [tsukugopr5,tsukuantiquego,tsukuoldgothic][name]
+    \setups[font:fallback:sans]
+%   \definefontsynonym [Sans]           [\typescriptprefix{n:\typescripttwo}-Light]      [features=chinese,fallbacks=fallback-sans]
+    \definefontsynonym [Sans]           [\typescriptprefix{n:\typescripttwo}-Regular]    [features=chinese,fallbacks=fallback-sans]
+    \definefontsynonym [SansBold]       [\typescriptprefix{n:\typescripttwo}-Bold]       [features=chinese,fallbacks=fallback-sansbold]
+    \definefontsynonym [SansItalic]     [\typescriptprefix{n:\typescripttwo}-Italic]     [features=chinese,fallbacks=fallback-sansitalic]
+    \definefontsynonym [SansBoldItalic] [\typescriptprefix{n:\typescripttwo}-BoldItalic] [features=chinese,fallbacks=fallback-sansbolditalic]
+\stoptypescript
+\starttypescript [mono] [tsukuard]
+\definefontsynonym [TsukuRD-Regular]    [name:tsukuardgothicstdr]
+\definefontsynonym [TsukuRD-Bold]       [name:tsukuardgothicstdb]
+\definefontsynonym [TsukuRD-Italic]     [name:tsukuardgothicstdr]
+\definefontsynonym [TsukuRD-BoldItalic] [name:tsukuardgothicstdb]
+\stoptypescript
+\starttypescript [mono] [tsukubrd]
+\definefontsynonym [TsukuRD-Regular]    [name:tsukubrdgothicstdr]
+\definefontsynonym [TsukuRD-Bold]       [name:tsukubrdgothicstdb]
+\definefontsynonym [TsukuRD-Italic]     [name:tsukubrdgothicstdr]
+\definefontsynonym [TsukuRD-BoldItalic] [name:tsukubrdgothicstdb]
+\stoptypescript
+\starttypescript [mono] [tsukuard,tsukubrd] [name]
+    \setups[font:fallback:mono]
+    \definefontsynonym [Mono]           [TsukuRD-Regular]    [features=chinese,fallbacks=fallback-mono]
+    \definefontsynonym [MonoBold]       [TsukuRD-Bold]       [features=chinese,fallbacks=fallback-monobold]
+    \definefontsynonym [MonoItalic]     [TsukuRD-Italic]     [features=chinese,fallbacks=fallback-monoitalic]
+    \definefontsynonym [MonoBoldItalic] [TsukuRD-BoldItalic] [features=chinese,fallbacks=fallback-monobolditalic]
+\stoptypescript
+\starttypescript [handwriting] [utrillo]
+    \definefontsynonym [Utrillo-Regular]    [name:utrilloprom]
+    \definefontsynonym [Utrillo-Bold]       [name:utrilloprodb]
+    \definefontsynonym [Utrillo-Italic]     [name:utrilloprom]
+    \definefontsynonym [Utrillo-BoldItalic] [name:utrilloprodb]
+\stoptypescript
+\starttypescript [handwriting] [utrillo][name]
+    \setups[font:fallback:handwriting]
+    \definefontsynonym [Handwriting]           [Utrillo-Regular]    [features=chinese,fallbacks=fallback-handw]
+    \definefontsynonym [HandwritingBold]       [Utrillo-Bold]       [features=chinese,fallbacks=fallback-handwbold]
+    \definefontsynonym [HandwritingItalic]     [Utrillo-Italic]     [features=chinese,fallbacks=fallback-handwitalic]
+    \definefontsynonym [HandwritingBoldItalic] [Utrillo-BoldItalic] [features=chinese,fallbacks=fallback-handwbolditalic]
+\stoptypescript
+%%%%
+\starttypescript [tsukushia]
+    \definetypeface [\typescriptone] [rm] [serif]       [tsukuminpr6n]
+    \definetypeface [\typescriptone] [ss] [sans]        [tsukugopr5]
+    \definetypeface [\typescriptone] [tt] [mono]        [tsukuard]
+    \definetypeface [\typescriptone] [hw] [handwriting] [utrillo]
+\stoptypescript
+\starttypescript [tsukushib]
+    \definetypeface [\typescriptone] [rm] [serif]       [tsukubminpr6n]
+    \definetypeface [\typescriptone] [ss] [sans]        [tsukugopr5]
+    \definetypeface [\typescriptone] [tt] [mono]        [tsukubrd]
+    \definetypeface [\typescriptone] [hw] [handwriting] [utrillo]
+\stoptypescript
+\starttypescript [tsukushiaold]
+    \definetypeface [\typescriptone] [rm] [serif]       [tsukuaoldminpr6n]
+    \definetypeface [\typescriptone] [ss] [sans]        [tsukuoldgothic]
+    \definetypeface [\typescriptone] [tt] [mono]        [tsukuard]
+    \definetypeface [\typescriptone] [hw] [handwriting] [utrillo]
+\stoptypescript
+\starttypescript [tsukushibold]
+    \definetypeface [\typescriptone] [rm] [serif]       [tsukuboldminpr6n]
+    \definetypeface [\typescriptone] [ss] [sans]        [tsukuoldgothic]
+    \definetypeface [\typescriptone] [tt] [mono]        [tsukubrd]
+    \definetypeface [\typescriptone] [hw] [handwriting] [utrillo]
+\stoptypescript
+\starttypescript [tsukushicold]
+    \definetypeface [\typescriptone] [rm] [serif]       [tsukucoldminpr6n]
+    \definetypeface [\typescriptone] [ss] [sans]        [tsukuoldgothic]
+    \definetypeface [\typescriptone] [tt] [mono]        [tsukuard]
+    \definetypeface [\typescriptone] [hw] [handwriting] [utrillo]
+\stoptypescript
+\starttypescript [tsukushiantique]
+    \definetypeface [\typescriptone] [rm] [serif]       [tsukuantiquemin]
+    \definetypeface [\typescriptone] [ss] [sans]        [tsukuantiquego]
+    \definetypeface [\typescriptone] [tt] [mono]        [tsukubrd]
+    \definetypeface [\typescriptone] [hw] [handwriting] [utrillo]
+\stoptypescript
+\stoptypescriptcollection
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definefontalternative[LF] % light
+\definefontalternative[LI] % light
+\definefontalternative[MF] % medium
+\definefontalternative[MI] % mediumitalic
+
+\definebodyfont [default] [rm]
+   [LF=SerifLight        sa 1,
+    LI=SerifLightItalic  sa 1,
+    tf=Serif             sa 1,
+    it=SerifItalic       sa 1,
+    MF=SerifMedium       sa 1,
+    MI=SerifMediumItalic sa 1,
+    bf=SerifBold         sa 1,
+    bi=SerifBoldItalic   sa 1,
+    sl=SerifSlanted      sa 1,
+    bs=SerifSlantedBold  sa 1,
+    sc=SerifCaps         sa 1,
+    ]
+
+\definebodyfont [default] [ss]
+   [LF=SansLight         sa 1,
+    LI=SansLightItalic   sa 1,
+    tf=Sans              sa 1,
+    it=SansItalic        sa 1,
+    MF=SansMedium        sa 1,
+    MI=SansMediumItalic  sa 1,
+    bf=SansBold          sa 1,
+    bi=SansBoldItalic    sa 1,
+    sl=SansSlanted       sa 1,
+    bs=SansSlantedBold   sa 1,
+    sc=SansCaps          sa 1]
+
+\definebodyfont [default] [tt]
+   [LF=MonoLight         sa 0.9,
+    LI=MonoLightItalic   sa 0.9,
+    tf=Mono              sa 0.9,
+    it=MonoItalic        sa 0.9,
+    MF=MonoMedium        sa 0.9,
+    MI=MonoMediumItalic  sa 0.9,
+    bf=MonoBold          sa 0.9,
+    bi=MonoBoldItalic    sa 0.9,
+    sl=MonoSlanted       sa 0.9,
+    bs=MonoSlantedBold   sa 0.9,
+    sc=MonoCaps          sa 0.9]
+
+\definebodyfont [default] [hw]
+   [LF=HandwritingLight  sa 1,
+    LI=HandwritingLightItalic  sa 1,
+    tf=Handwriting       sa 1,
+    it=HandwritingItalic sa 1,
+    MF=HandwritingMedium sa 1,
+    MI=HandwritingMediumItalic sa 1,
+    bf=HandwritingBold   sa 1,
+    bi=HandwritingBoldItalic   sa 1,
+    sl=HandwritingSlanted      sa 1,
+    bs=HandwritingSlantedBold  sa 1,
+    sc=HandwritingCaps   sa 1]
+
+\endinput

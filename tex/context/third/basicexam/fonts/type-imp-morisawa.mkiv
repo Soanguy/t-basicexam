@@ -1,0 +1,130 @@
+\definefontfeature [simplified-chinese] [default]
+                   %[language=cn,kern=yes,pwid=yes,]
+\definefontfeature [traditional-chinese][default]
+                   %[language=zht,kern=yes,pwid=yes,]
+\definefontfeature [japanese]           [default]
+                   %[language=jan,pwid=yes,kern=yes]
+\definefontfeature [chinese][simplified-chinese]
+
+\definefontfeature [boldslanted]        [default]
+                   [effect={width=0.30,auto=yes,slant=.2}]
+
+\starttypescriptcollection[reimin]
+  \definetypescriptprefix [n:reiminserif]       [A-OTF-ReimPr6N]
+  \definetypescriptprefix [n:ryuminserif]       [A-OTF-RyuminPr6N]
+
+  \definetypescriptprefix [n:reiminsans]        [A-OTF-ShinGoPr6N]
+  \definetypescriptprefix [n:ryuminsans]        [A-OTF-GothicMB101Pr6N]
+
+  \definetypescriptprefix [n:reiminmono]        [A-OTF-ShinMGoPr6N]
+  \definetypescriptprefix [n:ryuminmono]        [A-OTF-ShinMGoPr6N]
+
+  \definetypescriptprefix [n:reiminhandwriting] [A-OTF-KyokaICAPro]
+  \definetypescriptprefix [n:ryuminhandwriting] [A-OTF-KyokaICAPro]
+
+  \starttypescript [\s!serif,\s!sans,\s!mono] [reimin,ryumin] [\s!name]
+      \setups[\s!font:\s!fallback:\typescriptone]
+      \edefinefontsynonym [\typescriptprefix\typescriptone Light]           [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Light.otf]  [\s!features=japanese,\s!fallbacks=fallback-\typescriptone light]
+      \edefinefontsynonym [\typescriptprefix\typescriptone LightItalic]     [HandwritingLightItalic]                                               [\s!features=japanese,\s!fallbacks=fallback-\typescriptone lightitalic]
+      \edefinefontsynonym [\typescriptprefix\typescriptone]                 [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Regular.otf][\s!features=japanese,\s!fallbacks=fallback-\typescriptone ]
+      \edefinefontsynonym [\typescriptprefix\typescriptone Italic]          [HandwritingItalic]                                                    [\s!features=japanese,\s!fallbacks=fallback-\typescriptone italic]
+      \edefinefontsynonym [\typescriptprefix\typescriptone Medium]          [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Medium.otf] [\s!features=japanese,\s!fallbacks=fallback-\typescriptone medium]
+      \edefinefontsynonym [\typescriptprefix\typescriptone MediumItalic]    [HandwritingMediumItalic]                                              [\s!features=japanese,\s!fallbacks=fallback-\typescriptone mediumitalic]
+      \edefinefontsynonym [\typescriptprefix\typescriptone Bold]            [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Bold.otf]   [\s!features=japanese,\s!fallbacks=fallback-\typescriptone bold]
+      \edefinefontsynonym [\typescriptprefix\typescriptone BoldItalic]      [HandwritingBoldItalic]                                                [\s!features=japanese,\s!fallbacks=fallback-\typescriptone bolditalic]
+      \edefinefontsynonym [\typescriptprefix\typescriptone Heavy]           [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Heavy.otf]  [\s!features=japanese,\s!fallbacks=fallback-\typescriptone heavy]
+      \edefinefontsynonym [\typescriptprefix\typescriptone HeavyItalic]     [HandwritingHeavyItalic]                                               [\s!features=japanese,\s!fallbacks=fallback-\typescriptone heavyitalic]
+      \edefinefontsynonym [\typescriptprefix\typescriptone ExtraLight]      [\typescriptprefix\typescriptone Light]                                [\s!features=japanese,\s!fallbacks=fallback-\typescriptone extralight]
+      \edefinefontsynonym [\typescriptprefix\typescriptone ExtraLightItalic][HandwritingLightItalic]                                               [\s!features=japanese,\s!fallbacks=fallback-\typescriptone extralightitalic]
+      \edefinefontsynonym [\typescriptprefix\typescriptone Slanted]         [\typescriptprefix\typescriptone]                                      [\s!features={slanted,japanese},\s!fallbacks=fallback-\typescriptone]
+      \edefinefontsynonym [\typescriptprefix\typescriptone BoldSlanted]     [\typescriptprefix\typescriptone Bold]                                 [\s!features={slanted,japanese},\s!fallbacks=fallback-\typescriptone bold]
+      \edefinefontsynonym [\typescriptprefix\typescriptone Caps]            [\typescriptprefix\typescriptone]                                      [\s!features=japanese,\s!fallbacks=fallback-\typescriptone caps]
+  \stoptypescript
+
+  \starttypescript [\s!handwriting] [reimin,ryumin] [\s!name]
+   \setups[\s!font:\s!fallback:\typescriptone]
+      \edefinefontsynonym [HandwritingExtraLight]       [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Light.otf]   [\s!features=japanese,\s!fallbacks=fallback-handwextralight]
+      \edefinefontsynonym [HandwritingExtraLightItalic] [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Light.otf]   [\s!features=japanese,\s!fallbacks=fallback-handwextralightitalic]
+      \edefinefontsynonym [HandwritingLight]            [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Light.otf]   [\s!features=japanese,\s!fallbacks=fallback-handwlight]
+      \edefinefontsynonym [HandwritingLightItalic]      [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Light.otf]   [\s!features=japanese,\s!fallbacks=fallback-handwlightitalic]
+      \edefinefontsynonym [Handwriting]                 [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Regular.otf] [\s!features=japanese,\s!fallbacks=fallback-handw]
+      \edefinefontsynonym [HandwritingItalic]           [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Regular.otf] [\s!features=japanese,\s!fallbacks=fallback-handwitalic]
+      \edefinefontsynonym [HandwritingSlanted]          [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Regular.otf] [\s!features={japanese,slanted},\s!fallbacks=fallback-handwslanted]
+      \edefinefontsynonym [HandwritingBoldSlanted]      [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Regular.otf] [\s!features={japanese,slanted},\s!fallbacks=fallback-handwboldslanted]
+      \edefinefontsynonym [HandwritingCaps]             [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Regular.otf] [\s!features=japanese,\s!fallbacks=fallback-handwcaps]
+      \edefinefontsynonym [HandwritingMedium]           [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Medium.otf]  [\s!features=japanese,\s!fallbacks=fallback-handwmedium]
+      \edefinefontsynonym [HandwritingMediumItalic]     [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Medium.otf]  [\s!features=japanese,\s!fallbacks=fallback-handwmediumitalic]
+      \edefinefontsynonym [HandwritingBold]             [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Medium.otf]  [\s!features=japanese,\s!fallbacks=fallback-handwbold]
+      \edefinefontsynonym [HandwritingBoldItalic]       [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Medium.otf]  [\s!features=japanese,\s!fallbacks=fallback-handwbolditalic]
+      \edefinefontsynonym [HandwritingHeavy]            [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Medium.otf]  [\s!features=japanese,\s!fallbacks=fallback-handwheavy]
+      \edefinefontsynonym [HandwritingHeavyItalic]      [\s!file:\typescriptprefix{n:\typescripttwo\typescriptone}-Medium.otf]  [\s!features=japanese,\s!fallbacks=fallback-handwheavyitalic]
+  \stoptypescript
+% ##############################################################################
+% #####################  reimin - hans - font - define  ##########################
+% ##############################################################################
+\starttypescript [reimin,ryumin]
+    \definetypeface [\typescriptone] [rm] [serif]       [\typescriptone]
+    \definetypeface [\typescriptone] [ss] [sans]        [\typescriptone]
+    \definetypeface [\typescriptone] [tt] [mono]        [\typescriptone]
+    \definetypeface [\typescriptone] [hw] [handwriting] [\typescriptone]
+\stoptypescript
+
+  \definefontalternative[LF] % light
+  \definefontalternative[LI] % light
+  \definefontalternative[MF] % medium
+  \definefontalternative[MI] % mediumitalic
+
+  \definebodyfont [default] [rm]
+     [LF=SerifLight        sa 1,
+      LI=SerifLightItalic  sa 1,
+      tf=Serif             sa 1,% or you can set Serif*boldened-15 sa 1
+      it=SerifItalic       sa 1,
+      MF=SerifMedium       sa 1,
+      MI=SerifMediumItalic sa 1,
+      bf=SerifBold         sa 1,
+      bi=SerifBoldItalic   sa 1,
+      sl=SerifSlanted      sa 1,
+      bs=SerifBoldSlanted  sa 1,
+      sc=SerifCaps         sa 1,
+      ]
+
+  \definebodyfont [default] [ss]
+     [LF=SansLight         sa 1,
+      LI=SansLightItalic   sa 1,
+      tf=Sans              sa 1,
+      it=SansItalic        sa 1,
+      MF=SansMedium        sa 1,
+      MI=SansMediumItalic  sa 1,
+      bf=SansBold          sa 1,
+      bi=SansBoldItalic    sa 1,
+      sl=SansSlanted       sa 1,
+      bs=SansBoldSlanted   sa 1,
+      sc=SansCaps          sa 1]
+
+  \definebodyfont [default] [tt]
+     [LF=MonoLight         sa 1,
+      LI=MonoLightItalic   sa 1,
+      tf=Mono              sa 1,
+      it=MonoItalic        sa 1,
+      MF=MonoMedium        sa 1,
+      MI=MonoMediumItalic  sa 1,
+      bf=MonoBold          sa 1,
+      bi=MonoBoldItalic    sa 1,
+      sl=MonoSlanted       sa 1,
+      bs=MonoBoldSlanted   sa 1,
+      sc=MonoCaps          sa 1]
+
+  \definebodyfont [default] [hw]
+     [LF=HandwritingLight        sa 1,
+      LI=HandwritingLightItalic  sa 1,
+      tf=Handwriting             sa 1,
+      it=HandwritingItalic       sa 1,
+      MF=HandwritingMedium       sa 1,
+      MI=HandwritingMediumItalic sa 1,
+      bf=HandwritingBold         sa 1,
+      bi=HandwritingBoldItalic   sa 1,
+      sl=HandwritingSlanted      sa 1,
+      bs=HandwritingBoldSlanted  sa 1,
+      sc=HandwritingCaps         sa 1]
+
+\stoptypescriptcollection

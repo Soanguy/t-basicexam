@@ -1,0 +1,246 @@
+\definefontfeature [simplified-chinese] [default]% [pwid=yes]%
+\definefontfeature [traditional-chinese][default]% [pwid=yes]%
+\definefontfeature [japanese]           [default]% [pwid=yes]%
+\definefontfeature [chinese]            [simplified-chinese]%
+\definefontfeature [boldslanted]        [default]%
+                   [effect={width=0.30,auto=yes,slant=.2}]%
+\starttypescriptcollection[source]%
+  \definetypescriptprefix [n:sourcehansserif]   [sourcehanserifcn]%
+  \definetypescriptprefix [n:sourcehantserif]   [sourcehanserifk]%
+  \definetypescriptprefix [n:sourcenihonserif]  [sourcehanserifjp]%
+
+  \definetypescriptprefix [n:sourcehanssans]    [sourcehansanscn]%
+  \definetypescriptprefix [n:sourcehantsans]    [sourcehansansk]%
+  \definetypescriptprefix [n:sourcenihonsans]   [sourcehansansjp]%
+
+  \definetypescriptprefix [n:sourcehansmono]    [adobefangsongstdregular]%
+  \definetypescriptprefix [n:sourcehantmono]    [adobefangsongstdregular]%
+  \definetypescriptprefix [n:sourcenihonmono]   [kleeprom]%
+
+  \definetypescriptprefix [n:sourcehanshandw]   [adobekaitistdregular]%
+  \definetypescriptprefix [n:sourcehanthandw]   [adobekaitistdregular]%
+  \definetypescriptprefix [n:sourcenihonhandw]  [utrilloprom]%
+
+  \definetypescriptprefix [n:OFLmono]           [lxgwwenkairegular]%iansuiregular%kleeprom
+  \definetypescriptprefix [n:OFLhandw]          [lxgwwenkairegular]%ukaicn%twkai981%kleeprom
+  \definetypescriptprefix [n:genmono]           [adobefangsongstdregular]%
+  \definetypescriptprefix [n:genhandw]          [biaukaitc]%
+
+  \definetypescriptprefix [f:sourcehans]        [simplified-chinese]%
+  \definetypescriptprefix [f:sourcehant]        [traditional-chinese]%
+  \definetypescriptprefix [f:sourcenihon]       [japanese]%
+
+  \definetypescriptprefix [f:genyotw]           [traditional-chinese]%
+  \definetypescriptprefix [f:genyotc]           [traditional-chinese]%
+  \definetypescriptprefix [f:genryutw]          [traditional-chinese]%
+  \definetypescriptprefix [f:genryut]           [traditional-chinese]%
+
+  \starttypescript [\s!serif,\s!sans] [sourcehans,sourcehant,sourcenihon][\s!name]%
+    \setups[\s!font:\s!fallback:\typescriptone]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone ExtraLight]      [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}-extralight] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone extralight]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone ExtraLightItalic][HandwritingExtraLightItalic]                                          [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone extralightitalic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Light]           [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}-light]      [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone light]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone LightItalic]     [HandwritingLightItalic]                                               [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone lightitalic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone ]                [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}-regular]    [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone ]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Italic]          [HandwritingItalic]                                                    [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone italic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Medium]          [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}-medium]     [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone medium]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone MediumItalic]    [HandwritingMediumItalic]                                              [\s!features={boldened-15,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-\typescriptone mediumitalic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Bold]            [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}-bold]       [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone bold]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone BoldItalic]      [HandwritingBoldItalic]                                                [\s!features={boldened-25,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-\typescriptone bolditalic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Heavy]           [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}-heavy]      [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone heavy]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone HeavyItalic]     [HandwritingHeavyItalic]                                               [\s!features={boldened-30,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-\typescriptone heavyitalic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Caps]            [\typescriptprefix\typescriptone ]                                     [\s!features={\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-\typescriptone caps]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Slanted]         [\typescriptprefix\typescriptone ]                                     [\s!features={slanted,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-\typescriptone slanted]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone BoldSlanted]     [\typescriptprefix\typescriptone Bold]                                 [\s!features={\typescriptprefix{f:\typescripttwo},boldslanted},\s!fallbacks=fallback-\typescriptone boldslanted]%
+  \stoptypescript
+  \starttypescript [mono] [sourcehans,sourcehant,sourcenihon,gen][\s!name]%
+    \setups[\s!font:\s!fallback:\typescriptone]%
+    \definefontsynonym [MonoExtraLight]       [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-monoextralight]%
+    \definefontsynonym [MonoExtraLightItalic] [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-monoextralightitalic]%
+    \definefontsynonym [MonoLight]            [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-monolight]%
+    \definefontsynonym [MonoLightItalic]      [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-monolightitalic]%
+    \definefontsynonym [Mono]                 [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-mono]%
+    \definefontsynonym [MonoItalic]           [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-monoitalic]%
+    \definefontsynonym [MonoMedium]           [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}] [\s!features={boldened-15,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-monomedium]%
+    \definefontsynonym [MonoMediumItalic]     [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}] [\s!features={boldened-15,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-monomediumitalic]%
+    \definefontsynonym [MonoBold]             [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}] [\s!features={boldened-25,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-monobold]%
+    \definefontsynonym [MonoBoldItalic]       [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}] [\s!features={boldened-25,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-monobolditalic]%
+    \definefontsynonym [MonoHeavy]            [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}] [\s!features={boldened-30,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-monoheavy]%
+    \definefontsynonym [MonoHeavyItalic]      [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}] [\s!features={boldened-30,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-monoheavyitalic]%
+    \definefontsynonym [MonoCaps]             [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}] [\s!features={\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-mono]%
+    \definefontsynonym [MonoSlanted]          [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}] [\s!features={slanted,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-monoslanted]%
+    \definefontsynonym [MonoBoldSlanted]      [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}] [\s!features={boldslanted,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-monoboldslanted]%
+  \stoptypescript
+  \starttypescript [handwriting] [sourcehans,sourcehant,sourcenihon,gen][\s!name]%
+    \setups[\s!font:\s!fallback:\typescriptone]%
+    \edefinefontsynonym [HandwritingExtraLight]       [\s!name:\typescriptprefix{n:\typescripttwo handw}] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-handwextralight]%
+    \edefinefontsynonym [HandwritingExtraLightItalic] [\s!name:\typescriptprefix{n:\typescripttwo handw}] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-handwextralightitalic]%
+    \edefinefontsynonym [HandwritingLight]            [\s!name:\typescriptprefix{n:\typescripttwo handw}] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-handwlight]%
+    \edefinefontsynonym [HandwritingLightItalic]      [\s!name:\typescriptprefix{n:\typescripttwo handw}] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-handwlightitalic]%
+    \edefinefontsynonym [Handwriting]                 [\s!name:\typescriptprefix{n:\typescripttwo handw}] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-handw]%
+    \edefinefontsynonym [HandwritingItalic]           [\s!name:\typescriptprefix{n:\typescripttwo handw}] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-handwitalic]%
+    \edefinefontsynonym [HandwritingMedium]           [\s!name:\typescriptprefix{n:\typescripttwo handw}] [\s!features={boldened-15,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-handwmedium]%
+    \edefinefontsynonym [HandwritingMediumItalic]     [\s!name:\typescriptprefix{n:\typescripttwo handw}] [\s!features={boldened-15,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-handwmediumitalic]%
+    \edefinefontsynonym [HandwritingBold]             [\s!name:\typescriptprefix{n:\typescripttwo handw}] [\s!features={boldened-25,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-handwbold]%
+    \edefinefontsynonym [HandwritingBoldItalic]       [\s!name:\typescriptprefix{n:\typescripttwo handw}] [\s!features={boldened-25,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-handwbolditalic]%
+    \edefinefontsynonym [HandwritingHeavy]            [\s!name:\typescriptprefix{n:\typescripttwo handw}] [\s!features={boldened-30,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-handwheavy]%
+    \edefinefontsynonym [HandwritingHeavyItalic]      [\s!name:\typescriptprefix{n:\typescripttwo handw}] [\s!features={boldened-30,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-handwheavyitalic]%
+    \edefinefontsynonym [HandwritingSlanted]          [\s!name:\typescriptprefix{n:\typescripttwo handw}] [\s!features={slanted,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-handwslanted]%
+    \edefinefontsynonym [HandwritingBoldSlanted]      [\s!name:\typescriptprefix{n:\typescripttwo handw}] [\s!features={boldslanted,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-handwboldslanted]%
+    \edefinefontsynonym [HandwritingCaps]             [\s!name:\typescriptprefix{n:\typescripttwo handw}] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-handwcaps]%
+  \stoptypescript
+
+  \starttypescript[sourcehans,sourcehant,sourcenihon]%
+        \definetypeface [\typescriptone] [\s!rm] [\s!serif]       [\typescriptone]%
+        \definetypeface [\typescriptone] [\s!ss] [\s!sans]        [\typescriptone]%
+        \definetypeface [\typescriptone] [\s!tt] [\s!mono]        [\typescriptone]%
+        \definetypeface [\typescriptone] [\s!hw] [\s!handwriting] [\typescriptone]%
+  \stoptypescript
+
+  \starttypescript[sourcehanslight]%
+        \definetypeface [\typescriptone] [\s!rm] [\s!serif]       [sourcehans]%
+        \definetypeface [\typescriptone] [\s!ss] [\s!sans]        [sourcehans]%
+        \definetypeface [\typescriptone] [\s!tt] [\s!mono]        [sourcehans]%
+        \definetypeface [\typescriptone] [\s!hw] [\s!handwriting] [sourcehans]%
+        \startfontclass [\typescriptone]%
+          \definefontsynonym [Serif]                 [SerifLight]             [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-seriflight]%
+          \definefontsynonym [SerifItalic]           [SerifLightItalic]       [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-seriflightitalic]%
+          \definefontsynonym [SerifBold]             [SerifMedium]            [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-serifbold]%
+          \definefontsynonym [SerifBoldItalic]       [SerifMediumItalic]      [\s!features={boldened-25,\typescriptprefix{f:\typescriptone}},\s!fallbacks=fallback-serifbolditalic]%
+          \definefontsynonym [Sans]                  [SansLight]              [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-sanslight]%
+          \definefontsynonym [SansItalic]            [SansLightItalic]        [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-sanslightitalic]%
+          \definefontsynonym [SansBold]              [SansMedium]             [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-sansbold]%
+          \definefontsynonym [SansBoldItalic]        [SansMediumItalic]       [\s!features={boldened-25,\typescriptprefix{f:\typescriptone}},\s!fallbacks=fallback-sansbolditalic]%
+          \definefontsynonym [Mono]                  [MonoLight]              [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-monolight]%
+          \definefontsynonym [MonoItalic]            [MonoLightItalic]        [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-monolightitalic]%
+          \definefontsynonym [MonoBold]              [MonoMedium]             [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-monobold]%
+          \definefontsynonym [MonoBoldItalic]        [MonoMediumItalic]       [\s!features={boldened-25,\typescriptprefix{f:\typescriptone}},\s!fallbacks=fallback-monobolditalic]%
+          \definefontsynonym [Handwriting]           [HandwritingLight]       [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-handwlight]%
+          \definefontsynonym [HandwritingItalic]     [HandwritingLightItalic] [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-handwlightitalic]%
+          \definefontsynonym [HandwritingBold]       [HandwritingMedium]      [\s!features={boldened-25,\typescriptprefix{f:\typescriptone}},\s!fallbacks=fallback-handwbold]%
+          \definefontsynonym [HandwritingBoldItalic] [HandwritingMediumItalic][\s!features={boldened-25,\typescriptprefix{f:\typescriptone}},\s!fallbacks=fallback-handwbolditalic]%
+        \stopfontclass
+  \stoptypescript
+  \starttypescript[sourcehansel]%
+        \definetypeface [\typescriptone] [\s!rm] [\s!serif]       [sourcehans]%
+        \definetypeface [\typescriptone] [\s!ss] [\s!sans]        [sourcehans]%
+        \definetypeface [\typescriptone] [\s!tt] [\s!mono]        [sourcehans]%
+        \definetypeface [\typescriptone] [\s!hw] [\s!handwriting] [sourcehans]%
+        \startfontclass [\typescriptone]%
+          \edefinefontsynonym [Serif]                 [SerifExtraLight]             [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-seriflight]
+          \edefinefontsynonym [SerifItalic]           [SerifExtraLightItalic]       [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-seriflightitalic]%
+          \edefinefontsynonym [SerifBold]             [SerifMedium]                 [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-serifmedium]%
+          \edefinefontsynonym [SerifBoldItalic]       [SerifMediumItalic]           [\s!features={boldened-25,\typescriptprefix{f:\typescriptone}},\s!fallbacks=fallback-serifmediumitalic]%
+          \edefinefontsynonym [Sans]                  [SansExtraLight]              [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-sanslight]%
+          \edefinefontsynonym [SansItalic]            [SansExtraLightItalic]        [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-sanslightitalic]%
+          \edefinefontsynonym [SansBold]              [SansMedium]                  [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-sansmedium]%
+          \edefinefontsynonym [SansBoldItalic]        [SansMediumItalic]            [\s!features={boldened-25,\typescriptprefix{f:\typescriptone}},\s!fallbacks=fallback-sansmediumitalic]%
+          \edefinefontsynonym [Mono]                  [MonoExtraLight]              [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-monolight]%
+          \edefinefontsynonym [MonoItalic]            [MonoExtraLightItalic]        [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-monolightitalic]%
+          \edefinefontsynonym [MonoBold]              [MonoMedium]                  [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-monomedium]%
+          \edefinefontsynonym [MonoBoldItalic]        [MonoMediumItalic]            [\s!features={boldened-25,\typescriptprefix{f:\typescriptone}},\s!fallbacks=fallback-monomediumitalic]%
+          \edefinefontsynonym [Handwriting]           [HandwritingExtraLight]       [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-handwlight]%
+          \edefinefontsynonym [HandwritingItalic]     [HandwritingExtraLightItalic] [\s!features=\typescriptprefix{f:\typescriptone},              \s!fallbacks=fallback-handwlightitalic]%
+          \edefinefontsynonym [HandwritingBold]       [HandwritingMedium]           [\s!features={boldened-25,\typescriptprefix{f:\typescriptone}},\s!fallbacks=fallback-handwmedium]%
+          \edefinefontsynonym [HandwritingBoldItalic] [HandwritingMediumItalic]     [\s!features={boldened-25,\typescriptprefix{f:\typescriptone}},\s!fallbacks=fallback-handwmediumitalic]%
+        \stopfontclass
+  \stoptypescript
+
+  % genyomin2 genyogothic2 tc tw el l r m  sb h
+  % gensekigothic2 genryumin2 tc tw
+  \definetypescriptprefix [n:genyotwserif]  [genyomin2tw]%
+  \definetypescriptprefix [n:genyotwsans]   [genyogothic2tw]%
+  \definetypescriptprefix [n:genryutwserif] [genryumin2tw]%
+  \definetypescriptprefix [n:genryutwsans]  [genyogothic2tw]%
+  \definetypescriptprefix [n:genyotcserif]  [genyomin2tc]%
+  \definetypescriptprefix [n:genyotcsans]   [genyogothic2tc]%
+  \definetypescriptprefix [n:genryutcserif] [genryumin2tc]%
+  \definetypescriptprefix [n:genryutcsans]  [genyogothic2tc]%
+  \starttypescript [\s!serif,\s!sans] [genyotw,genyotc,genryutw,genryutc][\s!name]%
+    \setups[\s!font:\s!fallback:\typescriptone]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone ExtraLight]      [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}el][\s!features=traditional-chinese,\s!fallbacks=fallback-\typescriptone extralight]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone ExtraLightItalic][HandwritingExtraLightItalic]                                [\s!features=traditional-chinese,\s!fallbacks=fallback-\typescriptone extralightitalic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Light]           [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}l] [\s!features=traditional-chinese,\s!fallbacks=fallback-\typescriptone light]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone LightItalic]     [HandwritingLightItalic]                                     [\s!features=traditional-chinese,\s!fallbacks=fallback-\typescriptone lightitalic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone ]                [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}r] [\s!features=traditional-chinese,\s!fallbacks=fallback-\typescriptone ]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Italic]          [HandwritingItalic]                                          [\s!features=traditional-chinese,\s!fallbacks=fallback-\typescriptone italic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Medium]          [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}m] [\s!features=traditional-chinese,\s!fallbacks=fallback-\typescriptone medium]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone MediumItalic]    [HandwritingMediumItalic]                                    [\s!features={boldened-15,traditional-chinese},\s!fallbacks=fallback-\typescriptone mediumitalic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Bold]            [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}b] [\s!features=traditional-chinese,\s!fallbacks=fallback-\typescriptone bold]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone BoldItalic]      [HandwritingBoldItalic]                                      [\s!features={boldened-25,traditional-chinese},\s!fallbacks=fallback-\typescriptone bolditalic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Heavy]           [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}h] [\s!features=traditional-chinese,\s!fallbacks=fallback-\typescriptone heavy]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone HeavyItalic]     [HandwritingHeavyItalic]                                     [\s!features={boldened-30,traditional-chinese},\s!fallbacks=fallback-\typescriptone heavyitalic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Caps]            [\typescriptprefix\typescriptone ]                           [\s!features={traditional-chinese},\s!fallbacks=fallback-\typescriptone caps]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Slanted]         [\typescriptprefix\typescriptone ]                           [\s!features={slanted,traditional-chinese},\s!fallbacks=fallback-\typescriptone slanted]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone BoldSlanted]     [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}b] [\s!features={boldslanted,traditional-chinese},\s!fallbacks=fallback-\typescriptone boldslanted]%
+  \stoptypescript
+  \starttypescript[genyotw,genyotc,genryutw,genryutc]%
+        \definetypeface [\typescriptone] [\s!rm] [\s!serif]       [\typescriptone]%
+        \definetypeface [\typescriptone] [\s!ss] [\s!sans]        [\typescriptone]%
+        \definetypeface [\typescriptone] [\s!tt] [\s!mono]        [\typescriptone]%
+        \definetypeface [\typescriptone] [\s!hw] [\s!handwriting] [gen]%
+  \stoptypescript
+  \definefontalternative[EF] % light
+  \definefontalternative[EI] % light
+  \definefontalternative[LF] % light
+  \definefontalternative[LI] % light
+  \definefontalternative[MF] % medium
+  \definefontalternative[MI] % mediumitalic
+  \definebodyfont [default] [rm]%
+     [EF=SerifExtraLight        sa 1,
+      EI=SerifExtraLightItalic  sa 1,
+      LF=SerifLight             sa 1,
+      LI=SerifLightItalic       sa 1,
+      tf=Serif                  sa 1,
+      it=SerifItalic            sa 1,
+      MF=SerifMedium            sa 1,
+      MI=SerifMediumItalic      sa 1,
+      bf=SerifBold              sa 1,
+      bi=SerifBoldItalic        sa 1,
+      sl=SerifSlanted           sa 1,
+      bs=SerifBoldSlanted       sa 1,
+      sc=SerifCaps              sa 1,
+      ]%
+  \definebodyfont [default] [ss]%
+     [EF=SansExtraLight        sa 1,
+      EI=SansExtraLightItalic  sa 1,
+      LF=SansLight             sa 1,
+      LI=SansLightItalic       sa 1,
+      tf=Sans                  sa 1,
+      it=SansItalic            sa 1,
+      MF=SansMedium            sa 1,
+      MI=SansMediumItalic      sa 1,
+      bf=SansBold              sa 1,
+      bi=SansBoldItalic        sa 1,
+      sl=SansSlanted           sa 1,
+      bs=SansBoldSlanted       sa 1,
+      sc=SansCaps              sa 1]%
+  \definebodyfont [default] [tt]%
+     [EF=MonoExtraLight        sa 1,
+      EI=MonoExtraLightItalic  sa 1,
+      LF=MonoLight             sa 1,
+      LI=MonoLightItalic       sa 1,
+      tf=Mono                  sa 1,
+      it=MonoItalic            sa 1,
+      MF=MonoMedium            sa 1,
+      MI=MonoMediumItalic      sa 1,
+      bf=MonoBold              sa 1,
+      bi=MonoBoldItalic        sa 1,
+      sl=MonoSlanted           sa 1,
+      bs=MonoBoldSlanted       sa 1,
+      sc=MonoCaps              sa 1]%
+  \definebodyfont [default] [hw]%
+     [EF=HandwritingExtraLight        sa 1,
+      EI=HandwritingExtraLightItalic  sa 1,
+      LF=HandwritingLight             sa 1,
+      LI=HandwritingLightItalic       sa 1,
+      tf=Handwriting                  sa 1,
+      it=HandwritingItalic            sa 1,
+      MF=HandwritingMedium            sa 1,
+      MI=HandwritingMediumItalic      sa 1,
+      bf=HandwritingBold              sa 1,
+      bi=HandwritingBoldItalic        sa 1,
+      sl=HandwritingSlanted           sa 1,
+      bs=HandwritingBoldSlanted       sa 1,
+      sc=HandwritingCaps              sa 1]%
+\stoptypescriptcollection

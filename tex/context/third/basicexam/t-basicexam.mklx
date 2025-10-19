@@ -42,14 +42,14 @@
 %D 定义关键词
 \immutable\def\m!basicexam{basicexam}
 
-\definesystemconstant{close}
+% \definesystemconstant{close}
+% \definesystemconstant{default}
 \definesystemconstant{choice}
 \definesystemconstant{answer}
 \definesystemconstant{problem}
 \definesystemconstant{question}
 \definesystemconstant{material}
 \definesystemconstant{optclose}
-\definesystemconstant{default}
 \definesystemconstant{frame}
 
 \startinterface all
@@ -71,8 +71,6 @@
 \setinterfaceconstant {inlineright}    {inlineright}
 \setinterfaceconstant {inlinechoice}   {inlinechoice}
 \setinterfaceconstant {recordanswer}   {recordanswer}
-\setinterfaceconstant {entrystyle}     {entrystyle}
-\setinterfaceconstant {entrycolor}     {entrycolor}
 \setinterfaceconstant {infostyle}      {infostyle}
 \setinterfaceconstant {infocolor}      {infocolor}
 \stopinterface
@@ -92,10 +90,102 @@
   \setinterfacemessage\m!basicexam{9}  {-- is not installed, some -- will not display properly.}
 \stopinterface
 
+\protected\def\doiftrue#1#2{%
+  \expandafter\edef\csname #1parameter::#2\endcsname{\csname #1parameter\endcsname{#2}}%
+  \ifcsname p_#1_#2\endcsname\else
+    \expandafter\newcount\csname p_#1_#2\endcsname
+  \fi
+  \expandafter\ifx\csname #1parameter::#2\endcsname\s!true
+    \csname p_#1_#2\endcsname = 1\relax
+  \else
+    \expandafter\ifx\csname #1parameter::#2\endcsname\v!yes
+      \csname p_#1_#2\endcsname = 1\relax
+    \else
+      \csname p_#1_#2\endcsname = 0\relax
+    \fi
+  \fi
+  \ifnum\csname p_#1_#2\endcsname=1\relax
+    \expandafter\firstofoneargument
+  \else
+    \expandafter\gobbleoneargument
+  \fi}
+
+\protected\def\doiftrueelse#1#2{%
+  \expandafter\edef\csname #1parameter::#2\endcsname{\csname #1parameter\endcsname{#2}}%
+  \ifcsname p_#1_#2\endcsname\else
+    \expandafter\newcount\csname p_#1_#2\endcsname
+  \fi
+  \expandafter\ifx\csname #1parameter::#2\endcsname\s!true
+    \csname p_#1_#2\endcsname = 1\relax
+  \else
+    \expandafter\ifx\csname #1parameter::#2\endcsname\v!yes
+      \csname p_#1_#2\endcsname = 1\relax
+    \else
+      \csname p_#1_#2\endcsname = 0\relax
+    \fi
+  \fi
+  \ifnum\csname p_#1_#2\endcsname=1\relax
+    \expandafter\firstoftwoarguments
+  \else
+    \expandafter\secondoftwoarguments
+  \fi}
+
 % \showmessage\m!basicexam{2}{}%
+
+\newwrite\examanswer
 
 \newif\iflay_twoup   \lay_twoupfalse
 \newif\ifhdr_default \hdr_defaultfalse
+
+\newif\ifmode_debug          \newif\ifenv_question    \newif\ifenv_toplevel
+\newif\ifmode_check          \newif\ifenv_problem     \newif\ifenv_botlevel
+\newif\ifmode_showanswer     \newif\ifenv_choice      \newif\ifenv_answer
+\newif\ifmode_showpoint      \newif\ifenv_material    \newif\ifitem_pitem
+\newif\ifmode_showscript     \newif\ifenv_close       \newif\ifitem_fillin
+\newif\ifmode_example        \newif\ifenv_writing     \newif\ifitem_inlinechoice
+\newif\ifcontinue_counter    \newif\ifenv_subwriting
+
+\newdimen\d_width_cit
+\newdimen\d_width_cit_max
+\newdimen\d_compared_maxwidth
+\newdimen\d_maxwidth_with_label
+\newdimen\c_bottotalpoint
+\newdimen\c_steppoint
+\newdimen\c_steppoint_temp
+
+\newcount\c_stepscore
+\newcount\c_closetest
+\newcount\c_subitem_state %\c_subitem_state=0
+\newcount\c_stepscore_temp
+\newcount\c_closetest_temp
+\newcount\c_totalitemnumber
+\newcount\c_currentitemnumber
+\newcount\c_totalchoicenumber
+\newcount\c_availablecolumns
+\newcount\c_envnumber
+\newcount\c_fillinnumber
+\newcount\c_examplenumber
+\newcount\c_strc_question_nesting
+\newcount\parentitemnumber% \parentitemnumber 会等于父级列表环境的序号
+
+\processallactionsinset[\currentmoduleparameter{showanswer}][
+     showanswer=>{\mode_showanswertrue},
+     \v!default=>{\mode_showanswerfalse},
+     \v!unknown=>\showmessage\m!basicexam{1}{showanswer},
+]
+
+\processallactionsinset[\currentmoduleparameter{showpoint}][
+      showpoint=>{\mode_showpointtrue},
+     \v!default=>{\mode_showpointtrue},
+     \v!unknown=>\showmessage\m!basicexam{1}{showpoint},
+]
+
+
+\processallactionsinset[\currentmoduleparameter{showscript}][
+     showscript=>{\mode_showscripttrue},
+     \v!default=>{\mode_showscriptfalse},
+     \v!unknown=>\showmessage\m!basicexam{1}{showscript},
+]
 
 \processallactionsinset[\currentmoduleparameter{mode}][
      teacher=>{\enablemode[teacher]},
@@ -168,51 +258,22 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{定义其后环境所需命令}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newwrite\examanswer
 
-\newif\ifmode_debug          \newif\ifenv_question    \newif\ifenv_toplevel
-\newif\ifmode_check          \newif\ifenv_problem     \newif\ifenv_botlevel
-\newif\ifmode_showanswer     \newif\ifenv_choice      \newif\ifenv_answer
-\newif\ifmode_showpoint      \newif\ifenv_material    \newif\ifitem_pitem
-\newif\ifmode_showscript     \newif\ifenv_close       \newif\ifitem_fillin
-\newif\ifmode_example        \newif\ifenv_writing     \newif\ifitem_inlinechoice
-\newif\ifcontinue_counter    \newif\ifenv_subwriting
 
-\newdimen\d_width_cit
-\newdimen\d_width_cit_max
-\newdimen\d_compared_maxwidth
-\newdimen\d_maxwidth_with_label
-\newdimen\c_bottotalpoint
-\newdimen\c_steppoint
-\newdimen\c_steppoint_temp
-
-\newcount\c_stepscore
-\newcount\c_closetest
-\newcount\c_subitem_state
-\newcount\c_stepscore_temp
-\newcount\c_closetest_temp
-\newcount\c_totalitemnumber
-\newcount\c_currentitemnumber
-\newcount\c_totalchoicenumber
-\newcount\c_availablecolumns
-\newcount\c_envnumber
-\newcount\c_fillinnumber
-\newcount\c_examplenumber
-\newcount\c_strc_question_nesting
-\newcount\parentitemnumber% \parentitemnumber 会等于父级列表环境的序号
-\c_subitem_state=0
 
 \definecounter[Unicode][way=bychapter,start=0]
 \definecounter[Unicode_toplevel]        % for level 1 : question or problem
 \definecounter[Unicode_midlevel]        % for level 2 : problem or level 1
 \definecounter[Unicode_botlevel]        % for level 3 : only for level 2
-\definecounter[strc_question_order]      % 为 close 环境可以继续 question 序号而设置
+\definecounter[strc_question_order]     % 为 close 环境可以继续 question 序号而设置
 
 \def\inititemnumber
   {\global\c_currentitemnumber =  0\relax
    \global\c_totalitemnumber   =  0\relax}
+
 \def\incrementitemnumber
  {\global\advance\c_currentitemnumber by 1\relax}
+
 \def\recurseditemnumber%%遞歸出總序號
   {\ifnum        \c_totalitemnumber > \c_currentitemnumber\relax
         \global  \c_totalitemnumber = \c_totalitemnumber  \relax
@@ -227,6 +288,7 @@
         \global  \c_totalitemnumber = \rawcountervalue[Unicode_midlevel]%
     \fi
   \fi}
+
 %% 這三個命令可以遞歸小題總數，
 %% 他們分別封裝在 set_envcounter, set_itemcount,installdatacollectorhelper 中
 
@@ -245,6 +307,7 @@
 \def\decreaseEQuestionID{\advance\c_examplenumber by -1\relax}
 \def\increaseQuestionID{\ifmode_example\increaseEQuestionID\else\incrementcounter[Unicode]\fi}
 \def\decreaseQuestionID{\ifmode_example\decreaseEQuestionID\else\decrementcounter[Unicode]\fi}
+\def\bem_currentenvironment{}
 
 \definebar           [FillinText]
 \definemarking       [title]
@@ -261,7 +324,7 @@
   \immediate\openout\examanswer=\jobname -answer.txt\relax
   \immediate\write\examanswer{
     \QuestionID           \space\string @
-    \currentenvironment   \space\string @
+    \bem_currentenvironment   \space\string @
     \currentuserorder     \space\string @
     \expand\currentanswer        \space\string @
     \currentorder         \space\string @
@@ -320,6 +383,13 @@
                    sectionconversionset=examnum]
 \definelist[tu]
 \setuplist [tu][style={\feature[+][tabularnumbers]}]
+
+\setupheads[section,
+            subsection,
+            subsubsection,
+            subsubsubsection,
+            subsubsubsubsection]       [sectionsegments=current]
+
 \definestructureconversionset[examnum][chinesenumerals][chinesenumerals]
 
 \ifhdr_default
@@ -332,7 +402,7 @@
   \startsetups hdr:infos
   \framed[height=max,align=lohi,frame=off]{%
     \getmarking[subject][page][current]
-    \paren{\examtexts{page}{\pagenumber},\ %
+    \parens{\examtexts{page}{\pagenumber},\ %
            \examtexts{totalpage}{\lastpagenumber}}%
     }
   \stopsetups
@@ -401,7 +471,7 @@
   {"Name         ", "Content                                                             ",
    "Name         ", "Content                                                             "},
   {"CUlevel      ", "\currentlevel                                                       ",
-   "CUenvironment", "\currentenvironment                                                 "},
+   "CUenvironment", "\bem_currentenvironment                                                 "},
   {"CUitemgroup  ", "\datasetvariable{ExamDataset}{\QuestionID}{envid}              ",
    "CUparen      ", "\currentparentitemgroup                                             "},
   {"QuestionID   ", "\QuestionID                                                         ",
@@ -449,15 +519,15 @@
   \ifdefined\currentenvnumber\edef\prevenvnumber{\currentenvnumber}\fi
   \ifenv_answer     \advance\c_envnumber by 10\relax\else
                     \global \c_envnumber=0\relax%
-  \ifenv_question   \global \c_envnumber=1\relax \edef\currentenvironment  {question}\fi
-  \ifenv_problem    \global \c_envnumber=2\relax \edef\currentenvironment   {problem}\fi
-  \ifenv_choice     \global \c_envnumber=3\relax \edef\currentenvironment    {choice}\fi
-  \ifenv_material   \global \c_envnumber=4\relax \edef\currentenvironment  {material}\fi
-  \ifenv_close      \global \c_envnumber=5\relax \edef\currentenvironment     {close}\fi
-  \ifenv_writing    \global \c_envnumber=6\relax \edef\currentenvironment   {writing}\fi
-  \ifenv_subwriting \global \c_envnumber=7\relax \edef\currentenvironment{subwriting}\fi
+  \ifenv_question   \global \c_envnumber=1\relax \edef\bem_currentenvironment  {question}\fi
+  \ifenv_problem    \global \c_envnumber=2\relax \edef\bem_currentenvironment   {problem}\fi
+  \ifenv_choice     \global \c_envnumber=3\relax \edef\bem_currentenvironment    {choice}\fi
+  \ifenv_material   \global \c_envnumber=4\relax \edef\bem_currentenvironment  {material}\fi
+  \ifenv_close      \global \c_envnumber=5\relax \edef\bem_currentenvironment     {close}\fi
+  \ifenv_writing    \global \c_envnumber=6\relax \edef\bem_currentenvironment   {writing}\fi
+  \ifenv_subwriting \global \c_envnumber=7\relax \edef\bem_currentenvironment{subwriting}\fi
   \fi
-  \doif{\csname \currentenvironment parameter\endcsname\c!example}{true}% 测试是否开启 example mode
+  \doif{\csname \bem_currentenvironment parameter\endcsname\c!example}{true}% 测试是否开启 example mode
        {\mode_exampletrue\global\c_envnumber=999\relax}%
   \edef\currentenvnumber{\the\c_envnumber}}
 
@@ -575,7 +645,7 @@
 %     subwriting 环境
 %
 
-\def\paren#1{(#1)}
+\def\parens#1{(#1)}
 
 \startluacode
   function FormatDim (dim)
@@ -722,8 +792,8 @@
   \fi
   \usesetupsparameter\examinfoparameter
   \edef\p_renderingsetup{\examinfoalternativeparameter\c!renderingsetup}%
-  \directsetup\p_renderingsetup
   \useexaminfostyleandcolor\c!style\c!color
+  \directsetup\p_renderingsetup
   \bgroup\examinfoparameter\c!left}
 
 \unexpanded\def\framed_examinfo_stop%
@@ -849,7 +919,7 @@
               \p_totalpoint
             \fi
           \else% if #2 = answer。因为 currentXXXanswer 是有定义内容的，
-            \ifmode_example You're in EXAMPLE MODE!\else
+            \ifmode_example \writestatus{module info}{\EQuestionID\ You're in EXAMPLE MODE!}\else
               \ifempty\p_totalanswer
                 \answer_answer
               \else
@@ -979,8 +1049,8 @@
 %D The first  parameter is the name of the test paper.
 %D The second parameter is the name of the parent test paper, which can be inherited by setting the parent.
 %D The third  parameter can directly set the relevant style and content.
-%D The order can be set through ‘list’ parameters.
-%D The default order is ‘secret, title, subject, information, notice’.
+%D The order can be set through 'list' parameters.
+%D The default order is 'secret, title, subject, information, notice'.
 
 %D Once you've defined the {\bf list} parameter,
 %D it will automatically expand the relevant parameters to define its style.
@@ -1387,9 +1457,9 @@
    \c!indentnext=\v!yes,
    \c!width=1.5\emwidth,
    \c!factor=0,
-   \c!step=.5\emwidth, 
+   \c!step=.5\emwidth,
    \c!distance=\zeropoint,
-  %\c!align=\v!normal, 
+  %\c!align=\v!normal,
   %\c!symalign=,
   %\c!color=,
   %\c!indenting=, % untouched if empty
@@ -1419,7 +1489,7 @@
    \c!start=1,
    \c!packcriterium=\zerocount,
    \c!criterium=\v!all, % permits 0 and negative numbers
-   \c!option={n,packed,joinedup,continue},
+   \c!option={n,packed,continue},
    \c!textdistance=\v!space, % none big medium small <dimension>
    \c!lasttextseparator=\itemgroupparameter\c!textseparator,
   %\c!lasttextseparator=,
@@ -1731,8 +1801,8 @@
 %%    % 特别的， 3 选项 且 可排版最大列数为 2 时，排版 1 行
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \startluacode
-  tbl_num_temp = {"one","two","three","four",
-                  "five","six","seven","eight","nine"}
+  local   tbl_num_temp = {"one","two","three","four",
+                          "five","six","seven","eight","nine"}
   local   tbl_cit_count         = tex.count['c_totalchoicenumber']
   local   available_columns     = tex.count['c_availablecolumns']
           available_columns_arg = ""
@@ -1772,7 +1842,7 @@
   \startluacode
     local a = tex.dimen['d_compared_maxwidth']
     local b = tex.dimen['d_maxwidth_with_label']
-          c = math.floor(a/b)
+    currentavailablecolumns = math.floor(a/b)
   \stopluacode
 %%   \d_compared_maxwidth 是可排版的最長寬度。
 %%   a 和 b 將寬度數字化， 以備比較出可排版的欄數。
@@ -1786,7 +1856,7 @@
   \else
     \edef\currentanswer{\collectedanswer}%
   \fi
-  \def\currentavailablecolumns{\ctxlua{context(c,"")}}%
+  \def\currentavailablecolumns{\ctxlua{context(currentavailablecolumns,"")}}%
   \def\currentitemmaxwidth    {\the\d_width_cit_max}%
   \installpointoranswer[choice][point]%
   \installdatacollector\installdatacollectorhelper
@@ -1803,9 +1873,9 @@
    \c!indentnext=\v!yes,
    \c!width=1\emwidth,
    \c!factor=0,
-   \c!step=.5\emwidth, 
+   \c!step=.5\emwidth,
    \c!distance=.2\emwidth,
-  %\c!align=\v!normal, 
+  %\c!align=\v!normal,
   %\c!symalign=,
   %\c!color=,
   %\c!indenting=, % untouched if empty
@@ -2045,9 +2115,9 @@
    \c!indentnext=\v!yes,
    \c!width=1.5\emwidth,
    \c!factor=0,
-   \c!step=.5\emwidth, 
+   \c!step=.5\emwidth,
    \c!distance=\zeropoint,
-  %\c!align=\v!normal, 
+  %\c!align=\v!normal,
   %\c!symalign=,
   %\c!color=,
   %\c!indenting=, % untouched if empty
@@ -2203,7 +2273,7 @@
   % \env_questionfalse   \env_problemfalse \env_choicefalse
   % \env_materialfalse   \env_closefalse   \env_writingfalse
   % \env_subwritingfalse \item_pitemfalse  \item_fillinfalse
-  % \item_inlinechoicefalse             
+  % \item_inlinechoicefalse
   \set_envitem_counter
   \edef\currentanswer_bak{\currentanswer}%
   \cdef\currentanswer{#1}%
@@ -2259,7 +2329,7 @@
     {\e!start\currentanswer}%
     {\e!stop \currentanswer}}
 
-\permanent\protected\def\stopanswer{%
+\permanent\protected\def\answer_stop_instance{%
   \edef\p_showanswer{\answerparameter\c!showanswer}%
   \edef\p_showscript{\answerparameter\c!showscript}%
   \edef\p_showpoint {\answerparameter\c!showpoint }%
@@ -2293,7 +2363,7 @@
     \answerparameter\c!after
   \fi \endgroup}
 
-\aliased\let\answer_stop_instance\stopanswer
+%\aliased\let\stopanswer\answer_stop_instance
 
 % kind of nested, when we need it:
 %
@@ -2319,7 +2389,9 @@
 \startsetups[\????answerrenderings:\s!default]
   \starttextbackground[env:answer]
   \ifenv_material% 可以用来做文章翻译或内容解释，
-    \getanswerbuffer% 也可以直接放置在文章之后，或这每一个段落之后
+    \ifmode_showanswer
+      \getanswerbuffer% 也可以直接放置在文章之后，或这每一个段落之后
+    \fi
   \else
     \ifmode_showscript
         \answerparameter{scriptcontent}%
@@ -2371,7 +2443,7 @@
   \c!alternative=\s!default,
   userlanguage=\currentmainlanguage,
   ]
-  
+
 \defineanswer[answer]
 
 \setuptextbackground[env:answer]%
@@ -2600,7 +2672,7 @@
               %color=gray,
               width=4em,
               n=4,
-              dy=-0.4,
+              dy=-0.35,
               max=3,
               offset=-.1,
               rulethickness=.5pt,
@@ -2613,7 +2685,8 @@
     \edef\currentfillin{#1}\item_fillintrue
     \ifparameters\or\or\setupcurrentfillin[#2]\or\setupfillin[#2]\fi
     \global\advance\c_fillinnumber by 1\relax
-    \def\currentfillinanswer{\usefillinstyleandcolor\c!answerstyle\c!answercolor\answer_answer}%
+    \def\currentfillinanswer{\usefillinstyleandcolor\c!answerstyle\c!answercolor
+      \ifempty\currentprevanswer #3\else\currentprevanswer\fi}%
     \edef\p_number{\number\c_fillinnumber}%
     \edef\p_align{\fillinparameter\c!align}%
     \edef\currentfillinalternative{\fillinparameter\c!alternative}%
@@ -2622,9 +2695,10 @@
     \fi
     \usesetupsparameter\fillinparameter
     \edef\p_renderingsetup{\fillinalternativeparameter\c!renderingsetup}%
+    \unskip
     \ifx\p_align\c!autoright
-      \unskip\nobreak\hfill
-      \penalty50\null\;\nobreak\hfill
+      \nobreak\hfill
+      \penalty50\null\nobreak\hfill
     \else
       \allowbreak
     \fi
@@ -2789,7 +2863,7 @@
         \wordboundary\zwnj\currentfillinanswer\hfill\zwnj
         \egroup
       \fi
-    \fi 
+    \fi
   \fi
 \stopsetups
 
@@ -2803,7 +2877,7 @@
 
 \definefillin[fillin]
 \definefillin[fillinframe]  [alternative=frame,offset=0pt,location=low,left=\thinspace,right=\thinspace,align=lohi]
-\definefillin[fillinbracket][fillinframe][left=(,right=),align=autoright,framecolor=transparent]
+\definefillin[fillinbracket][fillinframe][left=(,right=),align=autoright,framecolor=transparent,style=,]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{設置 material 環境}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2909,7 +2983,7 @@
                             \c!before=,]
 \setupmaterial [\c!author] [\c!style=\tf,\c!color=,\c!align=flushright]
 \setupmaterial [\c!source] [\c!before=\par,\c!align=flushright]
-\setupmaterial [indicator]
+\setupmaterial [indicator,indicator_helper]
                [\c!style=\ssbf,
                 \c!color=,
                 \c!before={\;(\nobreak\,\nobreak},
@@ -2922,7 +2996,7 @@
                 \c!continue=\v!yes,
                 \c!empty=,
                 \c!offset=-0.3,
-                \c!dy=-0.4,
+                \c!dy=-0.35,
                 \c!max=3,
                 \c!rulethickness=.1,
                 \c!order=\v!foreground,
@@ -2973,7 +3047,8 @@
     \material_parameter\c!author
   \stopalignment
   \blank[\rootmaterialparameter\c!spaceafter]%
-  \setupindenting[\rootmaterialparameter{indent}]}
+  \setupindenting[\rootmaterialparameter{indent}]%
+  \penalty 10000\relax}
 
 \def\stopmaterial{%
     \material_parameter\c!source
@@ -3013,8 +3088,8 @@
     \incrementcounter[material:\currentmaterial]%
     \convertedcounter[material:\currentmaterial]%
   \else
-    \incrementcounter[indicator_helper]%
-    \convertedcounter[indicator_helper]%
+    \incrementcounter[material:indicator_helper]%
+    \convertedcounter[material:indicator_helper]%
   \fi
   \namedmaterialparameter\currentmaterial\c!after
   \penalty0\relax
@@ -3050,7 +3125,7 @@
     \ifcontinue_counter\color[red]{continue}\fi
   \fi
   \ifenv_material\convertedcounter[material:\currentmaterial]%
-  \else          \convertedcounter[indicator_helper]\fi
+  \else          \convertedcounter[material:indicator_helper]\fi
   \namedmaterialparameter\currentmaterial\c!after
   \penalty0\relax
     #2\egroup
@@ -3061,11 +3136,11 @@
     \incrementcounter[material:indicator]%
     \convertedcounter[material:indicator]%
   \else
-    \incrementcounter[indicator_helper]%
-    \convertedcounter[indicator_helper]%
+    \incrementcounter[material:indicator_helper]%
+    \convertedcounter[material:indicator_helper]%
   \fi}
 \def\resetindicators{\setcounter[material:indicator][0]%
-                     \setcounter[indicator_helper] [0]}
+                     \setcounter[material:indicator_helper] [0]}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{Chinese Verse}
@@ -3332,7 +3407,7 @@
 %D \startoptclose
 %D The latest \ocitem[answer=engineering]{engineer} techniques are applied to create
 %D this protective \ocitem[answer=functional]{function} structure that is also
-%D beautiful. The design features ten steel “sepals (萼片)” made of glass and
+%D beautiful. The design features ten steel "sepals (萼片)" made of glass and
 %D aluminium (铝). These sepals open on warm days \ocitem[answer=to give]{give} the
 %D inside plants sunshine and fresh air. In cold weather, the structure stays
 %D \ocitem[answer=closed]{close} to protect the plants.
@@ -3369,9 +3444,9 @@
   \c!indentnext=\v!yes,
   \c!width=1.5\emwidth,
   \c!factor=0,
-  \c!step=.5\emwidth, 
+  \c!step=.5\emwidth,
   \c!distance=\zeropoint,
-  %\c!align=\v!normal, 
+  %\c!align=\v!normal,
   %\c!symalign=,
   %\c!color=,
   %\c!indenting=, % untouched if empty
@@ -3498,9 +3573,9 @@
 
 %D \starttyping
 %D   score\score{3}\\
-%D   score\score[type=dotfill]{30}\\
+%D   score\score[type=dotfills]{30}\\
 %D   \resetscore\\
-%D   score\score[type=cdotfill]{30}\\
+%D   score\score[type=cdotfills]{30}\\
 %D   \setupscore[score=calculation]
 %D   score\score[type=space]{3}\\
 %D   score\score[type=hfill]{3}\\
@@ -3512,10 +3587,10 @@
   \global\c_stepscore=\numexpr\c_stepscore+\c_stepscore_temp\relax%
   \fi\number\c_stepscore%
 }
-\def\dotfill{\leavevmode%
+\def\dotfills{\leavevmode%
   \xleaders\hbox to 0.25em{\hfil.\hfil}%
   \hfill\kern 0pt\relax}
-\def\cdotfill{\leavevmode%
+\def\cdotfills{\leavevmode%
   \xleaders\hbox to 0.25em{\hfil$\cdot$\hfil}%
   \hfill\kern 0pt\relax}
 
@@ -3530,11 +3605,11 @@
   \usescorestyleandcolor\c!style\c!color%
   \start\space\scoreparameter{dotstyle}%
   \switchtocolor[\scoreparameter{dotcolor}]%
-  \doif{\scoreparameter\c!type}{}{\dotfill}%
+  \doif{\scoreparameter\c!type}{}{\dotfills}%
   \doif{\scoreparameter\c!type}{space}{}%
   \doif{\scoreparameter\c!type}{hfill}{\unskip\hfill}%
-  \doif{\scoreparameter\c!type}{dotfill}{\dotfill}%
-  \doif{\scoreparameter\c!type}{cdotfill}{\cdotfill}%
+  \doif{\scoreparameter\c!type}{dotfills}{\dotfills}%
+  \doif{\scoreparameter\c!type}{cdotfills}{\cdotfills}%
   \space\stop\scoreparameter\c!left%
   \doif{\scoreparameter{score}}{}           {#2}%
   \doif{\scoreparameter{score}}{default}    {#2}%
@@ -3977,6 +4052,48 @@ return MP.lianxian
 %D \VL                                      \NC                              \NC\NR
 %D \stoptabulate
 
+% 绘制圆圈
+\startuseMPgraphic{mp:circle}
+numeric w;
+w := OverlayWidth ;  % 获取框架宽度
+draw fullcircle
+  scaled .8w
+  withpen pencircle scaled OverlayLineWidth
+  withcolor OverlayLineColor ;
+\stopuseMPgraphic
+
+% 绘制叉号
+\startuseMPgraphic{mp:cross}
+path p ;
+% 对角线路径（左下到右上）
+p := (-0.35, -0.35) -- (0.35, 0.35) ;
+draw p
+  scaled OverlayWidth
+  withpen pencircle scaled OverlayLineWidth
+  withcolor OverlayLineColor ;
+% 对角线路径（左上到右下）
+p := (-0.35, 0.35) -- (0.35, -0.35) ;  % 左上到右下
+draw p
+  scaled OverlayWidth
+  withpen pencircle scaled OverlayLineWidth
+  withcolor OverlayLineColor ;
+\stopuseMPgraphic
+
+\defineoverlay[circle][\useMPgraphic{mp:circle}]
+\defineoverlay[cross] [\useMPgraphic{mp:cross}]
+
+\defineframed[symcircle]
+  [background=circle,
+   frame=off,
+   align=lohi,
+   location=low,
+   offset=0pt,
+   width=1em,
+   framecolor=red,
+   rulethickness=1pt]
+
+\defineframed[symcross][symcircle][background=cross]
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{Multilingual support}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -3986,14 +4103,14 @@ return MP.lianxian
 
 \let\sys_language\language
 
-\appendtoks
-  \ifcsname\currentuserlanguage\endcsname
-  \letcsname\currentuserlanguage\endcsname\relax
-  \frozen\instance\protected\edefcsname        \currentuserlanguage\endcsname{\userlanguage      [\currentuserlanguage]}\else
-  \frozen\instance\protected\edefcsname        \currentuserlanguage\endcsname{\userlanguage      [\currentuserlanguage]}\fi
-  \frozen\instance\protected\edefcsname\e!start\currentuserlanguage\endcsname{\startuserlanguage [\currentuserlanguage]}%
-  \frozen\instance\protected\edefcsname\e!stop \currentuserlanguage\endcsname{\stopuserlanguage}%
-\to \everydefineuserlanguage
+% \appendtoks
+%   \ifcsname\currentuserlanguage\endcsname
+%   \letcsname\currentuserlanguage\endcsname\relax
+%   \frozen\instance\protected\edefcsname        \currentuserlanguage\endcsname{\userlanguage      [\currentuserlanguage]}\else
+%   \frozen\instance\protected\edefcsname        \currentuserlanguage\endcsname{\userlanguage      [\currentuserlanguage]}\fi
+%   \frozen\instance\protected\edefcsname\e!start\currentuserlanguage\endcsname{\startuserlanguage [\currentuserlanguage]}%
+%   \frozen\instance\protected\edefcsname\e!stop \currentuserlanguage\endcsname{\stopuserlanguage}%
+% \to \everydefineuserlanguage
 
 \setupuserlanguage[en][
   bodyfont=modern,
@@ -4005,8 +4122,8 @@ return MP.lianxian
   indenting=none,]
 
 \setupuserlanguage[cn][
-  bodyfont=sourcehans,
-  fallbackfont=ebgaramond,
+  bodyfont=adobehans,
+  fallbackfont=none,
   patterns={zh,en},
   script=hanzi,
   interlinespace=1.5em,
@@ -4014,8 +4131,8 @@ return MP.lianxian
   indenting={first,always,2em},]
 
 \setupuserlanguage[hans][
-  bodyfont=sourcehans,
-  fallbackfont=playfair,
+  bodyfont=adobehans,
+  fallbackfont=none,
   patterns={zh,en},
   script=hanzi,
   interlinespace=1.5em,
@@ -4024,7 +4141,7 @@ return MP.lianxian
 
 \setupuserlanguage[hant][
   bodyfont=lihant,
-  fallbackfont=cormorantlight,
+  fallbackfont=none,
   patterns={zh,en},
   script=hanzi,
   interlinespace=1.5em,
@@ -4033,12 +4150,14 @@ return MP.lianxian
 
 \setupuserlanguage[ja][
   bodyfont=ryumin,
-  fallbackfont=ibmplex,
+  fallbackfont=none,
   patterns={ja,en},
   script=nihongo,
   interlinespace=1.5em,
   align={height,hanging,justified},
   indenting={first,always,1em},]
+
+\newif\ifin_footnote
 
 \tolerant\protected\def\userlanguage[#1]#*[#2]#*%
  {\edef\currentuserlanguage{#1}%
@@ -4052,6 +4171,7 @@ return MP.lianxian
   \setups{fallback:\userlanguageparameter{fallbackfont}}%
   \usebodyfontparameter\userlanguageparameter
   \useuserlanguagestyleandcolor\c!style\c!color
+  \ifin_footnote\tx\fi
   \ifhmode\else\par
     \edef\p_language_interlinespace{\userlanguageparameter\c!interlinespace}%
     \usealignparameter\userlanguageparameter%
@@ -4115,7 +4235,7 @@ return MP.lianxian
      label("\MPvar{style}\effect[\MPvar{effect}]{\MPtext{framednum}}",\MPvar{frametype})
                               withcolor \MPvar{color}      ;
                      );
-  %ftxt := ftxt shifted (0,\MPvar{yoffset}) ; 
+  %ftxt := ftxt shifted (0,\MPvar{yoffset}) ;
   draw ftxt scaled \MPvar{scaled};
 \stopuseMPgraphic
 
@@ -4145,7 +4265,7 @@ return MP.lianxian
   \setupcircledtext[framecolor=black,color=black,fillcolor=white,radius=0.2,]\circledtext{#1}}}
 \def\roundsquaredconversion#1{{%
   \setupcircledtext[framecolor=black,fillcolor=black,color=white,radius=0.2,]\circledtext{#1}}}
-  
+
 \defcsname circlednum:Co:cn\endcsname#1{\circledconversion             {\chinesenumerals{#1}}}
 \defcsname circlednum:CO:cn\endcsname#1{\negativecircledconversion     {\chinesenumerals{#1}}}
 \defcsname circlednum:Cr:cn\endcsname#1{\roundsquaredconversion        {\chinesenumerals{#1}}}
@@ -4204,8 +4324,8 @@ return MP.lianxian
 %\stopitemize
 
 \defineframed[lexicalframe][
-  corner=00,location=high,offset=0pt,
-  loffset=2pt,roffset=2pt,radius=2pt,
+  corner=00,location=high,depth=.3\baselineskip,height=.7\baselineskip,
+  offset=0pt,loffset=2pt,roffset=2pt,radius=2pt,align={center,lohi},
   framecolor=blue,foregroundcolor=blue,
   foregroundstyle=ssxx]
 
@@ -4217,18 +4337,43 @@ return MP.lianxian
   foregroundstyle=\definedfont[Sans at 8pt]]
 
 \defineframed[grammarframe][lexicalframe]
-\setupframed [grammarframe][foregroundstyle=ssx]
+\setupframed [grammarframe][foregroundstyle=\tf\ssx]
+
+\defineregister [entryindex]
+\defineregister [grammarindex]
+\defineregister [functionindex]
 
 \installnamespace          {lexicalentry}
 \installcommandhandler \????lexicalentry     {lexicalentry}     \????lexicalentry
+\installcounterassociation {lexicalentry}
+
+\appendtoks
+   \registerlexicalentrycounter{\currentlexicalentry}
+   \definecounter[\currentlexicalentry]%
+\to \everydefinelexicalentry
+
+\appendtoks
+   \synchronizelexicalentrycounters
+\to \everysetuplexicalentry
+
+\appendtoks
+    % \frozen\instance\protected\edefcsname        \currentlexicalentry\endcsname{\namedlexicalentry}%
+    \frozen\protected\instance\edefcsname\e!start\currentlexicalentry\endcsname{\startnamedlexicalentry[\currentlexicalentry]}%
+    \frozen\protected\instance\letcsname \e!stop \currentlexicalentry\endcsname \stopnamedlexicalentry
+\to \everydefinelexicalentry
 
 \setuplexicalentry[
   language=ja,
-  style=\definedfont[Serif at 11pt],
-  before=\blank[halfline],
-  entrystyle=ssa,
-  entrycolor=blue,
-  infostyle=ssx,
+  \c!style=\definedfont[Serif at 11pt],
+  \c!after=\blank[halfline],
+  \c!prefix=no,
+  \c!start=0,
+  \c!numberconversion=cn,
+  \c!way=\v!by\v!chapter,
+  \c!numberstopper=、,
+  \c!textstyle=ssa,
+  \c!textcolor=blue,
+  \c!infostyle=ssx,
   antonymlabel=対,
   examplelabel=例,
   referlabel=参考,
@@ -4236,90 +4381,127 @@ return MP.lianxian
   alias=〜,
   entrycommand=,]
 
-\tolerant\protected\def\startlexicalentry[#1]#*#:#2%
+\tolerant\protected\def\startnamedlexicalentry[#1]#*[#2]#*#:#3%
  {\begingroup
-  \setuplexicalentry[#1]%
-  \setcounter[grammarlists][0]%
-  \setcounter[meaninglists][0]%
-  \setcounter[summarylists][0]%
-  \setcounter[examplelists][0]%
-  \setcounter[comparinglists][0]%
-  \setcounter[itemgroup:env:question][0]
-  \def\antonym##1 {\thinspace{\lexicalinnerframe{\lexicalentryparameter{antonymlabel}}  
-                  \uselexicalentrystyleandcolor\c!infostyle\c!infocolor 
-                  ##1}\thinspace}%
-  \def\example##1 {\thinspace{\lexicalinnerframe{\lexicalentryparameter{examplelabel}}  
-                  \uselexicalentrystyleandcolor\c!infostyle\c!infocolor 
-                  }\thinspace}%
-  \def\refer##1   {\thinspace{\lexicalinnerframe{\lexicalentryparameter{referlabel}}
-                  \uselexicalentrystyleandcolor\c!infostyle\c!infocolor 
-                  ##1}\thinspace}%
-  \def\junction##1{\thinspace{\lexicalinnerframe{\lexicalentryparameter{junctionlabel}}
-                  \uselexicalentrystyleandcolor\c!infostyle\c!infocolor 
-                  ##1}\thinspace}%
-  \def\alias      {\lexicalentryparameter{alias}}%
-  \edef\p_accent  {\lexicalentryparameter{accent}}%
-  \edef\p_class   {\lexicalentryparameter{class}}%
-  \startuserlanguage[\lexicalentryparameter{language}]%
-  \setupindenting[none]%
-  \lexicalentryparameter\c!before
-  \uselexicalentrystyleandcolor\c!style\c!color
-  \bgroup
-    \uselexicalentrystyleandcolor\c!entrystyle\c!entrycolor
-    \lexicalentryparameter{entrycommand}{#2}%
-  \egroup
-  \lexicalentryparameter\c!inbetween
-  \ifhastok={#1}
-    \processcommacommand[\p_class]{\thinspace\lexicalframe}%
+    \cdef\currentlexicalentry{#1}%
+    \setuplexicalentry[#2]%
+    \resetcounter[lexicalgrammar]%
+    \resetcounter[lexicaljunction]%
+    \resetcounter[lexicalmeaning]%
+    \resetcounter[lexicalsummary]%
+    \resetcounter[lexicalexample]%
+    \resetcounter[lexicalcomparing]%
+    \resetcounter[itemgroup:env:question]%
+    \def\antonym##1 {\dontleavehmode
+                    \thinspace{\lexicalinnerframe{\lexicalentryparameter{antonymlabel}}
+                    \uselexicalentrystyleandcolor\c!infostyle\c!infocolor
+                    ##1}\thinspace}%
+    \def\example##1 {\dontleavehmode
+                    \thinspace{\lexicalinnerframe{\lexicalentryparameter{examplelabel}}
+                    \uselexicalentrystyleandcolor\c!infostyle\c!infocolor
+                    }\thinspace}%
+    \def\refer##1   {\dontleavehmode
+                    \thinspace{\lexicalinnerframe{\lexicalentryparameter{referlabel}}
+                    \uselexicalentrystyleandcolor\c!infostyle\c!infocolor
+                    ##1}\thinspace}%
+    \def\junction##1{\dontleavehmode
+                    \thinspace{\lexicalinnerframe{\lexicalentryparameter{junctionlabel}}
+                    \uselexicalentrystyleandcolor\c!infostyle\c!infocolor
+                    ##1}\thinspace}%
+    \def\hantext##1{{\userlanguage[hans]\hwx\kern -.5em ｜ ##1}}%
+    \def\alias      {\lexicalentryparameter{alias}}%
+    \edef\p_accent  {\lexicalentryparameter{accent}}%
+    \edef\p_class   {\lexicalentryparameter{class}}%
+    \edef\p_number  {\lexicalentryparameter{number}}%
+    \edef\p_indexcmd{\lexicalentryparameter{indexcommand}}%
+    \edef\p_indexcls{\lexicalentryparameter{indexclass}}%
+    \edef\p_indexCLS{grammar}%
+    \startuserlanguage[\lexicalentryparameter{language}]%
+    \setupindenting[none]%
+    \lexicalentryparameter\c!before
+    \uselexicalentrystyleandcolor\c!style\c!color
     \bgroup
-      \setupframed[lexicalframe][width=\bodyfontsize]
-      \processcommacommand[\p_accent]{\thinspace\lexicalframe}%
+      \uselexicalentrystyleandcolor\c!textstyle\c!textcolor
+      \ifchknumber\lexicalentryparameter\c!number\or
+        \setupcounter[\currentlexicalentry][number=\lexicalentryparameter\c!number]%
+        \convertedcounter[\currentlexicalentry]%
+        \incrementcounter[\currentlexicalentry]%
+      \else
+        \doiftrue{lexicalentry}{number}{%
+          \incrementcounter[\currentlexicalentry]%
+          \convertedcounter[\currentlexicalentry]}%
+      \fi
+      \lexicalentryparameter{textcommand}{#3}%
     \egroup
-  \else
-    \processcommacommand[#1]{\thinspace\lexicalframe}%
-  \fi}
+    \ifx\p_indexcmd\empty
+      \ifx\p_indexcls\p_indexCLS
+        \grammarindex{#3}%
+        \functionindex{\lexicalentryparameter{function}+#3}%
+      \else
+        \entryindex{#3}%
+      \fi
+    \else
+      \lexicalentryparameter{indexcommand}{#3}%
+    \fi
+    \textreference[#3]{#3}
+    \ifhastok={#2}
+      \processcommacommand[\p_class]{\thinspace\lexicalframe}%
+      \bgroup
+        \setupframed[lexicalframe][width=\bodyfontsize]
+        \processcommacommand[\p_accent]{\thinspace\lexicalframe}%
+      \egroup
+    \else
+      \processcommacommand[#2]{\thinspace\lexicalframe}%
+    \fi
+    \lexicalentryparameter\c!inbetween}
 
-\def\stoplexicalentry{%
-  \lexicalentryparameter\c!after
+\def\stopnamedlexicalentry{%
+   \lexicalentryparameter\c!after
    \stopuserlanguage
   \endgroup}
 
-\tolerant\protected\def\lexicalentry[#1]#*#:#2#3
-  {\startlexicalentry[#1]{#2}#3\stoplexicalentry}
+\definelexicalentry[lexicalentry]   [state=stop]
+\definelexicalentry[lexicalgrammar] [indexclass=grammar]
 
 \defineitemgroup  [lexicallists]  [levels=4]
 \setupitemgroup   [lexicallists]  [each] [before=,after=,left=,right=,width=1.5em,
                                           lefttext=,righttext=,
                                           indenting=no,stopper=,symalign=center,]
-\setupitemgroup   [lexicallists]  [1]    [Cr:kata,text,packed,joinedup,nowhite]
-\setupitemgroup   [lexicallists]  [2]    [CR:num, text,packed,joinedup,nowhite]
-\setupitemgroup   [lexicallists]  [3]    [Co:num, text,packed,joinedup,nowhite]
-\setupitemgroup   [lexicallists]  [4]    [R,      text,packed,joinedup,nowhite][stopper=.]
+\setupitemgroup   [lexicallists]  [1]    [Cr:kata,,packed,joinedup]
+\setupitemgroup   [lexicallists]  [2]    [CR:num, ,packed,joinedup]
+\setupitemgroup   [lexicallists]  [3]    [Co:num, ,packed,joinedup]
+\setupitemgroup   [lexicallists]  [4]    [R,      ,packed,joinedup][stopper=.]
 
-\defineenumeration[grammarlists]                 [counter=grammarlists]
-\defineenumeration[meaninglists]  [grammarlists] [counter=meaninglists]
-\defineenumeration[examplelists]  [grammarlists] [counter=examplelists]
-\defineenumeration[summarylists]  [grammarlists] [counter=summarylists]
-\defineenumeration[junctionlists] [grammarlists] [counter=junctionlists]
-\defineenumeration[comparinglists][grammarlists] [counter=comparinglists]
+\defineenumeration[grammarlists]                 [text={文法},  counter=grammarlists]
+\defineenumeration[examplelists]  [grammarlists] [text={例文},  counter=examplelists]
 
 \setupenumeration[grammarlists][
-  text={文法},
-  headcommand=\grammarframe,
-  headstyle=ss,
+  distance=.5em,
+  numbercommand=\groupedcommand{\raise1.5pt\hbox\bgroup\grammarframe\bgroup}{\egroup\egroup},
   width=fit,
   alternative=series,
   indenting={yes,first,always,2em},
-  %margin=2em,
   before=\par,inbetween=,after=\par,]
 
-\setupenumeration[meaninglists]  [text={意味}]
-\setupenumeration[examplelists]  [text={例文}]
-\setupenumeration[junctionlists] [text={接続}]
-\setupenumeration[comparinglists][text={対比}]
-\setupenumeration[summarylists]  [text={まとめ},number=no]
+\defineenumeration[lexicalmeaning]  [grammarlists] [text={意味},  counter=lexicalmeaning,after=\blank[halfline]]
+\defineenumeration[lexicaljunction] [grammarlists] [text={接続},  counter=lexicaljunction]
+% \defineenumeration[lexicalexample]  [grammarlists] [text={例文},  counter=lexicalexample]
+\defineenumeration[lexicalcomparing][grammarlists] [text={対比},  counter=lexicalcomparing]
+\defineenumeration[lexicalsummary]  [grammarlists] [text={まとめ},counter=lexicalsummary,number=no]
+
+\definestartstop[lexicalexample][
+  before=\startexamplelists
+          \hbox\bgroup
+            \vtop\bgroup\leftskip0pt
+            \hsize\dimexpr\textwidth-4em\relax
+            \startlexicallists,
+  after=\stoplexicallists
+        \egroup
+        \egroup
+        \stopexamplelists,]
 
 \definehighlight [lexicalemph]   [style=\groupedcommand{\ss\underbar}{}]
+
 %D startbuffer
 %D \lexicalentry[class=名,accent=1]{太陽}{
 %D   \startlexicallists
@@ -4347,7 +4529,7 @@ return MP.lianxian
 \startmode[check]
   \mode_checktrue
 \stopmode
-\def\showchekinfo     {\mode_checktrue}
+\def\showcheckinfo     {\mode_checktrue}
 
 \def\showanswer{\mode_showanswertrue \setupanswer[showscript=false]}
 \def\hideanswer{\mode_showanswerfalse\setupanswer[showscript=true]}
@@ -4370,3 +4552,4 @@ return MP.lianxian
 \protect
 \stopmodule
 \endinput
+

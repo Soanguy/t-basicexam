@@ -1,0 +1,1048 @@
+%\definefontfeature [default][default][protrusion=quality]
+\definefontfeature [latin-default][
+                    language=dflt,mode=node,%
+                    lnum=yes,pnum=yes,tnum=no,
+                    kern=yes,case=yes,calt=yes,
+                    %cpsp=yes,locl=yes,pwid=yes,
+                    %trep=yes,swsh=yes,dlig=yes,
+                    liga=yes,tlig=yes,itlc=yes,]%
+\definefontfeature [fallback-latin-default]        [latin-default]
+\definefontfeature [fallback-latin-slanted]        [latin-default] [effect={slant=.2}]
+\definefontfeature [fallback-latin-slanted-mono]                   [effect={auto=yes,slant=.2}]
+\definefontfeature [fallback-latin-smallcaps]      [smallcaps]
+\definefontfeature [fallback-latin-smallcaps-mono] [cmcp=yes,c2sc=yes]
+
+%常用标点    2000–206F
+%上标及下标  2070–209F
+\definefontfamilypreset
+  [range:CJK]%
+  [\c!range={cjkcompatibilityforms,cjkcompatibilityideographs,
+             cjkcompatibilityideographssupplement,cjkradicalssupplement,
+             cjkstrokes,cjksymbolsandpunctuation,cjkunifiedideographs,
+             cjkunifiedideographsextensiona,cjkunifiedideographsextensionb,
+             halfwidthandfullwidthforms,verticalforms,bopomofo,
+             bopomofoextended,hiragana,katakana,
+             }]%
+\def\fallbackrange
+ {0x0000-0x0400,0x2010-0x206F,0x2070-0x209F,
+  0x2013,0x2019,%0x2100,0x2101,,0x2015,0x2016
+  %0x2116,0x2117,0x2121,0x2126,0x2138,0x214D,
+  0x2160-0x217F}
+% 需要注意，ibmplex 並沒有 smcp 特性。無法通過定義
+% fontfeature 來設定。可是通過 偽小寫 來實現。
+%\def\CJKPunctuatation{%
+%    0x3000,0x3001,0xFE11,0x3002,0xFE12,0x30FB,
+%    0x30A0,0x2026,0x00B7,0x2049,0x203C,0x2047,
+%    0x2048,0xFF06,0xFF0A,0xFF20,0xFF3C,0xFF1A,
+%    0xFE13,0xFF0C,0xFE19,0xFF01,0xFE15,0xFF03,
+%    0xFF05,0xFF0E,0xFF1F,0xFE16,0xFF02,0xFF07,
+%    0xFF1B,0xFE14,0xFF0F,0xFF3F,0xFE10,0x002D,
+%    0x2013,0x2014,0x2E3B,0x2E3A,0xFE31,0xFE32,
+%    0xFF0D,0xFF5F,0xFF60,0x3008,0x3009,0x3010,
+%    0x3011,0xFF5B,0xFF5D,0x300C,0x300D,0x300A,
+%    0x300B,0x3014,0x3015,0x300E,0x300F,0x3016,
+%    0x3017,0x301A,0x301B,0x3018,0x3019,0xFE3F,
+%    0xFE40,0xFE3B,0xFE3C,0xFF3B,0xFF3D,0xFE41,
+%    0xFE42,0xFE3D,0xFE3E,0xFF08,0xFF09,0xFE39,
+%    0xFE3A,0xFE43,0xFE44,0xFE17,0xFE18,0xFE37,
+%    0xFE38,0xFE47,0xFE48,0xFE35,0xFE36,0x201C,
+%    0x201D,0x2018,0x2019,0x301F,0x301E,0x301D,
+%    0xFF3E,0xFF40,0xFFE3,0xF16D,0xF16E,0xF16F,
+%    0xFFE4,0xF265,0xF260,0xF261,0xF262,0xF264,
+%    0xF263,0xFFE0,0xFF04,0xFFE1,0xFFE6,0xFFE5,
+%    0xFF5C,0xFF1D,0x229C,0xFF1E,0xFF1C,0xFF0B,
+%    0x6FE2,0x6FE3,0xF10D,0xF10E,0xF10F}
+%\definefontfeature[zhudouCJK][default][pwid=yes,dlig=yes,kern=yes]%
+%\definefontfallback [fallback-handwlight]       [zhudousansregular*zhudouCJK][\CJKPunctuatation][force=yes]%
+%\definefontfallback [fallback-handwlightitalic] [zhudousansregular*zhudouCJK][\CJKPunctuatation][force=yes]%
+%\definefontfallback [fallback-handw]            [zhudousansregular*zhudouCJK][\CJKPunctuatation][force=yes]%
+%\definefontfallback [fallback-handwbold]        [zhudousansregular*zhudouCJK][\CJKPunctuatation][force=yes]%
+%\definefontfallback [fallback-handwitalic]      [zhudousansregular*zhudouCJK][\CJKPunctuatation][force=yes]%
+%\definefontfallback [fallback-handwbolditalic]  [zhudousansregular*zhudouCJK][\CJKPunctuatation][force=yes]%
+%\definefontfallback [fallback-handwslanted]     [zhudousansregular*zhudouCJK][\CJKPunctuatation][force=yes]%
+%\definefontfallback [fallback-handwboldslanted] [zhudousansregular*zhudouCJK][\CJKPunctuatation][force=yes]%
+%\definefontfallback [fallback-handwcaps]        [zhudousansregular*zhudouCJK][\CJKPunctuatation][force=yes]%
+
+% fallback:serif:cormorant   fallback:serif:cormorantlight   fallback:serif:newsreader   fallback:serif:ibmplex    fallback:serif:merriweather   fallback:serif:merriweatherlight
+% fallback:sans:ysabeau      fallback:sans:ysabeaulight      fallback:sans:prozalibre    fallback:sans:ibmplex     fallback:sans:merriweather    fallback:sans:merriweatherlight
+% fallback:mono:ibmplex      --------------------------      ------------------------    -----------------------   ---------------------------   ---------------------------
+% fallback:handw:cormorant   fallback:handw:cormorantlight   fallback:handw:newsreader   fallback:handw:alegreya   fallback:handw:merriweather   fallback:handw:merriweatherlight
+
+% fallback:serif:gentium     fallback:serif:pagella
+% fallback:sans:iwona        fallback:sans:libertinus
+% fallback:mono:anonymous    --------------------------
+% fallback:handw:gentium     fallback:handw:pagella
+
+% fallback:serif:terms       ---------------------
+% fallback:sans:heros        fallback:handw:inter
+% fallback:mono:cursor       ---------------------
+% fallback:handw:terms       ---------------------
+
+% fallback:serif:modern
+% fallback:sans:modern
+% fallback:mono:modern
+% fallback:handw:modern
+
+\startsetups fallback:serif:cormorant
+\definefontfallback [fallback-serifextralight]        [CormorantGaramond-Light*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifextralightitalic]  [CormorantGaramond-LightItalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-seriflight]             [CormorantGaramond-Light*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-seriflightitalic]       [CormorantGaramond-LightItalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serif]                  [CormorantGaramond-Medium*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifitalic]            [CormorantGaramond-MediumItalic*fallback-latin-default]   [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifbold]              [CormorantGaramond-Bold*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifmedium]            [CormorantGaramond-SemiBold*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifmediumitalic]      [CormorantGaramond-SemiBoldItalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifbolditalic]        [CormorantGaramond-BoldItalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifslanted]           [CormorantGaramond-Medium*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifboldslanted]       [CormorantGaramond-Bold*fallback-latin-slanted]           [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifcaps]              [CormorantSC-Medium]                                      [\fallbackrange] [force=yes,rscale=1.095]
+\stopsetups
+
+\startsetups fallback:serif:cormorantlight
+\definefontfallback [fallback-serifextralight]        [CormorantGaramond-Light*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifextralightitalic]  [CormorantGaramond-LightItalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-seriflight]             [CormorantGaramond-Light*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-seriflightitalic]       [CormorantGaramond-LightItalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serif]                  [CormorantGaramond-Regular*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifitalic]            [CormorantGaramond-Italic*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifbold]              [CormorantGaramond-Bold*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifmedium]            [CormorantGaramond-SemiBold*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifmediumitalic]      [CormorantGaramond-SemiBoldItalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifbolditalic]        [CormorantGaramond-BoldItalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifslanted]           [CormorantGaramond-Regular*fallback-latin-slanted]        [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifboldslanted]       [CormorantGaramond-Bold*fallback-latin-slanted]           [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifcaps]              [CormorantSC-Medium]                                      [\fallbackrange] [force=yes,rscale=1.095]
+\stopsetups
+
+\startsetups fallback:sans:ysabeau
+\definefontfallback [fallback-sansextralight]        [ysabeauofficelight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sansextralightitalic]  [ysabeauofficelightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sanslight]             [ysabeauofficelight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sanslightitalic]       [ysabeauofficelightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sans]                  [ysabeauofficemedium*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sansitalic]            [ysabeauofficemediumitalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sansmedium]            [ysabeauofficesemibold*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sansmediumitalic]      [ysabeauofficesemibolditalic*fallback-latin-default]  [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sansbold]              [ysabeauofficebold*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sansbolditalic]        [ysabeauofficebolditalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sansslanted]           [ysabeauofficemedium*fallback-latin-slanted]          [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sansboldslanted]       [ysabeauofficebold*fallback-latin-slanted]            [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sanscaps]              [ysabeauscmedium]                                     [\fallbackrange] [force=yes,rscale=1.095]
+\stopsetups
+
+\startsetups fallback:sans:ysabeaulight
+\definefontfallback [fallback-sansextralight]        [ysabeauofficelight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sansextralightitalic]  [ysabeauofficelightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sanslight]             [ysabeauofficelight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sanslightitalic]       [ysabeauofficelightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sans]                  [ysabeauofficeregular*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sansitalic]            [ysabeauofficeitalic*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sansmedium]            [ysabeauofficesemibold*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sansmediumitalic]      [ysabeauofficesemibolditalic*fallback-latin-default]  [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sansbold]              [ysabeauofficebold*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sansbolditalic]        [ysabeauofficebolditalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sansslanted]           [ysabeauofficeregular*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sansboldslanted]       [ysabeauofficebold*fallback-latin-slanted]            [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-sanscaps]              [ysabeauscregular]                                    [\fallbackrange] [force=yes,rscale=1.095]
+\stopsetups
+
+\startsetups fallback:mono:ibmplex
+\definefontfallback [fallback-monoextralight]       [IBMPlexMono-ExtraLight]                       [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback [fallback-monoextralightitalic] [IBMPlexMono-ExtraLightItalic]                 [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback [fallback-monolight]            [IBMPlexMono-Light]                            [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback [fallback-monolightitalic]      [IBMPlexMono-LightItalic]                      [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback [fallback-mono]                 [IBMPlexMono-Text]                             [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback [fallback-monoitalic]           [IBMPlexMono-TextItalic]                       [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback [fallback-monomedium]           [IBMPlexMono-Medium]                           [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback [fallback-monomediumitalic]     [IBMPlexMono-MediumItalic]                     [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback [fallback-monobold]             [IBMPlexMono-Bold]                             [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback [fallback-monobolditalic]       [IBMPlexMono-BoldItalic]                       [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback [fallback-monoslanted]          [IBMPlexMono-Text*fallback-latin-slanted-mono] [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback [fallback-monoboldslanted]      [IBMPlexMono-Bold*fallback-latin-slanted-mono] [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback [fallback-monocaps]             [lmmonocaps10-regular]                         [\fallbackrange] [force=yes,rscale=1.00]
+\stopsetups
+
+\startsetups fallback:handw:cormorant
+\definefontfallback [fallback-handwextralight]        [CormorantUpright-Light*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.055]
+\definefontfallback [fallback-handwextralightitalic]  [CormorantGaramond-LightItalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=1.055]
+\definefontfallback [fallback-handwlight]             [CormorantUpright-Light*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.055]
+\definefontfallback [fallback-handwlightitalic]       [CormorantGaramond-LightItalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=1.055]
+\definefontfallback [fallback-handw]                  [CormorantUpright-Medium*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.055]
+\definefontfallback [fallback-handwitalic]            [CormorantGaramond-MediumItalic*fallback-latin-default]   [\fallbackrange] [force=yes,rscale=1.055]
+\definefontfallback [fallback-handwmedium]            [CormorantUpright-SemiBold*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.055]
+\definefontfallback [fallback-handwmediumitalic]      [CormorantGaramond-SemiBoldItalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.055]
+\definefontfallback [fallback-handwbold]              [CormorantUpright-Bold*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=1.055]
+\definefontfallback [fallback-handwbolditalic]        [CormorantGaramond-BoldItalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.055]
+\definefontfallback [fallback-handwslanted]           [CormorantUpright-Medium*fallback-latin-slanted]          [\fallbackrange] [force=yes,rscale=1.055]
+\definefontfallback [fallback-handwboldslanted]       [CormorantUpright-Bold*fallback-latin-slanted]            [\fallbackrange] [force=yes,rscale=1.055]
+\definefontfallback [fallback-handwcaps]              [CormorantSC-Medium*fallback-latin-smallcaps]             [\fallbackrange] [force=yes,rscale=1.055]
+\stopsetups
+
+\startsetups fallback:handw:cormorantlight
+\definefontfallback [fallback-handwextralight]        [CormorantUpright-Light*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.055]
+\definefontfallback [fallback-handwextralightitalic]  [CormorantGaramond-LightItalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=1.055]
+\definefontfallback [fallback-handwlight]             [CormorantUpright-Light*fallback-latin-default]           [\fallbackrange][force=yes,rscale=1.055]
+\definefontfallback [fallback-handwlightitalic]       [CormorantGaramond-LightItalic*fallback-latin-default]    [\fallbackrange][force=yes,rscale=1.055]
+\definefontfallback [fallback-handw]                  [CormorantUpright-Regular*fallback-latin-default]         [\fallbackrange][force=yes,rscale=1.055]
+\definefontfallback [fallback-handwitalic]            [CormorantGaramond-Italic*fallback-latin-default]          [\fallbackrange][force=yes,rscale=1.055]
+\definefontfallback [fallback-handwmedium]            [CormorantUpright-SemiBold*fallback-latin-default]        [\fallbackrange][force=yes,rscale=1.055]
+\definefontfallback[fallback-handwmediumitalic]       [CormorantGaramond-SemiBoldItalic*fallback-latin-default] [\fallbackrange][force=yes,rscale=1.055]
+\definefontfallback [fallback-handwbold]              [CormorantUpright-Bold*fallback-latin-default]            [\fallbackrange][force=yes,rscale=1.055]
+\definefontfallback [fallback-handwbolditalic]        [CormorantGaramond-BoldItalic*fallback-latin-default]     [\fallbackrange][force=yes,rscale=1.055]
+\definefontfallback [fallback-handwslanted]           [CormorantUpright-Regular*fallback-latin-slanted]         [\fallbackrange][force=yes,rscale=1.055]
+\definefontfallback [fallback-handwboldslanted]       [CormorantUpright-Bold*fallback-latin-slanted]            [\fallbackrange][force=yes,rscale=1.055]
+\definefontfallback [fallback-handwcaps]              [CormorantSC-Regular*fallback-latin-smallcaps]            [\fallbackrange][force=yes,rscale=1.055]
+\stopsetups
+
+%%%%%%%%%%%%%%%%%%%%
+
+\startsetups fallback:serif:newsreader
+\definefontfallback[fallback-serifextralight]       [newsreader16ptextralight*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifextralightitalic] [newsreader16ptextralightitalic*fallback-latin-default][\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-seriflight]            [newsreader16ptlight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-seriflightitalic]      [newsreader16ptlightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serif]                 [newsreader16ptregular*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifitalic]           [newsreader16ptitalic*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifmedium]           [newsreader16ptmedium*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifmediumitalic]     [newsreader16ptmediumitalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifbold]             [newsreader16ptbold*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifbolditalic]       [newsreader16ptbolditalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifslanted]          [newsreader16ptregular*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifboldslanted]      [newsreader16ptbold*fallback-latin-slanted]            [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifcaps]             [newsreader16ptregular*fallback-latin-smallcaps]       [\fallbackrange] [force=yes,rscale=1.05]
+\stopsetups
+
+\startsetups fallback:serif:newsreader6pt
+\definefontfallback[fallback-serifextralight]       [newsreader6ptextralight*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifextralightitalic] [newsreader6ptextralightitalic*fallback-latin-default][\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-seriflight]            [newsreader6ptlight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-seriflightitalic]      [newsreader6ptlightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serif]                 [newsreader6ptregular*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifitalic]           [newsreader6ptitalic*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifmedium]           [newsreader6ptmedium*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifmediumitalic]     [newsreader6ptmediumitalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifbold]             [newsreader6ptbold*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifbolditalic]       [newsreader6ptbolditalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifslanted]          [newsreader6ptregular*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifboldslanted]      [newsreader6ptbold*fallback-latin-slanted]            [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifcaps]             [newsreader6ptregular*fallback-latin-smallcaps]       [\fallbackrange] [force=yes,rscale=1.05]
+\stopsetups
+
+\startsetups fallback:serif:newsreader72pt
+\definefontfallback[fallback-serifextralight]       [newsreader72ptextralight*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifextralightitalic] [newsreader72ptextralightitalic*fallback-latin-default][\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-seriflight]            [newsreader72ptlight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-seriflightitalic]      [newsreader72ptlightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serif]                 [newsreader72ptregular*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifitalic]           [newsreader72ptitalic*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifmedium]           [newsreader72ptmedium*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifmediumitalic]     [newsreader72ptmediumitalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifbold]             [newsreader72ptbold*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifbolditalic]       [newsreader72ptbolditalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifslanted]          [newsreader72ptregular*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifboldslanted]      [newsreader72ptbold*fallback-latin-slanted]            [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifcaps]             [newsreader72ptregular*fallback-latin-smallcaps]       [\fallbackrange] [force=yes,rscale=1.05]
+\stopsetups
+
+\startsetups fallback:serif:newsreaderlight
+\definefontfallback[fallback-serifextralight]       [newsreader16ptextralight*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifextralightitalic] [newsreader16ptextralightitalic*fallback-latin-default][\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-seriflight]            [newsreader16ptlight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-seriflightitalic]      [newsreader16ptlightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serif]                 [newsreader16ptlight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifitalic]           [newsreader16ptlightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifmedium]           [newsreader16ptmedium*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifmediumitalic]     [newsreader16ptmediumitalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifbold]             [newsreader16ptsemibold*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifbolditalic]       [newsreader16ptsemibolditalic*fallback-latin-default]  [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifslanted]          [newsreader16ptlight*fallback-latin-slanted]           [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifboldslanted]      [newsreader16ptsemibold*fallback-latin-slanted]        [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifcaps]             [newsreader16ptlight*fallback-latin-smallcaps]         [\fallbackrange] [force=yes,rscale=1.05]
+\stopsetups
+
+\startsetups fallback:sans:prozalibre
+\definefontfallback[fallback-sansextralight]        [prozalibrelight*fallback-latin-default]               [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansextralightitalic]  [prozalibrelightitalic*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sanslight]             [prozalibrelight*fallback-latin-default]               [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sanslightitalic]       [prozalibrelightitalic*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sans]                  [prozalibreregular*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansitalic]            [prozalibreitalic*fallback-latin-default]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansmedium]            [prozalibremedium*fallback-latin-default]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansmediumitalic]      [prozalibremediumitalic*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansbold]              [prozalibrebold*fallback-latin-default]                [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansbolditalic]        [prozalibrebolditalic*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansslanted]           [prozalibreregular*fallback-latin-slanted]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansboldslanted]       [prozalibrebold*fallback-latin-slanted]                [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sanscaps]              [prozalibreregular*fallback-latin-smallcaps]           [\fallbackrange] [force=yes,rscale=1.00]
+\stopsetups
+
+\startsetups fallback:handw:newsreader
+\definefontfallback[fallback-handwextralight]       [newsreader16ptextralight*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwextralightitalic] [newsreader16ptextralightitalic*fallback-latin-default][\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwlight]            [newsreader16ptlight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwlightitalic]      [newsreader16ptlightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handw]                 [newsreader16ptregular*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwitalic]           [newsreader16ptitalic*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwmedium]           [newsreader16ptmedium*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwmediumitalic]     [newsreader16ptmediumitalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwbold]             [newsreader16ptbold*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwbolditalic]       [newsreader16ptbolditalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwslanted]          [newsreader16ptregular*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwboldslanted]      [newsreader16ptbold*fallback-latin-slanted]            [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwcaps]             [newsreader16ptregular*fallback-latin-smallcaps]       [\fallbackrange] [force=yes,rscale=1.00]
+\stopsetups
+
+\startsetups fallback:handw:newsreader6pt
+\definefontfallback[fallback-handwextralight]       [newsreader6ptextralight*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwextralightitalic] [newsreader6ptextralightitalic*fallback-latin-default][\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwlight]            [newsreader6ptlight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwlightitalic]      [newsreader6ptlightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handw]                 [newsreader6ptregular*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwitalic]           [newsreader6ptitalic*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwmedium]           [newsreader6ptmedium*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwmediumitalic]     [newsreader6ptmediumitalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwbold]             [newsreader6ptbold*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwbolditalic]       [newsreader6ptbolditalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwslanted]          [newsreader6ptregular*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwboldslanted]      [newsreader6ptbold*fallback-latin-slanted]            [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwcaps]             [newsreader6ptregular*fallback-latin-smallcaps]       [\fallbackrange] [force=yes,rscale=1.00]
+\stopsetups
+
+\startsetups fallback:handw:newsreader72pt
+\definefontfallback[fallback-handwextralight]       [newsreader72ptextralight*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwextralightitalic] [newsreader72ptextralightitalic*fallback-latin-default][\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwlight]            [newsreader72ptlight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwlightitalic]      [newsreader72ptlightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handw]                 [newsreader72ptregular*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwitalic]           [newsreader72ptitalic*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwmedium]           [newsreader72ptmedium*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwmediumitalic]     [newsreader72ptmediumitalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwbold]             [newsreader72ptbold*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwbolditalic]       [newsreader72ptbolditalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwslanted]          [newsreader72ptregular*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwboldslanted]      [newsreader72ptbold*fallback-latin-slanted]            [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwcaps]             [newsreader72ptregular*fallback-latin-smallcaps]       [\fallbackrange] [force=yes,rscale=1.00]
+\stopsetups
+
+\startsetups fallback:handw:newsreaderlight
+\definefontfallback[fallback-handwextralight]       [newsreader16ptextralight*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwextralightitalic] [newsreader16ptextralightitalic*fallback-latin-default][\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwlight]            [newsreader16ptlight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwlightitalic]      [newsreader16ptlightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handw]                 [newsreader16ptlight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwitalic]           [newsreader16ptlightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwmedium]           [newsreader16ptmedium*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwmediumitalic]     [newsreader16ptmediumitalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwbold]             [newsreader16ptsemibold*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwbolditalic]       [newsreader16ptsemibolditalic*fallback-latin-default]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwslanted]          [newsreader16ptlight*fallback-latin-slanted]           [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwboldslanted]      [newsreader16ptsemibold*fallback-latin-slanted]        [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-handwcaps]             [newsreader16ptlight*fallback-latin-smallcaps]         [\fallbackrange] [force=yes,rscale=1.00]
+\stopsetups
+
+%%%%%%%%%%%%%%%%%%%%%%
+
+\startsetups fallback:serif:gentium
+\definefontfallback [fallback-serif]           [GentiumBookPlus-Regular*fallback-latin-default]    [\fallbackrange][force=yes,rscale=1.08]
+\definefontfallback [fallback-serifbold]       [GentiumBookPlus-Bold*fallback-latin-default]       [\fallbackrange][force=yes,rscale=1.08]
+\definefontfallback [fallback-serifitalic]     [GentiumBookPlus-Italic*fallback-latin-default]     [\fallbackrange][force=yes,rscale=1.08]
+\definefontfallback [fallback-serifbolditalic] [GentiumBookPlus-BoldItalic*fallback-latin-default] [\fallbackrange][force=yes,rscale=1.08]
+\definefontfallback [fallback-serifslanted]    [GentiumBookPlus-Regular*fallback-latin-slanted]    [\fallbackrange][force=yes,rscale=1.08]
+\definefontfallback [fallback-serifboldslanted][GentiumBookPlus-Bold*fallback-latin-slanted]       [\fallbackrange][force=yes,rscale=1.08]
+\definefontfallback [fallback-serifcaps]       [GentiumBookPlus-Regular*fallback-latin-smallcaps]  [\fallbackrange][force=yes,rscale=1.08]
+\stopsetups
+
+\startsetups fallback:sans:iwona
+\definefontfallback [fallback-sans]            [iwonaregular*fallback-latin-default]               [\fallbackrange][force=yes,rscale=0.95]
+\definefontfallback [fallback-sansbold]        [iwonabold*fallback-latin-default]                  [\fallbackrange][force=yes,rscale=0.95]
+\definefontfallback [fallback-sansitalic]      [iwonaitalic*fallback-latin-default]                [\fallbackrange][force=yes,rscale=0.95]
+\definefontfallback [fallback-sansbolditalic]  [iwonabolditalic*fallback-latin-default]            [\fallbackrange][force=yes,rscale=0.95]
+\definefontfallback [fallback-sansslanted]     [iwonaregular*fallback-latin-slanted]               [\fallbackrange][force=yes,rscale=0.95]
+\definefontfallback [fallback-sansboldslanted] [iwonabold*fallback-latin-slanted]                  [\fallbackrange][force=yes,rscale=0.95]
+\definefontfallback [fallback-sanscaps]        [iwonaregular*fallback-latin-smallcaps]             [\fallbackrange][force=yes,rscale=0.95]
+\stopsetups
+
+\startsetups fallback:mono:anonymous
+\definefontfallback [fallback-mono]            [name:anonymouspro]                                 [\fallbackrange][force=yes,rscale=1.00]
+\definefontfallback [fallback-monobold]        [name:anonymousprobold]                             [\fallbackrange][force=yes,rscale=1.00]
+\definefontfallback [fallback-monoitalic]      [name:anonymousproitalic]                           [\fallbackrange][force=yes,rscale=1.00]
+\definefontfallback [fallback-monobolditalic]  [name:anonymousprobolditalic]                       [\fallbackrange][force=yes,rscale=1.00]
+\definefontfallback [fallback-monoslanted]     [name:anonymouspro*fallback-latin-slanted-mono]     [\fallbackrange][force=yes,rscale=1.00]
+\definefontfallback [fallback-monoboldslanted] [name:anonymousprobold*fallback-latin-slanted-mono] [\fallbackrange][force=yes,rscale=1.00]
+\definefontfallback [fallback-monocaps]        [name:anonymouspro*fallback-latin-smallcaps-mono]   [\fallbackrange][force=yes,rscale=1.00]
+\stopsetups
+
+\startsetups fallback:handw:gentium
+\definefontfallback [fallback-handw]           [GentiumBookPlus-Regular*fallback-latin-default]    [\fallbackrange][force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbold]       [GentiumBookPlus-Bold*fallback-latin-default]       [\fallbackrange][force=yes,rscale=1.00]
+\definefontfallback [fallback-handwitalic]     [GentiumBookPlus-Italic*fallback-latin-default]     [\fallbackrange][force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbolditalic] [GentiumBookPlus-BoldItalic*fallback-latin-default] [\fallbackrange][force=yes,rscale=1.00]
+\stopsetups
+
+%%%%%%%%%%%%%%%
+
+\startsetups fallback:serif:ibmplex
+\definefontfallback[fallback-serifextralight]       [ibmplexseriflight*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-serifextralightitalic] [ibmplexseriflightitalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-seriflight]            [ibmplexseriflight*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-seriflightitalic]      [ibmplexseriflightitalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-serif]                 [ibmplexserifregular*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-serifitalic]           [ibmplexserifitalic*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-serifmedium]           [ibmplexserifmedium*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-serifmediumitalic]     [ibmplexserifmediumitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-serifbold]             [ibmplexserifsemibold*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-serifbolditalic]       [ibmplexserifsemibolditalic*fallback-latin-default]   [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-serifslanted]          [ibmplexserifregular*fallback-latin-slanted]          [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-serifboldslanted]      [ibmplexserifsemibold*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-serifcaps]             [lmromancaps10-regular]                               [\fallbackrange] [force=yes,rscale=1.00]%
+\stopsetups
+
+\startsetups fallback:sans:ibmplex
+\definefontfallback[fallback-sansextralight]        [ibmplexsansextralight*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-sansextralightitalic]  [ibmplexsansextralightitalic*fallback-latin-default]  [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-sanslight]             [ibmplexsanslight*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-sanslightitalic]       [ibmplexsanslightitalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-sans]                  [ibmplexsanstext*fallback-latin-default]              [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-sansitalic]            [ibmplexsanstextitalic*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-sansmedium]            [ibmplexsansmedium*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-sansmediumitalic]      [ibmplexsansmediumitalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-sansbold]              [ibmplexsanssemibold*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-sansbolditalic]        [ibmplexsanssemibolditalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-sansslanted]           [ibmplexsanstext*fallback-latin-slanted]              [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-sansboldslanted]       [ibmplexsanssemibold*fallback-latin-slanted]          [\fallbackrange] [force=yes,rscale=1.00]%
+\definefontfallback[fallback-sanscaps]              [lmsans10-regular*fallback-latin-smallcaps]           [\fallbackrange] [force=yes,rscale=1.00]%
+\stopsetups
+
+\startsetups fallback:handw:alegreya
+\definefontfallback[fallback-handwextralight]       [alegreyaregular*fallback-latin-default]              [\fallbackrange] [force=yes,rscale=0.95]%
+\definefontfallback[fallback-handwextralightitalic] [alegreyaitalic*fallback-latin-default]               [\fallbackrange] [force=yes,rscale=0.95]%
+\definefontfallback[fallback-handwlight]            [alegreyaregular*fallback-latin-default]              [\fallbackrange] [force=yes,rscale=0.95]%
+\definefontfallback[fallback-handwlightitalic]      [alegreyaitalic*fallback-latin-default]               [\fallbackrange] [force=yes,rscale=0.95]%
+\definefontfallback[fallback-handw]                 [alegreyaregular*fallback-latin-default]              [\fallbackrange] [force=yes,rscale=0.95]%
+\definefontfallback[fallback-handwbold]             [alegreyamedium*fallback-latin-default]               [\fallbackrange] [force=yes,rscale=0.95]%
+\definefontfallback[fallback-handwitalic]           [alegreyaitalic*fallback-latin-default]               [\fallbackrange] [force=yes,rscale=0.95]%
+\definefontfallback[fallback-handwbolditalic]       [alegreyamediumitalic*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=0.95]%
+\definefontfallback[fallback-handwslanted]          [alegreyaregular*fallback-latin-slanted]              [\fallbackrange] [force=yes,rscale=0.95]%
+\definefontfallback[fallback-handwboldslanted]      [alegreyamedium*fallback-latin-slanted]               [\fallbackrange] [force=yes,rscale=0.95]%
+\definefontfallback[fallback-handwcaps]             [lmromancaps10-regular]                               [\fallbackrange] [force=yes,rscale=0.95]
+\stopsetups
+
+%%%%%%%%%%%%%%%%%%%%
+
+\startsetups fallback:serif:terms
+\definefontfallback[fallback-serifextralight]       [texgyretermesregular*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-serifextralightitalic] [texgyretermesitalic*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-seriflight]            [texgyretermesregular*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-seriflightitalic]      [texgyretermesitalic*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-serif]                 [texgyretermesregular*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-serifitalic]           [texgyretermesitalic*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-serifmedium]           [texgyretermesbold*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-serifmediumitalic]     [texgyretermesbolditalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-serifbold]             [texgyretermesbold*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-serifbolditalic]       [texgyretermesbolditalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-serifslanted]          [texgyretermesregular*fallback-latin-slanted]        [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-serifboldslanted]      [texgyretermesbold*fallback-latin-slanted]           [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-serifcaps]             [texgyretermesregular*fallback-latin-smallcaps]      [\fallbackrange] [force=yes,rscale=1.00]
+\stopsetups
+
+\startsetups fallback:sans:heros
+\definefontfallback[fallback-sansextralight]        [texgyreherosregular*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sansextralightitalic]  [texgyreherositalic*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sanslight]             [texgyreherosregular*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sanslightitalic]       [texgyreherositalic*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sans]                  [texgyreherosregular*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sansitalic]            [texgyreherositalic*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sansmedium]            [texgyreherosbold*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sansmediumitalic]      [texgyreherosbolditalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sansbold]              [texgyreherosbold*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sansbolditalic]        [texgyreherosbolditalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sansslanted]           [texgyreherosregular*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sansboldslanted]       [texgyreherosbold*fallback-latin-slanted]            [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sanscaps]              [texgyreherosregular*fallback-latin-smallcaps]       [\fallbackrange] [force=yes,rscale=0.925]
+\stopsetups
+
+\startsetups fallback:mono:cursor
+\definefontfallback [fallback-monoextralight]       [texgyrecursorregular]                               [\fallbackrange] [force=yes,rscale=1.10]
+\definefontfallback [fallback-monoextralightitalic] [texgyrecursoritalic]                                [\fallbackrange] [force=yes,rscale=1.10]
+\definefontfallback [fallback-monolight]            [texgyrecursorregular]                               [\fallbackrange] [force=yes,rscale=1.10]
+\definefontfallback [fallback-monolightitalic]      [texgyrecursoritalic]                                [\fallbackrange] [force=yes,rscale=1.10]
+\definefontfallback [fallback-mono]                 [texgyrecursorregular]                               [\fallbackrange] [force=yes,rscale=1.10]
+\definefontfallback [fallback-monoitalic]           [texgyrecursoritalic]                                [\fallbackrange] [force=yes,rscale=1.10]
+\definefontfallback [fallback-monomedium]           [texgyrecursorbold]                                  [\fallbackrange] [force=yes,rscale=1.10]
+\definefontfallback [fallback-monomediumitalic]     [texgyrecursorbolditalic]                            [\fallbackrange] [force=yes,rscale=1.10]
+\definefontfallback [fallback-monobold]             [texgyrecursorbold]                                  [\fallbackrange] [force=yes,rscale=1.10]
+\definefontfallback [fallback-monobolditalic]       [texgyrecursorbolditalic]                            [\fallbackrange] [force=yes,rscale=1.10]
+\definefontfallback [fallback-monoslanted]          [texgyrecursorregular*fallback-latin-slanted-mono]   [\fallbackrange] [force=yes,rscale=1.10]
+\definefontfallback [fallback-monoboldslanted]      [texgyrecursorbold*fallback-latin-slanted-mono]      [\fallbackrange] [force=yes,rscale=1.10]
+\definefontfallback [fallback-monocaps]             [texgyrecursorregular*fallback-latin-smallcaps-mono] [\fallbackrange] [force=yes,rscale=1.10]
+\stopsetups
+
+\startsetups fallback:handw:terms
+\definefontfallback[fallback-handw]                 [texgyretermesregular*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-handwbold]             [texgyretermesbold*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-handwitalic]           [texgyretermesitalic*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-handwbolditalic]       [texgyretermesbolditalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-handwslanted]          [texgyretermesregular*fallback-latin-slanted]        [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-handwboldslanted]      [texgyretermesbold*fallback-latin-slanted]           [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-handwcaps]             [texgyretermesregular*fallback-latin-smallcaps]      [\fallbackrange] [force=yes,rscale=0.925]
+\stopsetups
+
+\startsetups fallback:sans:inter
+\definefontfallback[fallback-sansextralight]        [interregular*fallback-latin-default]                [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sansextralightitalic]  [interitalic*fallback-latin-default]                 [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sanslight]             [interregular*fallback-latin-default]                [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sanslightitalic]       [interitalic*fallback-latin-default]                 [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sans]                  [interregular*fallback-latin-default]                [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sansitalic]            [interitalic*fallback-latin-default]                 [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sansmedium]            [interbold*fallback-latin-default]                   [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sansmediumitalic]      [interbolditalic*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sansbold]              [interbold*fallback-latin-default]                   [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sansbolditalic]        [interbolditalic*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sansslanted]           [interregular*fallback-latin-slanted]                [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sansboldslanted]       [interbold*fallback-latin-slanted]                   [\fallbackrange] [force=yes,rscale=0.925]
+\definefontfallback[fallback-sanscaps]              [interregular*fallback-latin-smallcaps]              [\fallbackrange] [force=yes,rscale=0.925]
+\stopsetups
+
+\startsetups fallback:sans:lato
+\definefontfallback[fallback-sansextralight]        [latothin*fallback-latin-default]                    [\fallbackrange] [force=yes,rscale=0.932]
+\definefontfallback[fallback-sansextralightitalic]  [latothinitalic*fallback-latin-default]              [\fallbackrange] [force=yes,rscale=0.932]
+\definefontfallback[fallback-sanslight]             [latolight*fallback-latin-default]                   [\fallbackrange] [force=yes,rscale=0.932]
+\definefontfallback[fallback-sanslightitalic]       [latolightitalic*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=0.932]
+\definefontfallback[fallback-sans]                  [latoregular*fallback-latin-default]                 [\fallbackrange] [force=yes,rscale=0.932]
+\definefontfallback[fallback-sansitalic]            [latoitalic*fallback-latin-default]                  [\fallbackrange] [force=yes,rscale=0.932]
+\definefontfallback[fallback-sansmedium]            [latomedium*fallback-latin-default]                  [\fallbackrange] [force=yes,rscale=0.932]
+\definefontfallback[fallback-sansmediumitalic]      [latomediumitalic*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=0.932]
+\definefontfallback[fallback-sansbold]              [latobold*fallback-latin-default]                    [\fallbackrange] [force=yes,rscale=0.932]
+\definefontfallback[fallback-sansbolditalic]        [latobolditalic*fallback-latin-default]              [\fallbackrange] [force=yes,rscale=0.932]
+\definefontfallback[fallback-sansslanted]           [latoregular*fallback-latin-slanted]                 [\fallbackrange] [force=yes,rscale=0.932]
+\definefontfallback[fallback-sansboldslanted]       [latobold*fallback-latin-slanted]                    [\fallbackrange] [force=yes,rscale=0.932]
+\definefontfallback[fallback-sanscaps]              [latoregular*fallback-latin-smallcaps]               [\fallbackrange] [force=yes,rscale=0.932]
+\stopsetups
+
+\startsetups fallback:serif:pagella
+\definefontfallback[fallback-serif]           [texgyrepagellaregular*fallback-latin-default]        [\fallbackrange][force=yes]
+\definefontfallback[fallback-serifbold]       [texgyrepagellabold*fallback-latin-default]           [\fallbackrange][force=yes]
+\definefontfallback[fallback-serifitalic]     [texgyrepagellaitalic*fallback-latin-default]         [\fallbackrange][force=yes]
+\definefontfallback[fallback-serifbolditalic] [texgyrepagellabolditalic*fallback-latin-default]     [\fallbackrange][force=yes]
+\definefontfallback[fallback-serifslanted]    [texgyrepagellaregular*fallback-latin-slanted]        [\fallbackrange][force=yes]
+\definefontfallback[fallback-serifboldslanted][texgyrepagellabold*fallback-latin-slanted]           [\fallbackrange][force=yes]
+\definefontfallback[fallback-serifcaps]       [texgyrepagellaregular*fallback-latin-smallcaps]      [\fallbackrange][force=yes]
+\stopsetups
+
+\startsetups fallback:sans:libertinus
+\definefontfallback[fallback-sans]            [libertinussans-regular*fallback-latin-default]       [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback[fallback-sansbold]        [libertinussans-bold*fallback-latin-default]          [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback[fallback-sansitalic]      [libertinussans-italic*fallback-latin-default]        [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback[fallback-sansbolditalic]  [libertinussans-italic*fallback-latin-default]        [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback[fallback-sansslanted]     [libertinussans-regular*fallback-latin-slanted]       [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback[fallback-sansboldslanted] [libertinussans-bold*fallback-latin-slanted]          [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback[fallback-sanscaps]        [libertinussans-regular*fallback-latin-smallcaps]     [\fallbackrange][force=yes,rscale=1.05]
+\stopsetups
+
+\startsetups fallback:handw:pagella
+\definefontfallback[fallback-handw]           [texgyrepagellaregular*fallback-latin-default]        [\fallbackrange][force=yes]
+\definefontfallback[fallback-handwbold]       [texgyrepagellabold*fallback-latin-default]           [\fallbackrange][force=yes]
+\definefontfallback[fallback-handwitalic]     [texgyrepagellaitalic*fallback-latin-default]         [\fallbackrange][force=yes]
+\definefontfallback[fallback-handwbolditalic] [texgyrepagellabolditalic*fallback-latin-default]     [\fallbackrange][force=yes]
+\definefontfallback[fallback-handwslanted]    [texgyrepagellaregular*fallback-latin-slanted]        [\fallbackrange][force=yes]
+\definefontfallback[fallback-handwboldslanted][texgyrepagellabold*fallback-latin-slanted]           [\fallbackrange][force=yes]
+\definefontfallback[fallback-handwcaps]       [texgyrepagellaregular*fallback-latin-smallcaps]      [\fallbackrange][force=yes]
+\stopsetups
+
+%%%%%%%%%%%%%%%%%%%%
+
+\startsetups fallback:serif:modern
+\definefontfallback[fallback-serif]           [lmroman10regular*fallback-latin-default]        [\fallbackrange][force=yes]
+\definefontfallback[fallback-serifbold]       [lmroman10bold*fallback-latin-default]           [\fallbackrange][force=yes]
+\definefontfallback[fallback-serifitalic]     [lmroman10italic*fallback-latin-default]         [\fallbackrange][force=yes]
+\definefontfallback[fallback-serifbolditalic] [lmroman10bolditalic*fallback-latin-default]     [\fallbackrange][force=yes]
+\definefontfallback[fallback-serifslanted]    [lmromanslant10regular]                          [\fallbackrange][force=yes]
+\definefontfallback[fallback-serifboldslanted][lmromanslant10bold]                             [\fallbackrange][force=yes]
+\definefontfallback[fallback-serifcaps]       [lmromancaps10regular]                           [\fallbackrange][force=yes]
+\stopsetups
+
+\startsetups fallback:sans:modern
+\definefontfallback[fallback-sans]            [lmsans10regular*fallback-latin-default]         [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback[fallback-sansbold]        [lmsans10bold*fallback-latin-default]            [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback[fallback-sansitalic]      [lmsans10oblique*fallback-latin-default]         [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback[fallback-sansbolditalic]  [lmsans10boldoblique*fallback-latin-default]     [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback[fallback-sansslanted]     [lmsans10oblique]                                [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback[fallback-sansboldslanted] [lmsans10boldoblique]                            [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback[fallback-sanscaps]        [lmsans10regular*fallback-latin-smallcaps]       [\fallbackrange][force=yes,rscale=1.05]
+\stopsetups
+
+\startsetups fallback:mono:modern
+\definefontfallback[fallback-mono]            [lmmono10regular]                                [\fallbackrange][force=yes,rscale=0.90]
+\definefontfallback[fallback-monobold]        [lmmonolt10bold]                                 [\fallbackrange][force=yes,rscale=0.90]
+\definefontfallback[fallback-monoitalic]      [lmmonoslant10regular]                           [\fallbackrange][force=yes,rscale=0.90]
+\definefontfallback[fallback-monobolditalic]  [lmmonolt10boldoblique]                          [\fallbackrange][force=yes,rscale=0.90]
+\definefontfallback[fallback-monoslanted]     [lmmonoslant10regular]                           [\fallbackrange][force=yes,rscale=0.90]
+\definefontfallback[fallback-monoboldslanted] [lmmonolt10boldoblique]                          [\fallbackrange][force=yes,rscale=0.90]
+\definefontfallback[fallback-monocaps]        [lmmonocaps10]                                   [\fallbackrange][force=yes,rscale=0.90]
+\stopsetups
+
+\startsetups fallback:handw:modern
+\definefontfallback[fallback-handw]           [lmroman10regular*fallback-latin-default]        [\fallbackrange][force=yes]
+\definefontfallback[fallback-handwbold]       [lmroman10bold*fallback-latin-default]           [\fallbackrange][force=yes]
+\definefontfallback[fallback-handwitalic]     [lmroman10italic*fallback-latin-default]         [\fallbackrange][force=yes]
+\definefontfallback[fallback-handwbolditalic] [lmroman10bolditalic*fallback-latin-default]     [\fallbackrange][force=yes]
+\definefontfallback[fallback-handwslanted]    [lmromanslant10regular]                          [\fallbackrange][force=yes]
+\definefontfallback[fallback-handwboldslanted][lmromanslant10bold]                             [\fallbackrange][force=yes]
+\definefontfallback[fallback-handwcaps]       [lmromancaps10regular]                           [\fallbackrange][force=yes]
+\stopsetups
+
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\startsetups fallback:serif:merriweather
+\definefontfallback[fallback-serifextralight]       [merriweatherlight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifextralightitalic] [merriweatherlightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-seriflight]            [merriweatherlight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-seriflightitalic]      [merriweatherlightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serif]                 [merriweatherregular*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifitalic]           [merriweatheritalic*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifmedium]           [merriweatherbold*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifmediumitalic]     [merriweatherbolditalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifbold]             [merriweatherbold*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifbolditalic]       [merriweatherbolditalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifslanted]          [merriweatherregular*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifboldslanted]      [merriweatherbold*fallback-latin-slanted]            [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifcaps]             [merriweatherregular*fallback-latin-smallcaps]       [\fallbackrange] [force=yes,rscale=0.96]
+\stopsetups
+
+\startsetups fallback:serif:merriweatherlight
+\definefontfallback[fallback-serifextralight]       [merriweatherlight*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifextralightitalic] [merriweatherlightitalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-seriflight]            [merriweatherlight*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-seriflightitalic]      [merriweatherlightitalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serif]                 [merriweatherlight*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifitalic]           [merriweatherlightitalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifmedium]           [merriweatherregular*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifmediumitalic]     [merriweatherregularitalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifbold]             [merriweatherbold*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifbolditalic]       [merriweatherbolditalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifslanted]          [merriweatherlight*fallback-latin-slanted]            [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifboldslanted]      [merriweatherbold*fallback-latin-slanted]             [\fallbackrange] [force=yes,rscale=0.96]
+\definefontfallback[fallback-serifcaps]             [merriweatherlight*fallback-latin-smallcaps]          [\fallbackrange] [force=yes,rscale=0.96]
+\stopsetups
+
+\startsetups fallback:sans:merriweather
+\definefontfallback[fallback-sansextralight]        [merriweathersanslight*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansextralightitalic]  [merriweathersanslightitalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sanslight]             [merriweathersanslight*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sanslightitalic]       [merriweathersanslightitalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sans]                  [merriweathersansregular*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansitalic]            [merriweathersansitalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansmedium]            [merriweathersansbold*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansmediumitalic]      [merriweathersansbolditalic*fallback-latin-default]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansbold]              [merriweathersansbold*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansbolditalic]        [merriweathersansbolditalic*fallback-latin-default]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansslanted]           [merriweathersansregular*fallback-latin-slanted]     [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansboldslanted]       [merriweathersansbold*fallback-latin-slanted]        [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sanscaps]              [merriweathersansregular*fallback-latin-smallcaps]   [\fallbackrange] [force=yes,rscale=1.00]
+\stopsetups
+
+\startsetups fallback:sans:merriweatherlight
+\definefontfallback[fallback-sansextralight]        [merriweathersanslight*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansextralightitalic]  [merriweathersanslightitalic*fallback-latin-default]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sanslight]             [merriweathersanslight*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sanslightitalic]       [merriweathersanslightitalic*fallback-latin-default]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sans]                  [merriweathersanslight*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansitalic]            [merriweathersanslightitalic*fallback-latin-default]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansmedium]            [merriweathersansregular*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansmediumitalic]      [merriweathersansregularitalic*fallback-latin-default][\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansbold]              [merriweathersansbold*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansbolditalic]        [merriweathersansbolditalic*fallback-latin-default]   [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansslanted]           [merriweathersanslight*fallback-latin-slanted]        [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sansboldslanted]       [merriweathersansbold*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback[fallback-sanscaps]              [merriweathersanslight*fallback-latin-smallcaps]      [\fallbackrange] [force=yes,rscale=1.00]
+\stopsetups
+
+\startsetups fallback:handw:merriweather
+\definefontfallback[fallback-handwextralight]       [merriweatherlight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwextralightitalic] [merriweatherlightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwlight]            [merriweatherlight*fallback-latin-default]           [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwlightitalic]      [merriweatherlightitalic*fallback-latin-default]     [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handw]                 [merriweatherregular*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwitalic]           [merriweatheritalic*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwmedium]           [merriweatherbold*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwmediumitalic]     [merriweatherbolditalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwbold]             [merriweatherbold*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwbolditalic]       [merriweatherbolditalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwslanted]          [merriweatherregular*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwboldslanted]      [merriweatherbold*fallback-latin-slanted]            [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwcaps]             [merriweatherregular*fallback-latin-smallcaps]       [\fallbackrange] [force=yes,rscale=0.90]
+\stopsetups
+
+\startsetups fallback:handw:merriweatherlight
+\definefontfallback[fallback-handwextralight]       [merriweatherlight*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwextralightitalic] [merriweatherlightitalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwlight]            [merriweatherlight*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwlightitalic]      [merriweatherlightitalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handw]                 [merriweatherlight*fallback-latin-default]            [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwitalic]           [merriweatherlightitalic*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwmedium]           [merriweatherregular*fallback-latin-default]          [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwmediumitalic]     [merriweatherregularitalic*fallback-latin-default]    [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwbold]             [merriweatherbold*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwbolditalic]       [merriweatherbolditalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwslanted]          [merriweatherlight*fallback-latin-slanted]            [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwboldslanted]      [merriweatherbold*fallback-latin-slanted]             [\fallbackrange] [force=yes,rscale=0.90]
+\definefontfallback[fallback-handwcaps]             [merriweatherlight*fallback-latin-smallcaps]          [\fallbackrange] [force=yes,rscale=0.90]
+\stopsetups
+
+\startsetups fallback:serif:alegreya
+\definefontfallback[fallback-serifextralight]       [alegreyaregular*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifextralightitalic] [alegreyaitalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-seriflight]            [alegreyaregular*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-seriflightitalic]      [alegreyaitalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serif]                 [alegreyaregular*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifitalic]           [alegreyaitalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifmedium]           [alegreyamedium*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifmediumitalic]     [alegreyamediumitalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifbold]             [alegreyabold*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifbolditalic]       [alegreyabolditalic*fallback-latin-default]   [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifslanted]          [alegreyaregular*fallback-latin-slanted]      [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifboldslanted]      [alegreyabold*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-serifcaps]             [alegreyascregular*fallback-latin-smallcaps]  [\fallbackrange] [force=yes,rscale=1.05]
+\stopsetups
+
+\startsetups fallback:sans:alegreyasans
+\definefontfallback[fallback-sansextralight]       [alegreyasansthin*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-sansextralightitalic] [alegreyasansthinitalic*fallback-latin-default]   [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-sanslight]            [alegreyasanslight*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-sanslightitalic]      [alegreyasanslightitalic*fallback-latin-default]  [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-sans]                 [alegreyasansregular*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-sansitalic]           [alegreyasansitalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-sansmedium]           [alegreyasansmedium*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-sansmediumitalic]     [alegreyasansmediumitalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-sansbold]             [alegreyasansbold*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-sansbolditalic]       [alegreyasansbolditalic*fallback-latin-default]   [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-sansslanted]          [alegreyasansregular*fallback-latin-slanted]      [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-sansboldslanted]      [alegreyasansbold*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-sanscaps]             [alegreyasansscregular*fallback-latin-smallcaps]  [\fallbackrange] [force=yes,rscale=1.05]
+\stopsetups
+
+\startsetups fallback:serif:ebgaramond
+\definefontfallback[fallback-serifextralight]       [ebgaramondregular*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback[fallback-serifextralightitalic] [ebgaramonditalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback[fallback-seriflight]            [ebgaramondregular*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback[fallback-seriflightitalic]      [ebgaramonditalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback[fallback-serif]                 [ebgaramondregular*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback[fallback-serifitalic]           [ebgaramonditalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback[fallback-serifmedium]           [ebgaramondmedium*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback[fallback-serifmediumitalic]     [ebgaramondmediumitalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback[fallback-serifbold]             [ebgaramondbold*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback[fallback-serifbolditalic]       [ebgaramondbolditalic*fallback-latin-default]   [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback[fallback-serifslanted]          [ebgaramondregular*fallback-latin-slanted]      [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback[fallback-serifboldslanted]      [ebgaramondbold*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback[fallback-serifcaps]             [ebgaramondregular*fallback-latin-smallcaps]    [\fallbackrange] [force=yes,rscale=1.095]
+\stopsetups
+
+\startsetups fallback:handw:ebgaramond
+\definefontfallback[fallback-handwextralight]       [ebgaramondregular*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-handwextralightitalic] [ebgaramonditalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-handwlight]            [ebgaramondregular*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-handwlightitalic]      [ebgaramonditalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-handw]                 [ebgaramondregular*fallback-latin-default]      [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-handwitalic]           [ebgaramonditalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-handwmedium]           [ebgaramondmedium*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-handwmediumitalic]     [ebgaramondmediumitalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-handwbold]             [ebgaramondbold*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-handwbolditalic]       [ebgaramondbolditalic*fallback-latin-default]   [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-handwslanted]          [ebgaramondregular*fallback-latin-slanted]      [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-handwboldslanted]      [ebgaramondbold*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.05]
+\definefontfallback[fallback-handwcaps]             [ebgaramondregular*fallback-latin-smallcaps]    [\fallbackrange] [force=yes,rscale=1.05]
+\stopsetups
+
+\startsetups fallback:mono:mpluscode
+\definefontfallback [fallback-monoextralight]       [mpluscodelatin50extralight]                            [\fallbackrange] [force=yes,rscale=0.9]
+\definefontfallback [fallback-monoextralightitalic] [mpluscodelatin50extralight]                            [\fallbackrange] [force=yes,rscale=0.9]
+\definefontfallback [fallback-monolight]            [mpluscodelatin50light]                                 [\fallbackrange] [force=yes,rscale=0.9]
+\definefontfallback [fallback-monolightitalic]      [mpluscodelatin50light]                                 [\fallbackrange] [force=yes,rscale=0.9]
+\definefontfallback [fallback-mono]                 [mpluscodelatin50regular]                               [\fallbackrange] [force=yes,rscale=0.9]
+\definefontfallback [fallback-monoitalic]           [mpluscodelatin50regular]                               [\fallbackrange] [force=yes,rscale=0.9]
+\definefontfallback [fallback-monomedium]           [mpluscodelatin50medium]                                [\fallbackrange] [force=yes,rscale=0.9]
+\definefontfallback [fallback-monomediumitalic]     [mpluscodelatin50medium]                                [\fallbackrange] [force=yes,rscale=0.9]
+\definefontfallback [fallback-monobold]             [mpluscodelatin50bold]                                  [\fallbackrange] [force=yes,rscale=0.9]
+\definefontfallback [fallback-monobolditalic]       [mpluscodelatin50bolditalic]                            [\fallbackrange] [force=yes,rscale=0.9]
+\definefontfallback [fallback-monoslanted]          [mpluscodelatin50regular*fallback-latin-slanted-mono]   [\fallbackrange] [force=yes,rscale=0.9]
+\definefontfallback [fallback-monoboldslanted]      [mpluscodelatin50bold*fallback-latin-slanted-mono]      [\fallbackrange] [force=yes,rscale=0.9]
+\definefontfallback [fallback-monocaps]             [mpluscodelatin50regular*fallback-latin-smallcaps-mono] [\fallbackrange] [force=yes,rscale=0.9]
+\stopsetups
+
+\startsetups fallback:ebgaramond
+  \setups{fallback:serif:ebgaramond}
+  \setups{fallback:sans:alegreyasans}
+  \setups{fallback:mono:mpluscode}
+  \setups{fallback:handw:ebgaramond}
+\stopsetups
+
+\startsetups fallback:alegreya
+  \setups{fallback:serif:alegreya}
+  \setups{fallback:sans:alegreyasans}
+  \setups{fallback:mono:mpluscode}
+  \setups{fallback:handw:alegreya}
+\stopsetups
+
+\startsetups fallback:cormorant
+  \setups{fallback:serif:cormorant}
+  \setups{fallback:sans:ysabeau}
+  \setups{fallback:mono:ibmplex}
+  \setups{fallback:handw:cormorant}
+\stopsetups
+
+\startsetups fallback:cormorantlight
+  \setups{fallback:serif:cormorantlight}
+  \setups{fallback:sans:ysabeaulight}
+  \setups{fallback:mono:ibmplex}
+  \setups{fallback:handw:cormorantlight}
+\stopsetups
+
+\startsetups fallback:terms
+  \setups{fallback:serif:terms}
+  \setups{fallback:sans:heros}
+  \setups{fallback:mono:cursor}
+  \setups{fallback:handw:terms}
+\stopsetups
+
+\startsetups fallback:inter
+  \setups{fallback:serif:terms}
+  \setups{fallback:sans:inter}
+  \setups{fallback:mono:cursor}
+  \setups{fallback:handw:terms}
+\stopsetups
+
+\startsetups fallback:lato
+  \setups{fallback:serif:terms}
+  \setups{fallback:sans:lato}
+  \setups{fallback:mono:cursor}
+  \setups{fallback:handw:terms}
+\stopsetups
+
+\startsetups fallback:pagella
+  \setups{fallback:serif:pagella}
+  \setups{fallback:sans:libertinus}
+  \setups{fallback:mono:anonymous}
+  \setups{fallback:handw:pagella}
+\stopsetups
+
+\startsetups fallback:texgyre
+  \setups{fallback:serif:pagella}
+  \setups{fallback:sans:libertinus}
+  \setups{fallback:mono:anonymous}
+  \setups{fallback:handw:pagella}
+\stopsetups
+
+\startsetups fallback:gentium
+  \setups{fallback:serif:gentium}
+  \setups{fallback:sans:iwona}
+  \setups{fallback:mono:anonymous}
+  \setups{fallback:handw:gentium}
+\stopsetups
+
+\startsetups fallback:ibmplex
+  \setups{fallback:serif:ibmplex}
+  \setups{fallback:sans:ibmplex}
+  \setups{fallback:mono:ibmplex}
+  \setups{fallback:handw:alegreya}
+\stopsetups
+
+\startsetups fallback:newsreader
+  \setups{fallback:serif:newsreader}
+  \setups{fallback:sans:prozalibre}
+  \setups{fallback:mono:ibmplex}
+  \setups{fallback:handw:newsreader}
+\stopsetups
+
+\startsetups fallback:newsreader6pt
+  \setups{fallback:serif:newsreader6pt}
+  \setups{fallback:sans:prozalibre}
+  \setups{fallback:mono:ibmplex}
+  \setups{fallback:handw:newsreader6pt}
+\stopsetups
+
+\startsetups fallback:newsreader72pt
+  \setups{fallback:serif:newsreader72pt}
+  \setups{fallback:sans:prozalibre}
+  \setups{fallback:mono:ibmplex}
+  \setups{fallback:handw:newsreader72pt}
+\stopsetups
+
+\startsetups fallback:newsreaderlight
+  \setups{fallback:serif:newsreaderlight}
+  \setups{fallback:sans:prozalibre}
+  \setups{fallback:mono:ibmplex}
+  \setups{fallback:handw:newsreaderlight}
+\stopsetups
+
+\startsetups fallback:modern
+  \setups{fallback:serif:modern}
+  \setups{fallback:sans:modern}
+  \setups{fallback:mono:modern}
+  \setups{fallback:handw:modern}
+\stopsetups
+
+\startsetups fallback:merriweather
+  \setups{fallback:serif:merriweather}
+  \setups{fallback:sans:merriweather}
+  \setups{fallback:mono:mpluscode}
+  \setups{fallback:handw:merriweather}
+\stopsetups
+
+\startsetups fallback:merriweatherlight
+  \setups{fallback:serif:merriweatherlight}
+  \setups{fallback:sans:merriweatherlight}
+  \setups{fallback:mono:mpluscode}
+  \setups{fallback:handw:merriweatherlight}
+\stopsetups
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\startsetups fallback:serif:playfair8pt
+\definefontfallback [fallback-seriflight]        [file:Playfair-Caption*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-seriflightitalic]  [file:Playfair-CaptionItalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serif]             [file:Playfair-Caption*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifitalic]       [file:Playfair-CaptionItalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifbold]         [file:Playfair-CaptionBold*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifbolditalic]   [file:Playfair-CaptionBoldItalic*fallback-latin-default]   [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifmedium]       [file:Playfair-CaptionMedium*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifmediumitalic] [file:Playfair-CaptionMediumItalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifslanted]      [file:Playfair-Caption*fallback-latin-slanted]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifboldslanted]  [file:Playfair-CaptionBold*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifcaps]         [file:Playfair-Caption*fallback-latin-smallcaps]           [\fallbackrange] [force=yes,rscale=1.095]
+\stopsetups
+
+\startsetups fallback:serif:playfair12pt
+\definefontfallback [fallback-seriflight]        [file:Playfair-Regular*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.165]
+\definefontfallback [fallback-seriflightitalic]  [file:Playfair-ItalicItalic*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.165]
+\definefontfallback [fallback-serif]             [file:Playfair-Regular*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.165]
+\definefontfallback [fallback-serifitalic]       [file:Playfair-ItalicItalic*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.165]
+\definefontfallback [fallback-serifbold]         [file:Playfair-RegularBold*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.165]
+\definefontfallback [fallback-serifbolditalic]   [file:Playfair-RegularBoldItalic*fallback-latin-default]   [\fallbackrange] [force=yes,rscale=1.165]
+\definefontfallback [fallback-serifmedium]       [file:Playfair-RegularMedium*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.165]
+\definefontfallback [fallback-serifmediumitalic] [file:Playfair-RegularMediumItalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.165]
+\definefontfallback [fallback-serifslanted]      [file:Playfair-Regular*fallback-latin-slanted]             [\fallbackrange] [force=yes,rscale=1.165]
+\definefontfallback [fallback-serifboldslanted]  [file:Playfair-RegularBold*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.165]
+\definefontfallback [fallback-serifcaps]         [file:Playfair-Regular*fallback-latin-smallcaps]           [\fallbackrange] [force=yes,rscale=1.165]
+\stopsetups
+
+\startsetups fallback:serif:playfair32pt
+\definefontfallback [fallback-seriflight]        [file:Playfair-Headline*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-seriflightitalic]  [file:Playfair-HeadlineItalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serif]             [file:Playfair-Headline*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifitalic]       [file:Playfair-HeadlineItalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifbold]         [file:Playfair-HeadlineBold*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifbolditalic]   [file:Playfair-HeadlineBoldItalic*fallback-latin-default]   [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifmedium]       [file:Playfair-HeadlineMedium*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifmediumitalic] [file:Playfair-HeadlineMediumItalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifslanted]      [file:Playfair-Headline*fallback-latin-slanted]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifboldslanted]  [file:Playfair-HeadlineBold*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifcaps]         [file:Playfair-Headline*fallback-latin-smallcaps]           [\fallbackrange] [force=yes,rscale=1.095]
+\stopsetups
+
+\startsetups fallback:serif:playfair72pt
+\definefontfallback [fallback-seriflight]        [file:Playfair-Titling*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-seriflightitalic]  [file:Playfair-TitlingItalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serif]             [file:Playfair-Titling*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifitalic]       [file:Playfair-TitlingItalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifbold]         [file:Playfair-TitlingBold*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifbolditalic]   [file:Playfair-TitlingBoldItalic*fallback-latin-default]   [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifmedium]       [file:Playfair-TitlingMedium*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifmediumitalic] [file:Playfair-TitlingMediumItalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifslanted]      [file:Playfair-Titling*fallback-latin-slanted]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifboldslanted]  [file:Playfair-TitlingBold*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-serifcaps]         [file:Playfair-Titling*fallback-latin-smallcaps]           [\fallbackrange] [force=yes,rscale=1.095]
+\stopsetups
+
+\startsetups fallback:handw:playfair8pt
+\definefontfallback [fallback-handwlight]        [file:Playfair-Caption*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwlightitalic]  [file:Playfair-CaptionItalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handw]             [file:Playfair-Caption*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwitalic]       [file:Playfair-CaptionItalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwbold]         [file:Playfair-CaptionBold*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwbolditalic]   [file:Playfair-CaptionBoldItalic*fallback-latin-default]   [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwmedium]       [file:Playfair-CaptionMedium*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwmediumitalic] [file:Playfair-CaptionMediumItalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwslanted]      [file:Playfair-Caption*fallback-latin-slanted]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwboldslanted]  [file:Playfair-CaptionBold*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwcaps]         [file:Playfair-Caption*fallback-latin-smallcaps]           [\fallbackrange] [force=yes,rscale=1.095]
+\stopsetups
+
+\startsetups fallback:handw:playfair12pt
+\definefontfallback [fallback-handwlight]        [file:Playfair-Regular*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.100]
+\definefontfallback [fallback-handwlightitalic]  [file:Playfair-ItalicItalic*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.100]
+\definefontfallback [fallback-handw]             [file:Playfair-Regular*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.100]
+\definefontfallback [fallback-handwitalic]       [file:Playfair-ItalicItalic*fallback-latin-default]        [\fallbackrange] [force=yes,rscale=1.100]
+\definefontfallback [fallback-handwbold]         [file:Playfair-RegularBold*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.100]
+\definefontfallback [fallback-handwbolditalic]   [file:Playfair-RegularBoldItalic*fallback-latin-default]   [\fallbackrange] [force=yes,rscale=1.100]
+\definefontfallback [fallback-handwmedium]       [file:Playfair-RegularMedium*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.100]
+\definefontfallback [fallback-handwmediumitalic] [file:Playfair-RegularMediumItalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.100]
+\definefontfallback [fallback-handwslanted]      [file:Playfair-Regular*fallback-latin-slanted]             [\fallbackrange] [force=yes,rscale=1.100]
+\definefontfallback [fallback-handwboldslanted]  [file:Playfair-RegularBold*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.100]
+\definefontfallback [fallback-handwcaps]         [file:Playfair-Regular*fallback-latin-smallcaps]           [\fallbackrange] [force=yes,rscale=1.100]
+\stopsetups
+
+\startsetups fallback:handw:playfair32pt
+\definefontfallback [fallback-handwlight]        [file:Playfair-Headline*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwlightitalic]  [file:Playfair-HeadlineItalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handw]             [file:Playfair-Headline*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwitalic]       [file:Playfair-HeadlineItalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwbold]         [file:Playfair-HeadlineBold*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwbolditalic]   [file:Playfair-HeadlineBoldItalic*fallback-latin-default]   [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwmedium]       [file:Playfair-HeadlineMedium*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwmediumitalic] [file:Playfair-HeadlineMediumItalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwslanted]      [file:Playfair-Headline*fallback-latin-slanted]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwboldslanted]  [file:Playfair-HeadlineBold*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwcaps]         [file:Playfair-Headline*fallback-latin-smallcaps]           [\fallbackrange] [force=yes,rscale=1.095]
+\stopsetups
+
+\startsetups fallback:handw:playfair72pt
+\definefontfallback [fallback-handwlight]        [file:Playfair-Titling*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwlightitalic]  [file:Playfair-TitlingItalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handw]             [file:Playfair-Titling*fallback-latin-default]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwitalic]       [file:Playfair-TitlingItalic*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwbold]         [file:Playfair-TitlingBold*fallback-latin-default]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwbolditalic]   [file:Playfair-TitlingBoldItalic*fallback-latin-default]   [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwmedium]       [file:Playfair-TitlingMedium*fallback-latin-default]       [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwmediumitalic] [file:Playfair-TitlingMediumItalic*fallback-latin-default] [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwslanted]      [file:Playfair-Titling*fallback-latin-slanted]             [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwboldslanted]  [file:Playfair-TitlingBold*fallback-latin-slanted]         [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwcaps]         [file:Playfair-Titling*fallback-latin-smallcaps]           [\fallbackrange] [force=yes,rscale=1.095]
+\stopsetups
+
+\startsetups fallback:playfair8pt
+  \setups{fallback:serif:playfair8pt}
+  \setups{fallback:sans:prozalibre}
+  \setups{fallback:mono:mpluscode}
+  \setups{fallback:handw:playfair8pt}
+\stopsetups
+
+\startsetups fallback:playfair
+  \setups{fallback:serif:playfair12pt}
+  \setups{fallback:sans:prozalibre}
+  \setups{fallback:mono:mpluscode}
+  \setups{fallback:handw:playfair12pt}
+\stopsetups
+
+\startsetups fallback:playfair12pt
+  \setups{fallback:serif:playfair12pt}
+  \setups{fallback:sans:prozalibre}
+  \setups{fallback:mono:mpluscode}
+  \setups{fallback:handw:playfair12pt}
+\stopsetups
+
+\startsetups fallback:playfair32pt
+  \setups{fallback:serif:playfair32pt}
+  \setups{fallback:sans:prozalibre}
+  \setups{fallback:mono:mpluscode}
+  \setups{fallback:handw:playfair32pt}
+\stopsetups
+
+\startsetups fallback:playfair72pt
+  \setups{fallback:serif:playfair72pt}
+  \setups{fallback:sans:prozalibre}
+  \setups{fallback:mono:mpluscode}
+  \setups{fallback:handw:playfair72pt}
+\stopsetups
+

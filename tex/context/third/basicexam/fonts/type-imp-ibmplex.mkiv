@@ -1,0 +1,121 @@
+\definefontfeature [simplified-chinese] [default]% [pwid=yes]%
+\definefontfeature [traditional-chinese][default]% [pwid=yes]%
+\definefontfeature [japanese]           [default]% [pwid=yes]%
+\definefontfeature [chinese]            [simplified-chinese]%
+\definefontfeature [boldslanted]        [default]%
+                   [effect={width=0.30,auto=yes,slant=.2}]%
+
+\starttypescriptcollection[ibmplex]%
+  \definetypescriptprefix [n:ibmplextcsans]   [ibmplexsanstc]%
+  \definetypescriptprefix [n:ibmplexjpsans]   [ibmplexsansjp]%
+  \definetypescriptprefix [n:ibmplexscsans]   [ibmplexsanssc]%
+  
+  \definetypescriptprefix [f:ibmplextc]       [traditional-chinese]%
+  \definetypescriptprefix [f:ibmplexjp]       [japanese]%
+  \definetypescriptprefix [f:ibmplexsc]       [simplified-chinese]%
+
+  \starttypescript [\s!serif,\s!sans] [ibmplextc,ibmplexjp,ibmplexsc][\s!name]%
+    \setups[\s!font:\s!fallback:\typescriptone]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone ExtraLight]      [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}extlt] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone extralight]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone ExtraLightItalic][\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}extlt] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone extralightitalic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Light]           [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}light] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone light]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone LightItalic]     [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}light] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone lightitalic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone ]                [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}]      [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone ]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Italic]          [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}]      [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone italic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Medium]          [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}medm]  [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone medium]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone MediumItalic]    [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}medm]  [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone mediumitalic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Bold]            [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}bold]  [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone bold]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone BoldItalic]      [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}bold]  [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone bolditalic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone SemiBold]        [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}smbld] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone semibold]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone SemiBoldItalic]  [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}smbld] [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone semibolditalic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Thin]            [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}thin]   [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone thin]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone ThinItalic]       [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}thin]   [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone thinitalic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Text]             [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}text]   [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone text]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone TextItalic]      [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}text]   [\s!features=\typescriptprefix{f:\typescripttwo},\s!fallbacks=fallback-\typescriptone textitalic]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Caps]            [\typescriptprefix\typescriptone ]                               [\s!features={\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-\typescriptone caps]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone Slanted]         [\typescriptprefix\typescriptone ]                               [\s!features={slanted,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-\typescriptone slanted]%
+    \edefinefontsynonym [\typescriptprefix\typescriptone BoldSlanted]     [\s!name:\typescriptprefix{n:\typescripttwo\typescriptone}bold]  [\s!features={boldslanted,\typescriptprefix{f:\typescripttwo}},\s!fallbacks=fallback-\typescriptone boldslanted]%
+  \stoptypescript
+
+  \starttypescript[ibmplextc,ibmplexjp,ibmplexsc]%
+    \definetypeface [\typescriptone] [\s!rm] [\s!serif] [\typescriptone] [\s!sans]%
+    \definetypeface [\typescriptone] [\s!ss] [\s!sans]  [\typescriptone]%
+    \definetypeface [\typescriptone] [\s!tt] [\s!mono]  [\typescriptone] [\s!sans]%
+  \stoptypescript
+
+  \definefontalternative[EF] % extralight
+  \definefontalternative[EI] % extralight italic
+  \definefontalternative[LF] % light
+  \definefontalternative[LI] % light italic
+  \definefontalternative[MF] % medium
+  \definefontalternative[MI] % medium italic
+  \definefontalternative[SF] % semibold
+  \definefontalternative[SI] % semibold italic
+  \definefontalternative[TF] % thin
+  \definefontalternative[TI] % thin italic
+  \definefontalternative[XF] % text
+  \definefontalternative[XI] % text italic
+
+  \definebodyfont [default] [rm]%
+     [EF=SansExtraLight        sa 1,
+      EI=SansExtraLightItalic  sa 1,
+      LF=SansLight             sa 1,
+      LI=SansLightItalic       sa 1,
+      TF=SansThin              sa 1,
+      TI=SansThinItalic        sa 1,
+      XF=SansText              sa 1,
+      XI=SansTextItalic        sa 1,
+      tf=Sans                  sa 1,
+      it=SansItalic            sa 1,
+      MF=SansMedium            sa 1,
+      MI=SansMediumItalic      sa 1,
+      SF=SansSemiBold          sa 1,
+      SI=SansSemiBoldItalic    sa 1,
+      bf=SansBold              sa 1,
+      bi=SansBoldItalic        sa 1,
+      sl=SansSlanted           sa 1,
+      bs=SansBoldSlanted       sa 1,
+      sc=SansCaps              sa 1]%
+
+  \definebodyfont [default] [ss]%
+     [EF=SansExtraLight        sa 1,
+      EI=SansExtraLightItalic  sa 1,
+      LF=SansLight             sa 1,
+      LI=SansLightItalic       sa 1,
+      TF=SansThin              sa 1,
+      TI=SansThinItalic        sa 1,
+      XF=SansText              sa 1,
+      XI=SansTextItalic        sa 1,
+      tf=Sans                  sa 1,
+      it=SansItalic            sa 1,
+      MF=SansMedium            sa 1,
+      MI=SansMediumItalic      sa 1,
+      SF=SansSemiBold          sa 1,
+      SI=SansSemiBoldItalic    sa 1,
+      bf=SansBold              sa 1,
+      bi=SansBoldItalic        sa 1,
+      sl=SansSlanted           sa 1,
+      bs=SansBoldSlanted       sa 1,
+      sc=SansCaps              sa 1]%
+
+  \definebodyfont [default] [tt]%
+     [EF=SansExtraLight        sa 1,
+      EI=SansExtraLightItalic  sa 1,
+      LF=SansLight             sa 1,
+      LI=SansLightItalic       sa 1,
+      TF=SansThin              sa 1,
+      TI=SansThinItalic        sa 1,
+      XF=SansText              sa 1,
+      XI=SansTextItalic        sa 1,
+      tf=Sans                  sa 1,
+      it=SansItalic            sa 1,
+      MF=SansMedium            sa 1,
+      MI=SansMediumItalic      sa 1,
+      SF=SansSemiBold          sa 1,
+      SI=SansSemiBoldItalic    sa 1,
+      bf=SansBold              sa 1,
+      bi=SansBoldItalic        sa 1,
+      sl=SansSlanted           sa 1,
+      bs=SansBoldSlanted       sa 1,
+      sc=SansCaps              sa 1]%
+\stoptypescriptcollection
