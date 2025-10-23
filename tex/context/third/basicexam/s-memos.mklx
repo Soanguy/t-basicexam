@@ -2665,19 +2665,26 @@ fill p withcolor .5[blue, white];
 \definedescription  [topdescr][
                      before=\vskip.25\baselineskip\relax,
                      after=\vskip.25\baselineskip\relax,
-                     inbetween=,width=fit,
+                     inbetween=\leftskip1em\relax,width=fit,hang=2,
                      indenting={2em},indentnext=yes,
                      headstyle=bold,style=normal,
                      align={flushleft,},alternative=top,
                      text={\raise 2pt \hbox to 1em{$\bullet$}},]
 \defineenumeration  [remark] [text=Remark,
                               alternative=serried,
+                              before=\vskip.25\baselineskip\relax,
+                              after=\vskip.25\baselineskip\relax,
                               width=fit,
-                              right={.~}]
-\setupenumerations  [remark] [prefix=yes,% or prefixsegments=chapter:section
+                              right={.~},
+                              prefix=yes,% or prefixsegments=chapter:section
                               prefixsegments=section]
 \setupcounter       [remark] [way=bysection]
-
+\definedescription  [description][
+                     before=\vskip.25\baselineskip\relax,
+                     after=\vskip.25\baselineskip\relax,
+                     alternative=serried,width=fit,
+                     indenting=2em,indentnext=yes,
+                     headstyle=bold,align={flushleft,},]
 
 %%%%% only for compatiblility
 \let\startlists\startordinals

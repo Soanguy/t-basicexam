@@ -1430,6 +1430,25 @@
   \xdef\currentquestionlevel{\the\c_strc_question_nesting}%
   \endgroup}
 
+\defineframed[OuterFramed]  [frame=on,framecolor=themecolor,corner=rounded,
+                             offset=0pt,corner=rounded,location=height,align=lohi,
+                             strut=no,height=.8\baselineskip,
+                             background=color,backgroundcolor=themecolor,foregroundstyle=ssx]
+\defineframed[MiddleFramed] [width=1.5em,frame=off,foregroundcolor=white,strut=no,height=.8\baselineskip]
+\defineframed[InnerFramed]  [MiddleFramed]
+                            [background=color,backgroundcolor=white,foregroundcolor=themecolor]
+\def\ExampleNumber#1{\OuterFramed{\MiddleFramed{例}\InnerFramed{#1}}}
+\def\ExampleNumberII#1{\OuterFramed[radius=1px]{\MiddleFramed[radius=1px]{例}\InnerFramed[frame=off,frameradius=1px]{#1}}}
+\defineconversion [ExampleNumberI] [\ExampleNumber]
+\defineconversion [ExampleNumberII] [\ExampleNumberII]
+\def\QuestionNumber#1{\OuterFramed{\MiddleFramed{题}\InnerFramed{#1}}}
+\def\QuestionNumberII#1{\OuterFramed[radius=1px]{\MiddleFramed[radius=1px]{题}\InnerFramed[frame=off,frameradius=1px]{#1}}}
+
+\defineconversion [QuestionNumberI] [\QuestionNumber]
+\defineconversion [QuestionNumberII] [\QuestionNumberII]
+
+%\setupquestion[option=ExampleNumberI,width=3em,stopper=,]
+
 \setupquestion
   [class=question,
   %reset=,
