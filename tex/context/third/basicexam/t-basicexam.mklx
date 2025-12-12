@@ -258,9 +258,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{定义其后环境所需命令}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
+\definecolor  [transparent] [r=1,t=0,a=1]
 \definecounter[Unicode][way=bychapter,start=0]
 \definecounter[Unicode_toplevel]        % for level 1 : question or problem
 \definecounter[Unicode_midlevel]        % for level 2 : problem or level 1
@@ -384,11 +382,7 @@
 \definelist[tu]
 \setuplist [tu][style={\feature[+][tabularnumbers]}]
 
-\setupheads[section,
-            subsection,
-            subsubsection,
-            subsubsubsection,
-            subsubsubsubsection]       [sectionsegments=current]
+\setupheads[tu,ego,isea,heu]       [sectionsegments=current]
 
 \definestructureconversionset[examnum][chinesenumerals][chinesenumerals]
 
@@ -1430,21 +1424,27 @@
   \xdef\currentquestionlevel{\the\c_strc_question_nesting}%
   \endgroup}
 
-\defineframed[OuterFramed]  [frame=on,framecolor=themecolor,corner=rounded,
-                             offset=0pt,corner=rounded,location=height,align=lohi,
-                             strut=no,height=.8\baselineskip,
-                             background=color,backgroundcolor=themecolor,foregroundstyle=ssx]
-\defineframed[MiddleFramed] [width=1.5em,frame=off,foregroundcolor=white,strut=no,height=.8\baselineskip]
+\defineframed[MiddleFramed] [width=1.5em,rulethickness=0pt,strut=no,height=.8\baselineskip,
+                             background=color,backgroundcolor=themecolor,
+                             backgroundradius=5pt,frameradius=5pt,
+                             foregroundcolor=white,foregroundstyle=ssx,align={lohi,center},
+                             frame=on,framecolor=themecolor,corner=02,rulethickness=.5pt]
 \defineframed[InnerFramed]  [MiddleFramed]
-                            [background=color,backgroundcolor=white,foregroundcolor=themecolor]
-\def\ExampleNumber#1{\OuterFramed{\MiddleFramed{例}\InnerFramed{#1}}}
-\def\ExampleNumberII#1{\OuterFramed[radius=1px]{\MiddleFramed[radius=1px]{例}\InnerFramed[frame=off,frameradius=1px]{#1}}}
-\defineconversion [ExampleNumberI] [\ExampleNumber]
-\defineconversion [ExampleNumberII] [\ExampleNumberII]
-\def\QuestionNumber#1{\OuterFramed{\MiddleFramed{题}\InnerFramed{#1}}}
-\def\QuestionNumberII#1{\OuterFramed[radius=1px]{\MiddleFramed[radius=1px]{题}\InnerFramed[frame=off,frameradius=1px]{#1}}}
+                            [background=color,backgroundcolor=white,
+                             foregroundcolor=themecolor,
+                             frame=on,framecorner=trb,framecolor=themecolor,corner=04,]
+\def\ExampleNumber#1%
+    {\dontleavehmode\setuplocalinterlinespace[stretch=1]\lower1pt\hbox{\MiddleFramed{例}\InnerFramed{\kern-.5pt\relax #1}}}
+\def\ExampleNumberII#1%
+    {\dontleavehmode\setuplocalinterlinespace[stretch=1]\lower1pt\hbox{\MiddleFramed[backgroundradius=1pt,frameradius=1pt]{例}\InnerFramed[backgroundradius=1pt,frameradius=1pt]{#1}}}
+\def\QuestionNumber#1%
+    {\dontleavehmode\setuplocalinterlinespace[stretch=1]\lower1pt\hbox{\MiddleFramed{题}\InnerFramed{\kern-.5pt\relax #1}}}
+\def\QuestionNumberII#1%
+    {\dontleavehmode\setuplocalinterlinespace[stretch=1]\lower1pt\hbox{\MiddleFramed[backgroundradius=1pt,frameradius=1pt]{题}\InnerFramed[backgroundradius=1pt,frameradius=1pt]{#1}}}
 
-\defineconversion [QuestionNumberI] [\QuestionNumber]
+\defineconversion [ExampleNumberI]   [\ExampleNumber]
+\defineconversion [ExampleNumberII]  [\ExampleNumberII]
+\defineconversion [QuestionNumberI]  [\QuestionNumber]
 \defineconversion [QuestionNumberII] [\QuestionNumberII]
 
 %\setupquestion[option=ExampleNumberI,width=3em,stopper=,]
@@ -2832,12 +2832,14 @@
     \edef\p_empty{\fillinparameter\c!empty}%
       \wordboundary\scratchcounter\numexpr\p_n\relax
       \ifx\p_empty\v!yes
+        \fillinparameter\c!before
         \inheritedfillinframed\bgroup
           \interwordspacesbefore\scratchcounter
           \interwordspacesafter \scratchcounter
         \egroup
       \fi
       \ifx\p_empty\v!number
+        \fillinparameter\c!before
         \inheritedfillinframed\bgroup
           \interwordspacesbefore\scratchcounter
           \zwnj\p_number\zwnj
@@ -2845,6 +2847,7 @@
         \egroup
       \fi
       \ifx\p_empty\v!none
+        \fillinparameter\c!before
         \inheritedfillinframed\bgroup
           \scratchcounter\numexpr\p_n/\plustwo\relax
           {{\interwordspacesbefore\scratchcounter
@@ -2857,12 +2860,14 @@
       \ifmode_showanswer\setupfillin[empty=none]\fi
       \edef\p_empty{\fillinparameter\c!empty}%
       \ifx\p_empty\v!number
+        \fillinparameter\c!before
         \inheritedfillinframed\bgroup
         \interwordspacesbefore2
         \zwnj\p_number\zwnj
         \interwordspacesafter2
         \egroup
       \else
+        \fillinparameter\c!before
         \inheritedfillinframed\bgroup
         \wordboundary\zwnj\currentfillinanswer\zwnj
         \egroup
@@ -2872,12 +2877,14 @@
       \ifmode_showanswer\setupfillin[empty=none]\fi
       \edef\p_empty{\fillinparameter\c!empty}%
       \ifx\p_empty\v!number
+        \fillinparameter\c!before
         \inheritedfillinframed\bgroup
         \interwordspacesbefore2
         \zwnj\p_number\hfill\zwnj
         \interwordspacesafter2
         \egroup
       \else
+        \fillinparameter\c!before
         \inheritedfillinframed\bgroup
         \wordboundary\zwnj\currentfillinanswer\hfill\zwnj
         \egroup
@@ -3044,6 +3051,7 @@
 \tolerant\protected\def\startmaterial[#1]#*{\begingroup%
   \lettonothing\currentmaterial%%
   \env_materialtrue\set_envitem_counter%
+  \edef\currentmaterial{material}%
   \iffirstargument\setupcurrentmaterial[#1]\fi
   \edef\p_number{\rootmaterialparameter\c!number}%
   \edef\p_indicator{\rootmaterialparameter\c!indicator}%
@@ -4269,7 +4277,7 @@ draw p
  {\begingroup% for circled number graphic(CNG)
  \iffirstargument\setupMPvariables[circlednum][#1]\fi
     \setMPtext{framednum}{#2}% for framed number in CNG
-    \vbox{\useMPgraphic{circlednum}}%
+    \dontleavehmode\vbox{\useMPgraphic{circlednum}}%
     \endgroup}
 
 \def\negativecircledconversion#1{{%
@@ -4284,6 +4292,20 @@ draw p
   \setupcircledtext[framecolor=black,color=black,fillcolor=white,radius=0.2,]\circledtext{#1}}}
 \def\roundsquaredconversion#1{{%
   \setupcircledtext[framecolor=black,fillcolor=black,color=white,radius=0.2,]\circledtext{#1}}}
+
+\defcsname circlednum:Co:Alph\endcsname#1{\circledconversion             {\convertnumber{A}{#1}}}
+\defcsname circlednum:CO:Alph\endcsname#1{\negativecircledconversion     {\convertnumber{A}{#1}}}
+\defcsname circlednum:Cr:Alph\endcsname#1{\roundsquaredconversion        {\convertnumber{A}{#1}}}
+\defcsname circlednum:CR:Alph\endcsname#1{\negativeroundsquaredconversion{\convertnumber{A}{#1}}}
+\defcsname circlednum:Cs:Alph\endcsname#1{\squaredconversion             {\convertnumber{A}{#1}}}
+\defcsname circlednum:CS:Alph\endcsname#1{\negativesquaredconversion     {\convertnumber{A}{#1}}}
+
+\defcsname circlednum:Co:alph\endcsname#1{\circledconversion             {\convertnumber{a}{#1}}}
+\defcsname circlednum:CO:alph\endcsname#1{\negativecircledconversion     {\convertnumber{a}{#1}}}
+\defcsname circlednum:Cr:alph\endcsname#1{\roundsquaredconversion        {\convertnumber{a}{#1}}}
+\defcsname circlednum:CR:alph\endcsname#1{\negativeroundsquaredconversion{\convertnumber{a}{#1}}}
+\defcsname circlednum:Cs:alph\endcsname#1{\squaredconversion             {\convertnumber{a}{#1}}}
+\defcsname circlednum:CS:alph\endcsname#1{\negativesquaredconversion     {\convertnumber{a}{#1}}}
 
 \defcsname circlednum:Co:cn\endcsname#1{\circledconversion             {\chinesenumerals{#1}}}
 \defcsname circlednum:CO:cn\endcsname#1{\negativecircledconversion     {\chinesenumerals{#1}}}
@@ -4312,6 +4334,20 @@ draw p
 \defineconversion[CR:num][\negativeroundsquaredconversion]
 \defineconversion[Cs:num][\squaredconversion]
 \defineconversion[CS:num][\negativesquaredconversion]
+
+\defineconversion[Co:Alph][\csname circlednum:Co:Alph\endcsname]
+\defineconversion[CO:Alph][\csname circlednum:CO:Alph\endcsname]
+\defineconversion[Cr:Alph][\csname circlednum:Cr:Alph\endcsname]
+\defineconversion[CR:Alph][\csname circlednum:CR:Alph\endcsname]
+\defineconversion[Cs:Alph][\csname circlednum:Cs:Alph\endcsname]
+\defineconversion[CS:Alph][\csname circlednum:CS:Alph\endcsname]
+
+\defineconversion[Co:alph][\csname circlednum:Co:alph\endcsname]
+\defineconversion[CO:alph][\csname circlednum:CO:alph\endcsname]
+\defineconversion[Cr:alph][\csname circlednum:Cr:alph\endcsname]
+\defineconversion[CR:alph][\csname circlednum:CR:alph\endcsname]
+\defineconversion[Cs:alph][\csname circlednum:Cs:alph\endcsname]
+\defineconversion[CS:alph][\csname circlednum:CS:alph\endcsname]
 
 \defineconversion[Co:cn][\csname circlednum:Co:cn\endcsname]
 \defineconversion[CO:cn][\csname circlednum:CO:cn\endcsname]
