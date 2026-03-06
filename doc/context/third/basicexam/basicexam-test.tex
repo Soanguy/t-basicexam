@@ -1,9 +1,13 @@
-\usemodule[basicexam][layout=twoup,mode={teacher}]
+% basicexam-test.tex
+% Comprehensive documentation and test suite for the basicexam module
+% Author: Shueng Mosan
+% Date: 2024-10-24
+
+\usemodule[basicexam]
 %\usemodule[basicexam][mode={teacher,check}]
 
 \setupinteraction[state=start]
 \setuptextrules[style=\tf\ss,before=,after=,rulethickness=.5pt]
-\setuplayout[width=.75\paperwidth,backspace=.2\paperwidth]
 \setuphead[section][style=\ss\bfb,color=black]
 \setuphead[subsection][style=\ss\bf,color=blue]
 \setuptyping[style=\ttxx\setuplocalinterlinespace[line=2ex],
@@ -19,12 +23,70 @@
 
 \placecontent
 
+% ==============================================
+% Module Overview
+% ==============================================
+
+\section{Introduction to basicexam Module}
+
+The basicexam module is a ConTeXt module designed for creating educational
+materials such as exams, quizzes, and practice tests. It provides a flexible
+framework for defining questions, choices, answers, and scoring.
+
+\subsection{Module Features}
+
+\startitemize[packed]
+\item Multiple question types including choice questions, fill-in-the-blank, and open-ended
+\item Support for teacher/student modes with answer visibility control
+\item Two-up layout option for printing exams on both sides of paper
+\item Customizable styling for questions, answers, and scoring
+\item Inline choice questions for compact presentation
+\item Script areas for student answers
+\item Comprehensive point tracking and scoring
+\stopitemize
+
+\subsection{Module Parameters}
+
+The module accepts the following parameters when loaded:
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Values \NC Description \NC\NR
+\HL
+\NC mode      \NC        \NC  Controls the display mode:\NC\NR
+\NC  \NC - student \NC Shows questions only\NC\NR
+\NC  \NC - teacher \NC Shows questions with answers\NC\NR
+\NC  \NC - check   \NC Debug mode with console output \NC\NR
+\HL
+\NC layout \NC \NC Layout configuration:\NC\NR
+\NC \NC - twoup \NC Two virtual pages per physical page\NC\NR
+\NC \NC - none  \NC Default single-page layout \NC\NR
+\HL
+\NC footer \NC \NC Footer configuration:\NC\NR
+\NC \NC - default \NC Shows subject and page number\NC\NR
+\NC \NC - none    \NC No footer \NC\NR
+\HL
+\stoptabulate
+
 \setupquestion[answer={default answer},point=1]
 \setupproblem [left=(,right=),stopper=,width=\widthofstring{(00)}]
 
-\section{Choice}
+\section{Choice Questions}
 
-\subsection{full example \& quick example}
+This section demonstrates various implementations of choice questions,
+showing both verbose and concise syntax options.
+
+\subsection{Basic Choice Question Syntax}
+
+The following examples show the two primary syntax formats for creating choice questions:
+
+\startitemize[packed]
+\item Verbose format using \type{\startquestion}/\type{\stopquestion} environments
+\item Quick format using the \type{\question} macro with comma-separated choices
+\stopitemize
+
+Additionally, they demonstrate column control through the optional parameter
+(8 columns in the second example) and integration with external figures.
 
 \startbuffer
 \startquestion
@@ -70,7 +132,19 @@
 
 \getbuffer
 
-\subsection{example with answer}
+\subsection{Questions with Answers and Points}
+
+This section demonstrates how to define questions with:
+
+\startitemize[packed]
+\item Explicit answer marking using \type{[*]} syntax
+\item Point values and point display
+\item Detailed answer explanations
+\item Reference labels for cross-referencing
+\stopitemize
+
+The answer environment supports multiple formatting options and will automatically
+show/hide based on the module's mode parameter (teacher/student).
 
 \startbuffer
 \startquestion[reference=Q,
@@ -112,7 +186,19 @@
 
 \getbuffer
 
-\subsection{example with script}
+\subsection{Answer Script Areas}
+
+This section shows how to add script areas where students can write responses.
+Key features demonstrated:
+
+\startitemize[packed]
+\item \type{showscript=true} to enable answer spaces
+\item Custom script content with light gray prompt text
+\item Frame control for answer areas
+\item Vertical spacing adjustments for handwritten answers
+\stopitemize
+
+Script areas are particularly useful for open-ended questions requiring longer responses.
 
 \startbuffer
 \startquestion[reference=Q,
@@ -151,7 +237,20 @@
 
 \getbuffer
 
-\subsection{adjust style}
+\subsection{Styling Customization}
+
+This section demonstrates the extensive styling options available:
+
+\startitemize[packed]
+\item Question text styling (font family, size, color)
+\item Choice option formatting
+\item Point display customization
+\item Answer formatting and color coding
+\item Label styling and positioning
+\stopitemize
+
+These styling parameters can be applied globally through \type{\setupquestion}
+or locally for individual questions.
 
 \startbuffer
 \startquestion[style=ss,pointlabel={total , pts},point=2,showpoint=true]
@@ -183,7 +282,13 @@
 
 \getbuffer
 
-\subsection{inline choice}
+\subsection{Inline Choice Questions}
+
+Inline choice questions allow for compact presentation where choices appear
+within the flow of the question text rather than as separate list items.
+This format is particularly useful for short questions or when space is limited.
+
+The example demonstrates both environment-based (\type{\startinlinechoice}) and macro-based (\type{\inlinechoice}) inline choice syntax.
 
 \startbuffer
 \startquestion
