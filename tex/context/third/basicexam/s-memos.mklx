@@ -301,6 +301,7 @@
 \definefilesynonym [type-imp-genyotc.mkiv]          [type-imp-source.mkiv]
 \definefilesynonym [type-imp-genryutw.mkiv]         [type-imp-source.mkiv]
 \definefilesynonym [type-imp-genryutc.mkiv]         [type-imp-source.mkiv]
+\definefilesynonym [type-imp-shanggu.mkiv]          [type-imp-source.mkiv]
 
 \definefilesynonym [type-imp-ibmplexsc.mkiv]        [type-imp-ibmplex.mkiv]
 \definefilesynonym [type-imp-ibmplexjp.mkiv]        [type-imp-ibmplex.mkiv]
@@ -1161,8 +1162,8 @@ context.definelayout(
 
 \defineconversionset  [frontpart:pagenumber] [] [Romannumerals]
 \defineconversionset  [bodypart:pagenumber]  [] [n]
-\setupsectionblock [frontpart] [\c!number=\v!yes,before=\setcounter [userpage] [1]]
-\setupsectionblock [bodypart]  [\c!number=\v!yes,before=\setcounter [userpage] [1]]
+\setupsectionblock    [frontpart] [\c!number=\v!yes,before=\setcounter [userpage] [1]]
+\setupsectionblock    [bodypart]  [\c!number=\v!yes,before=\setcounter [userpage] [1]]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                            標題相關設置                             %%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1235,17 +1236,25 @@ context.definelayout(
 %% 1.1.1 XXXX       --- subsubsection
 %% (1.1) XXXX       --- subsubsubsection
 \ifchap_sty_default
+    \edef\currentchapterstyle{default}
     \definestructureconversionset[defaultconversionset][chinesenumerals,
        Numbers,Numbers,Numbers,Numbers][n]
-    \setupheads[part,chapter,section,subsection,subsubsection,
-                subsubsubsection,subsubsubsubsection]
+    \setupheads[part,
+                chapter,
+                section,
+                subsection,
+                subsubsection,
+                subsubsubsection,
+                subsubsubsubsection]
                [sectionconversionset=defaultconversionset]
-    \setupheads[chapter]             [align=center,distance=\widthofstring{\ssd 章}]
+    \setupheads[chapter]
+               [align=center,
+                distance=\widthofstring{\ssd 章}]
     \setupheads[section,
                 subsection,
                 subsubsection,
                 subsubsubsection,
-                subsubsubsubsection]       [sectionsegments=section:*]
+                subsubsubsubsection] [sectionsegments=section:*]
     \setupheads[subsection,
                 subsubsection,
                 subsubsubsection,
@@ -1945,33 +1954,37 @@ StopPage ;
              after=\vskip\baselineskip\relax]
 
 % \section{TOC: style}
-\define[1]\mms_partlabel{{\color[themecolor]{\feature[+][smallcaps]\tx Part}\ }}
 \iftocs_sty_default
   \edef\currenttocstyle{default}
+  \define[3]\mms_partlabel%
+            {\framed[align=center,
+                     width=max,
+                     frame=off,
+                     foregroundstyle=bfa,
+                     foregroundcolor=themecolor]{%
+                        {第\ #1\ 编}\hbox to 1em{ } #2}}
   \setupcombinedlist[content][
     list={part,%
-    title,chapter,subject,section,
-    subsubject,subsection,
-    subsubsubject,subsubsection,
-    subsubsubsection,subsubsubsubsection}]
-  \setuplist  [part,chapter,section]
+          title,subject,
+          chapter,section,
+          subsubject,subsection,
+          subsubsubject,subsubsection,
+          subsubsubsection,subsubsubsubsection}]
+  \setuplist  [part,chapter,section,
+               subsection,subsubsection,subsubsection,
+               subsubsubsection,subsubsubsubsection]
               [width=3.5em,distance=.5em,alternative=c,
                before=,after=,label=yes,numberalign=flushright]
-  \setuplist  [subsection,subsubsection,subsubsection,
-               subsubsubsection,subsubsubsubsection]
-              [width=0.0em, distance=.5em,%headnumber=no,
-                alternative=c,numberalign=flushright]
   \setuplist  [part]
-              [margin=0.0em,width=2.5em,
-               numbercommand=\mms_partlabel,before=\blank]
-  \setuplist  [title]              [margin=4.0em]
-  \setuplist  [subject]            [margin=5.0em]
-  \setuplist  [chapter]            [margin=0.0em]
+              [command=\mms_partlabel,alternative=interactive,before=\blank]
+  \setuplist  [title]              [margin=0.0em,style=bf]
+  \setuplist  [subject]            [margin=1.0em]
+  \setuplist  [chapter]            [margin=0.0em,style=bf,before=\blank[quarterline]]
   \setuplist  [section]            [margin=1.0em]
-  \setuplist  [subsection]         [margin=1.5em]
-  \setuplist  [subsubsection]      [margin=2.0em]
-  \setuplist  [subsubsubsection]   [margin=2.5em]
-  \setuplist  [subsubsubsubsection][margin=3.0em]
+  \setuplist  [subsection]         [margin=1.0em,align=flushright]
+  \setuplist  [subsubsection]      [margin=1.0em,width=5.0em]
+  \setuplist  [subsubsubsection]   [margin=1.0em,width=6.0em]
+  \setuplist  [subsubsubsubsection][margin=1.0em,width=7.0em]
 \fi
 \iftocs_sty_simple
   \edef\currenttocstyle{simple}
@@ -1982,20 +1995,21 @@ StopPage ;
                subsubsubsection,subsubsubsubsection
                }]
   \setuplist  [part,chapter,section]
-                          [width=1.0em,margin=0.0em,distance=.5em]
+              [width=1.0em,margin=0.0em,distance=.5em]
   \setuplist  [section,subject,subsection,subsubsection,
                subsubsection,subsubsubsection,subsubsubsubsection]
-                          [width=0.0em,distance=.5em,alternative=c]
-  \setuplist  [part]      [width=2.0em,pagenumber=no,
-                           numbercommand=\mms_partlabel,style=ss,after=]
-  \setuplist  [title]     [margin=2.0em]
-  \setuplist  [chapter]   [margin=2.0em,headnumber=no,before=,]
-  \setuplist  [subject]   [margin=3.0em]
-  \setuplist  [section]   [margin=3.0em]
-  \setuplist  [subsection][margin=4.0em]
-  \setuplist  [subsubsection][margin=5.0em]
-  \setuplist  [subsubsubsection][margin=6.0em]
-  \setuplist  [subsubsubsubsection][margin=7.0em]
+              [width=1.0em,distance=.5em,alternative=c]
+  \setuplist  [title]     [margin=1.5em]
+  \setuplist  [subject]   [margin=2.5em]
+  \setuplist  [part]      [width=2.0em,margin=1.0em,
+                           pagenumber=no,headnumber=no,
+                           style=ss,after=]
+  \setuplist  [chapter]            [margin=0.0em,before=,]
+  \setuplist  [section]            [margin=1.0em]
+  \setuplist  [subsection]         [margin=2.0em]
+  \setuplist  [subsubsection]      [margin=3.0em]
+  \setuplist  [subsubsubsection]   [margin=4.0em]
+  \setuplist  [subsubsubsubsection][margin=5.0em,width=2.0em]
 \fi
 \iftocs_sty_line
   \edef\currenttocstyle{line}
@@ -2032,9 +2046,9 @@ StopPage ;
   \setuplist  [chapter]   [margin=0.0em,color=themecolor,style=\ss]
   \setuplist  [subject]   [margin=3.0em,style=\tt]
   \setuplist  [section]   [margin=1.5em,style=\tt]
-  \setuplist  [subsection][margin=2.5em]
-  \setuplist  [subsubsection][margin=3.5em]
-  \setuplist  [subsubsubsection][margin=4.5em]
+  \setuplist  [subsection]         [margin=2.5em]
+  \setuplist  [subsubsection]      [margin=3.5em]
+  \setuplist  [subsubsubsection]   [margin=4.5em]
   \setuplist  [subsubsubsubsection][margin=5.5em]
 \fi
 \iftocs_sty_colorful
@@ -2067,7 +2081,7 @@ StopPage ;
   \setuplist  [part,chapter,section,title,subject]
                           [width=\backspace,distance=0.0em,style=\ss,
                            numbercolor=white,numberalign=middle]
-  \setuplist  [part]      [numbercommand=\mms_partlabel,after=,color=themecolor]
+  \setuplist  [part]      [numbercommand=,after=,color=themecolor]
   \setuplist  [chapter]   [color=themecolor,before=]
   \setuplist  [title]     [margin=\backspace,color=themecolor]
   \setuplist  [subject]   [margin=\dimexpr\backspace+1em\relax]
@@ -2082,22 +2096,23 @@ StopPage ;
 \fi
 \iftocs_sty_classics
   \edef\currenttocstyle{classics}
+  \define[3]\mms_chaplabel{\hbox to 1tw{#2第#1\hfill #3}}
+  \setuplist [chapter] [alternative=interactive,command=\mms_chaplabel]
 \fi
 \iftocs_sty_rocket
   \edef\currenttocstyle{rocket}
-  \define[1]\mms_chaplabel{{\sc\color[themecolor]{\Romannumerals\currentlistentrynumber}}}
   \setuphead       [tochead][alternative=middle,before=\null\vskip2\baselineskip\relax]
   \setupcombinedlist[content][list={part,title,chapter,section,subject}]
   \setuplist       [part,chapter,title,subject,section]
                                     [before=,after=,style=ss,distance=.5em,
                                      numberalign=flushright]
-  \setuplist       [part]           [width=2.5em,numbercommand=\mms_partlabel,
+  \setuplist       [part]           [width=2.5em,numbercommand=,
                                      color=themecolor,before=\blank]
-  \setuplist       [title,chapter]  [width=2.5em,color=themecolor,
-                                     numbercommand=\mms_chaplabel,style=ssbf]
-  \setuplist       [title]          [margin=3em]
-  \setuplist       [section]        [headnumber=no,margin=3.5em]
-  \setuplist       [subject]        [margin=4em]
+  \setuplist       [chapter,title]  [width=2.5em,color=themecolor,
+                                     style=\ssbf,numberconversion=R]
+  \setuplist       [title]          [margin=3.0em,style=\ssbf\sc]
+  \setuplist       [section]        [margin=3.5em,headnumber=no]
+  \setuplist       [subject]        [margin=4.0em]
 \fi
 \iftocs_sty_hexa
   \edef\currenttocstyle{hexa}
@@ -2108,13 +2123,21 @@ StopPage ;
                      subsubsubsection,subsubsubsubsection}]
   \setuphead       [tochead][alternative=paragraph,align=flushright,
                              before=\null\vskip2\baselineskip\relax]
-  \setuplist       [part]   [width=2.5em,distance=0.0em,
-                             numbercommand=\mms_partlabel]
-  \setuplist       [title]  [margin=2.5em]
-  \setuplist       [chapter][width=2em,distance=0.5em]
-  \setuplist       [subject,section,subsubject,subsection,subsubsubject,
-                    subsubsection,subsubsubsection,subsubsubsubsection]
-                   [margin=2.5em,alternative=c]
+  \setuplist       [part]   [align=center,,style=bfa,
+                             pagenumber=no,headnumber=no
+                             before=\null\vskip\baselineskip\relax]
+  \setuplist       [title]  [margin=2.0em]
+  \setuplist       [subject][margin=3.0em]
+  \setuplist       [chapter][width=1.5em,distance=0.5em]
+  \setuplist       [section][margin=0.5em,width=1.5em,alternative=c]
+  \setuplist       [subsubject,subsection,
+                    subsubsubject,subsubsection,
+                    subsubsubsection,subsubsubsubsection]
+                            [width=fit,distance=0.5em,alternative=c]
+  \setuplist  [subsection]         [margin=1.0em]
+  \setuplist  [subsubsection]      [margin=1.5em]
+  \setuplist  [subsubsubsection]   [margin=2.0em]
+  \setuplist  [subsubsubsubsection][margin=2.5em]
 \fi
 
 %\section{SCMD:placeTOCs}
@@ -2126,23 +2149,20 @@ StopPage ;
   interlinespace=\baselineskip,
   title=\labeltext{content},
   content=yes,
-  layout=moderate,
-  resetlayout=default,]
+  layout=moderate,]
 
 \tolerant\def\placeTOCs[#1]{\begingroup%
   \iffirstargument\getparameters[??TOCs][#1]\fi%
   % \csname tocs_sty_\currenttocstyle false\endcsname
   \csname tocs_sty_\??TOCsalternative true\endcsname
   \doifinsetelse{\namedheadparameter{tochead}\c!page}{no,disable}%
-     {}{\setuplayout[\??TOCslayout]}%
+     {}{\startlayout[\??TOCslayout]}%
   \edef\p_title{\??TOCstitle}%
   \expandafter\expandafter\expandafter\tochead\expandafter{\p_title}%
   \setuplocalinterlinespace[line=\??TOCsinterlinespace]%
   \doifelse{\??TOCscontent}{yes}{\placecontent}{\??TOCscontent}%
+  \stoplayout
   \page[\namedheadparameter{tochead}\c!page]%
-  \doifinsetelse{\namedheadparameter{tochead}\c!page}{no,disable}%
-    {\vskip\baselineskip\relax}%
-    {\setuplayout[\??TOCsresetlayout]}%
   \endgroup}
 
 \definemargindata   [outermargin] [outer]
@@ -2632,13 +2652,23 @@ endgroup;
 
 %%%%%%%%%%%%%%%%%%%%
 \startuseMPgraphic{mp:itemgroup:square}
-numeric u; path p;
-u := BodyFontSize;
-p := fullsquare scaled .8u;
-fill p shifted (.2u, -.2u) withcolor .75white;
-fill p withcolor .5[blue, white];
+numeric us; path ps;
+us := BodyFontSize;
+ps := fullsquare scaled .8us;
+fill ps shifted (.2us, -.2us) withcolor .75white;
+fill ps withcolor .5[\MPcolor{themecolor}, white];
 \stopuseMPgraphic
+
+\startuseMPgraphic{mp:itemgroup:circle}
+numeric uc; path pc;
+uc := BodyFontSize;
+pc := fullcircle scaled .85uc;
+fill pc shifted (.15uc, -.15uc) withcolor .25white;
+fill pc withcolor .5[\MPcolor{themecolor}, white];
+\stopuseMPgraphic
+
 \definesymbol[shadowedsquare][{\lower.2\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:square}}}]
+\definesymbol[shadowedcircle][{\lower.2\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:circle}}}]
 
 \defineitemgroup    [ordinals] [levels=4]
 \setupitemgroup     [ordinals] [each]
@@ -2684,7 +2714,7 @@ fill p withcolor .5[blue, white];
                      after=\vskip.25\baselineskip\relax,
                      alternative=serried,width=fit,
                      indenting=2em,indentnext=yes,
-                     headstyle=bold,align={flushleft,},]
+                     headstyle=rmbf,align={flushleft,},]
 
 %%%%% only for compatiblility
 \let\startlists\startordinals
