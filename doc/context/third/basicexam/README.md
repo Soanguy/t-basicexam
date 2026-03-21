@@ -1,5 +1,7 @@
 ## 介紹
 
+https://deepwiki.com/Soanguy/t-basicexam
+
 一個簡單地試卷生成模塊，專用於 ConTeXt。目前具有的功能有：
 
 - 選擇題

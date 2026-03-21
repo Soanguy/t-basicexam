@@ -36,7 +36,7 @@
 %D \HL
 %D \stoptabulate
 
-\setupmodule[mode=student,layout=default,footer=none]
+\setupmodule[mode=student,layout=default,footer=none,libpath=/opt/homebrew/opt/sqlite/lib/libsqlite3.dylib]
 % \doifnotmode{mkiv}{\writestatus{error}{needs luatex}\wait\end}% check context version
 
 %D 定义关键词
@@ -149,9 +149,6 @@
 \newdimen\d_width_cit_max
 \newdimen\d_compared_maxwidth
 \newdimen\d_maxwidth_with_label
-\newdimen\c_bottotalpoint
-\newdimen\c_steppoint
-\newdimen\c_steppoint_temp
 
 \newcount\c_stepscore
 \newcount\c_closetest
@@ -167,6 +164,17 @@
 \newcount\c_examplenumber
 \newcount\c_strc_question_nesting
 \newcount\parentitemnumber% \parentitemnumber 会等于父级列表环境的序号
+
+\startluacode
+thirddata = thirddata or { }
+thirddata.basicexam_sql = thirddata.basicexam_sql or { }
+local basicexam_sql = thirddata.basicexam_sql
+basicexam_sql.libfile = ""
+
+function basicexam_sql.set_libpath(path)
+    basicexam_sql.libfile = path
+end
+\stopluacode
 
 \processallactionsinset[\currentmoduleparameter{showanswer}][
      showanswer=>{\mode_showanswertrue},
@@ -207,6 +215,12 @@
   \v!default=>\hdr_defaulttrue,
   \v!unknown=>\showmessage\m!basicexam{1}{footer},
 ]
+
+\doifelse{\currentmoduleparameter{libpath}}{}{
+    \ctxlua{thirddata.basicexam_sql.set_libpath("")}
+}{
+    \ctxlua{thirddata.basicexam_sql.set_libpath("\currentmoduleparameter{libpath}")}
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 注意 ⚠️
@@ -425,6 +439,9 @@
                  \ifmode_example    <M:E>\fi}
 
 \startluacode
+  thirddata.basicexam = thirddata.basicexam or {}
+  local basicexam = thirddata.basicexam
+
   local report = logs.reporter("question info")
 
   local function center_text(text, total_width)
@@ -451,11 +468,11 @@
 
   local debug_info_collector = {}
   
-  function collect_debug_info(data)
+  function basicexam.collect_debug_info(data)
     table.insert(debug_info_collector, data)
   end
   
-  function collect_answer_info(answer, answercontent, hanswer)
+  function basicexam.collect_answer_info(answer, answercontent, hanswer)
     local data = {
       {"answer       ", answer,
        "answercontent", answercontent},
@@ -465,7 +482,7 @@
     table.insert(debug_info_collector, data)
   end
   
-  function output_collected_debug_info()
+  function basicexam.output_collected_debug_info()
     if #debug_info_collector > 0 then
       local format_str = "%15s  %-20s  %15s  %-20s"
       center_report(lines, 70)
@@ -478,14 +495,14 @@
     end
   end
 
-  function formatted_report(data)
-    collect_debug_info(data)
+  local function formatted_report(data)
+    basicexam.collect_debug_info(data)
   end
 \stopluacode
 
 \def\outputdebuginfo{%
   \ifmode_check
-    \ctxlua{output_collected_debug_info()}%
+    \ctxlua{thirddata.basicexam.output_collected_debug_info()}%
   \fi
 }
 
@@ -518,7 +535,7 @@
 
 \def\show_answer_info{%
   \ifmode_check
-    \ctxlua{collect_answer_info(
+    \ctxlua{thirddata.basicexam.collect_answer_info(
       [==[\datasetvariable{ExamDataset}{\QuestionID}{answer}]==],
       [==[\datasetvariable{ExamDataset}{\QuestionID}{answercontent}]==],
       [==[\datasetvariable{ExamDatasetHelper}{\HelperID}{answer}]==]
@@ -529,13 +546,13 @@
 \def\show_check_info#1%
  {\begingroup
   \ifmode_check
-    \directlua{collect_debug_info({#1})}%
+    \directlua{thirddata.basicexam.collect_debug_info({#1})}%
   \fi
   \endgroup}
 
-\def\initcollectanswer{\directlua{MultiAnswerCollector = {}}}
-\def\collectanswer#1{\directlua{table.insert(MultiAnswerCollector,[[#1]])}}
-\def\collectedanswer{\directlua{tex.sprint(table.concat(MultiAnswerCollector,","))}}
+\def\initcollectanswer{\directlua{thirddata.basicexam.MultiAnswerCollector = {}}}
+\def\collectanswer#1{\directlua{table.insert(thirddata.basicexam.MultiAnswerCollector,[[#1]])}}
+\def\collectedanswer{\directlua{tex.sprint(table.concat(thirddata.basicexam.MultiAnswerCollector,","))}}
 
 \def\set_envitem_counter{%
   \initcollectanswer% 初始化多项答案收集器
@@ -605,9 +622,7 @@
       \setcounter[Unicode_midlevel][0]%
       \setcounter[Unicode_botlevel][0]%
       \incrementcounter[Unicode_toplevel]%
-      \c_steppoint     \zeropoint
-      \c_steppoint_temp\zeropoint% 重置分數計算
-      \c_bottotalpoint \zeropoint
+      \ctxlua{thirddata.basicexam.reset_point_data()}%
       \parentitemnumber\currentitemnumber
       \edef\item_bottotalnumber_helper{0}%
   \else\ifenv_botlevel
@@ -672,30 +687,108 @@
 \def\parens#1{(#1)}
 
 \startluacode
-  function FormatDim (dim)
-    local converteddimen  = tex.toscaled(dim) / 65536
-    local convertednumber = tonumber(string.format("%0.2f",converteddimen))
-    return convertednumber
+  thirddata.basicexam = thirddata.basicexam or {}
+  local basicexam = thirddata.basicexam
+
+  basicexam.MultiAnswerCollector = {}
+
+  local report = logs.reporter("basicexam", "point")
+
+  local point_data = {
+    top = { current = 0, total = 0 },
+    mid = { current = 0, total = 0 },
+    bot = { current = 0, total = 0 },
+  }
+
+  local level_map = {
+    ["<env_toplevel>"] = "top",
+    ["<env_midlevel>"] = "mid",
+    ["<env_botlevel>"] = "bot",
+  }
+
+  local function get_level(level_str)
+    return level_map[level_str] or "mid"
   end
 
-  function FormatNum (num)
-      if num <= 0 then
-          return 0
-      else
-          local t1, t2 = math.modf(num)
-          if t2 > 0 then
-              return num
-          else
-              return t1
-          end
-      end
+  local function reset_points()
+    point_data.top.current = 0
+    point_data.top.total = 0
+    point_data.mid.current = 0
+    point_data.mid.total = 0
+    point_data.bot.current = 0
+    point_data.bot.total = 0
   end
 
-  -- context(FormatDim(tex.dimen.c_steppoint))
-  -- context.par()
-  -- context(FormatNum(convertednumber))
-  -- context.par()
-  -- context(FormatNum(FormatDim(tex.dimen.c_steppoint)))
+  local function reset_bot_points()
+    point_data.bot.current = 0
+    point_data.bot.total = 0
+  end
+
+  local function add_point(level_str, point_value)
+    local level = get_level(level_str)
+    local score = tonumber(point_value) or 0
+    
+    point_data[level].current = score
+    point_data[level].total = point_data[level].total + score
+    
+    if level == "bot" then
+      point_data.mid.total = point_data.mid.total + score
+      point_data.top.total = point_data.top.total + score
+    elseif level == "mid" then
+      point_data.top.total = point_data.top.total + score
+    end
+    
+    return point_data[level].total
+  end
+
+  local function get_total(level_str)
+    local level = get_level(level_str)
+    return point_data[level].total
+  end
+
+  local function get_current(level_str)
+    local level = get_level(level_str)
+    return point_data[level].current
+  end
+
+  local function get_all_totals()
+    return point_data.top.total, point_data.mid.total, point_data.bot.total
+  end
+
+  local function format_point(num)
+    if not num or num <= 0 then
+      return 0
+    end
+    local t1, t2 = math.modf(num)
+    if t2 > 0 then
+      return num
+    else
+      return t1
+    end
+  end
+
+  function basicexam.install_point(level_str, point_value)
+    local total = add_point(level_str, point_value)
+    return format_point(total)
+  end
+
+  function basicexam.get_point_total(level_str)
+    return format_point(get_total(level_str))
+  end
+
+  function basicexam.reset_point_data()
+    reset_points()
+  end
+
+  function basicexam.reset_bot_point_data()
+    reset_bot_points()
+  end
+
+  function basicexam.debug_point_data()
+    report("top: current=%s, total=%s", point_data.top.current, point_data.top.total)
+    report("mid: current=%s, total=%s", point_data.mid.current, point_data.mid.total)
+    report("bot: current=%s, total=%s", point_data.bot.current, point_data.bot.total)
+  end
 \stopluacode
 
 \def\install_point[#1][#2]{%
@@ -703,69 +796,40 @@
   \edef\prevpoint{\currentprevpoint}%
   \ifempty\currentpoint
     \edef\currentpoint{\ifenv_toplevel 0\else\ifempty\prevpoint 0\else\prevpoint\fi\fi}%
-  \else
-    \edef\currentpoint{\csname #1parameter\endcsname\c!point}%
   \fi
   \ifenv_toplevel
-    \ifempty\currentpoint
-      \edef\currenttoppoint{0}\else
-      \ifdefined\steptotalmidpoint
-        \edef\currenttoppoint{\steptotalmidpoint}%
-        \edef\currentpoint{\steptotalmidpoint}%
-        \global\c_subitem_state2\relax\else
-        \edef\currenttoppoint{\currentpoint}\fi\fi
-      \ifempty\currentpoint% 抓取當前分數值
-          \scratchdimen\zeropoint      \else
-          \scratchdimen\currentpoint pt\relax
-      \fi
-      \global\c_steppoint_temp\scratchdimen\relax
-      \global\c_steppoint=\dimexpr\c_steppoint+\c_steppoint_temp\relax
-      \xdef\currenttotaltoppoint{\ctxlua{context(FormatNum(FormatDim(tex.dimen.c_steppoint)))}}%
-      \ifnum\rawcountervalue[Unicode_midlevel]=0
-        \xdef\currenttotalpoint{\csname #1parameter\endcsname\c!point}\else
-        \xdef\currenttotalpoint{\currenttotaltoppoint}%
-      \fi
-      % {\ttx\red \currentlevel : \currenttotalpoint }
-  \else
-    \ifenv_botlevel
-      \global\c_subitem_state3\relax
-      \ifempty\currentpoint
-        \edef\currentbotpoint{0}\else
-        \edef\currentbotpoint{\currentpoint}\fi
-        \ifempty\currentpoint% 抓取當前分數值
-          \scratchdimen\zeropoint      \else
-          \scratchdimen\currentpoint pt\relax
-        \fi
-        \global\c_steppoint_temp\scratchdimen\relax
-        \global\c_steppoint    =\dimexpr\c_steppoint    +\c_steppoint_temp\relax
-        \global\c_bottotalpoint=\dimexpr\c_bottotalpoint+\c_steppoint_temp\relax
-        \xdef\steptotalbotpoint   {\ctxlua{context(FormatNum(FormatDim(tex.dimen.c_steppoint)))}}%
-        \xdef\currenttotalbotpoint{\ctxlua{context(FormatNum(FormatDim(tex.dimen.c_bottotalpoint)))}}%
-        \xdef\currenttotalpoint   {\steptotalbotpoint}%
-        % {\ttx\red \currentlevel : \currenttotalpoint }
+    \ifdefined\steptotalmidpoint
+      \edef\currenttoppoint{\steptotalmidpoint}%
+      \edef\currentpoint{\steptotalmidpoint}%
+      \global\c_subitem_state2\relax
     \else
-      \ifempty\currentpoint
-        \edef\currentmidpoint{0}\else
-        \ifdefined\currenttotalbotpoint
-          \edef\currentmidpoint{\currenttotalbotpoint}%
-          \ifnum\c_subitem_state=3\edef\currentpoint{0}\fi
-          \global\c_subitem_state2\relax
-          \else
-          \edef\currentmidpoint{\currentpoint}\fi\fi
-        \ifempty\currentpoint% 抓取當前分數值
-          \scratchdimen\zeropoint      \else
-          \scratchdimen\currentpoint pt\relax
-        \fi
-        \c_bottotalpoint\zeropoint% 重置 midlevel 分数
-        \global\c_steppoint_temp\scratchdimen\relax
-        \global\c_steppoint=\dimexpr\c_steppoint+\c_steppoint_temp\relax
-        \global\c_bottotalpoint=\dimexpr\c_bottotalpoint+\c_steppoint_temp\relax
-        \xdef\steptotalmidpoint   {\ctxlua{context(FormatNum(FormatDim(tex.dimen.c_steppoint)))}}%
-        \xdef\currenttotalpoint   {\steptotalmidpoint}%
-        \ifdefined\currenttotalbotpoint\xdef\currenttotalmidpoint{\currenttotalbotpoint}\fi
-        % {\ttx\red \currentlevel : \currenttotalpoint }
+      \edef\currenttoppoint{\currentpoint}%
     \fi
-  \fi
+    \xdef\currenttotaltoppoint{\ctxlua{context(thirddata.basicexam.install_point("\currentlevel", "\currentpoint"))}}%
+    \ifnum\rawcountervalue[Unicode_midlevel]=0
+      \xdef\currenttotalpoint{\csname #1parameter\endcsname\c!point}%
+    \else
+      \xdef\currenttotalpoint{\currenttotaltoppoint}%
+    \fi
+  \else\ifenv_botlevel
+    \global\c_subitem_state3\relax
+    \edef\currentbotpoint{\currentpoint}%
+    \xdef\currenttotalbotpoint{\ctxlua{context(thirddata.basicexam.install_point("\currentlevel", "\currentpoint"))}}%
+    \xdef\steptotalbotpoint{\currenttotalbotpoint}%
+    \xdef\currenttotalpoint{\steptotalbotpoint}%
+  \else
+    \ifdefined\currenttotalbotpoint
+      \edef\currentmidpoint{\currenttotalbotpoint}%
+      \ifnum\c_subitem_state=3\edef\currentpoint{0}\fi
+      \global\c_subitem_state2\relax
+    \else
+      \edef\currentmidpoint{\currentpoint}%
+    \fi
+    \ctxlua{thirddata.basicexam.reset_bot_point_data()}%
+    \xdef\steptotalmidpoint{\ctxlua{context(thirddata.basicexam.install_point("\currentlevel", "\currentpoint"))}}%
+    \xdef\currenttotalpoint{\steptotalmidpoint}%
+    \ifdefined\currenttotalbotpoint\xdef\currenttotalmidpoint{\currenttotalbotpoint}\fi
+  \fi\fi
 }
 
 \def\install_answer[#1][#2]{%
@@ -840,29 +904,12 @@
 
 \setupexaminfo[frame=off,location=low,left=(,right=),offset=0pt,align=flushleft]
 
+\defineexaminfo[moreexaminfo]    [style=ttx]
 \defineexaminfo[answerexaminfo]
 \defineexaminfo[writingexaminfo]
 \defineexaminfo[questionexaminfo]
 \defineexaminfo[examitemexaminfo]
 \defineexaminfo[closeexaminfo]    [width=2em]
-
-\def\exam_showpointinfo{{\red \topHelperID :: \midHelperID :: \HelperID :: \currentQuestionID \\
-  \hbox{:aETH: \datasetvariable{ExamDataset}      {\topHelperID}{totalpoint}         }
-  \hbox{:bEMH: \datasetvariable{ExamDataset}      {\midHelperID}{totalpoint}         }
-  \hbox{:cE H: \datasetvariable{ExamDataset}      {\HelperID}   {totalpoint}         }\penalty0\blue
-  \hbox{:dETH: \datasetvariable{ExamDataset}      {\topHelperID}{bottotalpoint}      }
-  \hbox{:eEMH: \datasetvariable{ExamDataset}      {\midHelperID}{bottotalpoint}      }
-  \hbox{:fE H: \datasetvariable{ExamDataset}      {\HelperID}   {bottotalpoint}      }\penalty0\red
-  \hbox{:gHTH: \datasetvariable{ExamDatasetHelper}{\topHelperID}{totalpoint}         }
-  \hbox{:hHMH: \datasetvariable{ExamDatasetHelper}{\midHelperID}{totalpoint}         }
-  \hbox{:iH H: \datasetvariable{ExamDatasetHelper}{\HelperID}   {totalpoint}         }\penalty0\blue
-  \hbox{:jHTH: \datasetvariable{ExamDatasetHelper}{\topHelperID}{bottotalpoint}      }
-  \hbox{:kHMH: \datasetvariable{ExamDatasetHelper}{\midHelperID}{bottotalpoint}      }
-  \hbox{:lH H: \datasetvariable{ExamDatasetHelper}{\HelperID}   {bottotalpoint}      }\penalty0\red
-  \hbox{:mEQ:  \datasetvariable{ExamDataset}      {\currentQuestionID}{point}        }
-  \hbox{:nEQ:  \datasetvariable{ExamDataset}      {\currentQuestionID}{totalpoint}   }
-  \hbox{:oEQ:  \datasetvariable{ExamDataset}      {\currentQuestionID}{bottotalpoint}}
-}}
 
 \def\exam_showanswerinfo{{\red
   \hbox{:aETH: \datasetvariable{ExamDataset}      {\topHelperID}      {answer}}
@@ -874,6 +921,12 @@
   \hbox{:gHTH: \datasetvariable{ExamDataset}      {\currentQuestionID}{answer}}
   \hbox{:hHMH: \datasetvariable{ExamDatasetHelper}{\currentQuestionID}{answer}}
 }}
+
+\def\showmoreinfo[#1]{
+  \edef\p_showmoreinfo{\csname #1parameter\endcsname{showmore}}%
+  \ifx\p_showmoreinfo\s!true
+    \startmoreexaminfo\questionparameter{moreinfo}\stopmoreexaminfo
+  \fi}
 
 \tolerant\protected\def\showpointoranswer[#1]#*[#2]%
  {\edef\currentmode{#2}% check point or answer
@@ -905,7 +958,6 @@
           \expandafter[\csname p_current#1#2label\endcsname]{#2}%
     \def\left_assignedlabel {\csname  left_assigned#2label\endcsname}%
     \def\right_assignedlabel{\csname right_assigned#2label\endcsname}%
-    \ifx\currentmode\c!point \ifmode_debug {\ss PointINFO  : }\exam_showpointinfo \\\fi\fi
     \ifx\currentmode\c!answer\ifmode_debug {\ss AnswerINFO : }\exam_showanswerinfo\\\fi\fi
     \csname ifmode_show#2\endcsname
       \dousestyleparameter    {\csname #1parameter\endcsname{#2style}}%
@@ -1407,6 +1459,7 @@
     \set_count_envlevel[question]%
     \showpointoranswer[question][point]%
     \showpointoranswer[question][answer]%
+    \showmoreinfo[question]%
   \fi
   \ifx\p_class\s!problem
     % ====================================================================
@@ -1427,8 +1480,6 @@
     \fi\inititemnumber
     \xdef\currentQuestionID{\QuestionID}%
     \edef\item_bottotalnumber_helper{0}%
-    \ifmode_showanswer\mode_showanswertrue\fi
-    \ifmode_showpoint \mode_showpointtrue \fi
   \fi
   \usequestionstyleandcolor\c!textstyle\c!textcolor
   \save_question_order}
@@ -1628,8 +1679,6 @@
 
 \setupproblem
   [\c!class=\s!problem,
-   \c!showanswer=false,
-   \c!showpoint=false,
    \c!left=(, \c!lefttext=(,
    \c!right=),\c!righttext=),
    \c!stopper=,
@@ -1803,11 +1852,13 @@
 {\begingroup
   \def\tempchoicecontent{#4}%
   \startnamedchoice[#1][#2][#3]%
-    \ctxlua{basicexam_process_choice("tempchoicecontent")}%
+    \ctxlua{thirddata.basicexam.process_choice("tempchoicecontent")}%
   \stopnamedchoice\endgroup}
 
 \startluacode
-function basicexam_process_choice(macroname)
+  local basicexam = thirddata.basicexam
+
+  function basicexam.process_choice(macroname)
   local function has_content(s)
     if not s or string.len(s) == 0 then
       return false
@@ -1914,21 +1965,22 @@ end
 %%    % 特别的， 3 选项 且 可排版最大列数为 2 时，排版 1 行
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \startluacode
+  local basicexam = thirddata.basicexam
   local   tbl_num_temp = {"one","two","three","four",
                           "five","six","seven","eight","nine"}
   local   tbl_cit_count         = tex.count['c_totalchoicenumber']
   local   available_columns     = tex.count['c_availablecolumns']
-          available_columns_arg = ""
+          basicexam.available_columns_arg = ""
   if     (tbl_cit_count == 3) and (available_columns   <  tbl_cit_count)
-  then    available_columns_arg = "one"
+  then    basicexam.available_columns_arg = "one"
   elseif (tbl_cit_count >  1) and (available_columns   >= tbl_cit_count)
-  then    available_columns_arg = "horizontal," .. tbl_num_temp[tbl_cit_count]
+  then    basicexam.available_columns_arg = "horizontal," .. tbl_num_temp[tbl_cit_count]
   elseif (tbl_cit_count >= 1) and (available_columns   <=            1 )
-  then    available_columns_arg = "one"
-  else    available_columns_arg = "horizontal,two"
+  then    basicexam.available_columns_arg = "one"
+  else    basicexam.available_columns_arg = "horizontal,two"
   end
   \stopluacode
-  \edef\currentrealavailablecolumns{\ctxlua{context(available_columns_arg,"")}}%
+  \edef\currentrealavailablecolumns{\ctxlua{context(thirddata.basicexam.available_columns_arg,"")}}%
   \edef\p_showanswer        {\choiceparameter\c!showanswer  }%
   \edef\p_choicetype        {\choiceparameter\c!inlinechoice}%
   \edef\p_correctsymbol     {\choiceparameter{correctsymbol}}%
@@ -1938,7 +1990,7 @@ end
   \ifx\p_choicetype\s!true
     \startitemgroup[env:choice][text,\p_option]%
   \else
-    \startitemgroup[env:choice][\ctxlua{context(available_columns_arg,"")},\p_option]%
+    \startitemgroup[env:choice][\ctxlua{context(thirddata.basicexam.available_columns_arg,"")},\p_option]%
   \fi
   \choiceparameter\c!inlineleft
   \ifmode_showanswer\else
@@ -1953,9 +2005,10 @@ end
                            \d_strc_itemgroups_list_width\relax
   \d_compared_maxwidth   = \choiceparameter{maxiwidth}  \relax
   \startluacode
+    local basicexam = thirddata.basicexam
     local a = tex.dimen['d_compared_maxwidth']
     local b = tex.dimen['d_maxwidth_with_label']
-    currentavailablecolumns = math.floor(a/b)
+    basicexam.currentavailablecolumns = math.floor(a/b)
   \stopluacode
 %%   \d_compared_maxwidth 是可排版的最長寬度。
 %%   a 和 b 將寬度數字化， 以備比較出可排版的欄數。
@@ -1969,7 +2022,7 @@ end
   \else
     \edef\currentanswer{\collectedanswer}%
   \fi
-  \def\currentavailablecolumns{\ctxlua{context(currentavailablecolumns,"")}}%
+  \def\currentavailablecolumns{\ctxlua{context(thirddata.basicexam.currentavailablecolumns,"")}}%
   \def\currentitemmaxwidth    {\the\d_width_cit_max}%
   \installpointoranswer[choice][point]%
   \installdatacollector\installdatacollectorhelper
@@ -3138,7 +3191,9 @@ end
     \setupalign[\namedmaterialparameter\currentmaterial\c!align]%
     \usematerialstyleandcolor\c!style\c!color
     \namedmaterialparameter\currentmaterial\c!before
-    \rootmaterialparameter\currentmaterial
+    \expandafter\doifemptyelse\expandafter{\rootmaterialparameter\currentmaterial}%
+    {\rootmaterialparameter\currentmaterial}%
+    {\namedmaterialparameter{material}\currentmaterial}%
     \namedmaterialparameter\currentmaterial\c!after
     \par\endgroup}}
 
@@ -4695,9 +4750,339 @@ draw p
 \initcollectanswer
 \doifmodeelse{student}{\setupfillin[n=8]}{\setupfillin[n=4]}
 
+\definextable
+  [xtable:questions]
+  [option={stretch,width},split=yes,
+   frame=off,
+   header=repeat]
+
+\startsetups xcell:header
+  \bf \tt
+\stopsetups
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%D \section{數據庫接口 / Database Interface}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\startluacode
+    require("basicexam-sql")
+    local basicexam_sql = thirddata.basicexam_sql
+    
+    local current_db = nil
+    local current_db_path = nil
+    
+    function thirddata.basicexam.opendb(path)
+        if current_db_path == path and current_db then
+            return current_db
+        end
+        if current_db then
+            basicexam_sql.close_database(current_db)
+        end
+        current_db_path = path
+        current_db = basicexam_sql.open_database(path)
+        return current_db
+    end
+    
+    function thirddata.basicexam.closedb()
+        if current_db then
+            basicexam_sql.close_database(current_db)
+            current_db = nil
+            current_db_path = nil
+        end
+    end
+    
+    function thirddata.basicexam.getdb()
+        return current_db
+    end
+    
+    function thirddata.basicexam.search_questions_lua(filters, options)
+        if not current_db then
+            context("Error: database not opened")
+            return
+        end
+        basicexam_sql.reset_material_shown()
+        local questions = basicexam_sql.search_questions(current_db, filters)
+        if questions then
+            for i, q in ipairs(questions) do
+                basicexam_sql.render_question(current_db, q, options)
+            end
+        end
+    end
+    
+    function thirddata.basicexam.add_material_lua(title, content, author, source)
+        if not current_db then
+            return nil
+        end
+        return basicexam_sql.add_material(current_db, {
+            title = title or "",
+            content = content or "",
+            author = author or "",
+            source = source or ""
+        })
+    end
+    
+    function thirddata.basicexam.get_material_id_by_title(title)
+        if not current_db then
+            return nil
+        end
+        local m = basicexam_sql.get_material_by_title(current_db, title)
+        return m and m.id
+    end
+    
+    function thirddata.basicexam.add_question_lua(qtype, content, point, answer, explanation, source, year, material_id)
+        if not current_db then
+            return nil
+        end
+        return basicexam_sql.add_question(current_db, {
+            type = qtype,
+            content = content,
+            point = point or 1,
+            answer = answer or "",
+            explanation = explanation or "",
+            source = source or "",
+            year = year,
+            material_id = material_id and tonumber(material_id) or nil
+        })
+    end
+    
+    function thirddata.basicexam.add_tag_lua(qid, tag)
+        if not current_db or not qid or not tag then
+            return nil
+        end
+        for t in string.gmatch(tag, "[^,]+") do
+            local trimmed = t:gsub("^%s*(.-)%s*$", "%1")
+            if trimmed ~= "" then
+                basicexam_sql.add_question_tag(current_db, qid, trimmed)
+            end
+        end
+    end
+    
+    function thirddata.basicexam.add_choice_lua(qid, content, is_correct)
+        if not current_db or not qid then
+            return nil
+        end
+        return basicexam_sql.add_answer(current_db, qid, content, is_correct, 0)
+    end
+    
+    function thirddata.basicexam.add_qitem_lua(qid, content, answer, explanation)
+        if not current_db or not qid then
+            return nil
+        end
+        return basicexam_sql.add_answer(current_db, qid, content, false, 0, answer, explanation)
+    end
+    
+    function thirddata.basicexam.render_material_by_id(id, options)
+        if not current_db then
+            return
+        end
+        local m = basicexam_sql.get_material(current_db, id)
+        if m then
+            basicexam_sql.render_material_with_questions(current_db, m, options or {showanswer=true, showpoint=true})
+        end
+    end
+    
+    function thirddata.basicexam.render_material_by_title(title, options)
+        if not current_db then
+            return
+        end
+        local m = basicexam_sql.get_material_by_title(current_db, title)
+        if m then
+            basicexam_sql.render_material_with_questions(current_db, m, options or {showanswer=true, showpoint=true})
+        end
+    end
+    
+    function thirddata.basicexam.render_all_questions(options)
+        if not current_db then
+            context("Error: database not opened")
+            return
+        end
+        options = options or {}
+        basicexam_sql.reset_material_shown()
+        local questions = basicexam_sql.get_all_questions(current_db)
+        if questions then
+            if options.showrawinfo then
+                basicexam_sql.render_questions_table(current_db, questions)
+            else
+                for i, q in ipairs(questions) do
+                    basicexam_sql.render_question(current_db, q, {showanswer=true, showpoint=true})
+                end
+            end
+        end
+    end
+    
+    function thirddata.basicexam.get_question_count_by_type(qtype)
+        if not current_db then
+            return 0
+        end
+        local questions = basicexam_sql.search_questions(current_db, {type=qtype})
+        return questions and #questions or 0
+    end
+\stopluacode
+
+\installnamespace {dbquestion}
+
+\installcommandhandler \????dbquestion {dbquestion} \????dbquestion
+
+\setupdbquestion
+  [database=,
+   id=,
+   tag=,
+   type=,
+   showanswer=true,
+   showpoint=true]
+
+\unexpanded\def\opendatabase{\dosingleempty\do_opendatabase}
+
+\def\do_opendatabase[#1]{%
+    \begingroup
+    \getdummyparameters[#1]%
+    \ctxlua{thirddata.basicexam.opendb("\dummyparameter{path}")}%
+    \endgroup
+}
+
+\unexpanded\def\closedatabase{%
+    \ctxlua{thirddata.basicexam.closedb()}%
+}
+
+\newcount\c_db_material_id
+\newcount\c_db_question_id
+
+\unexpanded\def\addquestion{\dosingleempty\do_addquestion}
+
+\def\do_addquestion[#1]#2{%
+    \begingroup
+    \getdummyparameters[#1]%
+    \ctxlua{%
+        local qtype = "\dummyparameter{type}"
+        if qtype == "material" then
+            local mid = thirddata.basicexam.add_material_lua(
+                "\dummyparameter{title}",
+                "\luaescapestring{#2}",
+                "\dummyparameter{author}",
+                "\dummyparameter{source}")
+            tex.setcount("global", "c_db_material_id", mid or 0)
+        else
+            local material = "\dummyparameter{material}"
+            local material_id = nil
+            if material ~= "" then
+                material_id = tonumber(material) or thirddata.basicexam.get_material_id_by_title(material)
+            end
+            local point = "\dummyparameter{point}"
+            local year = "\dummyparameter{year}"
+            local qid = thirddata.basicexam.add_question_lua(
+                qtype,
+                "\luaescapestring{#2}",
+                point ~= "" and point or nil,
+                "\dummyparameter{answer}",
+                "\dummyparameter{explanation}",
+                "\dummyparameter{source}",
+                year ~= "" and year or nil,
+                material_id)
+            tex.setcount("global", "c_db_question_id", qid or 0)
+            local tag = "\dummyparameter{tag}"
+            if tag ~= "" and qid then
+                thirddata.basicexam.add_tag_lua(qid, tag)
+            end
+        end
+    }%
+    \endgroup
+}
+
+\unexpanded\def\addchoice{\dosingleempty\do_addchoice}
+
+\def\do_addchoice[#1]#2{%
+    \begingroup
+    \ctxlua{thirddata.basicexam.add_choice_lua(
+        \the\c_db_question_id,
+        "\luaescapestring{#2}",
+        "#1" == "*")}%
+    \endgroup
+}
+
+\unexpanded\def\addqitem{\dosingleempty\do_addqitem}
+
+\def\do_addqitem[#1]#2{%
+    \begingroup
+    \getdummyparameters[#1]%
+    \ctxlua{thirddata.basicexam.add_qitem_lua(
+        \the\c_db_question_id,
+        "\luaescapestring{#2}",
+        "\dummyparameter{answer}",
+        "\dummyparameter{explanation}")}%
+    \endgroup
+}
+
+\unexpanded\def\initdatabase{\dosingleempty\do_initdatabase}
+
+\def\do_initdatabase[#1]{%
+    \begingroup
+    \getdummyparameters[#1]%
+    \ctxlua{os.remove("\dummyparameter{path}")}%
+    \ctxlua{thirddata.basicexam.opendb("\dummyparameter{path}")}%
+    \endgroup
+}
+
+\unexpanded\def\getallquestions{\dosingleempty\do_getallquestions}
+
+\def\do_getallquestions[#1]{%
+    \begingroup
+    \getdummyparameters[#1]%
+    \ctxlua{thirddata.basicexam.render_all_questions({showrawinfo="\dummyparameter{showrawinfo}"=="yes"})}%
+    \endgroup
+}
+
+\unexpanded\def\getquestioncount#1{%
+    \ctxlua{context(tostring(thirddata.basicexam.get_question_count_by_type("#1")))}%
+}
+
+\unexpanded\def\getmaterial{\dosingleempty\do_getmaterial}
+
+\def\do_getmaterial[#1]{%
+    \begingroup
+    \getdummyparameters[#1]%
+    \ctxlua{%
+        local mid = "\dummyparameter{id}"
+        local title = "\dummyparameter{title}"
+        if mid ~= "" then
+            thirddata.basicexam.render_material_by_id(mid)
+        elseif title ~= "" then
+            thirddata.basicexam.render_material_by_title(title)
+        end
+    }%
+    \endgroup
+}
+
+\unexpanded\def\searchquestions{\dosingleempty\do_searchquestions}
+
+\def\do_searchquestions[#1]{%
+    \begingroup
+    \getdummyparameters[#1]%
+    \ctxlua{%
+        local filters = {}
+        local id = "\dummyparameter{id}"
+        local tag = "\dummyparameter{tag}"
+        local year = "\dummyparameter{year}"
+        local source = "\dummyparameter{source}"
+        local qtype = "\dummyparameter{type}"
+        local showanswer = "\dummyparameter{showanswer}"
+        local qitemid = "\dummyparameter{qitemid}"
+        if id ~= "" then filters.id = id end
+        if tag ~= "" then filters.tag = tag end
+        if year ~= "" then filters.year = year end
+        if source ~= "" then filters.source = source end
+        if qtype ~= "" then filters.type = qtype end
+        local options = { 
+            showanswer = showanswer == "yes",
+            qitemid = qitemid ~= "" and tonumber(qitemid) or nil
+        }
+        thirddata.basicexam.search_questions_lua(filters, options)
+    }%
+    \endgroup
+}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   EXAM MODULE   %%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \protect
 \stopmodule
 \endinput

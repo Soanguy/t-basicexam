@@ -1,0 +1,177 @@
+\usemodule[t-basicexam]
+
+\starttext
+
+\title{t-basicexam Module Usage Guide}
+
+\subject{Overview}
+The {\tt t-basicexam} module provides a question database system for ConTeXt LMTX with SQLite integration. It supports multiple question types: material, choice, question, and writing.
+
+\subject{Database Setup}
+\startitemize
+\item {\bf \textbackslash initdatabase[path=filename.db]} --- Initialize and create a new database file
+\item {\bf \textbackslash opendatabase[path=filename.db]} --- Open an existing database file
+\item {\bf \textbackslash closedatabase} --- Close the current database connection
+\stopitemize
+
+\subject{Adding Questions}
+\startitemize
+\item {\bf \textbackslash addquestion[options]\{content\}} --- Add a question to the database
+\startitemize
+\item {\tt type} --- Question type: material, choice, question, writing (default: question)
+\item {\tt point} --- Point value (default: 1)
+\item {\tt answer} --- The correct answer
+\item {\tt explanation} --- Explanation for the answer
+\item {\tt source} --- Source book or material
+\item {\tt year} --- Year of the question
+\item {\tt tag} --- Tags for categorization (comma-separated for multiple tags)
+\stopitemize
+\item {\bf \textbackslash addchoice[*]\{content\}} --- Add a choice option (use {\tt *} for correct answer)
+\item {\bf \textbackslash addqitem[options]\{content\}} --- Add a sub-question item for problem questions
+\stopitemize
+
+\subject{Searching Questions}
+\startitemize
+\item {\bf \textbackslash searchquestions[options]} --- Search and render questions
+\startitemize
+\item {\tt id} --- Search by question ID
+\item {\tt qitemid} --- Search by sub-question item ID
+\item {\tt tag} --- Search by tag(s)
+\startitemize
+\item {\tt tag=value} --- Single tag
+\item {\tt tag=\{A+B\}} --- Tags AND (must have both A and B)
+\item {\tt tag=\{A,B\}} --- Tags OR (must have A or B)
+\item {\tt tag=-A} --- Tags NOT (must not have A)
+\stopitemize
+\item {\tt year} --- Search by year
+\item {\tt source} --- Search by source
+\item {\tt type} --- Search by question type
+\item {\tt showanswer} --- Show answers and explanations (yes/no)
+\stopitemize
+\item {\bf \textbackslash getallquestions[showrawinfo=yes]} --- Display all questions in a table format
+\stopitemize
+
+\subject{Tag Search Syntax}
+\starttabulate[|l|l|]
+\NC {\bf Syntax} \NC {\bf Meaning} \NC\NR
+\NC {\tt tag=A} \NC Questions with tag A \NC\NR
+\NC {\tt tag=\{A+B\}} \NC Questions with both A AND B \NC\NR
+\NC {\tt tag=\{A,B\}} \NC Questions with A OR B \NC\NR
+\NC {\tt tag=-A} \NC Questions WITHOUT tag A \NC\NR
+\stoptabulate
+
+\page
+
+\title{Demo: Add Test Data}
+
+\initdatabase[path=questions.db]
+
+\subject{Add Materials}
+\addquestion[type=material,title={Reading Passage},author=Adam,source=Test Book]{This is a reading passage for the exam. It contains some text that students need to read before answering questions.}
+
+\subject{Add Choice Questions}
+\addquestion[type=choice,point=2,answer=Paris,explanation={Paris is the capital and largest city of France.},source=Test Book,year=2024,tag=geography]{What is the capital of France?}
+\addchoice{London}
+\addchoice[*]{Paris}
+\addchoice{Berlin}
+\addchoice{Madrid}
+
+\addquestion[type=choice,point=2,answer=Mars,explanation={Mars is called the Red Planet due to iron oxide on its surface.},source=Science Book,year=2024,tag=science]{Which planet is known as the Red Planet?}
+\addchoice{Venus}
+\addchoice[*]{Mars}
+\addchoice{Jupiter}
+\addchoice{Saturn}
+
+\addquestion[type=choice,point=1,answer=4,source=Test Book,year=2023,tag=math]{What is 2 + 2?}
+\addchoice{3}
+\addchoice[*]{4}
+\addchoice{5}
+
+\subject{Add Fill-in Questions}
+\addquestion[point=2,answer=Tokyo,explanation={Tokyo has been the capital of Japan since 1868.},source=Test Book,year=2024,tag=geography]{The capital of Japan is \___.}
+
+\addquestion[point=1,answer=100,source=Science Book,year=2023,tag=science]{Water boils at \___ degrees Celsius.}
+
+\subject{Add Problem Questions}
+\addquestion[point=5,answer={The water cycle involves evaporation, condensation, and precipitation.},explanation={Water evaporates from oceans, forms clouds, and returns as rain.},source=Science Book,year=2024,tag=science]{Explain the water cycle.}
+
+\addquestion[point=5,answer={France has diverse geography including mountains, plains, and coastlines.},source=Test Book,year=2023,tag=geography]{Describe the geography of France.}
+
+\addquestion[point=10,source=Test Book,year=2024,tag=math]{Solve the following problems:}
+\addqitem[answer=5,explanation={2 + 3 = 5}]{Calculate 2 + 3.}
+\addqitem[answer=5,explanation={Divide both sides by 2: x = 10/2 = 5}]{Find x if 2x = 10.}
+\addqitem[answer=15,explanation={$Area = length × width = 5 × 3 = 15$}]{What is the area of a rectangle with length 5 and width 3?}
+
+\subject{Add Question with Multiple Tags}
+\addquestion[type=choice,point=2,answer=H2O,explanation={Water consists of two hydrogen atoms and one oxygen atom.},source=Science Book,year=2024,tag={chemistry,science,basic}]{What is the chemical formula for water?}
+\addchoice{CO2}
+\addchoice[*]{H2O}
+\addchoice{O2}
+\addchoice{NaCl}
+
+\subject{Add Writing Questions}
+\addquestion[type=writing,point=45,source=Test Book,year=2024,tag=writing]{Write an essay about your favorite season.}
+
+\addquestion[type=writing,point=100,source=Test Book,year=2024,tag=writing]{Write about the following topics:}
+\addqitem[answer={Introduction to climate change},explanation={Discuss the causes and effects.}]{Climate Change Essay}
+\addqitem[answer={Personal environmental actions},explanation={What can individuals do?}]{Environmental Actions Essay}
+
+\page
+
+\title{Demo: Search Questions}
+
+\subject{Search by tag only (geography)}
+\searchquestions[tag=geography]
+
+\subject{Search by id}
+\searchquestions[id=8]
+\searchquestions[id=8,qitemid=12,showanswer=yes]
+
+\subject{Search by year only (2024)}
+\searchquestions[year=2024]
+
+\subject{Search by source only (Test Book)}
+\searchquestions[source=Test Book]
+
+\subject{Search by tag and year}
+\searchquestions[tag=geography,year=2024]
+
+\subject{Search by tag and source}
+\searchquestions[tag=geography,source=Test Book]
+
+\subject{Search by year and source}
+\searchquestions[year=2024,source=Test Book,showanswer=yes]
+
+\subject{Search by tag, year and source}
+\searchquestions[tag=geography,year=2024,source=Test Book]
+
+\subject{Search by type (choice)}
+\searchquestions[type=choice]
+
+\subject{Search by type (writing)}
+\searchquestions[type=writing,showanswer=yes]
+
+\subject{Search by type and tag}
+\searchquestions[type=choice,tag=geography]
+
+\subject{Search with showanswer}
+\searchquestions[tag=geography,showanswer=yes]
+
+\subject{Search by one of multiple tags}
+\searchquestions[tag=basic,showanswer=yes]
+
+\subject{Search by tags AND (tagA+tagB)}
+\searchquestions[tag={science+basic},showanswer=yes]
+
+\subject{Search by tags OR (tagA,tagB)}
+\searchquestions[tag={chemistry,geography},showanswer=yes]
+
+\subject{Search by tags NOT (-tagA)}
+\searchquestions[tag=-math,showanswer=yes]
+
+\subject{All questions (raw info table)}
+\getallquestions[showrawinfo=yes]
+
+\closedatabase
+
+\stoptext
