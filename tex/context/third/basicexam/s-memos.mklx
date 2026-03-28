@@ -708,7 +708,7 @@ nodes.tasks.appendaction("processors", "after", "Thirddata.processmystuff")
 \def\enablepanguspace {\ctxluacode{nodes.tasks.enableaction ("processors","Thirddata.processmystuff")}}
 
 \startprotectedcolors
-  \definecolor [transparent] [r=1,t=0,a=1]
+%  \definecolor [transparent] [r=1,t=0,a=1]
   \definecolor [softred]     [x=F7CDBC]  \definecolor [softpink]    [x=F5CEBE]
   \definecolor [lightred]    [x=F9906F]  \definecolor [lightpink]   [x=EDC3AE]
   \definecolor [red]         [x=D70C19]  \definecolor [pink]        [x=F9906F]
@@ -911,7 +911,7 @@ nodes.tasks.appendaction("processors", "after", "Thirddata.processmystuff")
                   footer=15mm,      footerdistance=5mm,
                   bottom=0mm,       bottomdistance=0mm]
 \definelayout    [kaolike] [% width=120mm,height=250mm,
-                   width=fit,               height=fit,
+                   width=116mm,             height=fit,
                backspace=24mm,            topspace=0mm,
                rightedge=20mm,   rightedgedistance=0mm,
              rightmargin=45mm, rightmargindistance=5mm,

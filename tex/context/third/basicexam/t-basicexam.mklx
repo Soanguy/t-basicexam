@@ -14,36 +14,13 @@
 
 \startmodule[basicexam]
 \unprotect
-%D \placecontent
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%   EXAM MODULE   %%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%D \section{模塊參數 / Module Setups / モジュール　セットアップ}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%D \starttabulate[|r|lB|l|]
-%D \HL
-%D \NC {\bf Value} \NC {\bf Value}   \NC \NC\NR
-%D \HL
-%D \NC mode=   \NC student \NC will show point and hide answer                \NC\NR
-%D \NC mode=   \NC teacher \NC will show point and answer                     \NC\NR
-%D \NC mode=   \NC check   \NC will show some infos to console                \NC\NR
-%D \HL
-%D \NC layout= \NC twoup   \NC print two virtual pages on each physical page. \NC\NR
-%D \NC layout= \NC none    \NC donothing                                      \NC\NR
-%D \HL
-%D \NC footer= \NC default \NC show subject and page at footer                \NC\NR
-%D \NC footer= \NC none    \NC donothing                                      \NC\NR
-%D \HL
-%D \stoptabulate
 
 \setupmodule[mode=student,layout=default,footer=none,libpath=/opt/homebrew/opt/sqlite/lib/libsqlite3.dylib]
-% \doifnotmode{mkiv}{\writestatus{error}{needs luatex}\wait\end}% check context version
+\doifnot\contextmark{LMTX}{\writestatus{modules         }{This module requires ConTeXt LMTX (LuaMetaTeX). Please upgrade your ConTeXt installation or use the LMTX version to run this module.}\wait\end}% check context version
 
 %D 定义关键词
 \immutable\def\m!basicexam{basicexam}
 
-% \definesystemconstant{close}
-% \definesystemconstant{default}
 \definesystemconstant{choice}
 \definesystemconstant{answer}
 \definesystemconstant{problem}
@@ -79,6 +56,7 @@
 % 2 for question
 % 3 for papertitle
 % 9 for font
+% \showmessage\m!basicexam{2}{}%
 
 \startinterface english
   \setinterfacemessage\m!basicexam{1}  {There are unknown parameters in --, please check.}
@@ -130,20 +108,20 @@
     \expandafter\secondoftwoarguments
   \fi}
 
-% \showmessage\m!basicexam{2}{}%
-
 \newwrite\examanswer
 
 \newif\iflay_twoup   \lay_twoupfalse
 \newif\ifhdr_default \hdr_defaultfalse
 
-\newif\ifmode_debug          \newif\ifenv_question    \newif\ifenv_toplevel
-\newif\ifmode_check          \newif\ifenv_problem     \newif\ifenv_botlevel
-\newif\ifmode_showanswer     \newif\ifenv_choice      \newif\ifenv_answer
-\newif\ifmode_showpoint      \newif\ifenv_material    \newif\ifitem_pitem
-\newif\ifmode_showscript     \newif\ifenv_close       \newif\ifitem_fillin
-\newif\ifmode_example        \newif\ifenv_writing     \newif\ifitem_inlinechoice
+\newif\ifenv_question        \newif\ifenv_problem
+\newif\ifenv_toplevel        \newif\ifenv_botlevel
+\newif\ifenv_choice          \newif\ifenv_answer
+\newif\ifenv_material        \newif\ifitem_pitem
+\newif\ifenv_close           \newif\ifitem_fillin
+\newif\ifenv_writing         \newif\ifitem_inlinechoice
 \newif\ifcontinue_counter    \newif\ifenv_subwriting
+\newif\ifmode_check          \newif\ifmode_showanswer      \newif\ifmode_example
+\newif\ifmode_showpoint      \newif\ifmode_showscript
 
 \newdimen\d_width_cit
 \newdimen\d_width_cit_max
@@ -221,29 +199,6 @@ end
 }{
     \ctxlua{thirddata.basicexam_sql.set_libpath("\currentmoduleparameter{libpath}")}
 }
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 注意 ⚠️
-%% 在 lua 中使用 循环 等结构时，要注意 % 百分比符号的使用。不可以直接在关键字后
-%% 使用。会导致运行出错：'do' expected near 'docontext' 等消息。
-%% for i > 10 do % do 和 % 号之间有空格，  会正常运行
-%% for i > 10 do%  do 和 % 号之间没有空格，会运行错误
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%\newcount\itindexn \itindexn=1
-%%\def\itvariable
-%%  {\ifcase\itindexn%
-%%    \or a\or b\or c\or d\or e%
-%%    \or f\or g\or h\or i\or j%
-%%    \or k\or l\or m\or n\or o%
-%%    \or p\or q\or r\or s\or t%
-%%    \or u\or v\or w\or x\or y\or z
-%%  \fi}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\begingroup
-%\catcode`\%=12\relax
-%\gdef\percentchar{%}
-%\endgroup
-%\ctxlua{context(string.format("\percentchar8s",456))}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{尚未處理的組合　/ Command under handling / 未完成のコマンド}
@@ -369,8 +324,6 @@ end
     setbounds currentpicture to unitsquare xysized(RuleWidth,RuleHeight) ;
 \stopuseMPgraphic
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% ego=section isea=subsection
 \definelabelclass [exam] [0]
@@ -400,6 +353,7 @@ end
 
 \definestructureconversionset[examnum][chinesenumerals][chinesenumerals]
 
+\def\parens#1{(#1)}
 \ifhdr_default
   \definedelimitedtext    [paren]   [location=text]
   \setupdelimitedtext     [paren:1] [left={（\nobreak}, right={\nobreak）}]
@@ -672,20 +626,6 @@ end
                     answerstatus={\currentanswerstatus},]%
   \initcollectanswer}
 
-% 环境层级一览
-% question 环境                 % close 环境                      % material 环境
-%    choice 环境                %       closechoice 项目    ⭕    % question 环境
-%       citem 项目        ⭕    % optclose 环境                   %    choice 环境
-%    problem 环境               %       ocitem 项目         ⭕    %       citem 项目    ⭕
-%       pitem 项目        ⭕    %       specialocitem 项目  ⭕
-%         fillin 项目     ⭕
-% ======================================================================================
-% writing 环境            ⭕
-%     subwriting 环境
-%
-
-\def\parens#1{(#1)}
-
 \startluacode
   thirddata.basicexam = thirddata.basicexam or {}
   local basicexam = thirddata.basicexam
@@ -835,17 +775,13 @@ end
 \def\install_answer[#1][#2]{%
   \edef\prevanswer{\currentprevanswer}%
   \edef\p_answer{\csname #1parameter\endcsname\c!answer}%暫時定義
-  \ifmode_debug{\ttx\blue{\ss INSTALL ANSWER} 1 : \currentanswer : \prevanswer !!}\fi
   \ifempty\p_answer
     \edef\currentanswer{\prevanswer}%empty : \currentanswer
-    \ifmode_debug{\ttx\blue 2 : \currentanswer : \prevanswer !!}\fi
   \else%
     \ifempty\prevanswer
       \edef\currentanswer{\csname #1parameter\endcsname\c!answer}%not empty : \currentanswer
-      \ifmode_debug{\ttx\blue 3 : \currentanswer : \prevanswer !!}\fi
     \else
       \edef\currentanswer{\prevanswer}%
-      \ifmode_debug{\ttx\blue 4 : \currentanswer : \prevanswer !!}\fi
     \fi
     \ifempty\prevanswer\else
       \ifx\currentanswer\prevanswer\relax\else
@@ -911,45 +847,29 @@ end
 \defineexaminfo[examitemexaminfo]
 \defineexaminfo[closeexaminfo]    [width=2em]
 
-\def\exam_showanswerinfo{{\red
-  \hbox{:aETH: \datasetvariable{ExamDataset}      {\topHelperID}      {answer}}
-  \hbox{:bEMH: \datasetvariable{ExamDataset}      {\midHelperID}      {answer}}
-  \hbox{:cE H: \datasetvariable{ExamDataset}      {\HelperID}         {answer}}\penalty0\blue
-  \hbox{:dETH: \datasetvariable{ExamDatasetHelper}{\topHelperID}      {answer}}
-  \hbox{:eEMH: \datasetvariable{ExamDatasetHelper}{\midHelperID}      {answer}}
-  \hbox{:fE H: \datasetvariable{ExamDatasetHelper}{\HelperID}         {answer}}\penalty0\red
-  \hbox{:gHTH: \datasetvariable{ExamDataset}      {\currentQuestionID}{answer}}
-  \hbox{:hHMH: \datasetvariable{ExamDatasetHelper}{\currentQuestionID}{answer}}
-}}
-
 \def\showmoreinfo[#1]{
   \edef\p_showmoreinfo{\csname #1parameter\endcsname{showmore}}%
-  \ifx\p_showmoreinfo\s!true
-    \startmoreexaminfo\questionparameter{moreinfo}\stopmoreexaminfo
-  \fi}
+  \doiftrue{#1}{showmore}{\startmoreexaminfo\questionparameter{moreinfo}\stopmoreexaminfo}}
 
 \tolerant\protected\def\showpointoranswer[#1]#*[#2]%
  {\edef\currentmode{#2}% check point or answer
-  \edef\p_showanswer {\csname #1parameter\endcsname\c!showanswer}%
-  \edef\p_showpoint  {\csname #1parameter\endcsname\c!showpoint }%
-  \edef\p_showscript {\csname #1parameter\endcsname\c!showscript}%
   \edef\p_totalpoint {\csname #1parameter\endcsname {totalpoint}}%
   \edef\p_totalanswer{\csname #1parameter\endcsname{totalanswer}}%
-  \ifempty\p_showanswer\else
-    \ifx\p_showanswer\s!true
-            \mode_showanswertrue
-      \else \mode_showanswerfalse
-  \fi\fi
-  \ifempty\p_showpoint\else
-    \ifx\p_showpoint\s!true
-          \mode_showpointtrue
-    \else \mode_showpointfalse
-  \fi\fi
-  \ifempty\p_showscript\else
-    \ifx\p_showscript\s!true
-          \mode_showscripttrue
-    \else \mode_showscriptfalse
-  \fi\fi
+  \ifx\currentmode\c!answer
+    \ifempty{\csname #1parameter\endcsname\c!showanswer}\else
+      \doiftrueelse{#1}\c!showanswer\mode_showanswertrue\mode_showanswerfalse
+    \fi
+    \ifempty{\csname #1parameter\endcsname\c!showscript}\else
+      \doiftrueelse{#1}\c!showscript\mode_showscripttrue\mode_showscriptfalse
+    \fi
+    \ifmode_showanswer\mode_showscriptfalse\fi
+    \ifmode_showpoint \mode_showscriptfalse\fi
+    \ifmode_showscript\mode_showanswerfalse\fi
+  \else
+    \ifempty{\csname #1parameter\endcsname\c!showpoint}\else
+      \doiftrueelse{#1}\c!showpoint\mode_showpointtrue\mode_showpointfalse
+    \fi
+  \fi
   \begingroup
     \p_assigned_currentlabel{#1}{#2}%
     \expandafter\expandafter
@@ -958,7 +878,6 @@ end
           \expandafter[\csname p_current#1#2label\endcsname]{#2}%
     \def\left_assignedlabel {\csname  left_assigned#2label\endcsname}%
     \def\right_assignedlabel{\csname right_assigned#2label\endcsname}%
-    \ifx\currentmode\c!answer\ifmode_debug {\ss AnswerINFO : }\exam_showanswerinfo\\\fi\fi
     \csname ifmode_show#2\endcsname
       \dousestyleparameter    {\csname #1parameter\endcsname{#2style}}%
       \dousecolorparameter    {\csname #1parameter\endcsname{#2color}}%
@@ -970,8 +889,6 @@ end
                 \ifdefined\currentpointforanswer\currentpointforanswer
                 \else\showmessage\m!basicexam{201}\fi%为了实现答案在环境内部或者外部都可以正确获取分数
               \else
-                \ifmode_debug{\ttx\darkyellow \item_bottotalnumber :: \currentlevel ::
-                              \topHelperID :: \midHelperID :: \HelperID :: \currentQuestionID}\fi
                 \ifenv_toplevel
                   \ifenv_answer\else\datasetvariable{ExamDatasetHelper}{\topHelperID}{totalpoint}\fi
                   \xdef\currentpointforanswer{\datasetvariable{ExamDatasetHelper}{\topHelperID}{totalpoint}}%
@@ -1012,7 +929,7 @@ end
   \ifdefined\currentprevanswer
     \edef\currentprevanswer{\csname #1parameter\endcsname\c!answer}\else
     \edef\currentprevanswer{\csname #1parameter\endcsname\c!answer}%
-  \fi%{\ttx\blue 0 :\currentprevanswer  0 :\currentprevpoint}
+  \fi
   \removeunwantedspaces\allowbreak}
 
 \def\p_assigned_currentlabel#1#2{%
@@ -1339,17 +1256,11 @@ end
 %D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
 %D
 %D 此外，question 设置了一个特殊的键值 example=true，可以是当前题目不被录入答案。
-%D 在(v20241023)中，通过不太正常的方式设置了 example 后的题目可以自动重置回到序数 1。
-%D 或许，可以设置一个新的键值，来设定 example 之后的题目是重置为 1 还是接续上一个序号。
 %D 此外，由于 question 内置了一个 item， 因此可以使用 reference 来创建引用。
 %D
 %D {\bf About the settings of point and answer: }
 %D point 的分值默認是一整個題目的總分數
 %D （如果包括子題目，在該宏包無法正常獲取分值或分數時，可以使用 totalpoint 或者 totalanswer 來直接設定分數或答案）。
-%D 如果當前字環境為 problem，只要為每個 pitem設計了 point 的分值，該模塊就會自動計算。answer 的獲取也是一樣。
-%D 在設計時，pitem 默認是擁有多個同級項目的。也就是說，會在同一個 question 環境中，有多個子答案。
-%D 我們無法獲知應該使用哪一個作為當前環境的答案。
-%D 同樣的道理，每個 question 環境內只有一個choice 環境，只需要直接為 question 環境配置分值即可。
 
 \installnamespace          {question}
 \installcommandhandler \????question  {question}  \????question
@@ -1443,12 +1354,11 @@ end
   \fi
   \edef\p_class{\questionparameter\c!class}%
   \edef\p_start{\questionparameter\c!start}%
-  \edef\p_reset{\questionparameter\c!reset}%
   \edef\p_defaultoption{n,packed,nowhite,joinedup,continue}%
   \strc_itemgroups_process_options\p_option
   \ifx\p_class\s!question
     \env_questiontrue\set_envitem_counter
-    \ifx\p_reset\s!true\resetcounter[itemgroup:env:question]\fi
+    \doiftrue\s!question\c!reset{\resetcounter[itemgroup:env:question]}%
     \ifmode_example
       \installitemgroupoption[example][question]%
       \startitemgroup[env:example][\p_option]\else
@@ -1471,7 +1381,7 @@ end
       \errmessage{problem cannot exist as a top-level environment,
                   please place it in the question environment}\fi
     \env_problemtrue\set_envitem_counter
-    \ifx\p_reset\s!true\resetcounter[itemgroup:env:problem]\fi
+    \doiftrue\s!problem\c!reset{\resetcounter[itemgroup:env:problem]}%
     \ifmode_example
       \installitemgroupoption[example][question]%
       \startitemgroup[env:example][\p_option]\else
@@ -1884,16 +1794,16 @@ end
   local str = tokens.getters.macro(macroname) or ""
   local items = {}
   local current = ""
-  local depth = 0
+  local brace_depth = 0
   for i = 1, string.len(str) do
     local c = str:sub(i, i)
-    if c == "[" then
-      depth = depth + 1
+    if c == "{" then
+      brace_depth = brace_depth + 1
       current = current .. c
-    elseif c == "]" then
-      depth = depth - 1
+    elseif c == "}" then
+      brace_depth = brace_depth - 1
       current = current .. c
-    elseif c == "," and depth == 0 then
+    elseif c == "," and brace_depth == 0 then
       if has_content(current) then
         table.insert(items, current)
       end
@@ -1981,7 +1891,6 @@ end
   end
   \stopluacode
   \edef\currentrealavailablecolumns{\ctxlua{context(thirddata.basicexam.available_columns_arg,"")}}%
-  \edef\p_showanswer        {\choiceparameter\c!showanswer  }%
   \edef\p_choicetype        {\choiceparameter\c!inlinechoice}%
   \edef\p_correctsymbol     {\choiceparameter{correctsymbol}}%
   \edef\p_defaultoption     {A,packed,nowhite,joinedup      }%
@@ -1994,9 +1903,7 @@ end
   \fi
   \choiceparameter\c!inlineleft
   \ifmode_showanswer\else
-    \ifx\p_showanswer\s!true
-         \mode_showanswertrue
-    \else\mode_showanswerfalse\fi
+    \doiftrueelse\s!choice\c!showanswer\mode_showanswertrue\mode_showanswerfalse
   \fi\usechoicestyleandcolor\c!textstyle\c!textcolor}
 
 \protected\def\stopnamedchoice{%
@@ -2358,10 +2265,8 @@ end
 %D \section{设置 answer 环境}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%D 在(v20241023)中，删除了 answer 环境的标签通过 description 来进行设置。
-%D 整体环境通过 textbackground 环境进行设置。
 %D 该环境提供了一個特殊的鍵值 sctipt，該鍵值主要用於創建答題區域。
-%D 該鍵值和 showanswer 鍵值是互斥的，不應該同時啟用。
+%D 該鍵值和 showanswer 鍵值是互斥的。
 
 %D \tex{answer} 是爲師生兩版設置的命令。但目前該命令和相關設置還具有諸多不足之處。
 %D 只需要將該環境置於題目下方，即可獲取當前題目設定的答案，並可以爲其編寫答案解析。
@@ -2436,29 +2341,17 @@ end
 \tolerant\protected\def\answer_direct_instance[#S#1]#:#2%
   {\begingroup
   \env_answertrue
-  % \env_questionfalse   \env_problemfalse \env_choicefalse
-  % \env_materialfalse   \env_closefalse   \env_writingfalse
-  % \env_subwritingfalse \item_pitemfalse  \item_fillinfalse
-  % \item_inlinechoicefalse
   \set_envitem_counter
   \edef\currentanswer_bak{\currentanswer}%
   \cdef\currentanswer{#1}%
   \edef\getanswerbuffer{#2}%
-  \edef\p_showanswer{\answerparameter\c!showanswer}%
-  \edef\p_showscript{\answerparameter\c!showscript}%
-  \edef\p_showpoint {\answerparameter\c!showpoint }%
-  \ifx\p_showanswer\s!true
-      \mode_showanswertrue
-      \mode_showscriptfalse\fi
-  \ifx\p_showscript\s!true
-      \mode_showscripttrue
-      \mode_showanswerfalse\fi
-  \ifx\p_showpoint \s!true
-      \mode_showpointtrue\fi
+  \doiftrue\s!answer\c!showanswer\mode_showanswertrue
+  \doiftrue\s!answer\c!showpoint \mode_showpointtrue 
+  \doiftrue\s!answer\c!showscript\mode_showscripttrue
   \expand\everyanswer
-  \ifmode_showscript\donetrue\fi
-  \ifmode_showanswer\donetrue\fi
-  \ifmode_showpoint \donetrue\fi
+  \ifmode_showscript \donetrue\fi
+  \ifmode_showanswer \donetrue\fi
+  \ifmode_showpoint  \donetrue\fi
   \ifdone
     \answerparameter\c!before
     \begingroup
@@ -2478,10 +2371,6 @@ end
 \protected\tolerant\def\answer_start_instance[#S#1]#*[#S#2]#*%
   {\begingroup
   \env_answertrue
-  % \env_questionfalse   \env_problemfalse \env_choicefalse
-  % \env_materialfalse   \env_closefalse   \env_writingfalse
-  % \env_subwritingfalse \item_pitemfalse  \item_fillinfalse
-  % \item_inlinechoicefalse
   \set_envitem_counter
   \edef\currentanswer_bak{\currentanswer}% 備份之前的答案
  % \lettonothing\currentanswer%釋放currentanswer
@@ -2489,24 +2378,15 @@ end
  % 此處的 currentanswer 是定義環境命令，需要重新釋放。
   \cdef\currentanswer{#1}%
   \setupcurrentanswer[#2]%
-  \grabbufferdatadirect
-   % {\s!answer:\currentanswer}%
+  \grabbufferdatadirect% {\s!answer:\currentanswer}%
     {\s!answer}% unnested, as before
     {\e!start\currentanswer}%
     {\e!stop \currentanswer}}
 
 \permanent\protected\def\answer_stop_instance{%
-  \edef\p_showanswer{\answerparameter\c!showanswer}%
-  \edef\p_showscript{\answerparameter\c!showscript}%
-  \edef\p_showpoint {\answerparameter\c!showpoint }%
-  \ifx\p_showanswer\s!true
-      \mode_showanswertrue
-      \mode_showscriptfalse\fi
-  \ifx\p_showscript\s!true
-      \mode_showscripttrue
-      \mode_showanswerfalse\fi
-  \ifx\p_showpoint \s!true
-      \mode_showpointtrue\fi
+  \doiftrue\s!answer\c!showanswer\mode_showanswertrue
+  \doiftrue\s!answer\c!showpoint \mode_showpointtrue 
+  \doiftrue\s!answer\c!showscript\mode_showscripttrue
   \ifmode_showscript\donetrue\fi
   \ifmode_showanswer\donetrue\fi
   \ifmode_showpoint \donetrue\fi
@@ -3256,10 +3136,6 @@ end
   \usematerialstyleandcolor\c!style\c!color%
   \indicator_type\bgroup
   \namedmaterialparameter\currentmaterial\c!before%
-  \ifmode_debug
-    \ifenv_material\color[red]{material}\else\color[red]{\currentitemgroup}\fi
-    \ifcontinue_counter\color[red]{continue}\fi
-  \fi
   \ifenv_material
     \incrementcounter[material:\currentmaterial]%
     \convertedcounter[material:\currentmaterial]%
@@ -3296,10 +3172,6 @@ end
   \usematerialstyleandcolor\c!style\c!color%
   \indicator_type\bgroup
   \namedmaterialparameter\currentmaterial\c!before%
-  \ifmode_debug
-    \ifenv_material\color[red]{material}\else\color[red]{\currentitemgroup}\fi
-    \ifcontinue_counter\color[red]{continue}\fi
-  \fi
   \ifenv_material\convertedcounter[material:\currentmaterial]%
   \else          \convertedcounter[material:indicator_helper]\fi
   \namedmaterialparameter\currentmaterial\c!after
@@ -3510,13 +3382,8 @@ end
 \def\placeclosechoice{\par%
   \scratchcounter\numexpr\c_closetest-\c_closetest_temp+1\relax
   \c_closetest\c_closetest_temp\relax%
-  \edef\p_showanswer{\closeparameter\c!showanswer}%
-  \edef\p_showpoint {\closeparameter\c!showpoint }%
-  \ifx\p_showanswer\s!true
-      \mode_showanswertrue
-      \mode_showscriptfalse\fi
-  \ifx\p_showpoint \s!true
-      \mode_showpointtrue\fi
+  \doiftrueelse\s!close\c!showanswer\mode_showanswertrue\mode_showanswerfalse
+  \doiftrueelse\s!close\c!showpoint \mode_showpointtrue \mode_showpointfalse
   \dorecurse{\number\scratchcounter}{% start recurse
     \hbox{\hsize\textwidth
       \ifmode_showanswer
@@ -3542,9 +3409,9 @@ end
         \csname close:\romannumerals\c_closetest\endcsname}%
     }\par%
   \advance\c_closetest by 1\relax}% stop reucrse
-  \ifx\p_reset\s!true\else
-  \c_closetest_temp=\numexpr\c_closetest_temp - 1\relax
-  \setcounter[itemgroup:env:question][\c_closetest_temp]\fi
+  \doiftrueelse\s!close\c!reset\relax
+    {\c_closetest_temp=\numexpr\c_closetest_temp - 1\relax
+     \setcounter[itemgroup:env:question][\c_closetest_temp]}%
   \c_closetest=0\relax%
 }
 
@@ -3554,13 +3421,11 @@ end
   \iffirstargument\setupclose[#1]\fi
   \edef\p_reset{\closeparameter\c!reset}%
   \restore_question_order
-  \ifx\p_reset\s!true% 如果重置， 則序號起自 1
-    \c_closetest_temp=1\relax% tempa 标记文章内的序号和选项前的序号
-  \else% 否則， 恢復上一問題序號， 並遞增1.
-    \c_closetest     =\rawcountervalue[strc_question_order]%
-    \c_closetest_temp=\rawcountervalue[strc_question_order]%
-    \c_closetest_temp=\numexpr\c_closetest_temp+1\relax
-  \fi
+  \doiftrueelse\s!close\c!reset% tempa 标记文章内的序号和选项前的序号
+    {\c_closetest_temp=1\relax}% 如果重置， 則序號起自 1
+    {\c_closetest     =\rawcountervalue[strc_question_order]%
+     \c_closetest_temp=\rawcountervalue[strc_question_order]%
+     \c_closetest_temp=\numexpr\c_closetest_temp+1\relax}% 否則， 恢復上一問題序號， 並遞增1.
   \closeparameter\c!before
   \useclosestyleandcolor\c!style\c!color}
 
@@ -3606,10 +3471,10 @@ end
 %D \typebuffer
 %D \getbuffer
 
-\defineexamitem[ocitem]
 \defineexamitem[optclose]
-\def\setupocitem{\setupexamitem[ocitem]}
+\defineexamitem[ocitem]
 \def\setupoptclose{\setupexamitem[optclose]}
+\def\setupocitem{\setupexamitem[ocitem]}
 
 \setupocitem
   [\c!margin=\zeropoint,
@@ -3676,7 +3541,7 @@ end
   \c!lefttext=\closebar,
   %\c!answer=,
   %\c!color=,
-  \c!point=1,
+  \c!point=0,
   %\c!showanswer=,
   \c!pointlabel={,\examtexts{point}},
   \c!answerlabel={{\examtexts{answer}},},
@@ -3689,32 +3554,39 @@ end
 \tolerant\protected\def\startoptclose[#1]{\begingroup
   \edef\currentexamitem{optclose}%
   \iffirstargument\setupcurrentexamitem[#1]\fi
-  \edef\p_reset {\examitemparameter\c!reset}%
-  \edef\p_continue{\examitemparameter\c!continue}%
-  \ifx\p_reset\s!true\resetcounter[itemgroup:env:question]\fi
-  \ifx\p_continue\s!true
-    \continue_countertrue
+  \doiftrue{examitem}\c!reset{\resetcounter[itemgroup:env:question]}%
+  \doiftrue{examitem}\c!continue{\continue_countertrue}%
+  \ifcontinue_counter
     \env_closetrue\set_envitem_counter
     \set_count_envlevel[ocitem]%
     \restore_question_order
     \incrementcounter[strc_question_order]%
-    \parentitemnumber=\rawcountervalue[strc_question_order]\fi
-  \usealignparameter\examitemparameter}
+    \parentitemnumber=\rawcountervalue[strc_question_order]
+  \fi
+  \usealignparameter\examitemparameter
+  \doiftrue{examitem}\c!showanswer\mode_showanswertrue
+  \doiftrue{examitem}\c!showpoint \mode_showpointtrue}
 
 \def\stopoptclose{%
   \ifcontinue_counter
-    \ifx\p_reset\s!true
-      \setcounter [itemgroup:env:question][\parentitemnumber]%
-      \setcounter [strc_question_order]   [\parentitemnumber]%
-      \savecounter[strc_question_order]%
-    \fi
+    \doiftrue{examitem}\c!reset
+    {\setcounter [itemgroup:env:question][\parentitemnumber]%
+     \setcounter [strc_question_order]   [\parentitemnumber]%
+     \savecounter[strc_question_order]}%
   \fi
   \endgroup}
 
 \tolerant\protected\def\ocitem[#1]#:#2%
  {\begingroup
+ \doifelse
+      {\namedexamitemparameter{optclose}{point}}%
+      {}{}% 如果 optclose 的 point 为空什么都不做，否则定义 point
+      {\edef\p_point{\namedexamitemparameter{optclose}{point}}}%
   \edef\currentexamitem{ocitem}%
   \iffirstargument\setupcurrentexamitem[#1]\fi
+  \doif% 如果 ocitem 的 point 为 0，设置为 optclose 的 point
+      {\namedexamitemparameter{ocitem}{point}}%
+      {0}{\letexamitemparameter{point}\p_point}%
   \ifcontinue_counter
     \edef\p_continue{\s!true}\else
     \edef\p_continue{\examitemparameter\c!continue}\fi
@@ -3722,13 +3594,13 @@ end
   \edef\p_option{\examitemparameter\c!option}%
   \ifmode_example
     \installitemgroupoption[example][examitem]%
-    \startitemgroup[env:example][\p_option]\else
+    \startitemgroup[env:example][\p_option]%
+  \else
     \installitemgroupoption[question][examitem]%
     \startitemgroup[env:question][\p_option]%
   \fi
   \item[\examitemparameter\c!reference]%
-        \ifx\p_continue\s!true\else
-        \parentitemnumber=\currentitemnumber\relax\fi
+        \doiftrue{examitem}\c!continue{\parentitemnumber=\currentitemnumber\relax}%
         \set_count_envlevel[ocitem]%
         \useexamitemstyleandcolor\c!textstyle\c!textcolor
         \allowbreak\doifsomethingelse{#2}{(#2)}{}% 放置選項，類似 inlinechoice
@@ -5071,7 +4943,7 @@ draw p
         if year ~= "" then filters.year = year end
         if source ~= "" then filters.source = source end
         if qtype ~= "" then filters.type = qtype end
-        local options = { 
+        local options = {
             showanswer = showanswer == "yes",
             qitemid = qitemid ~= "" and tonumber(qitemid) or nil
         }

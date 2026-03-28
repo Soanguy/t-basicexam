@@ -2,7 +2,7 @@
 % Comprehensive documentation and test suite for the basicexam module
 % Author: Shueng Mosan
 % Date: 2024-10-24
-
+\usemodule[memos]
 \usemodule[basicexam]
 %\usemodule[basicexam][mode={teacher,check}]
 
@@ -22,6 +22,8 @@
 \dontcomplain
 
 \placecontent
+
+\chapter{Overview}
 
 % ==============================================
 % Module Overview
@@ -704,15 +706,61 @@ they've since become friends. Neither won the race, but the \closechoice[secret,
 of human kindness won the day.
 \stopclose
 
-\section{answer box}
+
+\section{Chinese Poem}
+
+\setupverse [sample={滾滾長江東逝水浪花淘盡英雄},skip=left,before=\blank,after=\blank]
+\setupverse [title] [align=center,style=bf,skip=both]
+\setupverse [author][align=flushright,style=it,skip=both]
+\setupverse [source][align=flushright,style=it,skip=both]
 
 \startbuffer
-\dorecurse{5}{\typeanswerbychap{0},}
+\startverse[title=临江仙 $\cdot$ 滚滚长江东逝水,author=明 $\cdot$ 杨慎]
+滾滾長江東逝水浪花淘盡英雄\\
+是非成敗轉頭空\\
+青山依舊在 幾度夕陽紅\\
+白髮漁樵江渚上 慣看秋月春風\\
+一壺濁酒喜相逢\\
+古今多少事 都付笑談中
+\stopverse
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\startbuffer
+\setupverse[skip=none,align=center]
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\section{Lexicalentry}
+
+\startbuffer
+\startlexicalentry[class=名,accent=1]{太陽}
+  \startlexicallists
+    \item 太陽系の中心をなし、地球にもっとも近い恒星。お日さま。\antonym{太陰}。
+    \item 光明・希望の象徴。「心の\alias」
+  \stoplexicallists
+\stoplexicalentry
+\stopbuffer
+\typebuffer
+\getbuffer
+
+\section{answer box}
+
+By default, answers are extracted from chapter 0 (i.e., no chapter). Therefore, if answers are located under chapters, you should start from chapter 1.
+
+\startbuffer
+\dorecurse{5}{\typeanswerbychap{1},}
 
 \newcount\tempa\tempa=2\relax
-\dorecurse{5}{\typeanswerbychap[\tempa]{0},\advance\tempa by 1\relax}
+\dorecurse{5}{\typeanswerbychap[\tempa]{1},\advance\tempa by 1\relax}
 
-\typeanswerdirect{0-5}
+\typeanswerdirect{1-5}
 \stopbuffer
 
 \typebuffer
@@ -721,9 +769,9 @@ of human kindness won the day.
 \startbuffer
 \typeanswerlist{5}
      
-\typeanswerlist[0]{5}   
+\typeanswerlist[1]{5}   
  
-\typeanswerlist[0][2]{5}
+\typeanswerlist[1][2]{5}
 \stopbuffer
 
 \typebuffer
@@ -731,12 +779,12 @@ of human kindness won the day.
 
 \startbuffer
 \typeanswertable[2,5]          \null\par
-\typeanswertable[2,5][0]       \null\par
-\typeanswertable[2,5][0][6]    \null\par
+\typeanswertable[2,5][1]       \null\par
+\typeanswertable[2,5][1][6]    \null\par
 
 \typeanswertablealt[2,5]       \null\par
-\typeanswertablealt[2,5][0]    \null\par
-\typeanswertablealt[2,5][0][6] \null\par
+\typeanswertablealt[2,5][1]    \null\par
+\typeanswertablealt[2,5][1][6] \null\par
 \stopbuffer
 
 \typebuffer
@@ -759,6 +807,357 @@ of human kindness won the day.
  some text \score{4}
  some text \score{3}
 \stopanswer
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\section{Paper Title}
+
+The \type{\definepapertitle}, \type{\setuppapertitle}, and \type{\makepapertitle}
+commands are used to create professional test paper headers with customizable
+information sections.
+
+\startitemize[packed]
+\item \type{\definepapertitle[PaperTitleName]} --- Define a new paper title instance
+\item \type{\setuppapertitle[PaperTitleName][...]} --- Configure paper title settings
+\item \type{\makepapertitle[PaperTitleName]} --- Render the paper title
+\stopitemize
+
+\subsection{Paper Title Parameters}
+
+The paper title system supports the following key parameters:
+
+\starttabulate[|l|p|]
+\HL
+\NC Parameter \NC Description \NC\NR
+\HL
+\NC list \NC Order of elements to display (default: secret, title, subject, information, signinformation, notice) \NC\NR
+\NC secret \NC Secret/classification text (e.g., "绝密 ★ 启用前") \NC\NR
+\NC title \NC Main paper title \NC\NR
+\NC subject \NC Subject name (appended with subjectsuffix) \NC\NR
+\NC subjectsuffix \NC Suffix for subject (default: 学科试卷) \NC\NR
+\NC information \NC General information (time, total score, etc.) \NC\NR
+\NC signinformation \NC Student sign-in information fields \NC\NR
+\NC notice \NC Important notices/instructions \NC\NR
+\HL
+\stoptabulate
+
+Each element in the list automatically generates style-related parameters:
+\startitemize[packed]
+\item \type{<element>style} --- Text style
+\item \type{<element>color} --- Text color
+\item \type{<element>align} --- Text alignment
+\item \type{before<element>} --- Content before the element
+\item \type{after<element>} --- Content after the element
+\stopitemize
+
+\startbuffer
+\definepapertitle[myexam]
+\setuppapertitle[myexam][
+    list={secret,examtitle,subject,information,notice},
+    subjectsuffix=学科试卷,
+    secretstyle=\ss,
+    examtitlestyle=\ssa,
+    subjectstyle=\ssb,
+    informationstyle=\ttx,
+    noticestyle=\rm\it,
+    secretalign=flushleft,
+    examtitlealign=center,
+    subjectalign=center,
+    informationalign=center,
+    noticealign=flushleft,
+    secret={绝密 ★ 启用前},
+    examtitle={2024 年普通高等学校招生全国统一考试},
+    subject={英语},
+    information={总分:150 分，考试时间:120 分钟},
+    notice={注意事项：
+      \startitemize[n,packed,joinedup]
+        \item 答题前，务必将自己的姓名、准考证号填写在答题卡规定的位置上。
+        \item 答选择题时，必须使用 2B 铅笔将答题卡上对应题目的答案标号涂黑。
+        \item 考试结束后，将试题卷和答题卡一并交回。
+      \stopitemize},
+]
+\makepapertitle[myexam]
+\stopbuffer
+
+\typebuffer
+
+\start\getbuffer\stop
+
+\section{Writing Environment}
+
+The \type{writing} environment is designed for composition/writing questions.
+It supports both standalone writing tasks and nested sub-writing tasks.
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Values \NC Description \NC\NR
+\HL
+\NC point \NC number \NC Point value for the writing task \NC\NR
+\NC answer \NC text \NC Reference answer text \NC\NR
+\NC showanswer \NC true/false \NC Show/hide reference answer \NC\NR
+\NC showpoint \NC true/false \NC Show/hide point value \NC\NR
+\NC totalanswer \NC text \NC Override total answer display \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Basic Writing Task}
+
+\startbuffer
+\setupwriting[showanswer=true,showpoint=true]
+\startwriting[point=20]
+  Write an essay about your favorite season. Your essay should be at least 200 words.
+  \startanswer
+    This is a reference composition that demonstrates the expected quality
+    and length of the student's response. It covers the main points and
+    shows good organization and language use.
+  \stopanswer
+\stopwriting
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\subsection{Nested Writing Tasks}
+
+When a writing task contains multiple sub-topics, use \type{subwriting}:
+
+\startbuffer
+\setupwriting[showanswer=true,showpoint=true]
+\startwriting
+  Choose one of the following topics and write an essay:
+  \startsubwriting[point=15]
+    Topic A: Describe a memorable travel experience.
+    \startanswer
+      Reference essay for Topic A...
+    \stopanswer
+  \stopsubwriting
+  \startsubwriting[point=15]
+    Topic B: Discuss the importance of environmental protection.
+    \startanswer
+      Reference essay for Topic B...
+    \stopanswer
+  \stopsubwriting
+\stopwriting
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\section{Optclose Environment}
+
+The \type{optclose} environment is a variant of the \type{close} environment,
+designed for fill-in-the-blank questions where the answer is provided inline.
+Use \type{\ocitem} to mark each blank.
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Values \NC Description \NC\NR
+\HL
+\NC answer \NC text \NC The correct answer for this blank \NC\NR
+\NC point \NC number \NC Point value (default: 1) \NC\NR
+\NC reset \NC true/false \NC Reset numbering for each environment \NC\NR
+\NC continue \NC true/false \NC Continue from previous question number \NC\NR
+\HL
+\stoptabulate
+
+\startbuffer
+\startoptclose[showanswer=true,showpoint=true,point=4]
+The latest \ocitem[answer=engineering,point=6]{engineer} techniques are applied to create
+this protective \ocitem[answer=functional]{function} structure that is also
+beautiful. The design features ten steel "sepals" made of glass and aluminium.
+These sepals open on warm days \ocitem[answer=to give]{give} the inside plants
+sunshine and fresh air. In cold weather, the structure stays \ocitem[answer=closed]{close}
+to protect the plants.
+\stopoptclose
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\section{Writing Box and Grid}
+
+The \type{\writingbox} and \type{\writinggrid} commands create formatted areas
+for handwritten answers, commonly used in composition sections.
+
+\subsection{Writing Box}
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Values \NC Description \NC\NR
+\HL
+\NC column \NC number \NC Number of columns \NC\NR
+\NC row \NC number \NC Number of rows \NC\NR
+\NC evenheight \NC dimension \NC Height of even rows \NC\NR
+\NC oddheight \NC dimension \NC Height of odd rows \NC\NR
+\NC evencolor \NC color \NC Color of even rows \NC\NR
+\NC oddcolor \NC color \NC Color of odd rows \NC\NR
+\HL
+\stoptabulate
+
+\startbuffer
+\writingbox
+  [column=5,
+   row=5,
+   evencolor=blue,
+   oddcolor=gray,
+   evenheight=1em,
+   oddheight=.5em,
+   height=5cm,
+   width=\textwidth,]{}
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\subsection{Writing Grid}
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Values \NC Description \NC\NR
+\HL
+\NC column \NC number \NC Number of columns \NC\NR
+\NC row \NC number \NC Number of rows \NC\NR
+\NC cellwidth \NC dimension \NC Width of each cell \NC\NR
+\NC cellcolor \NC color \NC Color of grid lines \NC\NR
+\HL
+\stoptabulate
+
+\startbuffer
+\writinggrid
+  [cellwidth=1cm,
+   column=10,
+   row=5,
+   cellcolor=darkgray,
+   height=5cm,
+   width=\textwidth,]{}
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\section{User Question Environment}
+
+The \type{userquestion} and \type{useritem} environments provide flexibility
+for question types not covered by the standard environments.
+
+\startbuffer
+\setupuserquestion[point=1,showanswer=true,showpoint=true]
+\useritem{Answer 1} XXXX
+
+\useritem{Answer 2} XXXX
+
+\useritem{Answer 3} XXXX
+
+\startuserquestion
+XXXXXX\useritem{A} \useritem{B} \useritem{C}
+\stopuserquestion
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\section{Symbols}
+
+The module provides a comprehensive set of marking symbols for answers.
+These symbols require the {\bf NotoSansSymbols2} font to be installed.
+
+\starttabulate[|l|r|l|r|]
+\HL
+\NC Command \NC Symbol \NC Command \NC Symbol \NC\NR
+\HL
+\NC \type{\symbol{marksquare}} \NC \symbol{marksquare} \NC \type{\symbol{markcircle}} \NC \symbol{markcircle} \NC\NR
+\NC \type{\symbol{markcheck}} \NC \symbol{markcheck} \NC \type{\symbol{markcross}} \NC \symbol{markcross} \NC\NR
+\NC \type{\symbol{markheavycheck}} \NC \symbol{markheavycheck} \NC \type{\symbol{markheavycross}} \NC \symbol{markheavycross} \NC\NR
+\NC \type{\symbol{marksquarecheck}} \NC \symbol{marksquarecheck} \NC \type{\symbol{marksquarecross}} \NC \symbol{marksquarecross} \NC\NR
+\NC \type{\symbol{marksquareheavycheck}} \NC \symbol{marksquareheavycheck} \NC \type{\symbol{marksquareheavycross}} \NC \symbol{marksquareheavycross} \NC\NR
+\NC \type{\symbol{markcirclecheck}} \NC \symbol{markcirclecheck} \NC \type{\symbol{markcirclecross}} \NC \symbol{markcirclecross} \NC\NR
+\NC \type{\symbol{markcircleheavycheck}} \NC \symbol{markcircleheavycheck} \NC \type{\symbol{markcircleheavycross}} \NC \symbol{markcircleheavycross} \NC\NR
+\NC \type{\symbol{marknotcheck}} \NC \symbol{marknotcheck} \NC \NC \NC\NR
+\HL
+\stoptabulate
+
+\section{Circled Text}
+
+The \type{\circledtext} command creates numbers or text inside circles or squares.
+Various styles are available through conversion commands.
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Values \NC Description \NC\NR
+\HL
+\NC radius \NC 0--0.5 \NC 0=square, 0.5=circle \NC\NR
+\NC framecolor \NC color \NC Border color \NC\NR
+\NC fillcolor \NC color \NC Fill color \NC\NR
+\NC color \NC color \NC Text color \NC\NR
+\NC style \NC font style \NC Text style \NC\NR
+\NC scaled \NC number \NC Scale factor \NC\NR
+\HL
+\stoptabulate
+
+\startbuffer
+\circledtext{1}\quad
+\circledtext[radius=0.5]{A}\quad
+\circledtext[radius=0,fillcolor=black,color=white]{B}\quad
+\circledtext[radius=0.2]{C}
+
+\startitemize[Co:num,packed]
+  \item First item
+  \item Second item
+  \item Third item
+\stopitemize
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\subsection{Circled Conversions}
+
+Available conversion sets for circled numbers:
+
+\starttabulate[|l|l|]
+\HL
+\NC Conversion \NC Description \NC\NR
+\HL
+\NC Co:num, CO:num \NC Circled/white-on-black numbers \NC\NR
+\NC Cr:num, CR:num \NC Rounded square numbers \NC\NR
+\NC Cs:num, CS:num \NC Square numbers \NC\NR
+\NC Co:Alph, Co:alph \NC Circled letters \NC\NR
+\NC Co:cn \NC Circled Chinese numerals \NC\NR
+\NC Co:hira, Co:kata \NC Circled Japanese characters \NC\NR
+\HL
+\stoptabulate
+
+\section{Multilingual Support}
+
+The module provides multilingual support through \type{\userlanguage}:
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Language \NC Code \NC Description \NC\NR
+\HL
+\NC English \NC en \NC Latin script, modern font \NC\NR
+\NC Chinese (Simplified) \NC cn, hans \NC Simplified Chinese \NC\NR
+\NC Chinese (Traditional) \NC hant \NC Traditional Chinese \NC\NR
+\NC Japanese \NC ja \NC Japanese with ruby support \NC\NR
+\HL
+\stoptabulate
+
+\startbuffer
+\userlanguage[en]{This is English text.}
+
+\userlanguage[cn]{这是中文文本。}
+
+\userlanguage[ja]{これは日本語のテキストです。}
 \stopbuffer
 
 \typebuffer
