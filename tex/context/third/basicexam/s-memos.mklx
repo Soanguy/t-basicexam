@@ -708,7 +708,7 @@ nodes.tasks.appendaction("processors", "after", "Thirddata.processmystuff")
 \def\enablepanguspace {\ctxluacode{nodes.tasks.enableaction ("processors","Thirddata.processmystuff")}}
 
 \startprotectedcolors
-%  \definecolor [transparent] [r=1,t=0,a=1]
+  \definecolor [transparent] [r=1,t=0,a=1]
   \definecolor [softred]     [x=F7CDBC]  \definecolor [softpink]    [x=F5CEBE]
   \definecolor [lightred]    [x=F9906F]  \definecolor [lightpink]   [x=EDC3AE]
   \definecolor [red]         [x=D70C19]  \definecolor [pink]        [x=F9906F]

@@ -16,6 +16,277 @@
 | morisawa | Morisawa 字体集，包含 A-OTF 系列 |
 | others | 其他字体集，包含 Tsukushi 系列 |
 
+
+## 使用方法
+
+### 基本使用
+
+在 ConTeXt 文档中使用这些字体，有两种方式：
+
+#### 方式一：使用 memos module（推荐）
+
+如果你使用 memos module，可以通过模块参数直接设置字体：
+
+```tex
+\usemodule[memos][
+  fontname=sourcehans,      % 中文字体（打字集名称）
+  latinfontname=cormorant,   % 英文回退字体
+  mainlanguage=hans           % 主语言
+]
+```
+
+**参数说明**：
+- `fontname`: 中文字体名称（打字集名称），如 `sourcehans`、`adobehans`、`sinohans` 等
+- `latinfontname`: 英文回退字体名称，如 `cormorant`、`newsreader`、`gentium` 等
+- `mainlanguage`: 主语言，如 `hans`（简体中文）、`hant`（繁体中文）、`ja`（日文）、`en`（英文）
+
+**可用字体组合**：
+
+| 中文字体 (fontname) | 英文回退字体 (latinfontname) | 说明 |
+| ------------------- | --------------------------- | ---- |
+| sourcehans | cormorant | 思源黑体 + Cormorant Garamond |
+| sourcehant | cormorant | 思源宋体（繁体）+ Cormorant Garamond |
+| sourcenihon | ibmplex | 思源日文 + IBM Plex |
+| adobehans | cormorantlight | Adobe 简体中文 + Cormorant Light |
+| adobehant | cormorantlight | Adobe 繁体中文 + Cormorant Light |
+| kozuka | ibmplex | Kozuka 日文 + IBM Plex |
+| lihant | cormorantlight | 俪明体 + Cormorant Light |
+| sinohans | cormorant | 华文简体 + Cormorant Garamond |
+| sinohant | cormorant | 华文繁体 + Cormorant Garamond |
+| dynahans | cormorant | DynaFont 简体中文 + Cormorant Garamond |
+| dynahant | cormorant | DynaFont 繁体中文 + Cormorant Garamond |
+| ipaexhans | cormorant | IPAex 简体中文 + Cormorant Garamond |
+| ipaexhant | cormorant | IPAex 繁体中文 + Cormorant Garamond |
+| tsukushia | cormorant | Tsukushi A + Cormorant Garamond |
+
+**完整示例**：
+
+```tex
+\usemodule[memos][
+  fontname=sourcehans,
+  latinfontname=cormorant,
+  mainlanguage=hans
+]
+
+\starttext
+这是一个使用 memos module 和 Source Han 字体的示例文档。
+
+This is a sample document using memos module and Source Han fonts.
+\stoptext
+```
+
+#### 方式二：手动加载打字集
+
+如果不使用 memos module，可以手动加载打字集：
+
+##### 1. 加载打字集文件
+
+在文档开头加载所需的打字集文件：
+
+```tex
+% 加载 Adobe 字体集
+\usetypescriptfile[type-imp-adobe]
+
+% 加载 Source 字体集
+\usetypescriptfile[type-imp-source]
+
+% 加载 macOS 字体集
+\usetypescriptfile[type-imp-macos]
+
+% 加载 DynaFont 字体集
+\usetypescriptfile[type-imp-dyna]
+
+% 加载 Fontworks 字体集
+\usetypescriptfile[type-imp-fontworks]
+
+% 加载 IBM Plex 字体集
+\usetypescriptfile[type-imp-ibmplex]
+
+% 加载 IPAex 字体集
+\usetypescriptfile[type-imp-ipaex]
+
+% 加载 Morisawa 字体集
+\usetypescriptfile[type-imp-morisawa]
+
+% 加载其他字体集
+\usetypescriptfile[type-imp-others]
+```
+
+##### 2. 选择回退字体
+
+选择合适的英文回退字体（重要！如果不指定回退字体，将使用中文字体自带的西文字符）：
+
+```tex
+% 使用 Cormorant 回退字体
+\setups[fallback:cormorant]
+
+% 或使用其他回退字体：
+% \setups[fallback:newsreader]
+% \setups[fallback:newsreader6pt]
+% \setups[fallback:newsreader72pt]
+% \setups[fallback:newsreaderlight]
+% \setups[fallback:gentium]
+% \setups[fallback:pagella]
+% \setups[fallback:texgyre]
+% \setups[fallback:ibmplex]
+% \setups[fallback:alegreya]
+% \setups[fallback:ebgaramond]
+% \setups[fallback:merriweather]
+% \setups[fallback:merriweatherlight]
+% \setups[fallback:terms]
+% \setups[fallback:inter]
+% \setups[fallback:lato]
+% \setups[fallback:modern]
+% \setups[fallback:playfair8pt]
+% \setups[fallback:playfair12pt]
+% \setups[fallback:playfair32pt]
+% \setups[fallback:playfair72pt]
+```
+
+**回退字体说明**：
+- `fallback:cormorant`: Cormorant Garamond 系列（推荐）
+- `fallback:newsreader`: Newsreader 16pt 版本
+- `fallback:newsreader6pt`: Newsreader 6pt 版本（适合小字号）
+- `fallback:newsreader72pt`: Newsreader 72pt 版本（适合大标题）
+- `fallback:newsreaderlight`: Newsreader Light 版本
+- `fallback:gentium`: Gentium 字体
+- `fallback:pagella` / `fallback:texgyre`: TeX Gyre Pagella
+- `fallback:ibmplex`: IBM Plex 系列
+- `fallback:alegreya`: Alegreya 系列
+- `fallback:ebgaramond`: EB Garamond 系列
+- `fallback:merriweather`: Merriweather 系列
+- `fallback:merriweatherlight`: Merriweather Light 版本
+- `fallback:terms`: Terms 字体
+- `fallback:inter`: Inter 字体
+- `fallback:lato`: Lato 字体
+- `fallback:modern`: Modern 字体
+- `fallback:playfair8pt/12pt/32pt/72pt`: Playfair Display 多尺寸版本
+
+##### 3. 选择打字集
+
+选择要使用的打字集：
+
+```tex
+% 选择 Adobe 字体集
+\usetypescript[adobehans]
+
+% 或选择 Source 字体集
+\usetypescript[sourcehans]
+
+% 或选择 macOS 字体集
+\usetypescript[sinohans]
+
+% 或选择其他字体集
+\usetypescript[dynahans]
+\usetypescript[ipaexhans]
+\usetypescript[tsukushia]
+```
+
+##### 4. 设置主字体
+
+设置主字体：
+
+```tex
+\setupbodyfont[12pt]
+```
+
+##### 5. 完整示例
+
+```tex
+\usetypescriptfile[type-imp-source]
+\setups[fallback:cormorant]
+\usetypescript[sourcehans]
+\setupbodyfont[12pt]
+
+\starttext
+这是一个使用 Source Han 字体的示例文档。
+
+This is a sample document using Source Han fonts.
+\stoptext
+```
+
+### 字体组合示例
+
+不同的 CJK 打字集可以与不同的英文回退字体组合使用：
+
+```tex
+% Adobe 字体集 + Cormorant 回退字体
+\usetypescriptfile[type-imp-adobe]
+\setups[fallback:cormorant]
+\usetypescript[adobehans]
+\setupbodyfont[12pt]
+
+% Source 字体集 + Newsreader 回退字体
+\usetypescriptfile[type-imp-source]
+\setups[fallback:newsreader]
+\usetypescript[sourcehans]
+\setupbodyfont[12pt]
+
+% macOS 字体集 + Gentium 回退字体
+\usetypescriptfile[type-imp-macos]
+\setups[fallback:gentium]
+\usetypescript[sinohans]
+\setupbodyfont[12pt]
+```
+
+**重要提示**：
+- 必须在 `\usetypescript` 之前使用 `\setups[fallback:xxx]` 指定回退字体
+- 如果不指定回退字体，ConTeXt 将使用中文字体自带的西文字符，而不是专门的英文回退字体
+- 回退字体会影响拉丁字符、数字和标点符号的显示效果
+
+### 字体样式使用
+
+使用不同的字体样式：
+
+```tex
+% 衬线体
+{\rm 衬线体 Serif}
+
+% 无衬线体
+{\ss 无衬线体 Sans}
+
+% 等宽字体
+{\tt 等宽字体 Mono}
+
+% 手写体
+{\hw 手写体 Handwriting}
+
+% 粗体
+{\bf 粗体 Bold}
+
+% 斜体
+{\it 斜体 Italic}
+
+% 小型大写字母
+{\sc Small Caps}
+```
+
+### 不同语言版本
+
+打字集支持简体中文、繁体中文和日文：
+
+```tex
+% 简体中文
+\usetypescriptfile[type-imp-source]
+\setups[fallback:cormorant]
+\usetypescript[sourcehans]
+\setupbodyfont[12pt]
+
+% 繁体中文
+\usetypescriptfile[type-imp-source]
+\setups[fallback:cormorant]
+\usetypescript[sourcehant]
+\setupbodyfont[12pt]
+
+% 日文
+\usetypescriptfile[type-imp-source]
+\setups[fallback:cormorant]
+\usetypescript[sourcenihon]
+\setupbodyfont[12pt]
+```
+
+**注意**：每个语言版本都需要单独指定回退字体。
+
 ## CJK 打字集
 
 ### adobe 打字集
@@ -293,275 +564,6 @@
 - **playfair32pt**: Playfair Headline (32pt)
 - **playfair72pt**: Playfair Titling (72pt)
 
-## 使用方法
-
-### 基本使用
-
-在 ConTeXt 文档中使用这些字体，有两种方式：
-
-#### 方式一：使用 memos module（推荐）
-
-如果你使用 memos module，可以通过模块参数直接设置字体：
-
-```tex
-\usemodule[memos][
-  fontname=sourcehans,      % 中文字体（打字集名称）
-  latinfontname=cormorant,   % 英文回退字体
-  mainlanguage=hans           % 主语言
-]
-```
-
-**参数说明**：
-- `fontname`: 中文字体名称（打字集名称），如 `sourcehans`、`adobehans`、`sinohans` 等
-- `latinfontname`: 英文回退字体名称，如 `cormorant`、`newsreader`、`gentium` 等
-- `mainlanguage`: 主语言，如 `hans`（简体中文）、`hant`（繁体中文）、`ja`（日文）、`en`（英文）
-
-**可用字体组合**：
-
-| 中文字体 (fontname) | 英文回退字体 (latinfontname) | 说明 |
-| ------------------- | --------------------------- | ---- |
-| sourcehans | cormorant | 思源黑体 + Cormorant Garamond |
-| sourcehant | cormorant | 思源宋体（繁体）+ Cormorant Garamond |
-| sourcenihon | ibmplex | 思源日文 + IBM Plex |
-| adobehans | cormorantlight | Adobe 简体中文 + Cormorant Light |
-| adobehant | cormorantlight | Adobe 繁体中文 + Cormorant Light |
-| kozuka | ibmplex | Kozuka 日文 + IBM Plex |
-| lihant | cormorantlight | 俪明体 + Cormorant Light |
-| sinohans | cormorant | 华文简体 + Cormorant Garamond |
-| sinohant | cormorant | 华文繁体 + Cormorant Garamond |
-| dynahans | cormorant | DynaFont 简体中文 + Cormorant Garamond |
-| dynahant | cormorant | DynaFont 繁体中文 + Cormorant Garamond |
-| ipaexhans | cormorant | IPAex 简体中文 + Cormorant Garamond |
-| ipaexhant | cormorant | IPAex 繁体中文 + Cormorant Garamond |
-| tsukushia | cormorant | Tsukushi A + Cormorant Garamond |
-
-**完整示例**：
-
-```tex
-\usemodule[memos][
-  fontname=sourcehans,
-  latinfontname=cormorant,
-  mainlanguage=hans
-]
-
-\starttext
-这是一个使用 memos module 和 Source Han 字体的示例文档。
-
-This is a sample document using memos module and Source Han fonts.
-\stoptext
-```
-
-#### 方式二：手动加载打字集
-
-如果不使用 memos module，可以手动加载打字集：
-
-##### 1. 加载打字集文件
-
-在文档开头加载所需的打字集文件：
-
-```tex
-% 加载 Adobe 字体集
-\usetypescriptfile[type-imp-adobe]
-
-% 加载 Source 字体集
-\usetypescriptfile[type-imp-source]
-
-% 加载 macOS 字体集
-\usetypescriptfile[type-imp-macos]
-
-% 加载 DynaFont 字体集
-\usetypescriptfile[type-imp-dyna]
-
-% 加载 Fontworks 字体集
-\usetypescriptfile[type-imp-fontworks]
-
-% 加载 IBM Plex 字体集
-\usetypescriptfile[type-imp-ibmplex]
-
-% 加载 IPAex 字体集
-\usetypescriptfile[type-imp-ipaex]
-
-% 加载 Morisawa 字体集
-\usetypescriptfile[type-imp-morisawa]
-
-% 加载其他字体集
-\usetypescriptfile[type-imp-others]
-```
-
-##### 2. 选择回退字体
-
-选择合适的英文回退字体（重要！如果不指定回退字体，将使用中文字体自带的西文字符）：
-
-```tex
-% 使用 Cormorant 回退字体
-\setups[fallback:cormorant]
-
-% 或使用其他回退字体：
-% \setups[fallback:newsreader]
-% \setups[fallback:newsreader6pt]
-% \setups[fallback:newsreader72pt]
-% \setups[fallback:newsreaderlight]
-% \setups[fallback:gentium]
-% \setups[fallback:pagella]
-% \setups[fallback:texgyre]
-% \setups[fallback:ibmplex]
-% \setups[fallback:alegreya]
-% \setups[fallback:ebgaramond]
-% \setups[fallback:merriweather]
-% \setups[fallback:merriweatherlight]
-% \setups[fallback:terms]
-% \setups[fallback:inter]
-% \setups[fallback:lato]
-% \setups[fallback:modern]
-% \setups[fallback:playfair8pt]
-% \setups[fallback:playfair12pt]
-% \setups[fallback:playfair32pt]
-% \setups[fallback:playfair72pt]
-```
-
-**回退字体说明**：
-- `fallback:cormorant`: Cormorant Garamond 系列（推荐）
-- `fallback:newsreader`: Newsreader 16pt 版本
-- `fallback:newsreader6pt`: Newsreader 6pt 版本（适合小字号）
-- `fallback:newsreader72pt`: Newsreader 72pt 版本（适合大标题）
-- `fallback:newsreaderlight`: Newsreader Light 版本
-- `fallback:gentium`: Gentium 字体
-- `fallback:pagella` / `fallback:texgyre`: TeX Gyre Pagella
-- `fallback:ibmplex`: IBM Plex 系列
-- `fallback:alegreya`: Alegreya 系列
-- `fallback:ebgaramond`: EB Garamond 系列
-- `fallback:merriweather`: Merriweather 系列
-- `fallback:merriweatherlight`: Merriweather Light 版本
-- `fallback:terms`: Terms 字体
-- `fallback:inter`: Inter 字体
-- `fallback:lato`: Lato 字体
-- `fallback:modern`: Modern 字体
-- `fallback:playfair8pt/12pt/32pt/72pt`: Playfair Display 多尺寸版本
-
-##### 3. 选择打字集
-
-选择要使用的打字集：
-
-```tex
-% 选择 Adobe 字体集
-\usetypescript[adobehans]
-
-% 或选择 Source 字体集
-\usetypescript[sourcehans]
-
-% 或选择 macOS 字体集
-\usetypescript[sinohans]
-
-% 或选择其他字体集
-\usetypescript[dynahans]
-\usetypescript[ipaexhans]
-\usetypescript[tsukushia]
-```
-
-##### 4. 设置主字体
-
-设置主字体：
-
-```tex
-\setupbodyfont[12pt]
-```
-
-##### 5. 完整示例
-
-```tex
-\usetypescriptfile[type-imp-source]
-\setups[fallback:cormorant]
-\usetypescript[sourcehans]
-\setupbodyfont[12pt]
-
-\starttext
-这是一个使用 Source Han 字体的示例文档。
-
-This is a sample document using Source Han fonts.
-\stoptext
-```
-
-### 字体组合示例
-
-不同的 CJK 打字集可以与不同的英文回退字体组合使用：
-
-```tex
-% Adobe 字体集 + Cormorant 回退字体
-\usetypescriptfile[type-imp-adobe]
-\setups[fallback:cormorant]
-\usetypescript[adobehans]
-\setupbodyfont[12pt]
-
-% Source 字体集 + Newsreader 回退字体
-\usetypescriptfile[type-imp-source]
-\setups[fallback:newsreader]
-\usetypescript[sourcehans]
-\setupbodyfont[12pt]
-
-% macOS 字体集 + Gentium 回退字体
-\usetypescriptfile[type-imp-macos]
-\setups[fallback:gentium]
-\usetypescript[sinohans]
-\setupbodyfont[12pt]
-```
-
-**重要提示**：
-- 必须在 `\usetypescript` 之前使用 `\setups[fallback:xxx]` 指定回退字体
-- 如果不指定回退字体，ConTeXt 将使用中文字体自带的西文字符，而不是专门的英文回退字体
-- 回退字体会影响拉丁字符、数字和标点符号的显示效果
-
-### 字体样式使用
-
-使用不同的字体样式：
-
-```tex
-% 衬线体
-\rm{衬线体 Serif}
-
-% 无衬线体
-\ss{无衬线体 Sans}
-
-% 等宽字体
-\tt{等宽字体 Mono}
-
-% 手写体
-\hw{手写体 Handwriting}
-
-% 粗体
-\bf{粗体 Bold}
-
-% 斜体
-\it{斜体 Italic}
-
-% 小型大写字母
-\sc{Small Caps}
-```
-
-### 不同语言版本
-
-打字集支持简体中文、繁体中文和日文：
-
-```tex
-% 简体中文
-\usetypescriptfile[type-imp-source]
-\setups[fallback:cormorant]
-\usetypescript[sourcehans]
-\setupbodyfont[12pt]
-
-% 繁体中文
-\usetypescriptfile[type-imp-source]
-\setups[fallback:cormorant]
-\usetypescript[sourcehant]
-\setupbodyfont[12pt]
-
-% 日文
-\usetypescriptfile[type-imp-source]
-\setups[fallback:cormorant]
-\usetypescript[sourcenihon]
-\setupbodyfont[12pt]
-```
-
-**注意**：每个语言版本都需要单独指定回退字体。
 
 ## 字体下载地址
 

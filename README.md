@@ -30,7 +30,7 @@ https://deepwiki.com/Soanguy/t-basicexam
 
 ## 安裝
 
-下載後，放置在 context 安裝路徑下（context-osx-arm64/tex/texmf-local/tex/context/third/）。
+下載後，放置在 context 安裝路徑下（context-osx-arm64/tex/texmf-local/）。（context-osx-arm64 文件名可能根据不同的操作系統而不同）
 
 在終端中使用：`mtxrun --generate` 刷新文件索引。
 
@@ -54,9 +54,8 @@ https://deepwiki.com/Soanguy/t-basicexam
 \stopquestion
 
 --->
-\startquestion
-  \fastchoice{choice 1,\correct{choice 2},{[*]choice 3},choice 4}
-\stopquestion
+\question{
+  \choice{choice 1,\correct{choice 2},{[*]choice 3},choice 4}}
 ```
 
 ```
@@ -67,6 +66,15 @@ https://deepwiki.com/Soanguy/t-basicexam
     \startpitem[answer=answer 3] problem 1 \stoppitem
   \stopproblem
 \stopquestion
+
+--->
+\question{
+  \problem{
+    \pitem[answer=answer 1]{problem 1}
+    \pitem[answer=answer 2]{problem 1}
+    \pitem[answer=answer 3]{problem 1}
+  }
+}
 ```
 
 ```
@@ -76,6 +84,12 @@ https://deepwiki.com/Soanguy/t-basicexam
 ```
 
 > 增加了在終端中的信息輸出，包括題號， 答案， 分值， 等內容。（`\usemodule[mode=check]` 即可啟用。）
+
+> 更多的示例和使用方法可以参考 doc/context/third/basicexam/basicexam-test.pdf
+
+> 具体的命令及其变体、参数可以参考  doc/context/third/basicexam/i-basicexam.pdf 。但是该文本可能不是最新的。
+
+> 源代码相关的说明可以参考 doc/context/third/basicexam/t-basicexam.pdf 。但是该文本可能不是最新的。
 
 # memos 模塊
 
@@ -153,7 +167,7 @@ https://deepwiki.com/Soanguy/t-basicexam
 
 > 💡 **字體配置**：memos 模塊支持豐富的字體選擇，包括 Adobe、Source、macOS、DynaFont 等多種字體集。詳細的字體配置說明請參閱 [字體 README](tex/context/third/basicexam/fonts/README.md)。
 
-## zhindex 模塊
+# zhindex 模塊
 
 中文排序模塊，為 ConTeXt 提供中文索引排序功能。
 
@@ -185,4 +199,56 @@ https://deepwiki.com/Soanguy/t-basicexam
 - 西文字母歸類到 "alpha" 類別
 - 中文根據選擇的排序方式進行相應排序
 
+## 項目結構
 
+```
+t-basicexam/
+├── doc/                                    # 文檔目錄
+│   └── context/
+│       └── third/
+│           └── basicexam/
+│               ├── assets/                       # 預覽圖片
+│               │   ├── soanguy-103113.png
+│               │   ├── soanguy-1048579.png
+│               │   ├── soanguy-105577.png
+│               │   └── soanguy-1020859.png
+│               ├── EXAMPLE-student.pdf           # 學生版示例 PDF
+│               ├── EXAMPLE-teacher.pdf           # 教師版示例 PDF
+│               ├── EXAMPLE.tex                 # 示例源文件
+│               ├── basicexam-test.pdf          # 測試文件 PDF
+│               ├── basicexam-test.tex          # 測試源文件
+│               ├── demo-search.tex             # 演示搜索功能
+│               ├── i-basicexam.pdf            # 接口文檔 PDF
+│               ├── i-basicexam.xml            # 接口文檔 XML
+│               └── t-basicexam.pdf           # 源代碼文檔 PDF
+├── tex/                                     # 源代碼目錄
+│   └── context/
+│       └── third/
+│           └── basicexam/
+│               ├── data/                        # 數據文件目錄
+│               │   ├── README.md              # 數據文件說明
+│               │   ├── pinyin.txt             # 拼音數據文件
+│               │   ├── sort-imp-zh.lua        # 中文排序實現（Lua）
+│               │   ├── sunwb_strokeorder.txt # 筆順數據文件
+│               │   └── test-comprehensive.tex # 綜合測試文件
+│               ├── fonts/                       # 字體配置目錄
+│               │   ├── README.md              # 字體配置詳細說明
+│               │   ├── symb-imp-notosymb.mkiv # 符號定義
+│               │   ├── type-bak-fallbacks.mkiv # 回退字體定義
+│               │   ├── type-imp-adobe.mkiv   # Adobe 字體集
+│               │   ├── type-imp-dyna.mkiv    # DynaFont 字體集
+│               │   ├── type-imp-fontworks.mkiv # Fontworks 字體集
+│               │   ├── type-imp-ibmplex.mkiv # IBM Plex 字體集
+│               │   ├── type-imp-ipaex.mkiv   # IPAex 字體集
+│               │   ├── type-imp-macos.mkiv   # macOS 系統字體集
+│               │   ├── type-imp-morisawa.mkiv # Morisawa 字體集
+│               │   ├── type-imp-others.mkiv   # 其他字體集
+│               │   └── type-imp-source.mkiv  # Source Han 字體集
+│               ├── basicexam-sql.lua          # SQL 數據庫文件
+│               ├── s-memos.mklx              # memos 模塊源代碼
+│               ├── t-basicexam.mklx           # basicexam 模塊源代碼
+│               └── t-zhindex.mklx            # zhindex 模塊源代碼
+├── .gitignore                               # Git 忽略文件配置
+├── LICENSE                                  # 許可證文件
+└── README.md                                # 項目說明文件
+```

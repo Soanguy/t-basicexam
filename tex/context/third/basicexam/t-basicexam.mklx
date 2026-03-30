@@ -121,7 +121,7 @@
 \newif\ifenv_writing         \newif\ifitem_inlinechoice
 \newif\ifcontinue_counter    \newif\ifenv_subwriting
 \newif\ifmode_check          \newif\ifmode_showanswer      \newif\ifmode_example
-\newif\ifmode_showpoint      \newif\ifmode_showscript
+\newif\ifmode_showpoint      \newif\ifmode_showscript      \newif\ifmode_showmore
 
 \newdimen\d_width_cit
 \newdimen\d_width_cit_max
@@ -847,10 +847,6 @@ end
 \defineexaminfo[examitemexaminfo]
 \defineexaminfo[closeexaminfo]    [width=2em]
 
-\def\showmoreinfo[#1]{
-  \edef\p_showmoreinfo{\csname #1parameter\endcsname{showmore}}%
-  \doiftrue{#1}{showmore}{\startmoreexaminfo\questionparameter{moreinfo}\stopmoreexaminfo}}
-
 \tolerant\protected\def\showpointoranswer[#1]#*[#2]%
  {\edef\currentmode{#2}% check point or answer
   \edef\p_totalpoint {\csname #1parameter\endcsname {totalpoint}}%
@@ -869,6 +865,9 @@ end
     \ifempty{\csname #1parameter\endcsname\c!showpoint}\else
       \doiftrueelse{#1}\c!showpoint\mode_showpointtrue\mode_showpointfalse
     \fi
+  \fi
+  \ifempty{\csname #1parameter\endcsname{showmore}}\else
+    \doiftrueelse{#1}{showmore}\mode_showmoretrue\mode_showmorefalse
   \fi
   \begingroup
     \p_assigned_currentlabel{#1}{#2}%
@@ -923,6 +922,12 @@ end
         \right_assignedlabel
       \csname\e!stop #1examinfo\endcsname
     \fi
+    % moreinfo 没有设置 label 参数，
+    \ifx\currentmode\c!answer\ifmode_showmore
+      \dousestyleparameter    {\csname #1parameter\endcsname{moreinfostyle}}%
+      \dousecolorparameter    {\csname #1parameter\endcsname{moreinfocolor}}%
+      \startmoreexaminfo\csname #1parameter\endcsname{moreinfo}\stopmoreexaminfo
+    \fi\fi
   \endgroup\allowbreak
   \ifdefined\currentprevpoint\else
     \edef\currentprevpoint{\csname #1parameter\endcsname\c!point}\fi
@@ -1369,7 +1374,6 @@ end
     \set_count_envlevel[question]%
     \showpointoranswer[question][point]%
     \showpointoranswer[question][answer]%
-    \showmoreinfo[question]%
   \fi
   \ifx\p_class\s!problem
     % ====================================================================
