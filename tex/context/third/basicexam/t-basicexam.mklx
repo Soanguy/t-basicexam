@@ -22,7 +22,8 @@
 \immutable\def\m!basicexam{basicexam}
 
 \definesystemconstant{choice}
-\definesystemconstant{answer}
+\definesystemconstant{solution}
+\definesystemconstant{writing}
 \definesystemconstant{problem}
 \definesystemconstant{question}
 \definesystemconstant{material}
@@ -43,6 +44,9 @@
 \setinterfaceconstant {pointstyle}     {pointstyle}
 \setinterfaceconstant {pointcolor}     {pointcolor}
 \setinterfaceconstant {pointlabel}     {pointlabel}
+\setinterfaceconstant {solutionstyle}  {solutionstyle}
+\setinterfaceconstant {solutioncolor}  {solutioncolor}
+\setinterfaceconstant {solutionlabel}  {solutionlabel}
 \setinterfaceconstant {autoright}      {autoright}
 \setinterfaceconstant {inlineleft}     {inlineleft}
 \setinterfaceconstant {inlineright}    {inlineright}
@@ -113,15 +117,19 @@
 \newif\iflay_twoup   \lay_twoupfalse
 \newif\ifhdr_default \hdr_defaultfalse
 
-\newif\ifenv_question        \newif\ifenv_problem
-\newif\ifenv_toplevel        \newif\ifenv_botlevel
-\newif\ifenv_choice          \newif\ifenv_answer
-\newif\ifenv_material        \newif\ifitem_pitem
-\newif\ifenv_close           \newif\ifitem_fillin
-\newif\ifenv_writing         \newif\ifitem_inlinechoice
-\newif\ifcontinue_counter    \newif\ifenv_subwriting
-\newif\ifmode_check          \newif\ifmode_showanswer      \newif\ifmode_example
-\newif\ifmode_showpoint      \newif\ifmode_showscript      \newif\ifmode_showmore
+\newif\ifenv_question      \newif\ifmode_check    
+\newif\ifenv_problem       \newif\ifmode_showanswer
+\newif\ifenv_choice        \newif\ifmode_showpoint
+\newif\ifenv_material      \newif\ifmode_showscript
+\newif\ifenv_close         \newif\ifmode_showmore
+\newif\ifenv_writing       \newif\ifmode_example
+\newif\ifenv_solution
+\newif\ifenv_toplevel        
+\newif\ifenv_botlevel
+\newif\ifitem_pitem
+\newif\ifitem_fillin
+\newif\ifitem_inlinechoice
+\newif\ifcontinue_counter    
 
 \newdimen\d_width_cit
 \newdimen\d_width_cit_max
@@ -165,7 +173,6 @@ end
      \v!default=>{\mode_showpointtrue},
      \v!unknown=>\showmessage\m!basicexam{1}{showpoint},
 ]
-
 
 \processallactionsinset[\currentmoduleparameter{showscript}][
      showscript=>{\mode_showscripttrue},
@@ -285,19 +292,19 @@ end
 \defineitemgroup     [env:choice]
 \definedataset       [ExamDataset]
 \definedataset       [ExamDatasetHelper]
-\definetextbackground[env:answer]
+\definetextbackground[env:solution]
 
 \def\exam_write_answer{%
   \immediate\openout\examanswer=\jobname -answer.txt\relax
   \immediate\write\examanswer{
-    \QuestionID           \space\string @
+    \QuestionID               \space\string @
     \bem_currentenvironment   \space\string @
-    \currentuserorder     \space\string @
-    \expand\currentanswer        \space\string @
-    \currentorder         \space\string @
+    \currentuserorder         \space\string @
+    \expand\currentanswer     \space\string @
+    \currentorder             \space\string @
     \datasetvariable{ExamDataset}{\QuestionID}{totalnumber}%
-                          \space\string @
-    \currentpoint         \space\string @}% \closeout\examanswer
+                              \space\string @
+    \currentpoint             \space\string @}% \closeout\examanswer
 }
 
 \ifmode_check
@@ -511,7 +518,7 @@ end
 \def\set_envitem_counter{%
   \initcollectanswer% 初始化多项答案收集器
   \ifdefined\currentenvnumber\edef\prevenvnumber{\currentenvnumber}\fi
-  \ifenv_answer     \advance\c_envnumber by 10\relax\else
+  \ifenv_solution   \advance\c_envnumber by 10\relax\else
                     \global \c_envnumber=0\relax%
   \ifenv_question   \global \c_envnumber=1\relax \edef\bem_currentenvironment  {question}\fi
   \ifenv_problem    \global \c_envnumber=2\relax \edef\bem_currentenvironment   {problem}\fi
@@ -519,7 +526,6 @@ end
   \ifenv_material   \global \c_envnumber=4\relax \edef\bem_currentenvironment  {material}\fi
   \ifenv_close      \global \c_envnumber=5\relax \edef\bem_currentenvironment     {close}\fi
   \ifenv_writing    \global \c_envnumber=6\relax \edef\bem_currentenvironment   {writing}\fi
-  \ifenv_subwriting \global \c_envnumber=7\relax \edef\bem_currentenvironment{subwriting}\fi
   \fi
   \doif{\csname \bem_currentenvironment parameter\endcsname\c!example}{true}% 测试是否开启 example mode
        {\mode_exampletrue\global\c_envnumber=999\relax}%
@@ -594,8 +600,15 @@ end
 %%% userorder 當前列表序號(可獲取被start更改後的序號)
 
 \protected\def\installdatacollector%
-  {\ifmode_check\exam_write_answer\fi
-  \edef\currentanswercontent{\ifdefined\getanswercontent\getanswercontent\fi}%
+  {\ifmode_check
+    \ifenv_toplevel\exam_write_answer\else
+    \ifenv_botlevel\exam_write_answer\else
+      \ifnum\rawcountervalue[Unicode_botlevel]>0\else
+      \exam_write_answer
+      \fi
+    \fi\fi
+  \fi% 这里是检查当前题目是否为小题目，如果是，就不写入答案
+  \edef\currentanswercontent{\ifdefined\getsolutioncontent\getsolutioncontent\fi}%
   \setdataset [ExamDataset][\QuestionID]%收集答案並在未來展開
               [  id={\QuestionID},%
               envid={\currentitemgroup:\the\c_envnumber},%
@@ -611,6 +624,11 @@ end
       bottotalpoint={\datasetvariable{ExamDatasetHelper}{\HelperID}{bottotalpoint}},]}
 
 \protected\def\installdatacollectorhelper{%
+  \ifenv_toplevel\else\ifenv_botlevel\else 
+    \ifnum\rawcountervalue[Unicode_botlevel]>0\relax
+      \decreaseQuestionID
+    \fi
+  \fi\fi
   \increaseQuestionID% 具有獨立答案，增長 QID
   \recurseditemnumber
   \ifdefined\currenttotalbotpoint\else\edef\currenttotalbotpoint{\currenttotalpoint}\fi
@@ -841,8 +859,7 @@ end
 \setupexaminfo[frame=off,location=low,left=(,right=),offset=0pt,align=flushleft]
 
 \defineexaminfo[moreexaminfo]    [style=ttx]
-\defineexaminfo[answerexaminfo]
-\defineexaminfo[writingexaminfo]
+\defineexaminfo[solutionexaminfo]
 \defineexaminfo[questionexaminfo]
 \defineexaminfo[examitemexaminfo]
 \defineexaminfo[closeexaminfo]    [width=2em]
@@ -884,24 +901,24 @@ end
         \left_assignedlabel% like=>answer : blabla
           \ifx\currentmode\c!point% if #2 = point
             \ifempty\p_totalpoint
-              \ifenv_answer
+              \ifenv_solution
                 \ifdefined\currentpointforanswer\currentpointforanswer
                 \else\showmessage\m!basicexam{201}\fi%为了实现答案在环境内部或者外部都可以正确获取分数
               \else
                 \ifenv_toplevel
-                  \ifenv_answer\else\datasetvariable{ExamDatasetHelper}{\topHelperID}{totalpoint}\fi
+                  \ifenv_solution\else\datasetvariable{ExamDatasetHelper}{\topHelperID}{totalpoint}\fi
                   \xdef\currentpointforanswer{\datasetvariable{ExamDatasetHelper}{\topHelperID}{totalpoint}}%
                 \else
                   \ifenv_botlevel
-                    \ifenv_answer\else\point_point\fi
+                    \ifenv_solution\else\point_point\fi
                     \xdef\currentpointforanswer{\point_point}%
                   \else
                     \doifsomethingelse{\item_bottotalnumber}{\scratchcounter\item_bottotalnumber}{\scratchcounter\zerocount}\null
                     \ifnum\scratchcounter<2\relax
-                      \ifenv_answer\else\point_point\fi
+                      \ifenv_solution\else\point_point\fi
                       \xdef\currentpointforanswer{\point_point}%
                     \else
-                      \ifenv_answer\else\datasetvariable{ExamDatasetHelper}{\midHelperID}{bottotalpoint}\fi
+                      \ifenv_solution\else\datasetvariable{ExamDatasetHelper}{\midHelperID}{bottotalpoint}\fi
                       \xdef\currentpointforanswer{\datasetvariable{ExamDatasetHelper}{\midHelperID}{bottotalpoint}}%
                     \fi
                   \fi
@@ -1334,6 +1351,7 @@ end
  {\begingroup\nofarguments\lastarguments
   \cdef\currentquestion{#1}% no nested mixing of itemgroups
   \let\currentparentquestion\currentquestion
+  \global\edef\prevquestionlevel{\the\c_strc_question_nesting}%
   \global\advanceby\c_strc_question_nesting\plusone
   \def\currentquestionlevel{\the\c_strc_question_nesting}%
   \normalexpanded{\chaintocurrentquestion{\currentparentquestion:\currentquestionlevel}}%
@@ -1361,8 +1379,12 @@ end
   \edef\p_start{\questionparameter\c!start}%
   \edef\p_defaultoption{n,packed,nowhite,joinedup,continue}%
   \strc_itemgroups_process_options\p_option
-  \ifx\p_class\s!question
-    \env_questiontrue\set_envitem_counter
+  \donefalse
+  \ifx\p_class\s!question\donetrue\fi
+  \ifx\p_class\s!writing \donetrue\fi
+  \ifdone
+    \ifx\p_class\s!question \env_questiontrue\set_envitem_counter\fi
+    \ifx\p_class\s!writing  \env_writingtrue \set_envitem_counter\fi
     \doiftrue\s!question\c!reset{\resetcounter[itemgroup:env:question]}%
     \ifmode_example
       \installitemgroupoption[example][question]%
@@ -1371,7 +1393,8 @@ end
       \startitemgroup[env:question][\p_option]%
     \fi
     \item[\questionparameter\c!reference]%
-    \set_count_envlevel[question]%
+    \ifx\p_class\s!question\set_count_envlevel[question]\fi
+    \ifx\p_class\s!writing \set_count_envlevel[writing]\fi
     \showpointoranswer[question][point]%
     \showpointoranswer[question][answer]%
   \fi
@@ -1391,7 +1414,8 @@ end
       \startitemgroup[env:example][\p_option]\else
       \installitemgroupoption[problem][question]%
       \startitemgroup[env:problem][\p_option]%
-    \fi\inititemnumber
+    \fi
+    \inititemnumber
     \xdef\currentQuestionID{\QuestionID}%
     \edef\item_bottotalnumber_helper{0}%
   \fi
@@ -1399,9 +1423,14 @@ end
   \save_question_order}
 
 \protected\def\stopnamedquestion{%
-  \ifx\p_class\s!question
+  \ifx\p_class\s!question\donetrue\fi
+  \ifx\p_class\s!writing \donetrue\fi
+  \ifdone
     \ifenv_toplevel
-      \ifnum\c_envnumber=1\relax% 当前环境为 question
+      \donefalse
+      \ifnum\c_envnumber=1\relax\donetrue\fi% 当前环境为 question
+      \ifnum\c_envnumber=6\relax\donetrue\fi% 当前环境为 writing
+      \ifdone
         \ifnum\rawcountervalue[Unicode_midlevel]=0% 且只有一个子题目即题目本身
           \installpointoranswer[question][answer]%
           \installpointoranswer[question][point]%
@@ -1409,9 +1438,17 @@ end
        \fi
       \fi
     \else
+      \ifenv_botlevel
         \installpointoranswer[question][answer]%
         \installpointoranswer[question][point]%
         \installdatacollector\installdatacollectorhelper
+      \else
+        \ifnum\rawcountervalue[Unicode_midlevel]>0
+          \installpointoranswer[question][answer]%
+          \installpointoranswer[question][point]%
+          \installdatacollector\installdatacollectorhelper
+       \fi
+      \fi
     \fi
   \fi
   \stopitemgroup
@@ -1525,8 +1562,7 @@ end
    \c!numbersegments=1]
 
 \definequestion[question]
-% \definequestion[problem]
-% \definequestion[subquestion]
+\definequestion[subquestion]
 
 \setupquestion[question][2,3]
   [\c!left=(,\c!lefttext=(,
@@ -1587,9 +1623,7 @@ end
 %D which will generate two new commands \tex{startXXX} , \tex{\stopXXX}
 
 \definequestion[problem]
-\definequestion[subquestion]
 \def\setupproblem{\setupquestion[problem]}
-\def\setupsubquestion{\setupquestion[subquestion]}
 
 \setupproblem
   [\c!class=\s!problem,
@@ -1599,12 +1633,63 @@ end
    \c!distance=.5em,
    \c!option={n,packed,joinedup,nowhite},]
 
-\setupsubquestion
-  [\c!left=(,\c!lefttext=(,
-   \c!right=),\c!righttext=),
-   \c!stopper=,
-   \c!distance=.5em,
-   \c!option={n,packed,joinedup,nowhite},]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%D \section{设置 writing 环境}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%D writing 环境已经完全并入了 question 环境。
+%D 如果只有同级的多个作文题目，只需要使用 writing 环境即可。
+%D 但是，当一个作文体下面有多个子题目时，需要将子题目放到 subwriting 环境当中。
+
+%D \startbuffer
+%D \setupwriting[showanswer=true,showpoint=true]
+%D \startwriting[point=45]
+%D   作文题目说明
+%D   \startanswer
+%D     参考作文 1
+%D   \stopanswer
+%D \stopwriting
+%D
+%D \startwriting
+%D 作文题目说明
+%D   \startsubwriting[point=450]
+%D     sub 作文题目说明
+%D     \startanswer
+%D       参考作文 2
+%D     \stopanswer
+%D   \stopsubwriting
+%D   \startsubwriting[point=4588]
+%D     sub 作文题目说明
+%D     \startanswer
+%D     参考作文 3
+%D     \stopanswer
+%D   \stopsubwriting
+%D \stopwriting
+%D \stopbuffer
+%D \typebuffer
+%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
+
+\definequestion[writing][class=\s!writing]
+\definequestion[subwriting][class=\s!writing]
+\def\setupwriting{\setupquestion[writing]}
+\def\setupsubwriting{\setupquestion[subwriting]}
+
+\let\definewriting\definequestion
+
+\setupwriting
+  [\c!answer={\examtexts{writing}},
+   \c!answerstyle=\ttx,
+   \c!answercolor=,
+   \c!answerlabel={\examtexts{answer},},
+   \c!pointstyle=\ttx,
+  %\c!pointcolor=,
+   \c!pointlabel={,\examtexts{point}},
+   totalanswer={\examtexts{writing}},% totalanswer 会覆盖 answer
+  ]
+
+\setupsubwriting
+  [answer={\examtexts{writing}},
+   pointlabel={,\examtexts{point}},]
 
 %D userquestion 和 useritem 是为了应对本模块未曾考虑到的题型而设计的通用型 macro，
 %D useritem 可以单独存在，此时它类似于 question 环境。答案和分数是分别计算的。
@@ -1853,12 +1938,9 @@ end
                 choice env can only be putted in question environment.}\fi
   \env_choicetrue\set_envitem_counter
 %%%%%% 这段代码似乎没有任何效果了 %%%%%%%%
-  \ifdefined\currentuserorder
-%    \expandafter\show_check_info{\check_info}%
-%    \show_answer_info
-  \else
-    \ifnum\c_envnumber = 3\relax
-    \else \set_count_envlevel[choice]\fi
+  \ifdefined\currentuserorder\else
+    \ifnum\c_envnumber = 3\relax\else 
+      \set_count_envlevel[choice]\fi
   \fi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   \doifelsesomething{\datasetvariable{ExamDatasetHelper}{\HelperID}{totalitemnumber}}% arg_1
@@ -2028,245 +2110,7 @@ end
                    ]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%D \section{设置 writing 环境}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%D 目前该环境只是初步的设计。
-%D 如果只有同级的多个作文题目，只需要使用 writing 环境即可。
-%D 但是，当一个作文体下面有多个子题目时，需要将子题目放到 subwriting 环境当中。
-
-%D \startbuffer
-%D \setupwriting[showanswer=true,showpoint=true]
-%D \startwriting[point=45]
-%D   作文题目说明
-%D   \startanswer
-%D     参考作文 1
-%D   \stopanswer
-%D \stopwriting
-%D
-%D \startwriting
-%D 作文题目说明
-%D   \startsubwriting[point=450]
-%D     sub 作文题目说明
-%D     \startanswer
-%D       参考作文 2
-%D     \stopanswer
-%D   \stopsubwriting
-%D   \startsubwriting[point=4588]
-%D     sub 作文题目说明
-%D     \startanswer
-%D     参考作文 3
-%D     \stopanswer
-%D   \stopsubwriting
-%D \stopwriting
-%D \stopbuffer
-%D \typebuffer
-%D \framed[width=\textwidth,align={flushleft,lohi}]{\getbuffer}
-
-\installnamespace          {writing}
-\installcommandhandler \????writing   {writing}   \????writing
-
-\appendtoks
-  \frozen\instance\protected\edefcsname        \currentwriting\endcsname{\directnamedwriting[\currentwriting]}%
-  \frozen\instance\protected\edefcsname\e!start\currentwriting\endcsname{\startnamedwriting [\currentwriting]}%
-  \frozen\instance\protected\edefcsname\e!stop \currentwriting\endcsname{\stopnamedwriting}%
-\to \everydefinewriting
-
-\let\strc_writing_normal_setup\setupwriting
-
-\permanent\overloaded\tolerant\protected\def\setupwriting[#S#category]#spacer[#S#levels]#spacer[#S#options]#spacer[#S#settings]%
-% category level|each options|settings settings|options
-  {\ifarguments
-     % nothing to set up
-   \or
-     \edef\strc_writing_setup_what{#levels}%
-     \strc_writing_normal_setup[#category]% == settings
-   \or
-     \edef\strc_writing_setup_what{#levels}%
-     \strc_writing_setup_each{#category}{#levels}%
-   \or
-     \edef\strc_writing_setup_what{#levels}%
-     \ifx\strc_writing_setup_what\v!each
-       \strc_writing_setup_each{#category}{#options}%
-     \else
-       \strc_writing_setup_list{#levels}{#category}{#options}%
-     \fi
-   \or
-     \edef\strc_writing_setup_what{#levels}%
-     \ifx\strc_writing_setup_what\v!each
-       \strc_writing_setup_each{#category}{#options}%
-       \strc_writing_setup_each{#category}{#settings}%
-     \else
-       \strc_writing_setup_list{#levels}{#category}{#options}%
-       \strc_writing_setup_list{#levels}{#category}{#settings}%
-     \fi
-   \fi}
-
-\def\strc_writing_setup_each#category#whatever%
-  {\ifhastok={#whatever}%
-     \strc_writing_normal_setup[#category][#whatever]%
-   \else
-     \strc_writing_normal_setup[#category][\c!option={#whatever}]%
-   \fi}
-
-\def\strc_writing_setup_list_level_a#category#whatever#level%
-  {\strc_writing_normal_setup[#category:#level][#whatever]}
-
-\def\strc_writing_setup_list_level_b#category#whatever#level%
-  {\strc_writing_normal_setup[#category:#level][\c!option={#whatever}]}
-
-\def\strc_writing_setup_list#subcategories#category#whatever%
-  {\ifhastok={#whatever}%
-     \processcommalist[#subcategories]{\strc_writing_setup_list_level_a{#category}{#whatever}}%
-   \else
-     \processcommalist[#subcategories]{\strc_writing_setup_list_level_b{#category}{#whatever}}%
-   \fi}
-
-\tolerant\protected\def\directnamedwriting[#1]#*[#S#2]#*[#S#3]#*%
- {\groupedcommand{\startnamedwriting[#1][#2][#3]}{\stopnamedwriting}}
-
-\tolerant\protected\def\startnamedwriting[#1]#*[#S#2]#*[#S#3]#*%
-  {\begingroup\nofarguments\lastarguments
-  \env_subwritingfalse
-  \env_writingtrue\set_envitem_counter
-  \cdef\currentwriting{#1}% no nested mixing of itemgroups
-  \let\currentparentwriting\currentwriting
-  \global\advanceby\c_strc_question_nesting\plusone
-  \def\currentwritinglevel{\the\c_strc_question_nesting}%
-  \normalexpanded{\chaintocurrentwriting{\currentparentwriting:\currentwritinglevel}}%
-  \cdef\currentwriting{\currentparentwriting:\currentwritinglevel}%
-  \ifcase\nofarguments
-       \edef\p_option{\writingparameter\c!option}\setupcurrentwriting[]%
-    \or\edef\p_option{\writingparameter\c!option}\setupcurrentwriting[]%
-    \or
-      \ifhastok={#2}%
-        \setupcurrentwriting[#2]%
-        \edef\p_option{\writingparameter\c!option}%
-      \else
-        \edef\p_option{\writingparameter\c!option,#2}%
-      \fi
-    \or
-      \ifhastok={#2}% \writing[textcolor=red]
-        \setupcurrentwriting[#2,#3]%
-        \edef\p_option{\writingparameter\c!option}%
-      \else% \writing[8][textcolor=red]
-        \setupcurrentwriting[#3]%
-        \edef\p_option{\writingparameter\c!option,#2}%
-      \fi
-  \fi
-  \strc_itemgroups_process_options\p_option
-  \installitemgroupoption[question][writing]%
-  \startitemgroup[env:question][\p_option]%
-  \item[\writingparameter\c!reference]%
-  \ifnum\c_strc_question_nesting>1\relax
-    \env_subwritingtrue\env_writingfalse\set_envitem_counter
-  \fi
-  \set_count_envlevel[writing]%
-  \showpointoranswer[writing][point]%
-  \showpointoranswer[writing][answer]%
-  \usewritingstyleandcolor\c!textstyle\c!textcolor
-  \save_question_order}
-
-\protected\def\stopnamedwriting{%
-  \installpointoranswer[writing][point]%
-  \installpointoranswer[writing][answer]%
-  \ifenv_subwriting
-    \installdatacollector\installdatacollectorhelper
-  \else
-    \ifnum\c_totalitemnumber>0\else
-    %即便作文環境，內部也存在可能多個子題目，必須只有一個題目時才能執行
-    \c_totalitemnumber=1\relax
-    \installdatacollector\installdatacollectorhelper\fi
-  \fi
-  \stopitemgroup
-  \global\advanceby\c_strc_question_nesting\minusone
-  \xdef\currentwritinglevel{\the\c_strc_question_nesting}%
-  \endgroup}
-
-\setupwriting
-  [\c!margin=\zeropoint,
-   \c!leftmargin=\zeropoint,
-   \c!rightmargin=\zeropoint,
-   \c!leftmargindistance=\zeropoint,
-   \c!rightmargindistance=\zeropoint,
-   \c!indentnext=\v!yes,
-   \c!width=1.5\emwidth,
-   \c!factor=0,
-   \c!step=.5\emwidth,
-   \c!distance=\zeropoint,
-  %\c!align=\v!normal,
-  %\c!symalign=,
-  %\c!color=,
-  %\c!indenting=, % untouched if empty
-  %\c!style=,
-   \c!marstyle=\v!type,
-  %\c!symstyle=,
-  %\c!headstyle=,
-  %\c!marcolor=,
-  %\c!symcolor=,
-  %\c!headcolor=,
-  %\c!beforehead=,
-   \c!symcolor=\itemgroupparameter\c!color,
-   \c!symstyle=\itemgroupparameter\c!style,
-   \c!afterhead=\blank,
-   \c!before=,
-   \c!inbetween=,
-   \c!after=,
-  %\c!stopper=.,
-   \c!placestopper=\v!yes,
-   \c!stopper={. },
-  %\c!inner=,
-   \c!n=2,
-   \c!items=4,
-   \c!levels=10,
-   \c!lefttext=,
-   \c!righttext=,
-   \c!start=1,
-   \c!packcriterium=\zerocount,
-   \c!criterium=\v!all, % permits 0 and negative numbers
-   \c!option={n,packed,joinedup,nowhite,continue},
-   \c!textdistance=\v!space, % none big medium small <dimension>
-   \c!lasttextseparator=\itemgroupparameter\c!textseparator,
-  %\c!lasttextseparator=,
-   \c!command=\strc_itemgroups_default_command,
-   \c!indenting=\v!next,
-  %\c!alignsymbol=v!no,
-   \c!symbol=\currentitemlevel,
-   \c!prefix=\v!no,
-  %\c!prefixstopper=.,
-  %\c!prefixseparatorset=,
-  %\c!prefixconversion=,
-  %\c!prefixconversionset=,
-  %\c!prefixset=,
-  %\c!prefixsegments=1:100,
-   \c!prefixconnector=.,
-   \c!numberseparatorset=,
-   \c!numberconversionset=,
-   \c!numberstopper=.,
-   \c!numbersegments=1]
-
-\setupwriting
-  [\c!answer={参见参考作文。},
-   \c!answerstyle=\ttx,
-   \c!answercolor=,
-   \c!answerlabel={\examtexts{answer},},
-   \c!pointstyle=\ttx,
-  %\c!pointcolor=,
-   \c!pointlabel={,\examtexts{point}},
-   totalanswer={\examtexts{writing}},
-  ]
-
-\definewriting[writing]
-\definewriting[subwriting]
-\def\setupsubwriting{\setupwriting[subwriting]}
-\setupsubwriting
-  [answer={参见参考作文。},
-   subwriting=true,
-   pointlabel={,\examtexts{point}},
-   totalanswer=\writingparameter\c!answer,]
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%D \section{设置 answer 环境}
+%D \section{设置 solution 环境}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %D 该环境提供了一個特殊的鍵值 sctipt，該鍵值主要用於創建答題區域。
@@ -2327,147 +2171,134 @@ end
 
 %%%%%%%
 
-\installnamespace {answer}
-\installnamespace {answeralternative}
-\installnamespace {answerrenderings}
+\installnamespace {solution}
+\installnamespace {solutionalternative}
+\installnamespace {solutionrenderings}
 
-\installcommandhandler \????answer            {answer}            \????answer
-\installcommandhandler \????answeralternative {answeralternative} \????answeralternative
+\installcommandhandler \????solution            {solution}            \????solution
+\installcommandhandler \????solutionalternative {solutionalternative} \????solutionalternative
 
 \appendtoks
-    \frozen\instance\protected\edefcsname        \currentanswer\endcsname{\answer_direct_instance}%
-    \frozen\protected\instance\edefcsname\e!start\currentanswer\endcsname{\answer_start_instance [\currentanswer]}%
-    \frozen\protected\instance\letcsname \e!stop \currentanswer\endcsname \answer_stop_instance
-\to \everydefineanswer
+    \frozen\instance\protected\edefcsname        \currentsolution\endcsname{\solution_direct_instance}%
+    \frozen\protected\instance\edefcsname\e!start\currentsolution\endcsname{\solution_start_instance [\currentsolution]}%
+    \frozen\protected\instance\letcsname \e!stop \currentsolution\endcsname \solution_stop_instance
+\to \everydefinesolution
 
-\newtoks\everyanswer
+\newtoks\everysolution
 
-\tolerant\protected\def\answer_direct_instance[#S#1]#:#2%
+\tolerant\protected\def\solution_direct_instance[#S#1]#:#2%
   {\begingroup
-  \env_answertrue
-  \set_envitem_counter
-  \edef\currentanswer_bak{\currentanswer}%
-  \cdef\currentanswer{#1}%
-  \edef\getanswerbuffer{#2}%
-  \doiftrue\s!answer\c!showanswer\mode_showanswertrue
-  \doiftrue\s!answer\c!showpoint \mode_showpointtrue 
-  \doiftrue\s!answer\c!showscript\mode_showscripttrue
-  \expand\everyanswer
+  \env_solutiontrue\set_envitem_counter
+  \cdef\currentsolution{#1}%
+  \edef\getsolutionbuffer{#2}%
+  \doiftrue\s!solution\c!showanswer\mode_showanswertrue
+  \doiftrue\s!solution\c!showpoint \mode_showpointtrue 
+  \doiftrue\s!solution\c!showscript\mode_showscripttrue
+  \expand\everysolution
   \ifmode_showscript \donetrue\fi
   \ifmode_showanswer \donetrue\fi
   \ifmode_showpoint  \donetrue\fi
   \ifdone
-    \answerparameter\c!before
+    \solutionparameter\c!before
     \begingroup
-    \useanswerstyleandcolor\c!style\c!color
-    \usealignparameter\answerparameter
-    \edef\currentansweralternative{\answerparameter\c!alternative}%
-    \ifcsname\currentansweralternativehash\s!parent\endcsname \else
-      \let\currentansweralternative\s!default
+    \usesolutionstyleandcolor\c!style\c!color
+    \usealignparameter\solutionparameter
+    \edef\currentsolutionalternative{\solutionparameter\c!alternative}%
+    \ifcsname\currentsolutionalternativehash\s!parent\endcsname \else
+      \let\currentsolutionalternative\s!default
     \fi
-    \usesetupsparameter\answerparameter
-    \edef\p_renderingsetup{\answeralternativeparameter\c!renderingsetup}%
+    \usesetupsparameter\solutionparameter
+    \edef\p_renderingsetup{\solutionalternativeparameter\c!renderingsetup}%
     \directsetup\p_renderingsetup
     \endgroup
-    \answerparameter\c!after
-  \fi\xdef\getanswercontent{\getanswerbuffer}\endgroup}
+    \solutionparameter\c!after
+  \fi
+  \xdef\getsolutioncontent{\getsolutionbuffer}%
+  \endgroup}
 
-\protected\tolerant\def\answer_start_instance[#S#1]#*[#S#2]#*%
+\protected\tolerant\def\solution_start_instance[#S#1]#*[#S#2]#*%
   {\begingroup
-  \env_answertrue
-  \set_envitem_counter
-  \edef\currentanswer_bak{\currentanswer}% 備份之前的答案
- % \lettonothing\currentanswer%釋放currentanswer
- % currentanswer 命令已經被其他環境定義為答案獲取命令，
- % 此處的 currentanswer 是定義環境命令，需要重新釋放。
-  \cdef\currentanswer{#1}%
-  \setupcurrentanswer[#2]%
-  \grabbufferdatadirect% {\s!answer:\currentanswer}%
-    {\s!answer}% unnested, as before
-    {\e!start\currentanswer}%
-    {\e!stop \currentanswer}}
+  \env_solutiontrue\set_envitem_counter
+  \cdef\currentsolution{#1}%
+  \setupcurrentsolution[#2]%
+  \grabbufferdatadirect% {\s!solution:\currentsolution}%
+    {\s!solution}% unnested, as before
+    {\e!start\currentsolution}%
+    {\e!stop \currentsolution}}
 
-\permanent\protected\def\answer_stop_instance{%
-  \doiftrue\s!answer\c!showanswer\mode_showanswertrue
-  \doiftrue\s!answer\c!showpoint \mode_showpointtrue 
-  \doiftrue\s!answer\c!showscript\mode_showscripttrue
+\permanent\protected\def\solution_stop_instance{%
+  \doiftrue\s!solution\c!showanswer\mode_showanswertrue
+  \doiftrue\s!solution\c!showpoint \mode_showpointtrue 
+  \doiftrue\s!solution\c!showscript\mode_showscripttrue
   \ifmode_showscript\donetrue\fi
   \ifmode_showanswer\donetrue\fi
   \ifmode_showpoint \donetrue\fi
   \ifdone
     \leftskip0pt\relax\rightskip\leftskip\relax
-    \answerparameter\c!before
+    \solutionparameter\c!before
     \begingroup
-    \userlanguage[\answerparameter{userlanguage}]%
-    \useanswerstyleandcolor\c!style\c!color
-    \usealignparameter\answerparameter
-    \edef\currentansweralternative{\answerparameter\c!alternative}%
-    \ifcsname\currentansweralternativehash\s!parent\endcsname \else
-      \let\currentansweralternative\s!default
+    \userlanguage[\solutionparameter{userlanguage}]%
+    \usesolutionstyleandcolor\c!style\c!color
+    \usealignparameter\solutionparameter
+    \edef\currentsolutionalternative{\solutionparameter\c!alternative}%
+    \ifcsname\currentsolutionalternativehash\s!parent\endcsname \else
+      \let\currentsolutionalternative\s!default
     \fi
-    \usesetupsparameter\answerparameter
-    \edef\p_renderingsetup{\answeralternativeparameter\c!renderingsetup}%
+    \usesetupsparameter\solutionparameter
+    \edef\p_renderingsetup{\solutionalternativeparameter\c!renderingsetup}%
     \directsetup\p_renderingsetup
     \endgroup
-    \xdef\getanswercontent{\getanswerbuffer}
-    \answerparameter\c!after
-  \fi \endgroup}
+    \xdef\getsolutioncontent{\getsolutionbuffer}
+    \solutionparameter\c!after
+  \fi 
+  \endgroup}
 
-%\aliased\let\stopanswer\answer_stop_instance
+\permanent\tolerant\protected\def\getsolutionbuffer      [#1]{\getbufferdata[\s!solution]}
+\permanent\tolerant\protected\def\getinlinesolutionbuffer[#1]{\inlinebuffer [\s!solution]}
 
-% kind of nested, when we need it:
-%
-% \permanent\tolerant\protected\def\getanswer      [#1]{\normalexpanded{\getbufferdata[\s!answer:\ifparameter#1\or#1\else\currentanswer\fi]}}
-% \permanent\tolerant\protected\def\getinlineanswer[#1]{\normalexpanded{\inlinebuffer [\s!answer:\ifparameter#1\or#1\else\currentanswer\fi]}}
-
-% unnested, as before:
-
-\permanent\tolerant\protected\def\getanswerbuffer      [#1]{\getbufferdata[\s!answer]}
-\permanent\tolerant\protected\def\getinlineanswerbuffer[#1]{\inlinebuffer [\s!answer]}
-
-\defineansweralternative
+\definesolutionalternative
   [\s!default]
-  [\c!renderingsetup=\????answerrenderings:\s!default]
+  [\c!renderingsetup=\????solutionrenderings:\s!default]
 
-\defineansweralternative
+\definesolutionalternative
   [\s!none]
-  [\c!renderingsetup=\????answerrenderings:\s!none]
+  [\c!renderingsetup=\????solutionrenderings:\s!none]
 
-\startsetups[\????answerrenderings:\s!none]
+\startsetups[\????solutionrenderings:\s!none]
 \stopsetups
 
-\startsetups[\????answerrenderings:\s!default]
-  \starttextbackground[env:answer]
+\startsetups[\????solutionrenderings:\s!default]
+  \starttextbackground[env:solution]
   \ifenv_material% 可以用来做文章翻译或内容解释，
     \ifmode_showanswer
-      \getanswerbuffer% 也可以直接放置在文章之后，或这每一个段落之后
+      \getsolutionbuffer% 也可以直接放置在文章之后，或这每一个段落之后
     \fi
   \else
     \ifmode_showscript
-        \answerparameter{scriptcontent}%
+        \solutionparameter{scriptcontent}%
     \else
       \noindent
-      \showpointoranswer[answer][answer]%
-      \showpointoranswer[answer][point]%
-      \answerparameter\c!inbetween
-      \getanswerbuffer
+      \showpointoranswer[solution][answer]%
+      \showpointoranswer[solution][point]%
+      \solutionparameter\c!inbetween
+      \getsolutionbuffer
     \fi
   \fi
   \stoptextbackground
 \stopsetups
 
-\tolerant\protected\def\startoldanswer[#1]#:#2\stopoldanswer%
+\tolerant\protected\def\startoldsolution[#1]#:#2\stopoldsolution%
 {\begingroup
-  \env_answertrue\set_envitem_counter
-  \lettonothing\currentanswer%釋放currentanswer
-  \lettonothing\getanswerbuffer\lettonothing\getinlineanswerbuffer
-  \cdef\currentanswer{#1}%
-  \setupcurrentanswer[#2]%
-  \edef\getanswerbuffer{#2}%
-  \usesetupsparameter\answerparameter
-  \edef\p_renderingsetup{\answeralternativeparameter\c!renderingsetup}%
+  \env_solutiontrue\set_envitem_counter
+  \lettonothing\getsolutionbuffer
+  \lettonothing\getinlinesolutionbuffer
+  \cdef\currentsolution{#1}%
+  \setupcurrentsolution[#2]%
+  \edef\getsolutionbuffer{#2}%
+  \usesetupsparameter\solutionparameter
+  \edef\p_renderingsetup{\solutionalternativeparameter\c!renderingsetup}%
   \directsetup\p_renderingsetup
-  \tolerant\protected\xdef\getanswercontent[##1]% only for writing env
+  \tolerant\protected\xdef\getsolutioncontent[##1]% only for writing env
     {#2}%%
   \endgroup}
 
@@ -2476,32 +2307,34 @@ end
 \stopuseMPgraphic
 \defineoverlay       [normalframeOL][\useMPgraphic{normalframeMP}]
 
-\setupanswer
+\setupsolution
   [\c!answerlabel={{\examtexts{answer}}},
   \c!pointlabel={,\examtexts{point}},
-  \c!pointstyle=\answerparameter\c!style,
-  \c!pointcolor=\answerparameter\c!color,
-  \c!answerstyle=\answerparameter\c!style,
-  \c!answercolor=\answerparameter\c!color,
+  \c!pointstyle=\solutionparameter\c!style,
+  \c!pointcolor=\solutionparameter\c!color,
+  \c!answerstyle=\solutionparameter\c!style,
+  \c!answercolor=\solutionparameter\c!color,
   \c!style=\ss\it,
   \c!before=\blank[halfline]\startnarrower,
   \c!after=\blank[halfline]\stopnarrower,
   % \c!align=,
   \c!inbetween={\par},
   %\c!showscript=true,
-  scriptcontent={\noindent\ssx\gray Write Answer Here},
+  scriptcontent={\noindent\ssx\gray Write solution Here},
   \c!alternative=\s!default,
   userlanguage=\currentmainlanguage,
   ]
 
-\defineanswer[answer]
+\definesolution[solution]
+\definesolution[answer]
+\def\setupanswer{\setupsolution[answer]}
 
-\setuptextbackground[env:answer]%
+\setuptextbackground[env:solution]%
   [location=paragraph,width=local,
   leftoffset=1ex,rightoffset=1ex,
   before=,after=,\c!frame=on,
   %topoffset=.5ex,bottomoffset=.5ex,
-  \c!background=normalframeOL,% for env_answer textbackground
+  \c!background=normalframeOL,% for env_solution textbackground
   %\c!backgroundcolor=,
   %\c!corner=,
   %\c!framecolor=,
@@ -3283,10 +3116,10 @@ end
 %D \section{设置 close 环境}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%D close 環境近乎是單獨設計的。還需要改進：直接使用 itemgroup 重置，該環境主要使用兩個命令：
+%D close 環境近乎是單獨設計的。該環境主要使用兩個命令：
 %D \tex{startclose} 和 \tex{stopclose} 用來創建該環境，
-%D \tex{closechoice} 用來標記環境內的選項，該命令隨行文放置即可。選項無須再次在文章後放置，
-%D \tex{stopclose} 會自行放置。
+%D \tex{closechoice} 用來標記環境內的選項，該命令隨行文放置即可。
+%D \tex{stopclose} 會自行放置選項。
 %D 因為 \type{close} 環境的子項目 \tex{closechoice} 是通過 choice 環境設置的。
 %D 因此，可以通過 \type{[*]} 來標記正確答案。
 

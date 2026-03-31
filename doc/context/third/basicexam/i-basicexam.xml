@@ -224,6 +224,7 @@
             <cd:parameter name="class">
                 <cd:constant type="question" default="question"/>
                 <cd:constant type="problem"/>
+                <cd:constant type="writing"/>
             </cd:parameter>
             <cd:parameter name="textstyle">
                 <cd:resolve name="value-style"/>
@@ -268,6 +269,19 @@
             </cd:parameter>
             <cd:parameter name="pointlabel">
                 <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="showmore">
+                <cd:constant type="true"/>
+                <cd:constant type="false"/>
+            </cd:parameter>
+            <cd:parameter name="moreinfo">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="moreinfostyle">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="moreinfocolor">
+                <cd:constant type="cd:color"/>
             </cd:parameter>
             <cd:inherit name="setupcounter"/>
         </cd:assignments>
@@ -601,61 +615,7 @@
         </cd:assignments>
     </cd:define>
 
-    <cd:define name="mixed-setupwriting">
-        <cd:assignments list="yes">
-            <cd:parameter name="subwriting">
-                <cd:constant type="true"/>
-                <cd:constant type="false" default="false"/>
-            </cd:parameter>
-            <cd:parameter name="textstyle">
-                <cd:resolve name="value-style"/>
-            </cd:parameter>
-            <cd:parameter name="textcolor">
-                <cd:constant type="cd:color"/>
-            </cd:parameter>
-            <cd:parameter name="showanswer">
-                <cd:constant type="true"/>
-                <cd:constant type="false"/>
-            </cd:parameter>
-            <cd:parameter name="showpoint">
-                <cd:constant type="true"/>
-                <cd:constant type="false"/>
-            </cd:parameter>
-            <cd:parameter name="answer">
-                <cd:constant type="cd:text"/>
-            </cd:parameter>
-            <cd:parameter name="totalanswer">
-                <cd:constant type="cd:text"/>
-            </cd:parameter>
-            <cd:parameter name="answerstyle">
-                <cd:resolve name="value-style"/>
-            </cd:parameter>
-            <cd:parameter name="answercolor">
-                <cd:constant type="cd:color"/>
-            </cd:parameter>
-            <cd:parameter name="answerlabel">
-                <cd:constant type="cd:text"/>
-            </cd:parameter>
-            <cd:parameter name="point">
-                <cd:constant type="cd:number"/>
-            </cd:parameter>
-            <cd:parameter name="totalpoint">
-                <cd:constant type="cd:number"/>
-            </cd:parameter>
-            <cd:parameter name="pointstyle">
-                <cd:resolve name="value-style"/>
-            </cd:parameter>
-            <cd:parameter name="pointcolor">
-                <cd:constant type="cd:color"/>
-            </cd:parameter>
-            <cd:parameter name="pointlabel">
-                <cd:constant type="cd:text"/>
-            </cd:parameter>
-            <cd:inherit name="setupitemgroup"/>
-        </cd:assignments>
-    </cd:define>
-
-    <cd:define name="assignment-setupanswer">
+    <cd:define name="assignment-setupsolution">
         <cd:assignments list="yes">
             <cd:parameter name="style">
                 <cd:resolve name="value-style"/>
@@ -840,6 +800,19 @@
             <cd:parameter name="reference">
                 <cd:constant type="cd:reference"/>
             </cd:parameter>
+            <cd:parameter name="showmore">
+                <cd:constant type="true"/>
+                <cd:constant type="false"/>
+            </cd:parameter>
+            <cd:parameter name="moreinfo">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="moreinfostyle">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="moreinfocolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
         </cd:assignments>
     </cd:define>
 
@@ -875,7 +848,393 @@
                 <cd:constant type="cd:name"/>
             </cd:parameter>
             <cd:inherit name="setupbar"/>
-            </>
+            <cd:inherit name="setupframed"/>
+        </cd:assignments>
+    </cd:define>
+
+    <cd:define name="assignment-setupmaterial">
+        <cd:assignments list="yes">
+            <cd:parameter name="style">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="color">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="align">
+                <cd:inherit name="setupalign"/>
+            </cd:parameter>
+            <cd:parameter name="before">
+                <cd:constant type="cd:command"/>
+            </cd:parameter>
+            <cd:parameter name="after">
+                <cd:constant type="cd:command"/>
+            </cd:parameter>
+            <cd:parameter name="spacebefore">
+                <cd:constant type="cd:dimension"/>
+            </cd:parameter>
+            <cd:parameter name="spaceafter">
+                <cd:constant type="cd:dimension"/>
+            </cd:parameter>
+            <cd:parameter name="number">
+                <cd:constant type="true"/>
+                <cd:constant type="false"/>
+            </cd:parameter>
+            <cd:parameter name="title">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="author">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="source">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="indicator">
+                <cd:constant type="reset"/>
+                <cd:constant type="continue"/>
+            </cd:parameter>
+            <cd:parameter name="indenting">
+                <cd:inherit name="setupindenting"/>
+            </cd:parameter>
+        </cd:assignments>
+    </cd:define>
+
+    <cd:define name="assignment-setupverse">
+        <cd:assignments list="yes">
+            <cd:parameter name="style">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="color">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="align">
+                <cd:inherit name="setupalign"/>
+            </cd:parameter>
+            <cd:parameter name="before">
+                <cd:constant type="cd:command"/>
+            </cd:parameter>
+            <cd:parameter name="after">
+                <cd:constant type="cd:command"/>
+            </cd:parameter>
+            <cd:parameter name="title">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="author">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="source">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="sample">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="skip">
+                <cd:constant type="left"/>
+                <cd:constant type="right"/>
+                <cd:constant type="both"/>
+                <cd:constant type="none"/>
+            </cd:parameter>
+        </cd:assignments>
+    </cd:define>
+
+    <cd:define name="assignment-setupclose">
+        <cd:assignments list="yes">
+            <cd:parameter name="style">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="color">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="barstyle">
+                <cd:constant type="cd:name"/>
+            </cd:parameter>
+            <cd:parameter name="barcolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="reset">
+                <cd:constant type="true"/>
+                <cd:constant type="false"/>
+            </cd:parameter>
+            <cd:parameter name="n">
+                <cd:constant type="cd:number"/>
+            </cd:parameter>
+            <cd:parameter name="width">
+                <cd:constant type="cd:dimension"/>
+            </cd:parameter>
+            <cd:parameter name="answerwidth">
+                <cd:constant type="cd:dimension"/>
+            </cd:parameter>
+            <cd:parameter name="frame">
+                <cd:constant type="on"/>
+                <cd:constant type="off"/>
+            </cd:parameter>
+            <cd:parameter name="stopper">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="distance">
+                <cd:constant type="cd:dimension"/>
+            </cd:parameter>
+            <cd:parameter name="before">
+                <cd:constant type="cd:command"/>
+            </cd:parameter>
+            <cd:parameter name="after">
+                <cd:constant type="cd:command"/>
+            </cd:parameter>
+            <cd:parameter name="showanswer">
+                <cd:constant type="true"/>
+                <cd:constant type="false"/>
+            </cd:parameter>
+            <cd:parameter name="showpoint">
+                <cd:constant type="true"/>
+                <cd:constant type="false"/>
+            </cd:parameter>
+            <cd:parameter name="answer">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="point">
+                <cd:constant type="cd:number"/>
+            </cd:parameter>
+            <cd:parameter name="answerstyle">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="answercolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="pointstyle">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="pointcolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+        </cd:assignments>
+    </cd:define>
+
+    <cd:define name="assignment-setupscore">
+        <cd:assignments list="yes">
+            <cd:parameter name="style">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="color">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="dotstyle">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="dotcolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="type">
+                <cd:constant type="space"/>
+                <cd:constant type="hfill"/>
+                <cd:constant type="dotfills"/>
+                <cd:constant type="cdotfills"/>
+            </cd:parameter>
+            <cd:parameter name="score">
+                <cd:constant type="default"/>
+                <cd:constant type="calculation"/>
+                <cd:constant type="complex"/>
+            </cd:parameter>
+            <cd:parameter name="before">
+                <cd:constant type="cd:command"/>
+            </cd:parameter>
+            <cd:parameter name="after">
+                <cd:constant type="cd:command"/>
+            </cd:parameter>
+            <cd:parameter name="left">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="right">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+        </cd:assignments>
+    </cd:define>
+
+    <cd:define name="assignment-setupuserlanguage">
+        <cd:assignments list="yes">
+            <cd:parameter name="style">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="color">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="bodyfont">
+                <cd:constant type="cd:name"/>
+            </cd:parameter>
+            <cd:parameter name="fallbackfont">
+                <cd:constant type="cd:name"/>
+            </cd:parameter>
+            <cd:parameter name="patterns">
+                <cd:constant type="cd:name"/>
+            </cd:parameter>
+            <cd:parameter name="script">
+                <cd:constant type="cd:name"/>
+            </cd:parameter>
+            <cd:parameter name="interlinespace">
+                <cd:constant type="cd:dimension"/>
+            </cd:parameter>
+            <cd:parameter name="align">
+                <cd:inherit name="setupalign"/>
+            </cd:parameter>
+            <cd:parameter name="indenting">
+                <cd:inherit name="setupindenting"/>
+            </cd:parameter>
+        </cd:assignments>
+    </cd:define>
+
+    <cd:define name="assignment-setuplexicalentry">
+        <cd:assignments list="yes">
+            <cd:parameter name="style">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="color">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="language">
+                <cd:constant type="cd:name"/>
+            </cd:parameter>
+            <cd:parameter name="before">
+                <cd:constant type="cd:command"/>
+            </cd:parameter>
+            <cd:parameter name="after">
+                <cd:constant type="cd:command"/>
+            </cd:parameter>
+            <cd:parameter name="inbetween">
+                <cd:constant type="cd:command"/>
+            </cd:parameter>
+            <cd:parameter name="textstyle">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="textcolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="textcommand">
+                <cd:constant type="cd:csname"/>
+            </cd:parameter>
+            <cd:parameter name="infostyle">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="infocolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="number">
+                <cd:constant type="cd:number"/>
+            </cd:parameter>
+            <cd:parameter name="numberconversion">
+                <cd:constant type="cd:name"/>
+            </cd:parameter>
+            <cd:parameter name="numberstopper">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="class">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="accent">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="function">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="indexclass">
+                <cd:constant type="cd:name"/>
+            </cd:parameter>
+            <cd:parameter name="indexcommand">
+                <cd:constant type="cd:csname"/>
+            </cd:parameter>
+        </cd:assignments>
+    </cd:define>
+
+    <cd:define name="assignment-setupcircledtext">
+        <cd:assignments list="yes">
+            <cd:parameter name="frametype">
+                <cd:constant type="square"/>
+                <cd:constant type="circle"/>
+            </cd:parameter>
+            <cd:parameter name="framecolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="fillcolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="dashcolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="dashlinewidth">
+                <cd:constant type="cd:dimension"/>
+            </cd:parameter>
+            <cd:parameter name="color">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="radius">
+                <cd:constant type="cd:number"/>
+            </cd:parameter>
+            <cd:parameter name="effect">
+                <cd:constant type="normal"/>
+                <cd:constant type="cd:name"/>
+            </cd:parameter>
+            <cd:parameter name="scaled">
+                <cd:constant type="cd:number"/>
+            </cd:parameter>
+            <cd:parameter name="yoffset">
+                <cd:constant type="cd:dimension"/>
+            </cd:parameter>
+            <cd:parameter name="style">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="dashskipwidth">
+                <cd:constant type="cd:dimension"/>
+            </cd:parameter>
+        </cd:assignments>
+    </cd:define>
+
+    <cd:define name="assignment-setupwritingbox">
+        <cd:assignments list="yes">
+            <cd:parameter name="column">
+                <cd:constant type="cd:number"/>
+            </cd:parameter>
+            <cd:parameter name="row">
+                <cd:constant type="cd:number"/>
+            </cd:parameter>
+            <cd:parameter name="evencolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="oddcolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="evenheight">
+                <cd:constant type="cd:dimension"/>
+            </cd:parameter>
+            <cd:parameter name="oddheight">
+                <cd:constant type="cd:dimension"/>
+            </cd:parameter>
+            <cd:parameter name="align">
+                <cd:inherit name="setupalign"/>
+            </cd:parameter>
+            <cd:parameter name="height">
+                <cd:constant type="cd:dimension"/>
+            </cd:parameter>
+            <cd:parameter name="width">
+                <cd:constant type="cd:dimension"/>
+            </cd:parameter>
+            <cd:parameter name="rulethickness">
+                <cd:constant type="cd:dimension"/>
+            </cd:parameter>
+            <cd:inherit name="setupframed"/>
+        </cd:assignments>
+    </cd:define>
+
+    <cd:define name="assignment-setupwritinggrid">
+        <cd:assignments list="yes">
+            <cd:parameter name="column">
+                <cd:constant type="cd:number"/>
+            </cd:parameter>
+            <cd:parameter name="row">
+                <cd:constant type="cd:number"/>
+            </cd:parameter>
+            <cd:parameter name="cellwidth">
+                <cd:constant type="cd:dimension"/>
+            </cd:parameter>
+            <cd:parameter name="cellcolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
             <cd:inherit name="setupframed"/>
         </cd:assignments>
     </cd:define>
@@ -936,20 +1295,6 @@
         </cd:arguments>
     </cd:command>
 
-    <cd:command name="definewriting" level="style" category="structure" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:keywords>
-                <cd:constant type="cd:name"/>
-            </cd:keywords>
-            <cd:keywords optional="yes">
-                <cd:constant type="cd:name"/>
-            </cd:keywords>
-            <cd:assignments list="yes" optional="yes">
-                <cd:inherit name="setupwriting"/>
-            </cd:assignments>
-        </cd:arguments>
-    </cd:command>
-
     <cd:command name="definematerial" level="style" category="structure" file="t-basicexam.mklx">
         <cd:arguments>
             <cd:keywords>
@@ -960,20 +1305,6 @@
             </cd:keywords>
             <cd:assignments list="yes" optional="yes">
                 <cd:inherit name="setupmaterial"/>
-            </cd:assignments>
-        </cd:arguments>
-    </cd:command>
-
-    <cd:command name="defineanswer" level="style" category="structure" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:keywords>
-                <cd:constant type="cd:name"/>
-            </cd:keywords>
-            <cd:keywords optional="yes">
-                <cd:constant type="cd:name"/>
-            </cd:keywords>
-            <cd:assignments list="yes" optional="yes">
-                <cd:inherit name="setupanswer"/>
             </cd:assignments>
         </cd:arguments>
     </cd:command>
@@ -1086,36 +1417,6 @@
         </cd:arguments>
     </cd:command>
 
-    <cd:command name="setupwriting" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:keywords list="yes" optional="yes">
-                <cd:constant type="cd:name"/>
-            </cd:keywords>
-            <cd:keywords list="yes" optional="yes">
-                <cd:constant type="cd:name"/>
-            </cd:keywords>
-            <cd:resolve name="mixed-setupwriting"/>
-        </cd:arguments>
-    </cd:command>
-
-    <cd:command name="setupsubwriting" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:resolve name="mixed-setupwriting"/>
-        </cd:arguments>
-    </cd:command>
-
-    <cd:command name="setupanswer" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:keywords list="yes" optional="yes">
-                <cd:constant type="cd:name"/>
-            </cd:keywords>
-            <cd:keywords list="yes" optional="yes">
-                <cd:constant type="cd:name"/>
-            </cd:keywords>
-            <cd:resolve name="assignment-setupanswer"/>
-        </cd:arguments>
-    </cd:command>
-
     <cd:command name="setuppitem" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
         <cd:arguments>
             <cd:resolve name="assignment-setupexamitem"/>
@@ -1144,6 +1445,8 @@
         <cd:constant value="question"/>
         <cd:constant value="subquestion"/>
         <cd:constant value="problem"/>
+        <cd:constant value="writing"/>
+        <cd:constant value="subwriting"/>
     </cd:define>
 
     <cd:command name="question" generated="yes" variant="instance" level="document" category="structure" file="t-basicexam.mklx">
@@ -1213,75 +1516,6 @@
         </cd:instances>
     </cd:command>
 
-    <cd:define name="instance-writing">
-        <cd:constant value="writing"/>
-        <cd:constant value="subwriting"/>
-    </cd:define>
-
-    <cd:command name="writing" generated="yes" variant="instance" level="document" category="structure" file="t-basicexam.mklx">
-        <cd:sequence>
-            <cd:instance value="writing"/>
-        </cd:sequence>
-        <cd:arguments>
-            <cd:resolve name="keyword-setupitemgroup"/>
-            <cd:assignments list="yes" optional="yes">
-                <cd:inherit name="setupwriting"/>
-            </cd:assignments>
-            <cd:resolve name="argument-text"/>
-        </cd:arguments>
-        <cd:instances>
-            <cd:resolve name="instance-writing"/>
-        </cd:instances>
-    </cd:command>
-
-    <cd:command name="writing" type="environment" generated="yes" variant="instance" level="document" category="structure" file="t-basicexam.mklx">
-        <cd:sequence>
-            <cd:instance value="writing"/>
-        </cd:sequence>
-        <cd:arguments>
-            <cd:resolve name="keyword-setupitemgroup"/>
-            <cd:assignments list="yes" optional="yes">
-                <cd:inherit name="setupwriting"/>
-            </cd:assignments>
-        </cd:arguments>
-        <cd:instances>
-            <cd:resolve name="instance-writing"/>
-        </cd:instances>
-    </cd:command>
-
-    <cd:define name="instance-answer">
-        <cd:constant value="answer"/>
-    </cd:define>
-
-    <cd:command name="answer" generated="yes" variant="instance" level="document" category="structure" file="t-basicexam.mklx">
-        <cd:sequence>
-            <cd:instance value="answer"/>
-        </cd:sequence>
-        <cd:arguments>
-            <cd:assignments list="yes" optional="yes">
-                <cd:inherit name="setupanswer"/>
-            </cd:assignments>
-            <cd:resolve name="argument-text"/>
-        </cd:arguments>
-        <cd:instances>
-            <cd:resolve name="instance-answer"/>
-        </cd:instances>
-    </cd:command>
-
-    <cd:command name="answer" type="environment" generated="yes" variant="instance" level="document" category="structure" file="t-basicexam.mklx">
-        <cd:sequence>
-            <cd:instance value="answer"/>
-        </cd:sequence>
-        <cd:arguments>
-            <cd:assignments list="yes" optional="yes">
-                <cd:inherit name="setupanswer"/>
-            </cd:assignments>
-        </cd:arguments>
-        <cd:instances>
-            <cd:resolve name="instance-answer"/>
-        </cd:instances>
-    </cd:command>
-
     <cd:command name="pitem" type="environment" level="document" category="structure" file="t-basicexam.mklx">
         <cd:arguments>
             <cd:resolve name="assignment-setupexamitem" optional="yes"/>
@@ -1338,5 +1572,646 @@
             </cd:assignments>
         </cd:arguments>
     </cd:command>-->
+
+    <cd:command name="definesolution" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupsolution"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="setupsolution" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:resolve name="assignment-setupsolution"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:define name="instance-solution">
+        <cd:constant value="solution"/>
+        <cd:constant value="answer"/>
+    </cd:define>
+
+    <cd:command name="solution" generated="yes" variant="instance" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:sequence>
+            <cd:instance value="solution"/>
+        </cd:sequence>
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupsolution"/>
+            </cd:assignments>
+            <cd:resolve name="argument-text"/>
+        </cd:arguments>
+        <cd:instances>
+            <cd:resolve name="instance-solution"/>
+        </cd:instances>
+    </cd:command>
+
+    <cd:command name="solution" type="environment" generated="yes" variant="instance" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:sequence>
+            <cd:instance value="solution"/>
+        </cd:sequence>
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupsolution"/>
+            </cd:assignments>
+        </cd:arguments>
+        <cd:instances>
+            <cd:resolve name="instance-solution"/>
+        </cd:instances>
+    </cd:command>
+
+    <cd:command name="makepapertitle" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setuppapertitle"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="setupmaterial" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:resolve name="assignment-setupmaterial"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="material" type="environment" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupmaterial"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="indicator" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupmaterial"/>
+            </cd:assignments>
+            <cd:resolve name="argument-text"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="indicators" level="document" category="structure" file="t-basicexam.mklx">
+    </cd:command>
+
+    <cd:command name="resetindicators" level="document" category="structure" file="t-basicexam.mklx">
+    </cd:command>
+
+    <cd:command name="setupverse" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:resolve name="assignment-setupverse"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="verse" type="environment" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupverse"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="defineclose" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupclose"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="setupclose" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:resolve name="assignment-setupclose"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="close" type="environment" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupclose"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="closechoice" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:text"/>
+            </cd:keywords>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:text"/>
+            </cd:keywords>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:text"/>
+            </cd:keywords>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="defineoptclose" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupoptclose"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="setupoptclose" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupexamitem"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="optclose" type="environment" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupoptclose"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="ocitem" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupexamitem"/>
+            </cd:assignments>
+            <cd:resolve name="argument-text"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="definescore" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupscore"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="setupscore" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:resolve name="assignment-setupscore"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="score" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupscore"/>
+            </cd:assignments>
+            <cd:resolve name="argument-text"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="resetscore" level="document" category="structure" file="t-basicexam.mklx">
+    </cd:command>
+
+    <cd:command name="fillin" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupfillin"/>
+            </cd:assignments>
+            <cd:resolve name="argument-text"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="defineuserlanguage" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupuserlanguage"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="setupuserlanguage" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:resolve name="assignment-setupuserlanguage"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="userlanguage" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupuserlanguage"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="userlanguage" type="environment" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupuserlanguage"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="setupwritingbox" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:resolve name="assignment-setupwritingbox"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="setupwritinggrid" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:resolve name="assignment-setupwritinggrid"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="writingbox" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupwritingbox"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="writinggrid" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupwritinggrid"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="setupcircledtext" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:resolve name="assignment-setupcircledtext"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="circledtext" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupcircledtext"/>
+            </cd:assignments>
+            <cd:resolve name="argument-text"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="autocircled" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupcircledtext"/>
+            </cd:assignments>
+            <cd:resolve name="argument-text"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="definelexicalentry" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setuplexicalentry"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="setuplexicalentry" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:resolve name="assignment-setuplexicalentry"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="lexicalentry" type="environment" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setuplexicalentry"/>
+            </cd:assignments>
+            <cd:resolve name="argument-text"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:define name="assignment-setupuserquestion">
+        <cd:assignments list="yes">
+            <cd:parameter name="style">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="color">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="left">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="right">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="showanswer">
+                <cd:constant type="true"/>
+                <cd:constant type="false"/>
+            </cd:parameter>
+            <cd:parameter name="showpoint">
+                <cd:constant type="true"/>
+                <cd:constant type="false"/>
+            </cd:parameter>
+            <cd:parameter name="answer">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="answerstyle">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="answercolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="answerlabel">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="point">
+                <cd:constant type="cd:number"/>
+            </cd:parameter>
+            <cd:parameter name="pointstyle">
+                <cd:resolve name="value-style"/>
+            </cd:parameter>
+            <cd:parameter name="pointcolor">
+                <cd:constant type="cd:color"/>
+            </cd:parameter>
+            <cd:parameter name="pointlabel">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+        </cd:assignments>
+    </cd:define>
+
+    <cd:define name="assignment-setupdbquestion">
+        <cd:assignments list="yes">
+            <cd:parameter name="database">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="id">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="tag">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="type">
+                <cd:constant type="cd:text"/>
+            </cd:parameter>
+            <cd:parameter name="showanswer">
+                <cd:constant type="true"/>
+                <cd:constant type="false"/>
+            </cd:parameter>
+            <cd:parameter name="showpoint">
+                <cd:constant type="true"/>
+                <cd:constant type="false"/>
+            </cd:parameter>
+        </cd:assignments>
+    </cd:define>
+
+    <cd:command name="defineuserquestion" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupuserquestion"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="setupuserquestion" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:resolve name="assignment-setupuserquestion"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="userquestion" type="environment" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupuserquestion"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="useritem" level="document" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupuserquestion"/>
+            </cd:assignments>
+            <cd:resolve name="argument-text"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="definedbquestion" level="style" category="structure" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:keywords optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:assignments list="yes" optional="yes">
+                <cd:inherit name="setupdbquestion"/>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="setupdbquestion" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords list="yes" optional="yes">
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+            <cd:resolve name="assignment-setupdbquestion"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="opendatabase" level="document" category="database" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:parameter name="path">
+                    <cd:constant type="cd:text"/>
+                </cd:parameter>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="closedatabase" level="document" category="database" file="t-basicexam.mklx"/>
+
+    <cd:command name="addquestion" level="document" category="database" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:parameter name="type">
+                    <cd:constant type="material"/>
+                    <cd:constant type="choice"/>
+                    <cd:constant type="blank"/>
+                    <cd:constant type="essay"/>
+                    <cd:constant type="cd:text"/>
+                </cd:parameter>
+                <cd:parameter name="title">
+                    <cd:constant type="cd:text"/>
+                </cd:parameter>
+                <cd:parameter name="author">
+                    <cd:constant type="cd:text"/>
+                </cd:parameter>
+                <cd:parameter name="source">
+                    <cd:constant type="cd:text"/>
+                </cd:parameter>
+                <cd:parameter name="point">
+                    <cd:constant type="cd:number"/>
+                </cd:parameter>
+                <cd:parameter name="year">
+                    <cd:constant type="cd:number"/>
+                </cd:parameter>
+                <cd:parameter name="material">
+                    <cd:constant type="cd:text"/>
+                </cd:parameter>
+            </cd:assignments>
+            <cd:resolve name="argument-text"/>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="getallquestions" level="document" category="database" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:parameter name="showrawinfo">
+                    <cd:constant type="yes"/>
+                    <cd:constant type="no"/>
+                </cd:parameter>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="getquestioncount" level="document" category="database" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:keywords>
+                <cd:constant type="cd:name"/>
+            </cd:keywords>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="getmaterial" level="document" category="database" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:parameter name="id">
+                    <cd:constant type="cd:text"/>
+                </cd:parameter>
+                <cd:parameter name="title">
+                    <cd:constant type="cd:text"/>
+                </cd:parameter>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
+
+    <cd:command name="searchquestions" level="document" category="database" file="t-basicexam.mklx">
+        <cd:arguments>
+            <cd:assignments list="yes" optional="yes">
+                <cd:parameter name="id">
+                    <cd:constant type="cd:text"/>
+                </cd:parameter>
+                <cd:parameter name="tag">
+                    <cd:constant type="cd:text"/>
+                </cd:parameter>
+                <cd:parameter name="year">
+                    <cd:constant type="cd:number"/>
+                </cd:parameter>
+                <cd:parameter name="source">
+                    <cd:constant type="cd:text"/>
+                </cd:parameter>
+                <cd:parameter name="type">
+                    <cd:constant type="cd:text"/>
+                </cd:parameter>
+                <cd:parameter name="showanswer">
+                    <cd:constant type="yes"/>
+                    <cd:constant type="no"/>
+                </cd:parameter>
+                <cd:parameter name="qitemid">
+                    <cd:constant type="cd:number"/>
+                </cd:parameter>
+            </cd:assignments>
+        </cd:arguments>
+    </cd:command>
 
 </cd:interface>
