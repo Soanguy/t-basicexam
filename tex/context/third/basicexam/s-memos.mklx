@@ -24,6 +24,7 @@
               fontsize=11pt,
               textcount=40, heightcount=40, margincount=0,
               mode=,
+              ratio=1.414,
               themecolor=,
               chapterstyle=,
               hdrstyle=,
@@ -256,29 +257,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                             本地化設置                              %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \def\font_scale_defined
-% {\glyphscale\dimexpr\f_font_rscale_used\dimexpr\textface*\plushundred/\onepoint\relax\relax
-%     %% begin patch
-%     \ifempty\fontclass
-%       \applyfontstrategies
-%     \else
-%       \applyfontclassstrategies
-%     \fi
-%     %% end patch
-%     \ifskipfontcharacteristics \else
-%       \expand\everyfont % \setfontcharacteristics
-%       \expand\everyfontswitch
-%     \fi}
-
-\protected\def\font_helpers_set_fontstyle_of_fontclass
-  {\ifempty\fontclass
-     \let\fontstyle\s!rm
-   \orelse\ifcsname\??typescriptdefaultstyles\fontclass\endcsname
-     \edef\fontstyle{\fontstyle}%
-   \else
-     \let\fontstyle\s!rm
-   \fi}
-
 \installlanguage [hans] [patterns={zh,en},]% install simplified  chinese
 \installlanguage [hant] [patterns={zh,en},]% install traditional chinese
 
@@ -288,7 +266,12 @@
 \definefilesynonym [type-imp-adobenihon.mkiv]       [type-imp-adobe.mkiv]
 \definefilesynonym [type-imp-sonyhant.mkiv]         [type-imp-adobe.mkiv]
 \definefilesynonym [type-imp-kozuka.mkiv]           [type-imp-adobe.mkiv]
+\definefilesynonym [type-imp-reimin.mkiv]           [type-imp-adobe.mkiv]
+\definefilesynonym [type-imp-ryumin.mkiv]           [type-imp-adobe.mkiv]
 \definefilesynonym [type-imp-founder.mkiv]          [type-imp-adobe.mkiv]
+\definefilesynonym [type-imp-dynahans.mkiv]         [type-imp-adobe.mkiv]
+\definefilesynonym [type-imp-dynahant.mkiv]         [type-imp-adobe.mkiv]
+\definefilesynonym [type-imp-dynanihon.mkiv]        [type-imp-adobe.mkiv]
 
 \definefilesynonym [type-imp-sourcehans.mkiv]       [type-imp-source.mkiv]
 \definefilesynonym [type-imp-sourcehant.mkiv]       [type-imp-source.mkiv]
@@ -302,28 +285,19 @@
 \definefilesynonym [type-imp-genryutw.mkiv]         [type-imp-source.mkiv]
 \definefilesynonym [type-imp-genryutc.mkiv]         [type-imp-source.mkiv]
 \definefilesynonym [type-imp-shanggu.mkiv]          [type-imp-source.mkiv]
-
-\definefilesynonym [type-imp-ibmplexsc.mkiv]        [type-imp-ibmplex.mkiv]
-\definefilesynonym [type-imp-ibmplexjp.mkiv]        [type-imp-ibmplex.mkiv]
-\definefilesynonym [type-imp-ibmplextc.mkiv]        [type-imp-ibmplex.mkiv]
-
-\definefilesynonym [type-imp-dynahans.mkiv]         [type-imp-dyna.mkiv]
-\definefilesynonym [type-imp-dynahant.mkiv]         [type-imp-dyna.mkiv]
-\definefilesynonym [type-imp-dynanihon.mkiv]        [type-imp-dyna.mkiv]
-
-\definefilesynonym [type-imp-ipaexhans.mkiv]        [type-imp-ipaex.mkiv]
-\definefilesynonym [type-imp-ipaexhant.mkiv]        [type-imp-ipaex.mkiv]
-\definefilesynonym [type-imp-ipaexnihon.mkiv]       [type-imp-ipaex.mkiv]
-\definefilesynonym [type-imp-huiwen.mkiv]           [type-imp-ipaex.mkiv]
+\definefilesynonym [type-imp-ipaexhans.mkiv]        [type-imp-source.mkiv]
+\definefilesynonym [type-imp-ipaexhant.mkiv]        [type-imp-source.mkiv]
+\definefilesynonym [type-imp-ipaexnihon.mkiv]       [type-imp-source.mkiv]
+\definefilesynonym [type-imp-huiwen.mkiv]           [type-imp-source.mkiv]
+\definefilesynonym [type-imp-ibmplexsc.mkiv]        [type-imp-source.mkiv]
+\definefilesynonym [type-imp-ibmplexjp.mkiv]        [type-imp-source.mkiv]
+\definefilesynonym [type-imp-ibmplextc.mkiv]        [type-imp-source.mkiv]
 
 \definefilesynonym [type-imp-sinohans.mkiv]         [type-imp-macos.mkiv]
 \definefilesynonym [type-imp-sinohant.mkiv]         [type-imp-macos.mkiv]
 \definefilesynonym [type-imp-lihant.mkiv]           [type-imp-macos.mkiv]
 \definefilesynonym [type-imp-jiyou.mkiv]            [type-imp-macos.mkiv]
 \definefilesynonym [type-imp-hiragino.mkiv]         [type-imp-macos.mkiv]
-
-\definefilesynonym [type-imp-reimin.mkiv]           [type-imp-morisawa.mkiv]
-\definefilesynonym [type-imp-ryumin.mkiv]           [type-imp-morisawa.mkiv]
 
 % \startsetups lang:hans
 % \stopsetups
@@ -517,6 +491,10 @@
 \setupbodyfont       [\moduleparameter{memos}{fontname},
                       \moduleparameter{memos}{fontstyle},
                       \moduleparameter{memos}{fontsize}]
+\setupalign          [\languageparameter\c!align]%
+\setupwhitespace     [\languageparameter{whitespace}]%
+\setupindenting      [\languageparameter\c!indenting]%
+\setupinterlinespace [line=\languageparameter{interlinespace}]% 必须先于 layout 进行定义。否则 hermes 无法获取 baselineskip
 
 \definedelimitedtext [paren]       [location=text]
 \setupdelimitedtext  [paren:1]     [left={\,(\nobreak}, right={\nobreak)\,}]
@@ -542,43 +520,25 @@
 %\def\href#1#2{\useURL[#2][{#2}][][{#1}]\goto{\url[#2]}[url(#1)]}
 %\href{o}{https://www.bilibili.com/video/}
 
-\startmode[*hans,*hant,*ja]
-  %D \ConTeXt\ 似乎對中文斷行有問題。下面的代碼可能會有助於改善斷行問題。\par
-  \definebreakpoint [compound] [、] [nleft=1,nright=1,type=1]
-  \definebreakpoint [compound] [（] [nleft=3,nright=3,type=1]
-  \definebreakpoint [compound] [）] [nleft=2,nright=2,type=1]
-  \setbreakpoints   [compound]
-  %排版员通常会在以下标记的左侧添加空格：
-  %: ; ” ’ ! ? / ) ] } * ¿ › » @ ® ™ ℓ ° ¡ ' " † + = ÷ - – —
-  %他们通常会在以下位置的右侧添加空格：
-  %“ ‘ / ( [ { > ≥ < ≤ £ $ ¢ € ‹ « √ μ # @ + = ÷ - – —
-  \definecharacterspacing [CJKPunc] % name may change / unit is em
-  \setupcharacterspacing  [CJKPunc] ["003A] [\c!left =.125,\c!right =.125,\c!alternative=1] % : e.g. 1:2 a:"b."
-  \setupcharacterspacing  [CJKPunc] ["003B] [\c!left =.125,\c!right =.125,\c!alternative=1] % ;
-  \setupcharacterspacing  [CJKPunc] ["003F] [\c!left =.125,\c!right =.125,\c!alternative=1] % ?
-  \setupcharacterspacing  [CJKPunc] ["0021] [\c!left =.125,\c!right =.125,\c!alternative=1] % !
-  \setupcharacterspacing  [CJKPunc] ["0028] [\c!left =.125,               \c!alternative=1] % (
-  \setupcharacterspacing  [CJKPunc] ["0029] [              \c!right =.125,\c!alternative=1] % )
-  \setupcharacterspacing  [CJKPunc] ["2013] [\c!left =.125,\c!right =.125,\c!alternative=1] % -
-  \setupcharacterspacing  [CJKPunc] ["2014] [\c!left =.125,\c!right =.125,\c!alternative=1] % --
-  \setupcharacterspacing  [CJKPunc] ["2015] [\c!left =.125,\c!right =.125,\c!alternative=1] % ---
-  \setupcharacterspacing  [CJKPunc] ["00AB] [              \c!right =.125,\c!alternative=1] % leftguillemot
-  \setupcharacterspacing  [CJKPunc] ["00BB] [\c!left =.125,               \c!alternative=1] % rightguillemot
-  %\setupcharacterspacing  [CJKPunc] ["FF1A] [\c!left  =.125,\c!right =.250,\c!alternative=1] % ：
-  %\setupcharacterspacing  [CJKPunc] ["3001] [\c!right =-.50,\c!alternative=1] %、
-  %\setupcharacterspacing  [CJKPunc] ["FF08] [\c!left  =-.25,\c!alternative=1] %（
-  %\setupcharacterspacing  [CJKPunc] ["FF09] [\c!right =-.25,\c!alternative=1] %）
-  %\setupcharacterspacing  [CJKPunc] ["3008] [\c!left  =-.25,\c!alternative=1] %〈
-  %\setupcharacterspacing  [CJKPunc] ["3009] [\c!right =-.25,\c!alternative=1] %〉
-  %\setupcharacterspacing  [CJKPunc] ["300A] [\c!left  =-.25,\c!alternative=1] %《
-  %\setupcharacterspacing  [CJKPunc] ["300B] [\c!right =-.25,\c!alternative=1] %》
-  %\setupcharacterspacing  [CJKPunc] ["300C] [\c!left  =-.5,\c!alternative=1] %「
-  %\setupcharacterspacing  [CJKPunc] ["300D] [\c!right =-.5,\c!alternative=1] %」
-  %\setupcharacterspacing  [CJKPunc] ["300E] [\c!left  =-.5,\c!alternative=1] %『
-  %\setupcharacterspacing  [CJKPunc] ["300F] [\c!right =-.5,\c!alternative=1] %』
-  % --，FF0C 。 3002  -- ”201C“201D ？FF1F
-  \setcharacterspacing    [CJKPunc]
-\stopmode
+
+% 废弃不再使用。我们可以使用 zhpunc 来处理中文断行问题。
+% \startmode[*hans,*hant,*ja]
+%   %D \ConTeXt\ 似乎對中文斷行有問題。下面的代碼可能會有助於改善斷行問題。\par
+%   \definebreakpoint [compound] [、] [nleft=1,nright=1,type=1]
+%   \definebreakpoint [compound] [（] [nleft=3,nright=3,type=1]
+%   \definebreakpoint [compound] [）] [nleft=2,nright=2,type=1]
+%   % \setbreakpoints   [compound]
+%   %排版员通常会在以下标记的左侧添加空格：
+%   %: ; ” ’ ! ? / ) ] } * ¿ › » @ ® ™ ℓ ° ¡ ' " † + = ÷ - – —
+%   %他们通常会在以下位置的右侧添加空格：
+%   %“ ‘ / ( [ { > ≥ < ≤ £ $ ¢ € ‹ « √ μ # @ + = ÷ - – —
+%   \definecharacterspacing [CJKPunc] % name may change / unit is em
+%   \setupcharacterspacing  [CJKPunc] ["003A] [\c!left =.125,\c!right =.125,\c!alternative=1] % : e.g. 1:2 a:"b."
+%   \setupcharacterspacing  [CJKPunc] ["FF08] [\c!left  =-.25,\c!alternative=1] %（
+%   \setupcharacterspacing  [CJKPunc] ["FF09] [\c!right =-.25,\c!alternative=1] %）
+%   % --，FF0C 。 3002  -- ”201C“201D ？FF1F
+%   \setcharacterspacing    [CJKPunc]
+% \stopmode
 
 \definedate   [typei]   [year:cn-d,年,month,day:cn,号]
 \definedate   [typeii]  [year:n,年,mm,月,dd,日]% 2025年01月11日
@@ -593,115 +553,115 @@
 %%  ！！！ 應該只考慮 英數 和 漢字 之間的空間插入，符號 和 漢字 之間的間距不應該由這個程式控制
 
 \startluacode
-Thirddata = Thirddata or {}
+  Thirddata = Thirddata or {}
 
-local glyph_id = nodes.nodecodes.glyph
-local node_insertbefore = node.insertbefore
-local node_insertafter = node.insertafter
-local node_new = node.new
-local tex_sp = tex.sp
+  local glyph_id = nodes.nodecodes.glyph
+  local node_insertbefore = node.insertbefore
+  local node_insertafter = node.insertafter
+  local node_new = node.new
+  local tex_sp = tex.sp
 
-local function ischinesechar(c)
-    -- cjk汉字，不含符号
-    -- for more ranges:
-    -- https://wiki.contextgarden.net/List_of_Unicode_blocks
-    -- 按常用程度排列
-    return (c >= 0x04E00 and c <= 0x09FFF) --CJK Unified Ideographs;
-        or (c >= 0x03040 and c <= 0x0309F) --Hiragana
-        or (c >= 0x030A0 and c <= 0x030FF) --Katakana
-        or (c >= 0x0F900 and c <= 0x0FAFF) --CJK Compatibility Ideographs;
-        or (c >= 0x02E80 and c <= 0x02EFF) --CJK Radicals Supplement;
-        or (c >= 0x02F00 and c <= 0x02FDF) --Kangxi Radicals
-        or (c >= 0x02FF0 and c <= 0x02FFF) --Ideographic Description Characters
-        or (c >= 0x03000 and c <= 0x0303F) --CJK Symbols and Punctuation
-        or (c >= 0x03100 and c <= 0x0312F) --Bopomofo
-        or (c >= 0x03190 and c <= 0x0319F) --Kanbun
-        or (c >= 0x031A0 and c <= 0x031BF) --Bopomofo Extended
-        or (c >= 0x031C0 and c <= 0x031EF) --CJK Strokes; cjkstrokes
-        or (c >= 0x031F0 and c <= 0x031FF) --Katakana Phonetic Extensions
-        or (c >= 0x03200 and c <= 0x032FF) --Enclosed CJK Letters and Months
-        or (c >= 0x03400 and c <= 0x04DBF) --CJK Unified Ideographs Extension A;
-        or (c >= 0x20000 and c <= 0x2A6DF) --CJK Unified Ideographs Extension B;
-        or (c >= 0x2A700 and c <= 0x2B73F) --CJK Unified Ideographs Extension C;
-        or (c >= 0x2B740 and c <= 0x2B81F) --CJK Unified Ideographs Extension D;
-        or (c >= 0x2B820 and c <= 0x2CEAF) --CJK Unified Ideographs Extension E;
-        or (c >= 0x2CEB0 and c <= 0x2EBEF) --CJK Unified Ideographs Extension F;
-        or (c >= 0x2F800 and c <= 0x2FA1F) --CJK Compatibility Ideographs Supplement;
-end
+  local function ischinesechar(c)
+      -- cjk汉字，不含符号
+      -- for more ranges:
+      -- https://wiki.contextgarden.net/List_of_Unicode_blocks
+      -- 按常用程度排列
+      return (c >= 0x04E00 and c <= 0x09FFF) --CJK Unified Ideographs;
+          or (c >= 0x03040 and c <= 0x0309F) --Hiragana
+          or (c >= 0x030A0 and c <= 0x030FF) --Katakana
+          or (c >= 0x0F900 and c <= 0x0FAFF) --CJK Compatibility Ideographs;
+          or (c >= 0x02E80 and c <= 0x02EFF) --CJK Radicals Supplement;
+          or (c >= 0x02F00 and c <= 0x02FDF) --Kangxi Radicals
+          or (c >= 0x02FF0 and c <= 0x02FFF) --Ideographic Description Characters
+          -- or (c >= 0x03000 and c <= 0x0303F) --CJK Symbols and Punctuation
+          or (c >= 0x03100 and c <= 0x0312F) --Bopomofo
+          or (c >= 0x03190 and c <= 0x0319F) --Kanbun
+          or (c >= 0x031A0 and c <= 0x031BF) --Bopomofo Extended
+          or (c >= 0x031C0 and c <= 0x031EF) --CJK Strokes; cjkstrokes
+          or (c >= 0x031F0 and c <= 0x031FF) --Katakana Phonetic Extensions
+          or (c >= 0x03200 and c <= 0x032FF) --Enclosed CJK Letters and Months
+          or (c >= 0x03400 and c <= 0x04DBF) --CJK Unified Ideographs Extension A;
+          or (c >= 0x20000 and c <= 0x2A6DF) --CJK Unified Ideographs Extension B;
+          or (c >= 0x2A700 and c <= 0x2B73F) --CJK Unified Ideographs Extension C;
+          or (c >= 0x2B740 and c <= 0x2B81F) --CJK Unified Ideographs Extension D;
+          or (c >= 0x2B820 and c <= 0x2CEAF) --CJK Unified Ideographs Extension E;
+          or (c >= 0x2CEB0 and c <= 0x2EBEF) --CJK Unified Ideographs Extension F;
+          or (c >= 0x2F800 and c <= 0x2FA1F) --CJK Compatibility Ideographs Supplement;
+  end
 
-local function ispunctuation(c)
-  return (c >= 0x0000 and c <= 0x002F)
-      or (c >= 0x003A and c <= 0x003F)
-      or (c >= 0x005B and c <= 0x0060)
-      or (c >= 0x007B and c <= 0x007F)
-      or (c >= 0x2000 and c <= 0x206F)
-end
+  local function ispunctuation(c)
+    return (c >= 0x0000 and c <= 0x002F)
+        or (c >= 0x003A and c <= 0x003F)
+        or (c >= 0x005B and c <= 0x0060)
+        or (c >= 0x007B and c <= 0x007F)
+        or (c >= 0x2000 and c <= 0x206F)
+  end
 
--- 汉字环境中的（非汉字）合法符号
-local legalsymbolinchinese = {
-    [0x00b7] = true, -- ·   MIDDLE DOT
-    [0x002D] = true, -- -  Hyphen-Minus. Will there be any side effects?
-    [0x002F] = true, -- /  Solidus
-}
+  -- 汉字环境中的（非汉字）合法符号
+  local legalsymbolinchinese = {
+      [0x00b7] = true, -- ·   MIDDLE DOT
+      [0x002D] = true, -- -  Hyphen-Minus. Will there be any side effects?
+      [0x002F] = true, -- /  Solidus
+  }
 
-local function islegalsymbolinchinese(c)
-    return legalsymbolinchinese[c]
-end
+  local function islegalsymbolinchinese(c)
+      return legalsymbolinchinese[c]
+  end
 
-function Thirddata.processmystuff(head)
-    local n = head
-    while n do
-        if n.id == glyph_id then
-            if  ischinesechar(n.char) then -- 本字是汉字
-                local n_prev = n.prev
-                if n_prev and n_prev.id == glyph_id  and not ispunctuation(n_prev.char) then
-                    if ischinesechar(n_prev.char) then -- 前字是汉字
-                    elseif not islegalsymbolinchinese(n_prev.char) then --前字不是汉字也不是合法中文语境符号
-                        local glue = node_new("glue")
-                        glue.width = tex_sp("0.25em")
-                        glue.stretch = tex_sp("0.25em")
-                        --print("insert space before:", utf8.char(n.char))
-                        head, glue = node_insertbefore(head, n, glue)
-                    end
-                end
+  function Thirddata.processmystuff(head)
+      local n = head
+      while n do
+          if n.id == glyph_id then
+              if  ischinesechar(n.char) then -- 本字是汉字
+                  local n_prev = n.prev
+                  if n_prev and n_prev.id == glyph_id  and not ispunctuation(n_prev.char) then
+                      if ischinesechar(n_prev.char) then -- 前字是汉字
+                      elseif not islegalsymbolinchinese(n_prev.char) then --前字不是汉字也不是合法中文语境符号
+                          local glue = node_new("glue")
+                          glue.width = tex_sp("0.25em")
+                          glue.stretch = tex_sp("0.25em")
+                          --print("insert space before:", utf8.char(n.char))
+                          head, glue = node_insertbefore(head, n, glue)
+                      end
+                  end
 
-                local n_next = n.next
-                if n_next
-                and n_next.id == glyph_id
-                and not ischinesechar(n_next.char)
-                and not islegalsymbolinchinese(n_next.char)
-                and not ispunctuation(n_next.char)
-                then
-                    local glue = node_new("glue")
-                    glue.width = tex_sp("0.25em")
-                    glue.stretch = tex_sp("0.25em")
-                    --print("insert space after:", utf8.char(n.char))
-                    head, glue = node_insertafter(head, n, glue)
-                    n = glue.next
-                end
-            elseif n.char == 0x2014 then -- — — 双符破折号中间加入一个
-                local n_prev = n.prev
-             if n_prev and n_prev.id == glyph_id and n_prev.char == 0x2014 then
-                    local k_l = node_new("kern")
-                    k_l.kern = -n.width / 2
-                    head, k_l = node_insertbefore(head, n, k_l)
-                    local glyph_n = node_new("glyph")
-                    glyph_n.font = font.current()
-                    glyph_n.subtype = 0
-                    glyph_n.char = 0x2014
-                    head, glyph_n = node_insertbefore(head, n, glyph_n)
-                    local k_r = node_new("kern")
-                    k_r.kern = -n.width / 2
-                    head, k_r = node_insertbefore(head, n, k_r)
-             end
-            end
-        end
-        n = n.next
-    end
-    return head, done
-end
+                  local n_next = n.next
+                  if n_next
+                  and n_next.id == glyph_id
+                  and not ischinesechar(n_next.char)
+                  and not islegalsymbolinchinese(n_next.char)
+                  and not ispunctuation(n_next.char)
+                  then
+                      local glue = node_new("glue")
+                      glue.width = tex_sp("0.25em")
+                      glue.stretch = tex_sp("0.25em")
+                      --print("insert space after:", utf8.char(n.char))
+                      head, glue = node_insertafter(head, n, glue)
+                      n = glue.next
+                  end
+              elseif n.char == 0x2014 then -- — — 双符破折号中间加入一个
+                  local n_prev = n.prev
+              if n_prev and n_prev.id == glyph_id and n_prev.char == 0x2014 then
+                      local k_l = node_new("kern")
+                      k_l.kern = -n.width / 2
+                      head, k_l = node_insertbefore(head, n, k_l)
+                      local glyph_n = node_new("glyph")
+                      glyph_n.font = font.current()
+                      glyph_n.subtype = 0
+                      glyph_n.char = 0x2014
+                      head, glyph_n = node_insertbefore(head, n, glyph_n)
+                      local k_r = node_new("kern")
+                      k_r.kern = -n.width / 2
+                      head, k_r = node_insertbefore(head, n, k_r)
+              end
+              end
+          end
+          n = n.next
+      end
+      return head, done
+  end
 
-nodes.tasks.appendaction("processors", "after", "Thirddata.processmystuff")
+  nodes.tasks.appendaction("processors", "after", "Thirddata.processmystuff")
 \stopluacode
 
 \def\disablepanguspace{\ctxluacode{nodes.tasks.disableaction("processors","Thirddata.processmystuff")}}
@@ -891,14 +851,6 @@ nodes.tasks.appendaction("processors", "after", "Thirddata.processmystuff")
 %%%%%% height      = header + textheight + footer +                        %%%%%%
 %%%%%%               headerdistance + footerdistance                       %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%% propiorgplden % sidemirror    % propiorroot                         %%%%%%
-%%%%%% 70 + 184 + 43 % 50 + 197 + 50 % 51 + 174 + 72                       %%%%%%
-%%%%%% 30 + 130 + 50 % 32 + 146 + 32 % 36 + 123 + 51                       %%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%% exotic        % sidemirror    % propiorroot                         %%%%%%
-%%%%%% 15 + 215 + 20 % 50 + 197 + 50 % 51 + 174 + 72                       %%%%%%
-%%%%%% 70 + 120 + 20 % 32 + 146 + 32 % 36 + 123 + 51                       %%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \definepapersize [exotic] [width=210mm, height=250mm,]
 \definepapersize [ipad]   [width=7.5in, height=10in, ]
 \definepapersize [kindle] [width=120mm, height=160mm,]
@@ -1025,17 +977,17 @@ nodes.tasks.appendaction("processors", "after", "Thirddata.processmystuff")
 %% 因为 hermes 需要页面大小， 所以必须先设置页面尺寸。
 %% must load font first,then can get real text fontsize(1em)
 
-
 % 只關心每行寬度每列高度和邊注寬度。其他的依照 1:√2 的比例切割（只是粗略）
+\newdimen\c_hermesratio   \c_hermesratio =\moduleparameter{memos}{ratio}pt\relax
 \newcount\c_textcount     \c_textcount   =\moduleparameter{memos}{textcount}\relax
 \newcount\c_heightcount   \c_heightcount =\moduleparameter{memos}{heightcount}\relax
 \newcount\c_margincount   \c_margincount =\moduleparameter{memos}{margincount}\relax
 \newdimen\d_textfontsize  \d_textfontsize=\bodyfontsize\relax%\fontdimen6\font\relax
 \newdimen\d_marginwidth   \d_marginwidth=\dimexpr\bodyfontsize*\c_margincount\relax
 \newdimen\d_textlineheight\d_textlineheight=
-         \dimexpr\baselineskip*\c_heightcount-\baselineskip+
+         \dimexpr\lineheight*\c_heightcount-\lineheight+
          \ifdim\topskip<\ht\strutbox\topskip\else\ht\strutbox\fi\relax
-
+         
 \startluacode
   local todimen
   local thr
@@ -1050,40 +1002,42 @@ nodes.tasks.appendaction("processors", "after", "Thirddata.processmystuff")
   local mw = tex.getdimen("d_marginwidth")
   local twr = tc * bs -- 每行字數是必要設置
 
+  local ratio = tex.getdimen("c_hermesratio") / 65536 or 1.414
+
   if    hc == 0 then  -- 如果沒有設置頁面高度數
         thr = twr / pr
   else
         thr = hh
   end
 
-  local Rm  = (pw - twr) / (1 + pr)       -- right total
-  local Rmr = Rm * pr / (2 + pr + 1/pr)   -- edge distance
-  local Rml = Rmr / pr                    -- margin distance
-  local Lm  = pw - Rm - twr               -- left total
+  local Lm  = (pw - twr) / (1 + ratio)             -- left total
+  local Rmr = Lm * ratio / (2 + ratio + 1/ratio)   -- edge distance
+  local Rml = Rmr / ratio                          -- margin distance
+  local Rm  = pw - Lm - twr                        -- right total
   local Rmm
 
   if    mc == 0 then
-        Rmm = Rm -Rml -Rmr               -- margin text width
+        Rmm = Rm - Rml - Rmr               -- margin text width
   else
         Rmm = mw
-        Rmr = (Rm - Rmm) / (1 + pr)
-        Rml = Rm - Rmm - Rmr
+        Rml = (Rm - Rmm) / (1 + ratio)
+        Rmr = Rm - Rmm - Rml
   end
 
-  local He = (ph - thr) / (1 + pr)      -- top total
-  local Fo = ph - He - thr              -- bot total
-  local Het = He * pr / (2 + pr + 1/pr) -- top distance
-  local Heb = Het / pr                  -- header distance
-  local Hem = He - Het - Heb            -- header height
-  local Fob = Fo * pr / (2 + pr + 1/pr)
-  local Fot = Fob / pr
+  local He  = (ph - thr) / (1 + ratio)           -- top total
+  local Fo  = ph - He - thr                      -- bot total
+  local Het = He * ratio / (2 + ratio + 1/ratio) -- top distance
+  local Heb = Het / ratio                        -- header distance
+  local Hem = He - Het - Heb                     -- header height
+  local Fob = Fo * ratio / (2 + ratio + 1/ratio)
+  local Fot = Fob / ratio
   local Fom = Fo - Fot -Fob
 
   local textwidth  = tostring(twr/65536) .. "pt"
-  local textheight = ph - Het - Fob        -- textheight 是 頁面 - 頂部 - 尾部
-  textheight = tostring(textheight/65536) .. "pt"
+  local theight    = ph - Het - Fob        -- textheight 是 頁面 - 頂部 - 尾部
+  textheight       = tostring(theight/65536) .. "pt"
 
-  local backspace           = tostring(Lm/65536) .. "pt"
+  local backspace           = tostring(Lm/65536)  .. "pt"
   local rightmargin         = tostring(Rmm/65536) .. "pt"
   local rightmargindistance = tostring(Rml/65536) .. "pt"
   local rightedgedistance   = tostring(Rmr/65536) .. "pt"
@@ -1094,17 +1048,22 @@ nodes.tasks.appendaction("processors", "after", "Thirddata.processmystuff")
   local footerdistance      = tostring(Fot/65536) .. "pt"
   local botdistance         = tostring(Fob/65536) .. "pt"
 
+  local real_height         = theight - Hem - Heb - Fom - Fot
+  local realheight          = tostring(real_height/65536) .. "pt"
+
+  -- context("ratio ")context(ratio)context.par()
   -- context(ph/65536)context.par()
-  -- context("he  ")context(He/65536)context.par()
-  -- context("het ")context(Het/65536)context.par()
-  -- context("hem ")context(Hem/65536)context.par()
-  -- context("heb ")context(Heb/65536)context.par()
-  -- context("fo  ")context(Fo/65536)context.par()
-  -- context("fot ")context(Fot/65536)context.par()
-  -- context("fom ")context(Fom/65536)context.par()
-  -- context("fob ")context(Fob/65536)context.par()
+  -- context("he    ")context(He/65536)context.par()
+  -- context("het   ")context(Het/65536)context.par()
+  -- context("hem   ")context(Hem/65536)context.par()
+  -- context("heb   ")context(Heb/65536)context.par()
+  -- context("fo    ")context(Fo/65536)context.par()
+  -- context("fot   ")context(Fot/65536)context.par()
+  -- context("fom   ")context(Fom/65536)context.par()
+  -- context("fob   ")context(Fob/65536)context.par()
   -- context(thr/65536)context.par()
   -- context(textheight)context.par()
+  -- context(realheight)context.par()
 
 context.definelayout(
   { "hermes" },
@@ -1126,10 +1085,6 @@ context.definelayout(
 \stopluacode
 
 %%%%% \section{layout}
-\setupalign          [\languageparameter\c!align]%
-\setupwhitespace     [\languageparameter{whitespace}]%
-\setupindenting      [\languageparameter\c!indenting]%
-\setupinterlinespace [line=\languageparameter{interlinespace}]
 \setuplayout         [\moduleparameter{memos}{layout}]
 \definelayout        [default][\moduleparameter{memos}{layout}]
 %%% 此處定義了默認的頁面佈局， 可以通過 \setuplayout[default] 來設置
@@ -2689,8 +2644,8 @@ fill pc withcolor .5[\MPcolor{themecolor}, white];
 \definedescription  [hangdescr][
                      before=,  after=,  width=fit,
                      indenting={2em},indentnext=yes,margin=1em,
-                     headstyle=bold, style=normal,  align={flushleft,},
-                     text={\raise 2pt \hbox to 1em{$\bullet$}},%hang=99,
+                     headstyle=bold, style=normal,  align={flushleft},
+                     text={\raise 1pt \hbox to 1em{$\bullet$}},%hang=99,
                      alternative=hanging,]
 \definedescription  [topdescr][
                      before=\vskip.25\baselineskip\relax,
@@ -2698,8 +2653,8 @@ fill pc withcolor .5[\MPcolor{themecolor}, white];
                      inbetween=\leftskip1em\relax,width=fit,hang=2,
                      indenting={2em},indentnext=yes,
                      headstyle=bold,style=normal,
-                     align={flushleft,},alternative=top,
-                     text={\raise 2pt \hbox to 1em{$\bullet$}},]
+                     align={flushleft},alternative=top,
+                     text={\raise 1pt \hbox to 1em{$\bullet$}},]
 \defineenumeration  [remark] [text=Remark,
                               alternative=serried,
                               before=\vskip.25\baselineskip\relax,
@@ -2714,8 +2669,17 @@ fill pc withcolor .5[\MPcolor{themecolor}, white];
                      after=\vskip.25\baselineskip\relax,
                      alternative=serried,width=fit,
                      indenting=2em,indentnext=yes,
-                     headstyle=rmbf,align={flushleft,},]
-
+                     headstyle=bold,align={flushleft},]
+\defineenumeration  [tips] [text=Tips,
+                            headcommand=\setuptextrules[color=themecolor,rulecolor=themecolor,rulethickness=1.5\linewidth]\textrule[top],
+                            before=\vskip-\baselineskip\relax,
+                            after=\setuptextrules[color=themecolor,rulecolor=themecolor,rulethickness=1.5\linewidth]\textrule[bottom]\empty,
+                            inbetween=,
+                            width=fit,
+                            right={.~},
+                            prefix=yes,% or prefixsegments=chapter:section
+                            prefixsegments=section]
+\setupcounter       [tips] [way=bysection]
 %%%%% only for compatiblility
 \let\startlists\startordinals
 \let\stoplists\stopordinals
@@ -2938,6 +2902,7 @@ fill pc withcolor .5[\MPcolor{themecolor}, white];
 \setupxtable [footer] [topframe=off,   rulethickness=1pt]
 \setupxtable [lastrow][topframe=off,   rulethickness=1pt]
 
+\setupfloats[freeregion=no]
 \setupfloats [table]
              [%default={here,split,top,bottom,page},
               before=,after=,indentnext=yes,
@@ -3115,19 +3080,6 @@ suggest=\symbol[fontawesome][star]]
 \permanent\protected\def\texttimes    {\char"00D7 }
 \permanent\protected\def\textddivision{\char"00F7 }
 
-% 標點符號的測試：
-% \startlists
-%   \item 點號：天，地、玄：黃；宇宙洪荒
-%   \item 點號：天。地？玄！黃  宇宙洪荒
-%   \item 標號：「天」（地）《玄〈黃〉》…… 【宇】宙洪荒
-%   \item 連接：天-地玄-黃\endash  宇\emdash  宙洪\emdash\emdash  荒
-%   \item 全角：天－地＋玄＊黃＼宇／宙＿洪＝荒。
-%   \item 天地玄黃；「宇宙～洪荒？」
-%   \item 天地玄黃：「宇宙……洪荒！」
-%   \item 1+2=1-2×1:2÷1±2 a-b h:d 12 1-2
-%         {\feature[=][default] 1+2=1-2×1:2÷1±2 a-b h:d}
-%   \item 天地1+2-3玄黃，宇宙a(b)c洪荒。
-% \stoplists
 \def\PLUS {＋}
 \def\MINUS{－}
 \def\EQUAL{＝}
@@ -3135,11 +3087,11 @@ suggest=\symbol[fontawesome][star]]
 
 \def\Mdot {\hbox to .5em{\hss\scale[s=1.5]{$\cdot$}\hss}}
 \def\mdot {\hbox to .5em{\hss\utf{00B7}\hss}}
-\def\symbolstyle#1{\nobreak\high{{\switchtobodyfont[5pt]#1}}}
-\def\urlsymbol{\symbolstyle{%
+\def\symbol_style#1{\nobreak\high{{\switchtobodyfont[5pt]#1}}}
+\def\urlsymbol{\symbol_style{%
      \useurlstyleandcolor\c!style\c!color
      \usersymbolparameter{from}}}
-\def\refsymbol{\symbolstyle{\usersymbolparameter{ref}}}
+\def\refsymbol{\symbol_style{\usersymbolparameter{ref}}}
 
 \pushoverloadmode
 \let\from_bak\from

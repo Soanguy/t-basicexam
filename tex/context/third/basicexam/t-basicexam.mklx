@@ -826,6 +826,7 @@ end
   \ifcsname\currentexaminfoalternativehash\s!parent\endcsname \else
     \let\currentexaminfoalternative\s!default
   \fi
+  \examinfoparameter\c!before
   \usesetupsparameter\examinfoparameter
   \edef\p_renderingsetup{\examinfoalternativeparameter\c!renderingsetup}%
   \useexaminfostyleandcolor\c!style\c!color
@@ -833,7 +834,8 @@ end
   \bgroup\examinfoparameter\c!left}
 
 \unexpanded\def\framed_examinfo_stop%
- {\examinfoparameter\c!right\egroup\egroup}
+ {\examinfoparameter\c!right\egroup
+  \examinfoparameter\c!after\egroup}
 
 \defineexaminfoalternative
   [\s!default]
@@ -888,8 +890,8 @@ end
     \def\left_assignedlabel {\csname  left_assigned#2label\endcsname}%
     \def\right_assignedlabel{\csname right_assigned#2label\endcsname}%
     \csname ifmode_show#2\endcsname
-      \dousestyleparameter    {\csname #1parameter\endcsname{#2style}}%
-      \dousecolorparameter    {\csname #1parameter\endcsname{#2color}}%
+      \dousestyleparameter    {\csname #1parameter\endcsname{#2style}}%不知道为什么 这两行代码在题目比较少的时候会拖慢
+      \dousecolorparameter    {\csname #1parameter\endcsname{#2color}}%运行时间。大概是 7 倍。但数量多时，则无明显拖慢
       \csname\e!start #1examinfo\endcsname
         \left_assignedlabel% like=>answer : blabla
           \ifx\currentmode\c!point% if #2 = point
@@ -1327,16 +1329,13 @@ end
   \fi
   \edef\p_class{\questionparameter\c!class}%
   \donefalse
-  \ifx\p_class\s!question\donetrue\fi
-  \ifx\p_class\s!writing \donetrue\fi
+  \ifx\p_class\s!question\donetrue\env_questiontrue\set_envitem_counter\fi
+  \ifx\p_class\s!writing \donetrue\env_writingtrue \set_envitem_counter\fi
   \ifdone
-    \ifx\p_class\s!question \env_questiontrue\set_envitem_counter\fi
-    \ifx\p_class\s!writing  \env_writingtrue \set_envitem_counter\fi
     \doiftrue\s!question\c!reset{\resetcounter[itemgroup:env!question]}%
     \ifmode_example
       \setup_itemgroup_temp[example][#2][#3]\else
-      \setup_itemgroup_temp[question][#2][#3]%
-    \fi
+      \setup_itemgroup_temp[question][#2][#3]\fi
     \item[\questionparameter\c!reference]%
     \ifx\p_class\s!question\set_count_envlevel[question]\fi
     \ifx\p_class\s!writing \set_count_envlevel[writing]\fi
@@ -1433,7 +1432,7 @@ end
   %\c!point=,
   %\c!answer=,
   \c!pointstyle=\ttx,
-  \c!answerstyle=ttx,
+  \c!answerstyle=\ttx,
   %\c!pointcolor=,
   %\c!answercolor=,
   \c!pointlabel={,\examtexts{point}},
@@ -2140,11 +2139,6 @@ end
     {#2}%%
   \endgroup}
 
-\startuseMPgraphic{normalframeMP}
-  draw unitsquare xyscaled (\overlaywidth, \overlayheight);
-\stopuseMPgraphic
-\defineoverlay       [normalframeOL][\useMPgraphic{normalframeMP}]
-
 \setupsolution
   [\c!answerlabel={{\examtexts{answer}}},
   \c!pointlabel={,\examtexts{point}},
@@ -2172,12 +2166,14 @@ end
   leftoffset=1ex,rightoffset=1ex,
   before=,after=,\c!frame=on,
   %topoffset=.5ex,bottomoffset=.5ex,
-  \c!background=normalframeOL,% for env_solution textbackground
-  %\c!backgroundcolor=,
-  %\c!corner=,
   %\c!framecolor=,
   %\c!rulethickness=,
-  ]
+  state=start,
+  corner=round,
+  before=\vskip.5\baselineskip\relax,
+  after=\vskip.5\baselineskip\relax,
+  background=color,backgroundcolor=transparent,
+  rulethickness=1pt]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{设置 pitem,citem 命令}
@@ -2472,7 +2468,7 @@ end
   \ifmode_showanswer\setupfillin[empty=none]\fi
   \def\currentfillincontent%
     {\ifchknum\p_n\or
-      \scratchcounterone\numexpr\p_n\relax
+      \scratchcounterone\numexpr\p_n/2\relax
       \interwordspacesbefore\scratchcounterone
       \ifx\p_empty\v!yes   \fi
       \ifx\p_empty\v!number\zwnj\runninghbox{\resetbar\p_number}\zwnj\fi
