@@ -1010,18 +1010,20 @@
         thr = hh
   end
 
-  local Lm  = (pw - twr) / (1 + ratio)             -- left total
-  local Rmr = Lm * ratio / (2 + ratio + 1/ratio)   -- edge distance
-  local Rml = Rmr / ratio                          -- margin distance
-  local Rm  = pw - Lm - twr                        -- right total
-  local Rmm
+  local Lm, Rmr, Rml, Rm, Rmm
 
   if    mc == 0 then
-        Rmm = Rm - Rml - Rmr               -- margin text width
+        Lm  = (pw - twr) / (1 + ratio)             -- 左邊距總寬度
+        Rmr = Lm * ratio / (2 + ratio + 1/ratio)   -- 右邊緣距離
+        Rml = Rmr / ratio                          -- 右邊注距離
+        Rm  = pw - Lm - twr                        -- 右邊距總寬度
+        Rmm = Rm - Rml - Rmr                       -- 邊注寬度（自動計算）
   else
-        Rmm = mw
-        Rml = (Rm - Rmm) / (1 + ratio)
-        Rmr = Rm - Rmm - Rml
+        Rmm = mw                                   -- 邊注寬度（指定）
+        Lm  = (pw - twr - Rmm) / (1 + ratio)       -- 左邊距總寬度（扣除邊注）
+        Rm  = pw - Lm - twr                        -- 右邊距總寬度
+        Rml = (Rm - Rmm) / (1 + ratio)             -- 右邊注距離
+        Rmr = Rm - Rmm - Rml                       -- 右邊緣距離
   end
 
   local He  = (ph - thr) / (1 + ratio)           -- top total
@@ -1048,22 +1050,21 @@
   local footerdistance      = tostring(Fot/65536) .. "pt"
   local botdistance         = tostring(Fob/65536) .. "pt"
 
-  local real_height         = theight - Hem - Heb - Fom - Fot
-  local realheight          = tostring(real_height/65536) .. "pt"
-
   -- context("ratio ")context(ratio)context.par()
-  -- context(ph/65536)context.par()
-  -- context("he    ")context(He/65536)context.par()
-  -- context("het   ")context(Het/65536)context.par()
-  -- context("hem   ")context(Hem/65536)context.par()
-  -- context("heb   ")context(Heb/65536)context.par()
-  -- context("fo    ")context(Fo/65536)context.par()
-  -- context("fot   ")context(Fot/65536)context.par()
-  -- context("fom   ")context(Fom/65536)context.par()
-  -- context("fob   ")context(Fob/65536)context.par()
+  -- context("he                  ")context(He/65536)context.par()
+  -- context("backspace           ")context(Lm/65536)context.par()
+  -- context("topdistance         ")context(Het/65536)context.par()
+  -- context("rightmargin         ")context(Rmm/65536)context.par()
+  -- context("rightmargindistance ")context(Rml/65536)context.par()
+  -- context("rightedgedistance   ")context(Rmr/65536)context.par()
+  -- context("header              ")context(Hem/65536)context.par()
+  -- context("headerdistance      ")context(Heb/65536)context.par()
+  -- context("fo                  ")context(Fo/65536)context.par()
+  -- context("footerdistance      ")context(Fot/65536)context.par()
+  -- context("footer              ")context(Fom/65536)context.par()
+  -- context("botdistance         ")context(Fob/65536)context.par()
   -- context(thr/65536)context.par()
   -- context(textheight)context.par()
-  -- context(realheight)context.par()
 
 context.definelayout(
   { "hermes" },
@@ -1072,7 +1073,6 @@ context.definelayout(
     backspace=backspace,
     rightmargin=rightmargin,
     rightmargindistance=rightmargindistance,
-    rightedgedistance=rightedgedistance,
     topspace=topdistance,
     header=header,
     headerdistance=headerdistance,
