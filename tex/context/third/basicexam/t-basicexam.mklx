@@ -287,8 +287,6 @@ end
 \definemarking       [title]
 \definemarking       [subject]
 \defineitemgroup     [env!question]
-% \defineitemgroup     [env!problem]
-% \defineitemgroup     [env!writing]
 \defineitemgroup     [env!example]
 \defineitemgroup     [env!choice]
 \definedataset       [ExamDataset]
@@ -972,20 +970,6 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \defineconversion[tnum][\addff{tabularnumbers}]
-\tolerant\protected\def\setup_itemgroup_temp[#1][#2][#3]{%
-  \toks0={#2}\toks1={#3}%
-  \ifempty\toks1
-    \ifempty\toks0\else
-      \ifhastok={#2}\setupitemgroup[env!#1][#2]\else
-                    \setupitemgroup[env!#1][#2]\fi
-    \fi
-  \else
-    \ifhastok={#3}\setupitemgroup[env!#1][#2]%
-                  \setupitemgroup[env!#1][#3]\else
-                  \setupitemgroup[env!#1][#2,#3]\fi
-  \fi
-  \expanded{\startitemgroup[env!#1][\p_option]}}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{繪製卷頭 / print title / タイトルの作成}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1070,19 +1054,22 @@ end
 \installcommandhandler \????papertitlealternative {papertitlealternative} \????papertitlealternative
 
 \def\definepapertitlevariable#1{\begingroup% #1=element name
-    \parindent0pt\relax\par
-    \edef\p_align{\namedpapertitleparameter\currentpapertitle{#1align}}%
-    \edef\p_variable{\namedpapertitleparameter{\currentpapertitle}{#1}}
+    \parindent0pt\relax
+    \edef\p_align{\papertitleparameter{#1align}}%
+    \edef\p_variable{\papertitleparameter{#1}}
     \dousealignparameter\p_align
-    \namedpapertitleparameter{\currentpapertitle}{before#1}%
+    \papertitleparameter{before#1}%
     \usepapertitlestyleandcolor{#1style}{#1color}%
     \ifx\p_variable\empty\showmessage\m!basicexam{3}{#1}\else\p_variable\fi
-    \namedpapertitleparameter{\currentpapertitle}{after#1}%
-    \par\endgroup}
+    \papertitleparameter{after#1}%
+    \iftok{\papertitleparameter{independent}}{false}\else\par\fi
+    \endgroup}
 
 \protected\tolerant\def\makepapertitle[#1]#*[#2]%
   {\begingroup\cdef\currentpapertitle{#1}%
-  \ifarguments\or\or\setuppapertitle[#1][#2]\fi
+  \ifarguments
+    \or\setuppapertitle[#1]%
+    \or\setuppapertitle[#1][#2]\fi
   \edef\currentpapertitlealternative{\papertitleparameter\c!alternative}%
   \ifcsname\currentpapertitlealternativehash\s!parent\endcsname \else
     \let\currentpapertitlealternative\s!default
@@ -1223,6 +1210,20 @@ end
 %D point 的分值默認是一整個題目的總分數
 %D （如果包括子題目，在該宏包無法正常獲取分值或分數時，可以使用 totalpoint 或者 totalanswer 來直接設定分數或答案）。
 
+\tolerant\protected\def\setup_itemgroup_temp[#1][#2][#3]{%
+  \toks0={#2}\toks1={#3}%
+  \ifempty\toks1
+    \ifempty\toks0\else
+      \ifhastok={#2}\setupitemgroup[env!#1][#2]\else
+                    \setupitemgroup[env!#1][#2]\fi
+    \fi
+  \else
+    \ifhastok={#3}\setupitemgroup[env!#1][#2]%
+                  \setupitemgroup[env!#1][#3]\else
+                  \setupitemgroup[env!#1][#2,#3]\fi
+  \fi
+  \startitemgroup[env!#1][\p_option]}
+
 \installnamespace          {question}
 \installcommandhandler \????question  {question}  \????question
 
@@ -1230,8 +1231,14 @@ end
   \frozen\instance\protected\edefcsname        \currentquestion\endcsname{\directnamedquestion[\currentquestion]}%
   \frozen\instance\protected\edefcsname\e!start\currentquestion\endcsname{\startnamedquestion [\currentquestion]}%
   \frozen\instance\protected\edefcsname\e!stop \currentquestion\endcsname{\stopnamedquestion}%
-  \let\currentparentquestion\currentquestion
+   \edef\c!questioname{\ifempty\currentquestion question\else\currentquestion\fi}
+  \defineitemgroup[env!\c!questioname]% 每次都新建一个 itemgroup 来避免设置之间的冲突
 \to \everydefinequestion
+
+\appendtoks
+    \edef\c!questioname{\ifempty\currentquestion question\else\currentquestion\fi}
+    \setupitemgroup[env!\c!questioname][env!question]
+\to \everysetupquestion
 
 \let\strc_question_normal_setup\setupquestion
 
@@ -1241,32 +1248,32 @@ end
   \or
     \edef\strc_question_setup_what{#levels}%
     \edef\strc_itemgroups_setup_what{#levels}%
-    \ifhastok={#category}%
-      \setupitemgroup[env!question][#category]\else
-      \setupitemgroup[env!question][\c!option={#category}]\fi
     \strc_question_normal_setup  [#category]% == settings
+    \edef\c!questioname{\ifempty\currentquestion question\else\currentquestion\fi}
+    \ifhastok={#category}%
+      \setupitemgroup[env!\c!questioname][1][#category]\else
+      \setupitemgroup[env!\c!questioname][1][\c!option={#category}]\fi
   \or
     \edef\strc_question_setup_what{#levels}%
     \edef\strc_itemgroups_setup_what{#levels}%
-    \ifhastok={#levels}%
-      \setupitemgroup[env!question][#levels]\else
-      \setupitemgroup[env!question][\c!option={#levels}]\fi
     \strc_question_setup_each{#category}{#levels}%
+    \ifhastok={#levels}%
+      \setupitemgroup[env!\c!questioname][1][\c!option={#category},#levels]\else
+      \setupitemgroup[env!\c!questioname][1][\c!option={#levels}]\fi
   \or
     \edef\strc_question_setup_what{#levels}%
     \edef\strc_itemgroups_setup_what{#levels}%
-    \ifchknum\detokenize{#levels}\or
-      \setupitemgroup[env!question][#levels][#category][#options]\else
-      \setupitemgroup[env!question][#category][#options]\fi
     \ifx\strc_question_setup_what\v!each
       \strc_question_setup_each{#category}{#options}%
     \else
       \strc_question_setup_list{#levels}{#category}{#options}%
     \fi
+    \ifchknum\detokenize{#levels}\or
+      \setupitemgroup[env!\c!questioname][#levels][#category][#options]\else
+      \setupitemgroup[env!\c!questioname][#category][#options]\fi
   \or
     \edef\strc_question_setup_what{#levels}%
     \edef\strc_itemgroups_setup_what{#levels}%
-    \setupitemgroup[env!question][#levels][#options][#settings]%
     \ifx\strc_question_setup_what\v!each
       \strc_question_setup_each{#category}{#options}%
       \strc_question_setup_each{#category}{#settings}%
@@ -1274,20 +1281,28 @@ end
       \strc_question_setup_list{#levels}{#category}{#options}%
       \strc_question_setup_list{#levels}{#category}{#settings}%
     \fi
+    \setupitemgroup[env!\c!questioname][#levels][#options][#settings]%
   \fi}
 
 \def\strc_question_setup_each#category#whatever%
   {\ifhastok={#whatever}%
-     \strc_question_normal_setup[#category][#whatever]%
+       \strc_question_normal_setup[#category][#whatever]%
+       %% 这里有一个问题在于 \setupquestion[A][key=value] 不生效
+       %% 但是如果修改成为   \setupquestion[question][key=value]就会生效
    \else
      \strc_question_normal_setup[#category][\c!option={#whatever}]%
    \fi}
 
 \def\strc_question_setup_list_level_a#category#whatever#level%
-  {\strc_question_normal_setup[#category:#level][#whatever]}
+  {\ifchknum\detokenize{#level}\or
+    \strc_question_normal_setup[#category:#level][#whatever]%
+   \or
+    \strc_question_normal_setup[#category:1][\c!option={#level},#whatever]%
+   \fi\edef\c!questioname{#category}}
 
 \def\strc_question_setup_list_level_b#category#whatever#level%
-  {\strc_question_normal_setup[#category:#level][\c!option={#whatever}]}
+  {\strc_question_normal_setup[#category:#level][\c!option={#whatever}]%
+   \edef\c!questioname{#category}}
 
 \def\strc_question_setup_list#subcategories#category#whatever%
   {\ifhastok={#whatever}%
@@ -1303,6 +1318,7 @@ end
  {\begingroup\nofarguments\lastarguments
   \cdef\currentquestion{#1}% no nested mixing of itemgroups
   \let\currentparentquestion\currentquestion
+  \let\c!questioname\currentquestion% 重置 questionname
   \global\edef\prevquestionlevel{\the\c_strc_question_nesting}%
   \global\advanceby\c_strc_question_nesting\plusone
   \def\currentquestionlevel{\the\c_strc_question_nesting}%
@@ -1332,10 +1348,10 @@ end
   \ifx\p_class\s!question\donetrue\env_questiontrue\set_envitem_counter\fi
   \ifx\p_class\s!writing \donetrue\env_writingtrue \set_envitem_counter\fi
   \ifdone
-    \doiftrue\s!question\c!reset{\resetcounter[itemgroup:env!question]}%
+    \doiftrue\s!question\c!reset{\resetcounter[itemgroup:env!\c!questioname]}%
     \ifmode_example
       \setup_itemgroup_temp[example][#2][#3]\else
-      \setup_itemgroup_temp[question][#2][#3]\fi
+      \setup_itemgroup_temp[\c!questioname][#2][#3]\fi
     \item[\questionparameter\c!reference]%
     \ifx\p_class\s!question\set_count_envlevel[question]\fi
     \ifx\p_class\s!writing \set_count_envlevel[writing]\fi
@@ -1352,10 +1368,10 @@ end
       \errmessage{problem cannot exist as a top-level environment,
                   please place it in the question environment}\fi
     \env_problemtrue\set_envitem_counter
-    \doiftrue\s!problem\c!reset{\resetcounter[itemgroup:env!problem]}%
+    \doiftrue\s!problem\c!reset{\resetcounter[itemgroup:env!\c!questioname]}%
     \ifmode_example
       \setup_itemgroup_temp[example][#2][#3]\else
-      \setup_itemgroup_temp[question][#2][#3]%
+      \setup_itemgroup_temp[\c!questioname][#2][#3]%
     \fi
     \inititemnumber
     \xdef\currentQuestionID{\QuestionID}%
@@ -2038,6 +2054,7 @@ end
   \ifdone
     \solutionparameter\c!before
     \begingroup
+    \language[\solutionparameter\c!language]%
     \usesolutionstyleandcolor\c!style\c!color
     \usealignparameter\solutionparameter
     \edef\currentsolutionalternative{\solutionparameter\c!alternative}%
@@ -2074,7 +2091,7 @@ end
     \leftskip0pt\relax\rightskip\leftskip\relax
     \solutionparameter\c!before
     \begingroup
-    \userlanguage[\solutionparameter{userlanguage}]%
+    \language[\solutionparameter\c!language]%
     \usesolutionstyleandcolor\c!style\c!color
     \usealignparameter\solutionparameter
     \edef\currentsolutionalternative{\solutionparameter\c!alternative}%
@@ -2154,7 +2171,7 @@ end
   %\c!showscript=true,
   scriptcontent={\noindent\ssx\gray Write solution Here},
   \c!alternative=\s!default,
-  userlanguage=\currentmainlanguage,
+  \c!language=\currentlanguage,
   ]
 
 \definesolution[solution]
@@ -3654,22 +3671,34 @@ draw p
 %D \section{Multilingual support}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\installnamespace          {userlanguage}
-\installcommandhandler \????userlanguage {userlanguage} \????userlanguage
+%% 我们重定义了之前的userlanguage，现在可以直接通过language 命令来切换预设好的环境定义
+%% 但是需要注意必须要预先定义好字体才可以正常切换。
+%% 因为修改了 language 的 setups，导致会修改全局的字体设置，因此 basicexam 应该放在 最开始加载
+%% 这样后续如果使用 修改字体的 模块的话，才会生效
 
-\let\sys_language\language
+\def\lang_set_if_provided#1#2#3{%
+  \ifcsname lang:#1#2\endcsname
+    \expandafter#3\expandafter[\lastnamedcs]%
+  \fi
+}
 
-% \appendtoks
-%   \ifcsname\currentuserlanguage\endcsname
-%   \letcsname\currentuserlanguage\endcsname\relax
-%   \frozen\instance\protected\edefcsname        \currentuserlanguage\endcsname{\userlanguage      [\currentuserlanguage]}\else
-%   \frozen\instance\protected\edefcsname        \currentuserlanguage\endcsname{\userlanguage      [\currentuserlanguage]}\fi
-%   \frozen\instance\protected\edefcsname\e!start\currentuserlanguage\endcsname{\startuserlanguage [\currentuserlanguage]}%
-%   \frozen\instance\protected\edefcsname\e!stop \currentuserlanguage\endcsname{\stopuserlanguage}%
-% \to \everydefineuserlanguage
+\permanent\protected\def\defineuserlanguage[#1]#*[#2]%
+  {\getparameters[lang:#1][#2]%
+   \startsetups[lang:#1:setup]%
+      \lang_set_if_provided{#1}{bodyfont}\switchtobodyfont
+      \lang_set_if_provided{#1}{interlinespace}\setuplocalinterlinespace
+      \lang_set_if_provided{#1}{align}\setupalign
+      \lang_set_if_provided{#1}{indenting}\setupindenting
+      \lang_set_if_provided{#1}{whitespace}\setupwhitespace
+      \lang_set_if_provided{#1}{script}\setlocalscript
+      \lang_set_if_provided{#1}{fallbackfont}\setups
+   \stopsetups
+   \setuplanguage[#1][setups=lang:#1:setup,#2]}
+
+\let\setupuserlanguage\defineuserlanguage
 
 \setupuserlanguage[en][
-  bodyfont=modern,
+  bodyfont={modern,\fontstyle},
   fallbackfont=none,
   script=latin,
   patterns=en,
@@ -3678,7 +3707,7 @@ draw p
   indenting=none,]
 
 \setupuserlanguage[cn][
-  bodyfont=adobehans,
+  bodyfont={adobehans,\fontstyle},
   fallbackfont=none,
   patterns={zh,en},
   script=hanzi,
@@ -3687,7 +3716,7 @@ draw p
   indenting={first,always,2em},]
 
 \setupuserlanguage[hans][
-  bodyfont=adobehans,
+  bodyfont={adobehans,\fontstyle},
   fallbackfont=none,
   patterns={zh,en},
   script=hanzi,
@@ -3696,7 +3725,7 @@ draw p
   indenting={first,always,2em},]
 
 \setupuserlanguage[hant][
-  bodyfont=lihant,
+  bodyfont={adobehant,\fontstyle},
   fallbackfont=none,
   patterns={zh,en},
   script=hanzi,
@@ -3705,7 +3734,7 @@ draw p
   indenting={first,always,2em},]
 
 \setupuserlanguage[ja][
-  bodyfont=ryumin,
+  bodyfont={adobenihon,\fontstyle},
   fallbackfont=none,
   patterns={ja,en},
   script=nihongo,
@@ -3713,46 +3742,14 @@ draw p
   align={height,hanging,justified},
   indenting={first,always,1em},]
 
-\newif\ifin_footnote
-
-\tolerant\protected\def\userlanguage[#1]#*[#2]#*%
- {\edef\currentuserlanguage{#1}%
-  \ifarguments\or\or
-    \setuplanguage[#1][#2]%
-    \setupuserlanguage[#1][#2]\fi
-  \sys_language[#1]%
-  % \usereferenceparameter\userlanguageparameter
-  \setlocalscript[\userlanguageparameter{script}]%
-  % \setups{fallbacks:reset}%
-  \setups{fallback:\userlanguageparameter{fallbackfont}}%
-  \usebodyfontparameter\userlanguageparameter
-  \useuserlanguagestyleandcolor\c!style\c!color
-  \ifin_footnote\tx\fi
-  \ifhmode\else\par
-    \edef\p_language_interlinespace{\userlanguageparameter\c!interlinespace}%
-    \usealignparameter\userlanguageparameter%
-    \setupwhitespace[\userlanguageparameter{whitespace}]%
-    \useindentingparameter\userlanguageparameter
-    \dosetupcheckedinterlinespace\p_language_interlinespace
-  \fi}
-
-\tolerant\protected\def\startuserlanguage[#1]#*[#2]#*%
- {\begingroup
-  \edef\currentuserlanguage{#1}%
-  \userlanguage[#1][#2]}
-
-\def\stopuserlanguage{\par\endgroup}
-
-\defineuserlanguage[en]
-\defineuserlanguage[cn]
-\defineuserlanguage[hans]
-\defineuserlanguage[hant]
-\defineuserlanguage[ja]
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{Extra Command}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+\ifcsname themecolor\endcsname
+  \definecolor[circlenumcolor][themecolor]
+\else
+  \definecolor[circlenumcolor][black]
+\fi
 \def\setupcircledtext{\setupMPvariables[circlednum]}
 \setupcircledtext[frametype=square,% only one value
                   framecolor=black,
@@ -3764,7 +3761,7 @@ draw p
                   effect=normal,
                   scaled=.8,
                   yoffset=0pt,
-                  style=\rmx,
+                  style=\switchtobodyfont[small],
                   dashskipwidth=.08BodyFontSize,% if = 0 ,will be undashed
                   ]
 
@@ -3796,13 +3793,11 @@ draw p
 \stopuseMPgraphic
 
 %%% autocircled will scale fontsize to fit circle
-\tolerant\protected\def\autocircled[#1]#:#2{%
-  \ifnum#2 < 100\setupcircledtext[style=\tfx]\else%
-  \ifnum#2 > 99 \setupcircledtext[style=\tfxx]\fi\fi%
-  \circledtext[#1]{#2}}
+\tolerant\protected\def\autocircled[#1]#:#2%
+  {\begingroup\dontleavehmode
+  \circledtext[#1]{\scale[maxwidth=1em]{#2}}\endgroup}
 
-\def\circledtext{\dosingleempty\docircledtext}
-\def\docircledtext[#1]#2%
+\tolerant\protected\def\circledtext[#1]#:#2%
  {\begingroup% for circled number graphic(CNG)
  \iffirstargument\setupMPvariables[circlednum][#1]\fi
     \setMPtext{framednum}{#2}% for framed number in CNG
@@ -3810,17 +3805,17 @@ draw p
     \endgroup}
 
 \def\negativecircledconversion#1{{%
-  \setupcircledtext[framecolor=black,color=black,fillcolor=white,radius=0.5,]\circledtext{#1}}}
+  \setupcircledtext[framecolor=circlenumcolor,color=circlenumcolor,fillcolor=white,radius=0.5,]\circledtext{#1}}}
 \def\circledconversion#1{{%
-  \setupcircledtext[framecolor=black,fillcolor=black,color=white,radius=0.5,]\circledtext{#1}}}
+  \setupcircledtext[framecolor=circlenumcolor,fillcolor=circlenumcolor,color=white,radius=0.5,]\circledtext{#1}}}
 \def\negativesquaredconversion#1{{%
-  \setupcircledtext[framecolor=black,fillcolor=white,color=black,radius=0,  ]\circledtext{#1}}}
+  \setupcircledtext[framecolor=circlenumcolor,fillcolor=white,color=circlenumcolor,radius=0,  ]\circledtext{#1}}}
 \def\squaredconversion#1{{%
-  \setupcircledtext[framecolor=black,fillcolor=black,color=white,radius=0,  ]\circledtext{#1}}}
+  \setupcircledtext[framecolor=circlenumcolor,fillcolor=circlenumcolor,color=white,radius=0,  ]\circledtext{#1}}}
 \def\negativeroundsquaredconversion#1{{%
-  \setupcircledtext[framecolor=black,color=black,fillcolor=white,radius=0.2,]\circledtext{#1}}}
+  \setupcircledtext[framecolor=circlenumcolor,fillcolor=white,radius=0.2,]\circledtext{#1}}}
 \def\roundsquaredconversion#1{{%
-  \setupcircledtext[framecolor=black,fillcolor=black,color=white,radius=0.2,]\circledtext{#1}}}
+  \setupcircledtext[framecolor=circlenumcolor,fillcolor=circlenumcolor,color=white,radius=0.2,]\circledtext{#1}}}
 
 \defcsname circlednum:Co:Alph\endcsname#1{\circledconversion             {\convertnumber{A}{#1}}}
 \defcsname circlednum:CO:Alph\endcsname#1{\negativecircledconversion     {\convertnumber{A}{#1}}}
@@ -3899,6 +3894,7 @@ draw p
 \defineconversion[Cs:kata][\csname circlednum:Cs:kata\endcsname]
 \defineconversion[CS:kata][\csname circlednum:CS:kata\endcsname]
 
+\defineconversion[circlednum][\negativecircledconversion]
 %\circledtext{9}FF\circledtext{99}\circledtext{999}
 %\autocircled{9}FF\autocircled{99}\autocircled{999}
 %\startitemize[circlednum,packed]
@@ -3908,47 +3904,65 @@ draw p
 %\stopitemize
 
 \defineframed[lexicalframe][
-  corner=00,location=high,depth=.3\baselineskip,height=.7\baselineskip,
-  offset=0pt,loffset=2pt,roffset=2pt,radius=2pt,align={center,lohi},
-  framecolor=blue,foregroundcolor=blue,
-  foregroundstyle=ssxx]
+  corner=00,location=high,radius=2pt,align={center,lohi},
+  framecolor=blue,foregroundcolor=blue]
 
 \defineframed[lexicalinnerframe][lexicalframe]
+\defineframed[grammarframe]     [lexicalframe] [foregroundstyle=\ssxx]
 \setupframed [lexicalinnerframe][
   offset=none,toffset=2pt,boffset=2pt,
   foregroundcolor=white,
   background=color,backgroundcolor=blue,
   foregroundstyle=\definedfont[Sans at 8pt]]
 
-\defineframed[grammarframe][lexicalframe]
-\setupframed [grammarframe][foregroundstyle=\tf\ssx]
-
 \defineregister [entryindex]
 \defineregister [grammarindex]
 \defineregister [functionindex]
+
+\def\definelexicalinfocommand#1#2{%
+  \setvalue{#1}##1%
+    {\dontleavehmode
+     \thinspace{\lexicalinnerframe{#2}%
+     \uselexicalentrystyleandcolor\c!infostyle\c!infocolor
+     ##1}\thinspace}}
 
 \installnamespace          {lexicalentry}
 \installcommandhandler \????lexicalentry     {lexicalentry}     \????lexicalentry
 \installcounterassociation {lexicalentry}
 
-\appendtoks
-   \registerlexicalentrycounter{\currentlexicalentry}
-   \definecounter[\currentlexicalentry]%
-\to \everydefinelexicalentry
+\newtoks\everylexicalentry
 
 \appendtoks
    \synchronizelexicalentrycounters
 \to \everysetuplexicalentry
 
 \appendtoks
-    % \frozen\instance\protected\edefcsname        \currentlexicalentry\endcsname{\namedlexicalentry}%
-    \frozen\protected\instance\edefcsname\e!start\currentlexicalentry\endcsname{\startnamedlexicalentry[\currentlexicalentry]}%
-    \frozen\protected\instance\letcsname \e!stop \currentlexicalentry\endcsname \stopnamedlexicalentry
+  % \frozen\instance\protected\edefcsname        \currentlexicalentry\endcsname{\namedlexicalentry}%
+  \frozen\protected\instance\edefcsname\e!start\currentlexicalentry\endcsname{\startnamedlexicalentry[\currentlexicalentry]}%
+  \frozen\protected\instance\letcsname \e!stop \currentlexicalentry\endcsname \stopnamedlexicalentry
+  \registerlexicalentrycounter{\currentlexicalentry}
+  \definecounter[\currentlexicalentry]%
 \to \everydefinelexicalentry
 
+\appendtoks
+  \definelexicalinfocommand{antonym} {\lexicalentryparameter{antonymlabel}}%
+  \definelexicalinfocommand{example} {\lexicalentryparameter{examplelabel}}%
+  \definelexicalinfocommand{refer}   {\lexicalentryparameter{referlabel}}%
+  \definelexicalinfocommand{junction}{\lexicalentryparameter{junctionlabel}}%
+  \resetcounter[lexicalgrammar]%
+  \resetcounter[lexicaljunction]%
+  \resetcounter[lexicalmeaning]%
+  \resetcounter[lexicalsummary]%
+  \resetcounter[lexicalexample]%
+  \resetcounter[lexicalcomparing]%
+  \resetcounter[itemgroup:env!question]%
+  \def\hantext#1{{\language[hans]\hwx\kern -.5em ｜ #1}}%
+  \def\lexicalemph#1{{\ss\underbar{#1}}}
+\to \everylexicalentry
+
 \setuplexicalentry[
-  language=ja,
-  \c!style=\definedfont[Serif at 11pt],
+  \c!language=\currentlanguage,
+  \c!style=\definedfont[Serif],
   \c!after=\blank[halfline],
   \c!prefix=no,
   \c!start=0,
@@ -3969,30 +3983,7 @@ draw p
  {\begingroup
     \cdef\currentlexicalentry{#1}%
     \setuplexicalentry[#2]%
-    \resetcounter[lexicalgrammar]%
-    \resetcounter[lexicaljunction]%
-    \resetcounter[lexicalmeaning]%
-    \resetcounter[lexicalsummary]%
-    \resetcounter[lexicalexample]%
-    \resetcounter[lexicalcomparing]%
-    \resetcounter[itemgroup:env!question]%
-    \def\antonym##1 {\dontleavehmode
-                    \thinspace{\lexicalinnerframe{\lexicalentryparameter{antonymlabel}}
-                    \uselexicalentrystyleandcolor\c!infostyle\c!infocolor
-                    ##1}\thinspace}%
-    \def\example##1 {\dontleavehmode
-                    \thinspace{\lexicalinnerframe{\lexicalentryparameter{examplelabel}}
-                    \uselexicalentrystyleandcolor\c!infostyle\c!infocolor
-                    }\thinspace}%
-    \def\refer##1   {\dontleavehmode
-                    \thinspace{\lexicalinnerframe{\lexicalentryparameter{referlabel}}
-                    \uselexicalentrystyleandcolor\c!infostyle\c!infocolor
-                    ##1}\thinspace}%
-    \def\junction##1{\dontleavehmode
-                    \thinspace{\lexicalinnerframe{\lexicalentryparameter{junctionlabel}}
-                    \uselexicalentrystyleandcolor\c!infostyle\c!infocolor
-                    ##1}\thinspace}%
-    \def\hantext##1{{\userlanguage[hans]\hwx\kern -.5em ｜ ##1}}%
+    \the\everylexicalentry
     \def\alias      {\lexicalentryparameter{alias}}%
     \edef\p_accent  {\lexicalentryparameter{accent}}%
     \edef\p_class   {\lexicalentryparameter{class}}%
@@ -4000,7 +3991,7 @@ draw p
     \edef\p_indexcmd{\lexicalentryparameter{indexcommand}}%
     \edef\p_indexcls{\lexicalentryparameter{indexclass}}%
     \edef\p_indexCLS{grammar}%
-    \startuserlanguage[\lexicalentryparameter{language}]%
+    \language[\lexicalentryparameter\c!language]%
     \setupindenting[none]%
     \lexicalentryparameter\c!before
     \uselexicalentrystyleandcolor\c!style\c!color
@@ -4018,30 +4009,20 @@ draw p
       \lexicalentryparameter{textcommand}{#3}%
     \egroup
     \ifx\p_indexcmd\empty
-      \ifx\p_indexcls\p_indexCLS
-        \grammarindex{#3}%
-        \functionindex{\lexicalentryparameter{function}+#3}%
-      \else
-        \entryindex{#3}%
-      \fi
-    \else
-      \lexicalentryparameter{indexcommand}{#3}%
-    \fi
+      \ifx\p_indexcls\p_indexCLS\grammarindex{#3}\functionindex{\lexicalentryparameter{function}+#3}%
+      \else\entryindex{#3}\fi
+    \else\lexicalentryparameter{indexcommand}{#3}\fi
     \textreference[#3]{#3}
     \ifhastok={#2}
       \processcommacommand[\p_class]{\thinspace\lexicalframe}%
-      \bgroup
-        \setupframed[lexicalframe][width=\bodyfontsize]
-        \processcommacommand[\p_accent]{\thinspace\lexicalframe}%
-      \egroup
+      \processcommacommand[\p_accent]{\thinspace\lexicalframe[width=\bodyfontsize]}%
     \else
       \processcommacommand[#2]{\thinspace\lexicalframe}%
     \fi
     \lexicalentryparameter\c!inbetween}
 
 \def\stopnamedlexicalentry{%
-   \lexicalentryparameter\c!after
-   \stopuserlanguage
+  \lexicalentryparameter\c!after
   \endgroup}
 
 \definelexicalentry[lexicalentry]   [state=stop]
@@ -4056,8 +4037,13 @@ draw p
 \setupitemgroup   [lexicallists]  [3]    [Co:num, ,packed,joinedup]
 \setupitemgroup   [lexicallists]  [4]    [R,      ,packed,joinedup][stopper=.]
 
-\defineenumeration[grammarlists]                 [text={文法},  counter=grammarlists]
-\defineenumeration[examplelists]  [grammarlists] [text={例文},  counter=examplelists]
+\defineenumeration[grammarlists]                   [text={文法},  counter=grammarlists]
+\defineenumeration[examplelists]    [grammarlists] [text={例文},  counter=examplelists]
+\defineenumeration[lexicalmeaning]  [grammarlists] [text={意味},  counter=lexicalmeaning]
+\defineenumeration[lexicaljunction] [grammarlists] [text={接続},  counter=lexicaljunction]
+\defineenumeration[lexicalexample]  [grammarlists] [text={例文},  counter=lexicalexample]
+\defineenumeration[lexicalcomparing][grammarlists] [text={対比},  counter=lexicalcomparing]
+\defineenumeration[lexicalsummary]  [grammarlists] [text={まとめ},counter=lexicalsummary]
 
 \setupenumeration[grammarlists][
   distance=.5em,
@@ -4067,34 +4053,85 @@ draw p
   indenting={yes,first,always,2em},
   before=\par,inbetween=,after=\par,]
 
-\defineenumeration[lexicalmeaning]  [grammarlists] [text={意味},  counter=lexicalmeaning,after=\blank[halfline]]
-\defineenumeration[lexicaljunction] [grammarlists] [text={接続},  counter=lexicaljunction]
-% \defineenumeration[lexicalexample]  [grammarlists] [text={例文},  counter=lexicalexample]
-\defineenumeration[lexicalcomparing][grammarlists] [text={対比},  counter=lexicalcomparing]
-\defineenumeration[lexicalsummary]  [grammarlists] [text={まとめ},counter=lexicalsummary,number=no]
+% \startlexicalentry[apple,名,accent,1]{太陽} \stoplexicalentry
+% \startlexicalentry[number=true]{太陽} \stoplexicalentry
+% \startlexicalentry[number=5]{太陽} \stoplexicalentry
 
-\definestartstop[lexicalexample][
-  before=\startexamplelists
-          \hbox\bgroup
-            \vtop\bgroup\leftskip0pt
-            \hsize\dimexpr\textwidth-4em\relax
-            \startlexicallists,
-  after=\stoplexicallists
-        \egroup
-        \egroup
-        \stopexamplelists,]
+% \startlexicalentry[class=名,accent=1]{太陽}
+%   \startlexicallists
+%     \item 太陽系の中心をなし、地球にもっとも近い恒星。お日さま。\antonym{太陰}。
+%     \item 光明・希望の象徴。「心の\alias」
+%       \startlexicallists
+%         \item 太陽系の中心をなし、地球にもっとも近い恒星。お日さま。\example{太陰}。
+%         \item 光明・希望の象徴。「心の\alias」
+%           \startlexicallists
+%             \item 太陽系の中心をなし、地球にもっとも近い恒星。お日さま。\refer{太陰}。
+%             \item 光明・希望の象徴。「心の\alias」
+%               \startlexicallists
+%                 \item 太陽系の中心をなし、地球にもっとも近い恒星。お日さま。\junction{太陰}。
+%                 \item 光明・希望の象徴。「心の\alias」
+%               \stoplexicallists
+%           \stoplexicallists
+%       \stoplexicallists
+%   \stoplexicallists
+% \stoplexicalentry
 
-\definehighlight [lexicalemph]   [style=\groupedcommand{\ss\underbar}{}]
+% \startlexicalgrammar[class=名,accent=1]{太陽}
+%   \startgrammarlists 太陽系の中心をなし、地球にもっとも近い恒星。\stopgrammarlists
+%   \startgrammarlists 太陽系の中心をなし、地球にもっとも近い恒星。\stopgrammarlists
+%   \startgrammarlists
+%     太陽系の中心をなし、地球にもっとも近い恒星。
+%     \startlexicallists
+%       \item 太陽系の中心をなし、地球にもっとも近い恒星。お日さま。\lexicalemph{太陰}。
+%       \item 光明・希望の象徴。「心の\alias」
+%     \stoplexicallists
+%   \stopgrammarlists
+  
+%   \startexamplelists ワインをは飲みますが、ビールをはのみません。\stopexamplelists
+%   \startexamplelists ワインをは飲みますが、ビールをはのみません。\stopexamplelists
+%   \startlexicalexample
+%     ワインをは飲みますが、ビールをはのみません。
+%     \startlexicallists
+%       \item 私はワインは飲みますが、ビールは飲みません。
+%       \item 映画は見ませんが、ドラマは見ます。
+%       \item 豚肉は食べませんが、牛肉や鶏肉はよく食べます。
+%     \stoplexicallists
+%   \stoplexicalexample
+  
+%   \startlexicalmeaning{Aの状態ではなくなるまでにBを完了する}\\
+%     \junction{動詞辞書形・テイル形・ナイ形}\\
+%     \junction{形容詞・形容動詞の連体形（現在肯定形・現在否定形）}\\
+%     \junction{名詞＋の}
+%     \startlexicallists
+%       \item 明るいうちに、帰ったほうがいい。
+%       \item 元気なうちに、世界一周旅行がしたい。
+%     \stoplexicallists
+%   \stoplexicalmeaning
 
-%D startbuffer
-%D \lexicalentry[class=名,accent=1]{太陽}{
-%D   \startlexicallists
-%D     \item 太陽系の中心をなし、地球にもっとも近い恒星。お日さま。\antonym{太陰}。
-%D     \item 光明・希望の象徴。「心の\alias」
-%D   \stoplexicallists
-%D   }
-%D \stopbuffer
-%D \typebuffer\getbuffer
+%   \startlexicaljunction
+%     太陽系の中心をなし、地球にもっとも近い恒星。
+%     \startlexicallists
+%       \item 明るいうちに、帰ったほうがいい。
+%       \item 元気なうちに、世界一周旅行がしたい。
+%     \stoplexicallists
+%   \stoplexicaljunction
+  
+%   \startlexicalcomparing
+%     太陽系の中心をなし、地球にもっとも近い恒星。
+%     \startlexicallists
+%       \item 明るいうちに、帰ったほうがいい。
+%       \item 元気なうちに、世界一周旅行がしたい。
+%     \stoplexicallists
+%   \stoplexicalcomparing
+  
+%   \startlexicalsummary
+%     太陽系の中心をなし、地球にもっとも近い恒星。
+%     \startlexicallists
+%       \item 明るいうちに、帰ったほうがいい。
+%       \item 元気なうちに、世界一周旅行がしたい。
+%     \stoplexicallists
+%   \stoplexicalsummary
+% \stoplexicalgrammar
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{模式設置 / Mode Setting/ モードセット}

@@ -114,8 +114,8 @@
 
 \processaction[\currentmoduleparameter{background}][
       colorful=>\background_colorfultrue,
-          none=>\relax,
-]
+          none=>\relax,]
+
 \processaction[\currentmoduleparameter{chapterstyle}]%
    [      line=>\chap_sty_linetrue,
       colorful=>\chap_sty_colorfultrue,
@@ -131,6 +131,7 @@
           none=>\relax,
     \v!default=>\chap_sty_defaulttrue,
     \v!unknown=>\errorparameter{chapterstyle},]
+
 \processaction[\currentmoduleparameter{tocstyle}][
           line=>\tocs_sty_linetrue,
       colorful=>\tocs_sty_colorfultrue,
@@ -143,6 +144,7 @@
           none=>\relax,
     \v!default=>\tocs_sty_defaulttrue,
     \v!unknown=>\errorparameter{tocstyle},]
+
 \processaction[\currentmoduleparameter{hdrstyle}]%
    [       book=>\hdr_sty_booktrue,
           novel=>\hdr_sty_noveltrue,
@@ -155,6 +157,7 @@
            none=>\relax,
      \v!default=>\hdr_sty_booktrue,
      \v!unknown=>\errorparameter{hdrstyle},]
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usesymbols             [fontawesome]%
 \setupcolors            [state=start,pagecolormodel=auto,textcolor=textcolor,]
@@ -169,9 +172,9 @@
 \placebookmarks         [part,chapter,section][chapter]
 \setupexternalfigures   [order={pdf,png,jpg},]
 % \enabledirectives[backend.pdf.nounicode=當前非有效版本，請聯繫作者]
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%                            字體集設置                               %%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                          字體集設置                                %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \startmode[moresize]
 % show all size customized : o , i , ii ... especially,11pt & 12pt is fixed size
 %\noindent\dorecurse{9}{%
@@ -2318,45 +2321,49 @@ StopPage ;
 
 %%%%%%%%%%%%%%%%%%%%
 
-\startuseMPgraphic{MPFrameX}%%% ---| left frame |----
+\startuseMPgraphic{MPFrameUnified}%%% unified frame with configurable title
   begingroup;
-     picture px ; numeric ox ; path ax, bx ;
-     px := textext.rt(\MPstring{MPFrameTitle}) ;
+     picture px ; numeric ox, titlex, titleh, align, titlepos ; path ax, titlebg ;
      ox := BodyFontSize ;
      ax := unitsquare xyscaled(OverlayWidth,OverlayHeight) ;
-     px := px shifted (2ox,OverlayHeight-ypart center px) ;
-     bx := ax smoothed 2 ;
+     align := \MPvar{titlealign} ;
+     titlepos := \MPvar{titlepos} ;
+     px := textext(\MPstring{MPFrameTitle}) ;
+     if align = 1 :
+         titlex := 6ox;
+     elseif align = 3 :
+         titlex := OverlayWidth - 3ox - 2 * \overlaylinewidth ;
+     else :
+         titlex := OverlayWidth/2 ;
+     fi ;
+     if titlepos = 0 :
+         px := px shifted (titlex, OverlayHeight - ypart center px) ;
+         titlebg := boundingbox px enlarged (ox/2, ox/3) smoothed 2 ;
+     else :
+         titleh := ox * 1.8 ;
+         px := px shifted (titlex, OverlayHeight - titleh/2 - ypart center px) ;
+         titlebg := unitsquare xyscaled(OverlayWidth, titleh) 
+                    shifted (0, OverlayHeight - titleh) ;
+     fi ;
      drawoptions (withpen pencircle scaled \overlaylinewidth withcolor \MPcolor{\overlaylinecolor});
-     fill bx withcolor \MPcolor{\overlaycolor}  ;    draw bx ;%mainpart
-     bx := (boundingbox px smoothed 2);
-     fill bx withcolor \MPcolor{\overlaylinecolor} ; draw bx ;%titlepart
+     fill ax withcolor \MPcolor{\overlaycolor} ; 
+     draw ax smoothed 2 ;
+     fill titlebg withcolor \MPcolor{\overlaylinecolor} ;
      draw px withcolor white ;
      setbounds currentpicture to ax ;
   endgroup;
 \stopuseMPgraphic
 
-\startuseMPgraphic{MPFrameXX}%%% ---| center frame |----
-     picture pxx ; numeric oxx ; path axx, bxx ;
-     pxx := textext.rt(\MPstring{MPFrameTitle}) ;
-     oxx := BodyFontSize ;
-     axx := unitsquare xyscaled(OverlayWidth,OverlayHeight) ;
-     pxx := pxx shifted (.5*(OverlayWidth- xpart lrcorner pxx + xpart llcorner pxx),OverlayHeight-ypart center pxx) ;
-     bxx := axx smoothed 2 ;
-     drawoptions (withpen pencircle scaled \overlaylinewidth withcolor \MPcolor{\overlaylinecolor});
-     fill bxx withcolor \MPcolor{\overlaycolor}     ; draw bxx ;%mainpart
-     bxx := (boundingbox pxx smoothed 2);
-     fill bxx withcolor \MPcolor{\overlaylinecolor} ; draw bxx ;%titlepart
-     draw pxx withcolor white ;
-     setbounds currentpicture to axx ;
-\stopuseMPgraphic
-
 \startuseMPgraphic{MPFrameXXX}%%% ---| triangle frame |----
-     picture pxxx ; numeric oxxx ; path axxx, bxxx ;
-     pxxx := textext.rt(\MPstring{MPFrameTitle}) ;
+     picture pxxx ; numeric oxxx, hxxx ; path axxx, bxxx ;
+     hxxx := OverlayHeight ;
      oxxx := BodyFontSize ;
+     pxxx := textext(\MPstring{MPFrameTitle}) ;
      axxx := unitsquare xyscaled(OverlayWidth,OverlayHeight) ;
-     pxxx := pxxx shifted (.5*(OverlayWidth- xpart lrcorner pxxx + xpart llcorner pxxx),OverlayHeight-ypart center pxxx) ;
+     pxxx := pxxx shifted (OverlayWidth/2, hxxx - ypart center pxxx) ;
      bxxx := axxx smoothed 2 ;
+     drawoptions (withpen pencircle scaled \overlaylinewidth withcolor \MPcolor{darkbackground});
+     fill bxxx ; draw bxxx ;%titlepart
      drawoptions (withpen pencircle scaled \overlaylinewidth withcolor \MPcolor{\overlaylinecolor});
      fill bxxx withcolor \MPcolor{\overlaycolor}  ;    draw bxxx ;%mainpart
      fill  (xpart llcorner pxxx ,      (ypart llcorner pxxx) - 2pt) --
@@ -2364,37 +2371,17 @@ StopPage ;
           ((xpart lrcorner pxxx) + 10pt , ypart center pxxx)        --
            (xpart urcorner pxxx ,      (ypart urcorner pxxx) + 2pt) --
            (xpart ulcorner pxxx ,      (ypart ulcorner pxxx) + 2pt) --
-          ((xpart llcorner pxxx) - 10pt , ypart center pxxx)        -- cycle
-          withcolor \MPcolor{\overlaylinecolor};
+          ((xpart llcorner pxxx) - 10pt , ypart center pxxx)        -- cycle;
      fill ((xpart llcorner pxxx) + 1pt , ypart llcorner pxxx) --
           ((xpart lrcorner pxxx) - 1pt , ypart lrcorner pxxx) --
           ((xpart lrcorner pxxx) + 5pt ,   ypart center pxxx) --
           ((xpart urcorner pxxx) - 1pt , ypart urcorner pxxx) --
           ((xpart ulcorner pxxx) + 1pt , ypart ulcorner pxxx) --
           ((xpart llcorner pxxx) - 5pt ,   ypart center pxxx) -- cycle
-          withcolor \MPcolor{softbackground};
-     bxxx := (boundingbox pxxx smoothed 2);
-     drawoptions (withpen pencircle scaled \overlaylinewidth withcolor \MPcolor{softbackground});
-     fill bxxx withcolor \MPcolor{softbackground} ; draw bxxx ;%titlepart
-     draw pxxx withcolor white ;
+          withcolor \MPcolor{darkbackground};
+     bxxx := (boundingbox pxxx enlarged (oxxx/2, oxxx/3) smoothed 2);
+     draw pxxx withcolor \MPcolor{\overlaylinecolor} ;
      setbounds currentpicture to axxx ;
-\stopuseMPgraphic
-
-\startuseMPgraphic{MPFrameXXXX}%%% | left frame |
-    picture pxxxx ; numeric wxxxx, hxxxx, oxxxx ; path bxxxx ;
-    wxxxx := OverlayWidth  ;
-    hxxxx := OverlayHeight ;
-    oxxxx := BodyFontSize  ;
-    pxxxx := textext.rt(\MPstring{MPFrameTitle});
-    pxxxx := pxxxx shifted (oxxxx/10,hxxxx-ypart center pxxxx);
-    drawoptions (withpen pencircle scaled 1pt withcolor \MPcolor{\overlaylinecolor});
-    bxxxx := boundingbox pxxxx enlarged (oxxxx/10) smoothed 2;
-%    draw (o/5,h)--(0,h)--(0,0)--(w,0)--(w,h)--(xpart urcorner b,h) ;
-    pickup pencircle scaled 4pt ;
-    draw (0,hxxxx) --  (0,2) .. controls (0,1) and (1,0) .. (2,0) -- (wxxxx,0);
-    fill bxxxx withcolor \MPcolor{\overlaylinecolor} ; draw bxxxx ;
-    draw pxxxx withcolor white ;
-    setbounds currentpicture to OverlayBox ;
 \stopuseMPgraphic
 
 \startuseMPgraphic{MPBoxFrame}
@@ -2491,22 +2478,22 @@ endgroup;
   draw_multi_side;
 \stopuseMPgraphic
 
-\defineoverlay[MPFrameI]    [\useMPgraphic{MPFrameX}]
-\defineoverlay[MPFrameII]   [\useMPgraphic{MPFrameXX}]
-\defineoverlay[MPFrameIII]  [\useMPgraphic{MPFrameXXX}]
-\defineoverlay[MPFrameIV]   [\useMPgraphic{MPFrameXXXX}]
+\defineoverlay[MPFrameI]    [\useMPgraphic{MPFrameUnified}{titlealign=1,titlepos=0}]
+\defineoverlay[MPFrameII]   [\useMPgraphic{MPFrameUnified}{titlealign=2,titlepos=0}]
+\defineoverlay[MPFrameIII]  [\useMPgraphic{MPFrameUnified}{titlealign=3,titlepos=0}]
+\defineoverlay[MPFrameIV]   [\useMPgraphic{MPFrameUnified}{titlealign=2,titlepos=1}]
+\defineoverlay[MPFrameV]    [\useMPgraphic{MPFrameXXX}]
 
 \setMPtext{MPFrameTitle}{} % initialize the text variable
 \setMPtext{MPFrameTitle}{\hbox spread \baselineskip{\hss\framed[frame=off]%
-    {\namedframedtextparameter{FrameText}{title}}\hss}}
+    {\framedtextparameter{title}}\hss}}
 
 \defineframedtext[FrameText][
                   background=MPFrameI,       frame=off,    title=,
                   framecolor=lightthemecolor,backgroundcolor=transparent,
-                  rulethickness=1pt,         indenting={yes,2em},
-                  offset=\bodyfontsize,      width=\textwidth,
-                  before={\vskip.5\baselineskip\relax},
-                  after={\vskip.5\baselineskip\relax},]
+                  rulethickness=1.5pt,       indenting={yes,2em},
+                  toffset=\bodyfontsize,    boffset=.5\bodyfontsize,
+                  width=\textwidth,]
 
 \definecounter[FrameCounter]
               [way=bychapter,
@@ -2606,36 +2593,56 @@ endgroup;
 %\underround{orem ipsum dolor sit }
 
 %%%%%%%%%%%%%%%%%%%%
+\startuseMPgraphic{mp:itemgroup:squares}
+numeric us; path ps;
+us := BodyFontSize;
+ps := fullsquare scaled .5us;
+draw ps shifted (.2us, -.2us) withcolor .5white  withpen pencircle scaled 1pt;
+draw ps shifted (.4us, -.0us) withcolor \MPcolor{lightthemecolor}  withpen pencircle scaled 1pt;
+\stopuseMPgraphic 
+
+\startuseMPgraphic{mp:itemgroup:circles}
+numeric uc; path pc;
+uc := BodyFontSize;
+pc := fullcircle scaled .55uc;
+draw pc shifted (.15uc, -.15uc) withcolor .5white  withpen pencircle scaled 1pt;
+draw pc       withcolor \MPcolor{lightthemecolor}  withpen pencircle scaled 1pt;
+\stopuseMPgraphic
+
 \startuseMPgraphic{mp:itemgroup:square}
 numeric us; path ps;
 us := BodyFontSize;
-ps := fullsquare scaled .8us;
-fill ps shifted (.2us, -.2us) withcolor .75white;
-fill ps withcolor .5[\MPcolor{themecolor}, white];
+ps := fullsquare scaled .6us;
+fill ps shifted (.2us, -.2us) withcolor .5white;
+fill ps withcolor \MPcolor{lightthemecolor};
 \stopuseMPgraphic
 
 \startuseMPgraphic{mp:itemgroup:circle}
 numeric uc; path pc;
 uc := BodyFontSize;
-pc := fullcircle scaled .85uc;
-fill pc shifted (.15uc, -.15uc) withcolor .25white;
-fill pc withcolor .5[\MPcolor{themecolor}, white];
+pc := fullcircle scaled .65uc;
+fill pc shifted (.15uc, -.15uc) withcolor .5white;
+fill pc withcolor \MPcolor{lightthemecolor};
 \stopuseMPgraphic
 
-\definesymbol[shadowedsquare][{\lower.2\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:square}}}]
-\definesymbol[shadowedcircle][{\lower.2\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:circle}}}]
+\definesymbol[shadowedsquare][{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:square}}}]
+\definesymbol[shadowedcircle][{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:circle}}}]
+\definesymbol[shadowedsquares][{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:squares}}}]
+\definesymbol[shadowedcircles][{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:circles}}}]
+
+\definesymbol[blankdiamond][{\tfx ⬥}]
 
 \defineitemgroup    [ordinals] [levels=4]
 \setupitemgroup     [ordinals] [each]
-                               [before=,after=,right=,width=2em,
-                                stopper=.,symalign=center]
-\setupitemgroup     [ordinals] [1]        [n,packed,joinedup,nowhite]
-\setupitemgroup     [ordinals] [2]        [i,packed,joinedup,nowhite]
-\setupitemgroup     [ordinals] [3]        [a,packed,joinedup,nowhite]
-\setupitemgroup     [ordinals] [4]        [i,packed,joinedup,nowhite]
+                               [before=,after=,right=,width=1.5em,
+                               stopper=.,symalign=center]
+\setupitemgroup     [ordinals] [1]        [n,packed,joinedup]
+\setupitemgroup     [ordinals] [2]        [i,packed,joinedup]
+\setupitemgroup     [ordinals] [3]        [a,packed,joinedup]
+\setupitemgroup     [ordinals] [4]        [i,packed,joinedup]
 \defineitemgroup    [points]   [levels=4]% [nowhite]
-\setupitemgroup     [points]   [each]     [packed,joinedup,nowhite]
-                               [before=,after=,right=,width=2em,
+\setupitemgroup     [points]   [each]     [packed,joinedup]
+                               [before=,after=,right=,width=1.5em,
                                 stopper=,symalign=center]
 \setupitemgroup     [points]   [1]        [symbol=mp:bullet]
 \setupitemgroup     [points]   [2]        [symbol=diamond]
@@ -2891,6 +2898,7 @@ fill pc withcolor .5[\MPcolor{themecolor}, white];
 \defineexternalfigure [textmeasure]   [width=\textwidth]
 \defineexternalfigure [marginmeasure] [width=\rightmarginwidth]
 \defineexternalfigure [fullmeasure]   [width=\dimexpr\textwidth+\rightmargintotal\relax]
+
 \setupxtable [leftmargindistance=.5em,  offset=.2em,
               rightmargindistance=.5em, frame=off,
               framecolor=themecolor,    topframe=on,
@@ -3359,8 +3367,7 @@ end
 % \simplealignedbox{\autojustify_width}{flushleft}
        {\processisolatedchars{#2}\addhfil\unskip}%
 }
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \section{circledtext macro}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \startuseMPgraphic{sym:squares-random}
   save height , depth ;
   height := \the \bodyfontsize * \currentfontscale ;
@@ -3369,9 +3376,9 @@ end
   squaresrandom   := fullsquare scaled .6height randomized 1pt;
   draw squaresrandom crossingunder (fullsquare scaled height)
                      withpen pencircle scaled 2pt
-                     withcolor darkred;
+                     withcolor \MPcolor{\itemgroupparameter{color}};
   draw  (fullsquare scaled height)
-             withpen pencircle scaled .1pt withcolor white ;
+             withpen pencircle scaled 0pt withcolor \MPcolor{transparent} ;
 \stopuseMPgraphic
 \startuniqueMPgraphic{sym:square}
   save height , depth ;
@@ -3381,9 +3388,9 @@ end
   square   := fullsquare scaled .6height;
   draw square crossingunder (fullsquare scaled height)
               withpen pencircle scaled 1pt
-              withcolor darkred;
+              withcolor \MPcolor{\itemgroupparameter{color}};
   draw  (fullsquare scaled height)
-             withpen pencircle scaled .1pt withcolor white ;
+             withpen pencircle scaled 0pt withcolor \MPcolor{transparent} ;
 \stopuniqueMPgraphic
 \startuniqueMPgraphic{sym:circle}
   save height , depth ;
@@ -3393,9 +3400,9 @@ end
   circle   := fullcircle scaled .6height;
   draw circle crossingunder (fullsquare scaled height)
               withpen pencircle scaled 1pt
-              withcolor darkred;
+              withcolor \MPcolor{\itemgroupparameter{color}};
   draw  (fullsquare scaled height)
-             withpen pencircle scaled .1pt withcolor white ;
+             withpen pencircle scaled 0pt withcolor \MPcolor{transparent} ;
 \stopuniqueMPgraphic
 \startuniqueMPgraphic{sym:bullet}
   save height , depth ;
@@ -3404,14 +3411,14 @@ end
   path bullet;
   bullet := fullcircle scaled .2height;
   fill bullet crossingunder (fullsquare scaled height)
-              withpen pencircle scaled 1pt;
+              withpen pencircle scaled 1pt withcolor \MPcolor{\itemgroupparameter{color}};
   draw  (fullsquare scaled height)
-             withpen pencircle scaled .1pt withcolor white ;
+             withpen pencircle scaled 0pt withcolor \MPcolor{transparent} ;
 \stopuniqueMPgraphic
 \definesymbol [mp:squares] [{\lower.2ex\hbox{\useMPgraphic{sym:squares-random}}}]
 \definesymbol [mp:square]  [{\lower.2ex\hbox{\uniqueMPgraphic{sym:square}}}]
 \definesymbol [mp:circle]  [{\lower.2ex\hbox{\uniqueMPgraphic{sym:circle}}}]
-\definesymbol [mp:bullet]  [{\lower.5ex\hbox{\uniqueMPgraphic{sym:bullet}}}]
+\definesymbol [mp:bullet]  [{\lower.2ex\hbox{\uniqueMPgraphic{sym:bullet}}}]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                               封面相關設置                             %%%%%%
