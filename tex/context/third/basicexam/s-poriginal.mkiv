@@ -169,12 +169,12 @@
   [past=PrimaryColor,
    future=SecondaryColor]
 
-\doifdefinedelse{definevisualcounter}{}{
+\doifdefinedelse{definevisualcounter}{
 \definevisualcounter
   [visualprogressbar]
   [progressbar]
   [counter=userpage,width=\the\dimexpr\textwidth + 5ex\relax,height=.5ExHeight]
-}
+}{}
 
 \startinteractionmenu[bottom]
   %\startcom  \InteractionBar  \stopcom
