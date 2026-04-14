@@ -117,19 +117,19 @@
 \newif\iflay_twoup   \lay_twoupfalse
 \newif\ifhdr_default \hdr_defaultfalse
 
-\newif\ifenv_question      \newif\ifmode_check    
+\newif\ifenv_question      \newif\ifmode_check
 \newif\ifenv_problem       \newif\ifmode_showanswer
 \newif\ifenv_choice        \newif\ifmode_showpoint
 \newif\ifenv_material      \newif\ifmode_showscript
 \newif\ifenv_close         \newif\ifmode_showmore
 \newif\ifenv_writing       \newif\ifmode_example
 \newif\ifenv_solution
-\newif\ifenv_toplevel        
+\newif\ifenv_toplevel
 \newif\ifenv_botlevel
 \newif\ifitem_pitem
 \newif\ifitem_fillin
 \newif\ifitem_inlinechoice
-\newif\ifcontinue_counter    
+\newif\ifcontinue_counter
 
 \newdimen\d_width_cit
 \newdimen\d_width_cit_max
@@ -234,7 +234,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{定义其后环境所需命令}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\definecolor  [transparent] [r=1,t=0,a=1]
+\definecolor [transparentcolor] [r=0,g=1,b=1,t=0,a=normal]
 \definecounter[Unicode][way=bychapter,start=0]
 \definecounter[Unicode_toplevel]        % for level 1 : question or problem
 \definecounter[Unicode_midlevel]        % for level 2 : problem or level 1
@@ -612,7 +612,7 @@ end
       bottotalpoint={\datasetvariable{ExamDatasetHelper}{\HelperID}{bottotalpoint}},]}
 
 \protected\def\installdatacollectorhelper{%
-  \ifenv_toplevel\else\ifenv_botlevel\else 
+  \ifenv_toplevel\else\ifenv_botlevel\else
     \ifnum\rawcountervalue[Unicode_botlevel]>0\relax
       \decreaseQuestionID
     \fi
@@ -1886,7 +1886,7 @@ end
   \env_choicetrue\set_envitem_counter
 %%%%%% 这段代码似乎没有任何效果了 %%%%%%%%
   \ifdefined\currentuserorder\else
-    \ifnum\c_envnumber = 3\relax\else 
+    \ifnum\c_envnumber = 3\relax\else
       \set_count_envlevel[choice]\fi
   \fi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2045,7 +2045,7 @@ end
   \cdef\currentsolution{#1}%
   \edef\getsolutionbuffer{#2}%
   \doiftrue\s!solution\c!showanswer\mode_showanswertrue
-  \doiftrue\s!solution\c!showpoint \mode_showpointtrue 
+  \doiftrue\s!solution\c!showpoint \mode_showpointtrue
   \doiftrue\s!solution\c!showscript\mode_showscripttrue
   \expand\everysolution
   \ifmode_showscript \donetrue\fi
@@ -2082,7 +2082,7 @@ end
 
 \permanent\protected\def\solution_stop_instance{%
   \doiftrue\s!solution\c!showanswer\mode_showanswertrue
-  \doiftrue\s!solution\c!showpoint \mode_showpointtrue 
+  \doiftrue\s!solution\c!showpoint \mode_showpointtrue
   \doiftrue\s!solution\c!showscript\mode_showscripttrue
   \ifmode_showscript\donetrue\fi
   \ifmode_showanswer\donetrue\fi
@@ -2104,7 +2104,7 @@ end
     \endgroup
     \xdef\getsolutioncontent{\getsolutionbuffer}
     \solutionparameter\c!after
-  \fi 
+  \fi
   \endgroup}
 
 \permanent\tolerant\protected\def\getsolutionbuffer      [#1]{\getbufferdata[\s!solution]}
@@ -2189,7 +2189,7 @@ end
   corner=round,
   before=\vskip.5\baselineskip\relax,
   after=\vskip.5\baselineskip\relax,
-  background=color,backgroundcolor=transparent,
+  background=color,backgroundcolor=transparentcolor,
   rulethickness=1pt]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2516,7 +2516,7 @@ end
 
 \definefillin[fillin]
 \definefillin[fillinframe]  [alternative=frame,offset=0pt,location=low,left=\thinspace,right=\thinspace,align={lohi,center}]
-\definefillin[fillinbracket][fillinframe][left=(,right=),align={center,autoright},framecolor=transparent,style=,]
+\definefillin[fillinbracket][fillinframe][left=(,right=),align={center,autoright},framecolor=transparentcolor,style=,]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{設置 material 環境}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -3745,16 +3745,13 @@ draw p
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{Extra Command}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\ifcsname themecolor\endcsname
-  \definecolor[circlenumcolor][themecolor]
-\else
-  \definecolor[circlenumcolor][black]
-\fi
+\definecolor[circlenumcolor][themecolor]
+
 \def\setupcircledtext{\setupMPvariables[circlednum]}
 \setupcircledtext[frametype=square,% only one value
                   framecolor=black,
                   fillcolor=white,
-                  dashcolor=transparent,
+                  dashcolor=transparentcolor,
                   dashlinewidth=.1pt,
                   color=black, % change font color
                   radius=0.5,% if = 0 will be square,if = 0.5 will be circle
@@ -3805,15 +3802,15 @@ draw p
     \endgroup}
 
 \def\negativecircledconversion#1{{%
-  \setupcircledtext[framecolor=circlenumcolor,color=circlenumcolor,fillcolor=white,radius=0.5,]\circledtext{#1}}}
+  \setupcircledtext[framecolor=circlenumcolor,color=circlenumcolor,fillcolor=transparentcolor,radius=0.5,]\circledtext{#1}}}
 \def\circledconversion#1{{%
   \setupcircledtext[framecolor=circlenumcolor,fillcolor=circlenumcolor,color=white,radius=0.5,]\circledtext{#1}}}
 \def\negativesquaredconversion#1{{%
-  \setupcircledtext[framecolor=circlenumcolor,fillcolor=white,color=circlenumcolor,radius=0,  ]\circledtext{#1}}}
+  \setupcircledtext[framecolor=circlenumcolor,fillcolor=transparentcolor,color=circlenumcolor,radius=0,  ]\circledtext{#1}}}
 \def\squaredconversion#1{{%
   \setupcircledtext[framecolor=circlenumcolor,fillcolor=circlenumcolor,color=white,radius=0,  ]\circledtext{#1}}}
 \def\negativeroundsquaredconversion#1{{%
-  \setupcircledtext[framecolor=circlenumcolor,fillcolor=white,radius=0.2,]\circledtext{#1}}}
+  \setupcircledtext[framecolor=circlenumcolor,fillcolor=transparentcolor,radius=0.2,]\circledtext{#1}}}
 \def\roundsquaredconversion#1{{%
   \setupcircledtext[framecolor=circlenumcolor,fillcolor=circlenumcolor,color=white,radius=0.2,]\circledtext{#1}}}
 
@@ -3905,15 +3902,14 @@ draw p
 
 \defineframed[lexicalframe][
   corner=00,location=high,radius=2pt,align={center,lohi},
-  framecolor=blue,foregroundcolor=blue]
+  framecolor=themecolor,foregroundcolor=themecolor,foregroundstyle=\ssxx]
 
 \defineframed[lexicalinnerframe][lexicalframe]
-\defineframed[grammarframe]     [lexicalframe] [foregroundstyle=\ssxx]
 \setupframed [lexicalinnerframe][
   offset=none,toffset=2pt,boffset=2pt,
   foregroundcolor=white,
-  background=color,backgroundcolor=blue,
-  foregroundstyle=\definedfont[Sans at 8pt]]
+  background=color,backgroundcolor=themecolor,
+  foregroundstyle=\ssxx]
 
 \defineregister [entryindex]
 \defineregister [grammarindex]
@@ -4025,8 +4021,8 @@ draw p
   \lexicalentryparameter\c!after
   \endgroup}
 
-\definelexicalentry[lexicalentry]   [state=stop]
-\definelexicalentry[lexicalgrammar] [indexclass=grammar]
+\definelexicalentry[lexicalentry]  [state=stop]
+\definelexicalentry[lexicalsyntax] [indexclass=grammar]
 
 \defineitemgroup  [lexicallists]  [levels=4]
 \setupitemgroup   [lexicallists]  [each] [before=,after=,left=,right=,width=1.5em,
@@ -4037,21 +4033,24 @@ draw p
 \setupitemgroup   [lexicallists]  [3]    [Co:num, ,packed,joinedup]
 \setupitemgroup   [lexicallists]  [4]    [R,      ,packed,joinedup][stopper=.]
 
-\defineenumeration[grammarlists]                   [text={文法},  counter=grammarlists]
-\defineenumeration[examplelists]    [grammarlists] [text={例文},  counter=examplelists]
-\defineenumeration[lexicalmeaning]  [grammarlists] [text={意味},  counter=lexicalmeaning]
-\defineenumeration[lexicaljunction] [grammarlists] [text={接続},  counter=lexicaljunction]
-\defineenumeration[lexicalexample]  [grammarlists] [text={例文},  counter=lexicalexample]
-\defineenumeration[lexicalcomparing][grammarlists] [text={対比},  counter=lexicalcomparing]
-\defineenumeration[lexicalsummary]  [grammarlists] [text={まとめ},counter=lexicalsummary]
+\defineenumeration[lexicalenumeration]
+\defineenumeration[lexicalgrammar]  [lexicalenumeration] [text={文法},  counter=grammarlists]
+\defineenumeration[lexicalmeaning]   [lexicalenumeration] [text={意味},  counter=lexicalmeaning]
+\defineenumeration[lexicaljunction]  [lexicalenumeration] [text={接続},  counter=lexicaljunction]
+\defineenumeration[lexicalexample]   [lexicalenumeration] [text={例文},  counter=lexicalexample]
+\defineenumeration[lexicalcomparing] [lexicalenumeration] [text={対比},  counter=lexicalcomparing]
+\defineenumeration[lexicalsummary]   [lexicalenumeration] [text={まとめ},counter=lexicalsummary]
 
-\setupenumeration[grammarlists][
+\setupenumeration[lexicalenumeration][
   distance=.5em,
-  numbercommand=\groupedcommand{\raise1.5pt\hbox\bgroup\grammarframe\bgroup}{\egroup\egroup},
-  width=fit,
-  alternative=series,
+  numbercommand=\groupedcommand{\raise1.5pt\hbox\bgroup\lexicalframe\bgroup}{\egroup\egroup},
+  width=fit,hang=broad,
+  alternative=hanging,
   indenting={yes,first,always,2em},
   before=\par,inbetween=,after=\par,]
+
+% 当 example没有说明，而直接列举例文时：
+% \setupenumeration[lexicalexample][alternative=top,inbetween=\leftskip 2em\vskip-.9\baselineskip,]
 
 % \startlexicalentry[apple,名,accent,1]{太陽} \stoplexicalentry
 % \startlexicalentry[number=true]{太陽} \stoplexicalentry
@@ -4076,19 +4075,8 @@ draw p
 %   \stoplexicallists
 % \stoplexicalentry
 
-% \startlexicalgrammar[class=名,accent=1]{太陽}
-%   \startgrammarlists 太陽系の中心をなし、地球にもっとも近い恒星。\stopgrammarlists
-%   \startgrammarlists 太陽系の中心をなし、地球にもっとも近い恒星。\stopgrammarlists
-%   \startgrammarlists
-%     太陽系の中心をなし、地球にもっとも近い恒星。
-%     \startlexicallists
-%       \item 太陽系の中心をなし、地球にもっとも近い恒星。お日さま。\lexicalemph{太陰}。
-%       \item 光明・希望の象徴。「心の\alias」
-%     \stoplexicallists
-%   \stopgrammarlists
-  
-%   \startexamplelists ワインをは飲みますが、ビールをはのみません。\stopexamplelists
-%   \startexamplelists ワインをは飲みますが、ビールをはのみません。\stopexamplelists
+%   \startlexicalexample ワインをは飲みますが、ビールをはのみません。\stoplexicalexample
+%   \startlexicalexample ワインをは飲みますが、ビールをはのみません。\stoplexicalexample
 %   \startlexicalexample
 %     ワインをは飲みますが、ビールをはのみません。
 %     \startlexicallists
@@ -4503,4 +4491,3 @@ draw p
 \protect
 \stopmodule
 \endinput
-

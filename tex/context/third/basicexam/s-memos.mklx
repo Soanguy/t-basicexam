@@ -17,16 +17,16 @@
               papersize=A4,
               layout=moderate,
               mainlanguage=hans,
-              lineheight=1.5\bodyfontsize,
-              latinfontname=\languageparameter{latinfontname},
-              fontname=\languageparameter{fontname},
+              lineheight=\languageparameter{interlinespace},
+              fallbackfont=\languageparameter{fallbackfont},
+              bodyfont=\languageparameter{bodyfont},
               fontstyle=rm,
               fontsize=11pt,
               textcount=40, heightcount=40, margincount=0,
               mode=,
               ratio=1.414,
               themecolor=,
-              chapterstyle=,
+              chapterstyle=default,
               hdrstyle=,
               tocstyle=,
               background=,]
@@ -52,31 +52,6 @@
 \newif\ifcolor_palet_pink     \color_palet_pinkfalse%
 \newif\ifcolor_palet_gray     \color_palet_grayfalse%
 \newif\ifcolor_palet_white    \color_palet_whitefalse%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newif\ifbackground_colorful  \background_colorfulfalse
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newif\ifchap_sty_default     \chap_sty_defaultfalse%
-\newif\ifchap_sty_simple      \chap_sty_simplefalse%
-\newif\ifchap_sty_classics    \chap_sty_classicsfalse%
-\newif\ifchap_sty_classicnovel\chap_sty_classicnovelfalse%
-\newif\ifchap_sty_colorful    \chap_sty_colorfulfalse%
-\newif\ifchap_sty_line        \chap_sty_linefalse%
-\newif\ifchap_sty_rocket      \chap_sty_rocketfalse%
-\newif\ifchap_sty_hexa        \chap_sty_hexafalse%
-\newif\ifchap_sty_madsen      \chap_sty_madsenfalse%
-\newif\ifchap_sty_kaolike     \chap_sty_kaolikefalse%
-\newif\ifchap_sty_publish     \chap_sty_publishfalse%
-\newif\ifchap_sty_artical     \chap_sty_articalfalse%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newif\iftocs_sty_default     \tocs_sty_defaultfalse%
-\newif\iftocs_sty_simple      \tocs_sty_simplefalse%
-\newif\iftocs_sty_classics    \tocs_sty_classicsfalse%
-\newif\iftocs_sty_classicnovel\tocs_sty_classicnovelfalse%
-\newif\iftocs_sty_colorful    \tocs_sty_colorfulfalse%
-\newif\iftocs_sty_line        \tocs_sty_linefalse%
-\newif\iftocs_sty_rocket      \tocs_sty_rocketfalse%
-\newif\iftocs_sty_hexa        \tocs_sty_hexafalse%
-\newif\iftocs_sty_madsen      \tocs_sty_madsenfalse%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % h / f + ltext / ctext / rtext / oemargin
 \newif\ifhdr_sty_book         \hdr_sty_bookfalse%
@@ -112,39 +87,6 @@
     \v!default=>\color_palet_cyantrue,
     \v!unknown=>\errorparameter{themecolor},]
 
-\processaction[\currentmoduleparameter{background}][
-      colorful=>\background_colorfultrue,
-          none=>\relax,]
-
-\processaction[\currentmoduleparameter{chapterstyle}]%
-   [      line=>\chap_sty_linetrue,
-      colorful=>\chap_sty_colorfultrue,
-        madsen=>\chap_sty_madsentrue,
-        rocket=>\chap_sty_rockettrue,
-          hexa=>\chap_sty_hexatrue,
-        simple=>\chap_sty_simpletrue,
-      classics=>\chap_sty_classicstrue,
-  classicnovel=>\chap_sty_classicnoveltrue,
-       kaolike=>\chap_sty_kaoliketrue,
-       article=>\chap_sty_articaltrue,
-       publish=>\chap_sty_publishtrue,
-          none=>\relax,
-    \v!default=>\chap_sty_defaulttrue,
-    \v!unknown=>\errorparameter{chapterstyle},]
-
-\processaction[\currentmoduleparameter{tocstyle}][
-          line=>\tocs_sty_linetrue,
-      colorful=>\tocs_sty_colorfultrue,
-        madsen=>\tocs_sty_madsentrue,
-        rocket=>\tocs_sty_rockettrue,
-          hexa=>\tocs_sty_hexatrue,
-        simple=>\tocs_sty_simpletrue,
-      classics=>\tocs_sty_classicstrue,
-  classicnovel=>\tocs_sty_classicnoveltrue,
-          none=>\relax,
-    \v!default=>\tocs_sty_defaulttrue,
-    \v!unknown=>\errorparameter{tocstyle},]
-
 \processaction[\currentmoduleparameter{hdrstyle}]%
    [       book=>\hdr_sty_booktrue,
           novel=>\hdr_sty_noveltrue,
@@ -155,7 +97,7 @@
    foemarginalt=>\hdr_sty_foemarginalttrue,
       hoemargin=>\hdr_sty_hoemargintrue,
            none=>\relax,
-     \v!default=>\hdr_sty_booktrue,
+     \v!default=>\hdr_sty_fctexttrue,
      \v!unknown=>\errorparameter{hdrstyle},]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -249,14 +191,7 @@
 \stopmode
 
 \definebodyfontenvironment [default] [em=italicface]
-
-\permanent\def\utf #1{\clf_utfchar {0x#1}}
 \definefont       [notefont][Handwriting at 9bp]
-\definefontfeature[f:case][mode=node,case=yes]
-\definefontfeature[f:pnum][mode=node,lnum=yes,pnum=yes]
-\definefontfeature[f:onum][lnum=no,pnum=no,onum=yes,liga=yes,kern=yes]
-\definefontfeature[f:tnum][mode=node,pnum=no,tnum=yes]
-\definefontfeature[f:caps][always][smcp=yes]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                             本地化設置                              %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -302,21 +237,7 @@
 \definefilesynonym [type-imp-jiyou.mkiv]            [type-imp-macos.mkiv]
 \definefilesynonym [type-imp-hiragino.mkiv]         [type-imp-macos.mkiv]
 
-% \startsetups lang:hans
-% \stopsetups
-% \startsetups lang:hant
-% \stopsetups
-% \startsetups lang:ja
-% \stopsetups
-
 %%%%%%%% \section {設置 語言 字體 行高等}
-%% 可以通過 module parameter 控制 fontname latinfontname fontstyle 和 fontsize
-%% 其他的內容則通過具體的語言進行控制。
-%% 包括 align indenting interlinespace whitespace
-%% 我不太懂原因， 但是必須是先放置 appendtoks to everylanguage
-%% 然後在設置 mainlangugae， 才可以正常的切換不同語言的字體。
-%% 從終端結果來看， 和字體的加載順序相關。
-
 \startsetups fallbacks:reset
   \resetfontfallback[fallback-serif]
   \resetfontfallback[fallback-seriflight]
@@ -365,21 +286,18 @@
   \resetfontfallback[fallback-hanwcaps]
 \stopsetups
 
-% \appendtoks
-% \to \everylanguage
-
 \setuplanguage[en]
   [script=latin,patterns=en,
-   fontname=modern,
-   latinfontname=none,
+   bodyfont=modern,
+   fallbackfont=none,
    align={bottom,width},
    interlinespace=2.8ex,
    indenting=none,]
 
 \setuplanguage[cn]
   [script=latin,patterns=en,
-   fontname=adobehans,
-   latinfontname=none,
+   bodyfont=adobehans,
+   fallbackfont=none,
    align={bottom,width},
    interlinespace=2.8ex,
    indenting=none,]
@@ -390,8 +308,8 @@
                  spacing=packed,
                 patterns={zh,en},
                   script=hanzi,
-                fontname=adobehans,
-           latinfontname=cormorantlight,
+                bodyfont=adobehans,
+           fallbackfont=cormorantlight,
           interlinespace=1.5em,
                    align={height,hanging,justified},
                indenting={first,always,2em},
@@ -422,8 +340,8 @@
                  spacing=packed,
                 patterns={zh,en},
                   script=hanzi,
-                fontname=lihant,
-           latinfontname=cormorantlight,
+                bodyfont=lihant,
+           fallbackfont=cormorantlight,
           interlinespace=1.5em,
                    align={height,hanging,justified},
                indenting={first,always,2em},
@@ -454,8 +372,8 @@
                        spacing=packed,
                       patterns={ja,en},
                         script=nihongo,
-                      fontname=kozuka,
-                 latinfontname=ibmplex,
+                      bodyfont=adobenihon,
+                 fallbackfont=ibmplex,
                 interlinespace=1.5em,
                          align={height,hanging,justified},
                      indenting={first,always,1em},
@@ -480,18 +398,12 @@
                    friday:mnem={金},  saturday:mnem={土},
                    sunday:mnem={日}]
 
-% \usebodyfont[ryumin]
-% \starttext
-% {\ja     呦呦鹿鳴 }{\ja \ss 呦呦鹿鳴 }{\ja \hw 呦呦鹿鳴 }{\ja \tt 呦呦鹿鳴 }
-% {\ja     呦呦鹿鳴 }{\ss \ja 呦呦鹿鳴 }{\hw \ja 呦呦鹿鳴 }{\tt \ja 呦呦鹿鳴 }
-% \stoptext
-
 \input type-bak-fallbacks.mkiv
 \mainlanguage        [\moduleparameter{memos}{mainlanguage}]
 \language            [\moduleparameter{memos}{mainlanguage}]
 \setglobalscript     [\languageparameter{script}]
-\setups{fallback:\moduleparameter{memos}{latinfontname}}
-\setupbodyfont       [\moduleparameter{memos}{fontname},
+\setups{fallback:\moduleparameter{memos}{fallbackfont}}
+\setupbodyfont       [\moduleparameter{memos}{bodyfont},
                       \moduleparameter{memos}{fontstyle},
                       \moduleparameter{memos}{fontsize}]
 \setupalign          [\languageparameter\c!align]%
@@ -516,41 +428,22 @@
 %\sethyphenatedurlnormal{:=?&}
 %\sethyphenatedurlbefore{?&}
 %\sethyphenatedurlafter{:=}
-\sethyphenatedurlbefore{/} % 设置在斜杠前断行
-\sethyphenatedurlafter{_}
+% \sethyphenatedurlbefore{/} % 设置在斜杠前断行
+% \sethyphenatedurlafter{_}
 %% % 设置断行时显示的符号
 %\def\hyphenatedurlseparator{↩}
 %\def\href#1#2{\useURL[#2][{#2}][][{#1}]\goto{\url[#2]}[url(#1)]}
 %\href{o}{https://www.bilibili.com/video/}
 
-
-% 废弃不再使用。我们可以使用 zhpunc 来处理中文断行问题。
-% \startmode[*hans,*hant,*ja]
-%   %D \ConTeXt\ 似乎對中文斷行有問題。下面的代碼可能會有助於改善斷行問題。\par
-%   \definebreakpoint [compound] [、] [nleft=1,nright=1,type=1]
-%   \definebreakpoint [compound] [（] [nleft=3,nright=3,type=1]
-%   \definebreakpoint [compound] [）] [nleft=2,nright=2,type=1]
-%   % \setbreakpoints   [compound]
-%   %排版员通常会在以下标记的左侧添加空格：
-%   %: ; ” ’ ! ? / ) ] } * ¿ › » @ ® ™ ℓ ° ¡ ' " † + = ÷ - – —
-%   %他们通常会在以下位置的右侧添加空格：
-%   %“ ‘ / ( [ { > ≥ < ≤ £ $ ¢ € ‹ « √ μ # @ + = ÷ - – —
-%   \definecharacterspacing [CJKPunc] % name may change / unit is em
-%   \setupcharacterspacing  [CJKPunc] ["003A] [\c!left =.125,\c!right =.125,\c!alternative=1] % : e.g. 1:2 a:"b."
-%   \setupcharacterspacing  [CJKPunc] ["FF08] [\c!left  =-.25,\c!alternative=1] %（
-%   \setupcharacterspacing  [CJKPunc] ["FF09] [\c!right =-.25,\c!alternative=1] %）
-%   % --，FF0C 。 3002  -- ”201C“201D ？FF1F
-%   \setcharacterspacing    [CJKPunc]
-% \stopmode
-
-\definedate   [typei]   [year:cn-d,年,month,day:cn,号]
-\definedate   [typeii]  [year:n,年,mm,月,dd,日]% 2025年01月11日
-\definedate   [typeiii] [yy,/,mm,/,dd]%25/01/11
-\definedate   [typeiv]  [yy,-,mm,-,dd]%25-01-11
-\definedate   [typev]   [yy,/,dd,/,mm]%25/11/01
+\definedate   [chinese]   [year:cn-d,年,month,day:cn,号]
+\definedate   [default]  [year:n,年,mm,月,dd,日]% 2025年01月11日
+\definedate   [slash] [yy,/,mm,/,dd]%25/01/11
+\definedate   [line]  [yy,-,mm,-,dd]%25-01-11
+\definedate   [yyddmm]   [yy,/,dd,/,mm]%25/11/01
 %D \starttyping
-%D  \currentdate[typei] \currentdate[typeii] \currentdate[typeiii]
-%D  \currentdate[typeiv] \currentdate[typev]
+%D  \currentdate[chinese] \currentdate[default] 
+%D  \currentdate[slash] \currentdate[line]
+%D  \currentdate[yyddmm]
 %D \stoptyping
 %%%%%%%%%%%%%%%
 %%  ！！！ 應該只考慮 英數 和 漢字 之間的空間插入，符號 和 漢字 之間的間距不應該由這個程式控制
@@ -671,7 +564,7 @@
 \def\enablepanguspace {\ctxluacode{nodes.tasks.enableaction ("processors","Thirddata.processmystuff")}}
 
 \startprotectedcolors
-  \definecolor [transparent] [r=1,t=0,a=1]
+  \definecolor [transparentcolor] [r=0,g=1,b=1,t=0,a=normal]
   \definecolor [softred]     [x=F7CDBC]  \definecolor [softpink]    [x=F5CEBE]
   \definecolor [lightred]    [x=F9906F]  \definecolor [lightpink]   [x=EDC3AE]
   \definecolor [red]         [x=D70C19]  \definecolor [pink]        [x=F9906F]
@@ -825,6 +718,7 @@
                           sidenotecolor=deepgray,  footnotecolor=deepgray,
                           linkcolor=blue,          toclinkcolor=blue,
                           framecolor=deepwhite,    referencecolor=blue,]
+
 \definecolor [covercolor] [softbackground]
 \ifcolor_palet_white   \setuppalet[innocence]  \fi
 \ifcolor_palet_red     \setuppalet[passion]    \fi
@@ -838,9 +732,10 @@
 \ifcolor_palet_gray    \setuppalet[reliable]   \fi
 \ifcolor_palet_cyan    \setuppalet[creativity] \fi
 %% 注意，一旦启用 palet ， lib dum 会失效，因为他设定了自己的 palet
+
 %D \section{layout}
 %D 注意， \CONTEXT\ 設置的正文高度包括了頁眉頁腳。
-%D 特別地，herms 只關心 正文寬度、高度和邊注的寬度。其他的依照 1 : √2 設定。
+%D 特別地，herms 只關心 正文寬度、高度和邊注的寬度。
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                      頁面設置                                         %%%%%%
 %%%%%% paperwidth  = leftedge + leftmargin + width +                       %%%%%%
@@ -904,9 +799,6 @@
                   header=36mm,       footer=30mm,
                     width=fit,        height=fit,
                   bottom=13mm,  rightmargin=50mm,]
-%LR length = 1.75cm/3.5cm/7cm
-%T  length = 1.237cm/2.482cm/4.95cm
-%B  length = 1.237cm/2.475cm/4.95cm
 \definelayout    [narrow]
                  [topspace=0mm,      backspace=17.5mm,
                  bottomspace=0mm,     %cutspace=17.5mm,
@@ -1100,24 +992,6 @@ context.definelayout(
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                                結構相關設置                         %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% \startsectionblockenvironment[frontmatter]
-%   \setupcounter[userpage][numberconversion=Romannumerals]
-% \stopsectionblockenvironment
-
-% \startsectionblockenvironment[bodymatter]
-%   \setupcounter[userpage]     [numberconversion=numbers]
-%   \setuphead   [part,chapter] [header=empty,footer=empty]
-% \stopsectionblockenvironment
-
-% \startsectionblockenvironment[appendices]
-%   \setupuserpagenumber [numberconversion=numbers]
-% \stopsectionblockenvironment
-
-% \startsectionblockenvironment[backmatter]
-%   \setupuserpagenumber [numberconversion=numbers]
-% \stopsectionblockenvironment
-
 \defineconversionset  [frontpart:pagenumber] [] [Romannumerals]
 \defineconversionset  [bodypart:pagenumber]  [] [n]
 \setupsectionblock    [frontpart] [\c!number=\v!yes,before=\setcounter [userpage] [1]]
@@ -1158,42 +1032,40 @@ context.definelayout(
 \setuphead [subsubsection]       [sectionsegments=subsubsection]
 \setuphead [subsubsubsection]    [sectionsegments=subsubsubsection]
 \setuphead [subsubsubsubsection] [sectionsegments=subsubsubsubsection]
-\def\parenround#1{(#1) }
-\def\parenkaku#1{<#1> }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                          標題相關設置                               %%%%%%
 %%%%%%                           數字式標籤                                %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %characters(a),romannumerals(i),numbers(1),
 %chinesenumerals(四十二) chinesecapnumerals(肆拾二) chineseallnumerals(廿二)
-\ifchap_sty_simple
 %% 第 1 章    --- chapter
 %% 1 XXXX     --- section
 %% 1.1 XXXX   --- subsection
 %% (1) XXXX   --- subsubsection
 %% (1.1) XXXX --- subsubsubsection
-\definestructureconversionset[simpconversionset]
-                             [chinesenumerals,% part
-                              Numbers,         % chapter
-                              Numbers,         % section
-                              Numbers,         % subsection
-                              Numbers,         % subsubsection
-                              Numbers,Numbers, % subsubsub,subsubsubsub
-                             ][N]              % default,fallback
-\setupheads[part,chapter,section,subsection,subsubsection,
-            subsubsubsection,subsubsubsubsection]
-           [sectionconversionset=simpconversionset]
-\setupheads[subsection]          [sectionsegments=section:*]
-\setupheads[subsubsection]       [numbercommand=\parenround]
-\setupheads[subsubsubsection]    [sectionsegments=subsubsection:*]
-\setupheads[subsubsubsubsection] [sectionsegments=subsubsection:*]
-\fi
+\startsetups memos:chap:simple
+  \definestructureconversionset[simpconversionset]
+                              [chinesenumerals,% part
+                                Numbers,         % chapter
+                                Numbers,         % section
+                                Numbers,         % subsection
+                                Numbers,         % subsubsection
+                                Numbers,Numbers, % subsubsub,subsubsubsub
+                              ][N]              % default,fallback
+  \setupheads[part,chapter,section,subsection,subsubsection,
+              subsubsubsection,subsubsubsubsection]
+            [sectionconversionset=simpconversionset]
+  \setupheads[subsection]          [sectionsegments=section:*]
+  \setupheads[subsubsection]       [numbercommand=\paren]
+  \setupheads[subsubsubsection]    [sectionsegments=subsubsection:*]
+  \setupheads[subsubsubsubsection] [sectionsegments=subsubsection:*]
+\stopsetups
 %% 第 1 章          --- chapter
 %% 第 1 節 XXXX     --- section
 %% 1.1 XXXX         --- subsection
 %% 1.1.1 XXXX       --- subsubsection
 %% (1.1) XXXX       --- subsubsubsection
-\ifchap_sty_default
+\startsetups memos:chap:default
     \edef\currentchapterstyle{default}
     \definestructureconversionset[defaultconversionset][chinesenumerals,
        Numbers,Numbers,Numbers,Numbers][n]
@@ -1225,13 +1097,13 @@ context.definelayout(
                              chapter={第,章},    section={第,節},
                              subsection={},      subsubsection={},
                              subsubsubsection={},subsubsubsubsection={}]
-\fi
+\stopsetups
 %% ------------      1.1 Subsection
 %%  1 Chapter        (1) Subsubsection
 %% ------------      (1.1) Subsubsubsection
 %% 1 Section         (1.1.1) Subsubsubsubsection
 %%%%%%
-\ifchap_sty_line
+\startsetups memos:chap:line
     \defineheadalternative[linecentered]
                           [alternative=vertical,
                            renderingsetup=linecentered]
@@ -1260,58 +1132,56 @@ context.definelayout(
                                       after=\vskip3\baselineskip\relax,
                                       alternative=linecentered,
                                       interlinespace=medium,
-                                      style=\bfd]
+                                      style=\ss\bfd]
     \setuphead [section,subsection]  [numbercolor=lightthemecolor,numberwidth=2em]
-    \setuphead [section]             [style=\bfb,   numberstyle=\bid,]
-    \setuphead [subsection]          [style=\tfa,   numberstyle=\itc]
+    \setuphead [section]             [style=\ss\bfb,   numberstyle=\ss\bid,]
+    \setuphead [subsection]          [style=\ss\tfa,   numberstyle=\ss\itc]
     \setupheads[subsection]          [numbercommand=,]
-    \setupheads[subsubsection]       [numbercommand=\parenround]
-    \setupheads[subsubsubsection]    [numbercommand=\parenround,]
-    \setupheads[subsubsubsubsection] [numbercommand=\parenround,]
+    \setupheads[subsubsection]       [numbercommand=\paren]
+    \setupheads[subsubsubsection]    [numbercommand=\paren,]
+    \setupheads[subsubsubsubsection] [numbercommand=\paren,]
     \setupheads[subsection]          [sectionsegments=chapter:*]
     \setupheads[subsubsubsection]    [sectionsegments=subsubsection:*]
     \setupheads[subsubsubsubsection] [sectionsegments=subsubsection:*]
-\fi
+\stopsetups
 %%%%%%
 %% chapter 1 XXXX    --- chapter
 %% 1 XXXX            --- section
 %% 1.1 XXXX          --- subsection
 %% 1.1.1 XXXX        --- subsubsection
 %% 1.1.1.1 XXXX      --- subsubsubsection
-\ifchap_sty_madsen
-\definebodyfontenvironment [40pt]
-\defineoverlay[chapback][{\externalfigure[][width=0.8\paperwidth,height=6cm]}]
-\startsetups chapstyle:madsentoc
+\startsetups memos:chap:madsentoc
   \startlocalheadsetup
   \headsetupspacing
   \starttabulate[|ck{0}|]
   \setuplocalinterlinespace[1pt]
   \NC\startframed[background=color,backgroundcolor=softbackground,
-               foreground=color,foregroundcolor=white,
-               corner=03,frame=off,location=bottom,
-               width=\textwidth,height=5em,align={lohi,center}]%
+              foreground=color,foregroundcolor=white,
+              corner=03,frame=off,location=bottom,
+              width=\textwidth,height=5em,align={lohi,center}]%
               \headtextcontent
   \stopframed\NC\NR\NC
   \startframed[height=\baselineskip,width=\textwidth,corner=01,
-               background=color,backgroundcolor=themecolor,
-               toffset=-\baselineskip,location=bottom,
-               align=right,frame=off,]
+              background=color,backgroundcolor=themecolor,
+              toffset=-\baselineskip,location=bottom,
+              align=right,frame=off,]
   \stopframed\NC\NR
   \stoptabulate
   \stoplocalheadsetup
 \stopsetups
-\startsetups chapstyle:madsenchapter
+
+\startsetups memos:chap:madsenchapter
   \startlocalheadsetup
   \headsetupspacing
   \startframed[height=fit,width=\headparameter\c!width,
               %background=chapback,
-               align=flushright,location=hanging,
-               frame=off,bottomframe=on,topframe=on]
+              align=flushright,location=hanging,
+              frame=off,bottomframe=on,topframe=on]
     \startframed[frame=off,]%
       \startframed[frame=off,foregroundcolor=lightthemecolor]%
         \ifconditional\headshownumber
           \rotate[rotation=90]{\tf \setcharactercasing[Word]%
-                               \sc \currentstructurelabel}%
+                              \sc \currentstructurelabel}%
         \else\strut\fi
       \stopframed
       \startframed[backgroundcolor=themecolor, background=color,
@@ -1319,9 +1189,9 @@ context.definelayout(
                   corner=round,frame=off,
                   backgroundoffset=-4pt,
                   width=5em,height=5em,align={lohi,center}]%
-                 \setuplocalinterlinespace[0pt]
-                 \switchtobodyfont[40pt]
-                 \headnumber[chapter]%
+                \setuplocalinterlinespace[0pt]
+                \switchtobodyfont[40pt]
+                \headnumber[chapter]%
       \stopframed%
     \stopframed\endgraf
     \startframed[height=fit,width=0.65\headparameter\c!width,
@@ -1331,8 +1201,13 @@ context.definelayout(
   \stopframed
   \stoplocalheadsetup
 \stopsetups
-  \defineheadalternative[madsentoc][renderingsetup=chapstyle:madsentoc]
-  \defineheadalternative[madsen][renderingsetup=chapstyle:madsenchapter]
+
+\startsetups memos:chap:madsen
+  \definebodyfontenvironment [40pt]
+  \defineoverlay[chapback][{\externalfigure[][width=0.8\paperwidth,height=6cm]}]
+
+  \defineheadalternative[madsentoc][renderingsetup=memos:chap:madsentoc]
+  \defineheadalternative[madsen][renderingsetup=memos:chap:madsenchapter]
   \setuphead[chapter][before=,width=\textwidth,%\spanmarginwidth,
                       alternative=madsen,
                       textstyle=\definedfont[Sans sa 2.488]]
@@ -1340,87 +1215,121 @@ context.definelayout(
   \setupheads[subsubsection]       [sectionsegments=section:*]
   \setupheads[subsubsubsection]    [sectionsegments=section:*]
   \setupheads[subsubsubsubsection] [sectionsegments=section:*]
-\fi
+\stopsetups
 %%%%%%
 %% 第 一 回 XXXX
-\ifchap_sty_classicnovel
-\definestructureconversionset[classicnovelconversionset]
-                      [chineseallnumerals][chineseallnumerals]
-\setupheads[part,chapter,section,subsection,
-            subsubsection,subsubsubsection,
-            subsubsubsubsection]
-           [sectionconversionset=classicnovelconversionset]
-\setuplabeltext [hans] [part={部},chapter={第,回},]
-\setuplabeltext [hant] [part={部},chapter={第,回},]
-\setuplist [chapter] [width=4em,distance=1em,numberalign=inner,style=\bf]
-\defineheadalternative[classicnovel]
-                      [alternative=vertical,
-                       renderingsetup=classicnovel]
-\newdimen\HeadNumberWidth
-\setwidthof{\headnumbercontent}\to\HeadNumberWidth
-\newdimen\MaxHeadNumberWidth
-\MaxHeadNumberWidth=82pt
-\startsetups[classicnovel]
-   \vbox {
-        \headsetupspacing
-        \veryraggedcenter
-        \let\\\endgraf\let\crlf\endgraf
-        \setupTABLE[c][each][align={\p_align},frame=off]
-        \ifdim\HeadNumberWidth>\MaxHeadNumberWidth
-            \bTABLE\bTR\bTD
-            \ifconditional\headshownumber%
-            \begstrut\headnumbercontent\endstrut%
-            \else\fakeheadnumbercontent\fi%
-            \eTD\eTR\bTR\bTD%
-            \begstrut\headtextcontent\endstrut%
-            \eTD\eTR\eTABLE
-        \else
-            \bTABLE\bTR\bTD[roffset=\headparameter\c!roffset]
-            \ifconditional\headshownumber%
-                \strut\headnumbercontent\quad%
-            \else\fakeheadnumbercontent\fi%
-            \eTD\bTD%
-            \begstrut\headtextcontent\endstrut%
-            \eTD\eTR\eTABLE%
-       \fi
-   }
+\startsetups memos:chap:classicnovel
+  \definestructureconversionset[classicnovelconversionset]
+                        [chineseallnumerals][chineseallnumerals]
+  \setupheads[part,chapter,section,subsection,
+              subsubsection,subsubsubsection,
+              subsubsubsubsection]
+            [sectionconversionset=classicnovelconversionset]
+  \setuplabeltext [hans] [part={部},chapter={第,回},]
+  \setuplabeltext [hant] [part={部},chapter={第,回},]
+  \setuplist [chapter] [width=4em,distance=1em,numberalign=inner,style=\bf]
+  \defineheadalternative[classicnovel]
+                        [alternative=vertical,
+                        renderingsetup=classicnovel]
+  \newdimen\HeadNumberWidth
+  \setwidthof{\headnumbercontent}\to\HeadNumberWidth
+  \newdimen\MaxHeadNumberWidth
+  \MaxHeadNumberWidth=82pt
+  \startsetups[classicnovel]
+    \vbox {
+          \headsetupspacing
+          \veryraggedcenter
+          \let\\\endgraf\let\crlf\endgraf
+          \setupTABLE[c][each][align={\p_align},frame=off]
+          \ifdim\HeadNumberWidth>\MaxHeadNumberWidth
+              \bTABLE\bTR\bTD
+              \ifconditional\headshownumber%
+              \begstrut\headnumbercontent\endstrut%
+              \else\fakeheadnumbercontent\fi%
+              \eTD\eTR\bTR\bTD%
+              \begstrut\headtextcontent\endstrut%
+              \eTD\eTR\eTABLE
+          \else
+              \bTABLE\bTR\bTD[roffset=\headparameter\c!roffset]
+              \ifconditional\headshownumber%
+                  \strut\headnumbercontent\quad%
+              \else\fakeheadnumbercontent\fi%
+              \eTD\bTD%
+              \begstrut\headtextcontent\endstrut%
+              \eTD\eTR\eTABLE%
+        \fi
+    }
+  \stopsetups
+  \setupheads[chapter][roffset=1em,% control space between number and title
+                      alternative=classicnovel,align={center,lohi}]
 \stopsetups
-\setupheads[chapter][roffset=1em,% control space between number and title
-                     alternative=classicnovel,align={center,lohi}]
-\fi
 %%%%%%
 %% XX 第一
-\ifchap_sty_classics
-\definestructureconversionset[classicsconversionset]
-                      [chineseallnumerals][chineseallnumerals]
-\setupheads[part,chapter,section,subsection,
-            subsubsection,subsubsubsection,
-            subsubsubsubsection]
-           [sectionconversionset=classicsconversionset]
-\setuplabeltext [hans][part={部},chapter={第},]
-\defineheadalternative[classics]
-                      [alternative=horizontal,
-                       renderingsetup=classics]
-\startsetups[classics]
-   \vbox {
-        \headsetupspacing
-        \veryraggedcenter
-        \let\\\endgraf\let\crlf\endgraf
-        \begstrut
-        \headtextcontent
-        \ifconditional\headshownumber
-        \headnumbercontent
-        \else\fakeheadnumbercontent\fi
-        \endstrut\blank
-   }
+\startsetups memos:chap:classics
+  \definestructureconversionset[classicsconversionset]
+                        [chineseallnumerals][chineseallnumerals]
+  \setupheads[part,chapter,section,subsection,
+              subsubsection,subsubsubsection,
+              subsubsubsubsection]
+            [sectionconversionset=classicsconversionset]
+  \setuplabeltext [hans][part={部},chapter={第},]
+  \defineheadalternative[classics]
+                        [alternative=horizontal,
+                        renderingsetup=classics]
+  \startsetups[classics]
+    \vbox {
+          \headsetupspacing
+          \veryraggedcenter
+          \let\\\endgraf\let\crlf\endgraf
+          \begstrut
+          \headtextcontent
+          \ifconditional\headshownumber
+          \headnumbercontent
+          \else\fakeheadnumbercontent\fi
+          \endstrut\blank
+    }
+  \stopsetups
+  \setupheads[chapter][alternative=classics,align={center}]
 \stopsetups
-\setupheads[chapter][alternative=classics,align={center}]
-\fi
 %%%%%%
-\ifchap_sty_colorful
+
+\startuseMPgraphic{crosspart}
+  StartPage ;
+      numeric edgewidth     ; edgewidth     := \the\rightedgedistance  ;
+      numeric marginwidth   ; marginwidth   := \the\rightmarginwidth   ;
+      numeric paperwidth    ; paperwidth    := \the\paperwidth         ;
+      numeric paperheight   ; paperheight   := \the\paperheight        ;
+      numeric shifttomargin ; shifttomargin := \the\shifttomargin      ;
+    path VertBox ; path VertBoxi ;
+    VertBox   := lrcorner Field[Bottom]  [OuterEdge] --
+                lrcorner Field[OuterEdge]     [Top] --
+                urcorner Field[Top]   [OuterMargin] --
+                urcorner Field[Bottom][OuterMargin] -- cycle ;
+    VertBoxi := lrcorner Field[Bottom]  [RightEdgeSeparator] --
+                lrcorner Field[RightEdgeSeparator]     [Top] --
+                urcorner Field[Top]            [RightMargin] --
+                urcorner Field[Bottom]         [RightMargin] -- cycle ;
+      path HorizBox ; path HorizBoxi ; path HorizBoxii ;
+      HorizBox  := fullsquare xysized (  paperwidth,.06paperheight)
+                              shifted (.5paperwidth, .7paperheight);
+      HorizBoxi := fullsquare xysized (  paperwidth,.08paperheight)
+                              shifted (.5paperwidth, .7paperheight);
+    HorizBoxii := fullsquare xysized (  marginwidth,.06paperheight)
+                              shifted (shifttomargin, .7paperheight);
+      pickup pencircle scaled 2pt ;
+      fill Page        withcolor \MPcolor{softthemecolor}   ;
+      fill VertBox     withcolor \MPcolor{lightthemecolor}  ;
+      fill VertBoxi    shifted(-edgewidth,0) withcolor white ;
+      fill HorizBoxi   withcolor white ;
+      fill HorizBox    withcolor \MPcolor{lightthemecolor}  ;
+      fill HorizBoxii  withcolor \MPcolor{softthemecolor}  ;
+  StopPage ;
+\stopuseMPgraphic
+
 \startuseMPgraphic{MP:all}
-    numeric width ,                  height ;
-            width  = \overlaywidth ; height = \overlayheight ;
+    numeric width , height ;
+    width  = \overlaywidth ;
+    height = \overlayheight ;
     numeric textwidth ,              textheight ;
     textwidth  := .9*\overlaywidth ; textheight := .92*\overlayheight ;
     path paper_back ;%%% i
@@ -1430,94 +1339,7 @@ context.definelayout(
     text_back := fullsquare xscaled textwidth yscaled textheight cornered .5cm;
     fill text_back withcolor white ;
 \stopuseMPgraphic
-\definelayer      [lay:all]  [repeat=yes,width=\paperwidth, height=\paperheight]
-\defineoverlay    [olay:all] [\useMPgraphic{MP:all}]
-\setupbackgrounds [page]     [background=olay:all,state=repeat]
-\newdimen\shifttomargin
-\shifttomargin=\dimexpr\paperwidth-%
-              2\rightedgedistance-\rightedgewidth-%
-              .5\rightmarginwidth\relax%
-\startuseMPgraphic{crosspart}
-StartPage ;
-    numeric edgewidth     ; edgewidth     := \the\rightedgedistance  ;
-    numeric marginwidth   ; marginwidth   := \the\rightmarginwidth   ;
-    numeric paperwidth    ; paperwidth    := \the\paperwidth         ;
-    numeric paperheight   ; paperheight   := \the\paperheight        ;
-    numeric shifttomargin ; shifttomargin := \the\shifttomargin      ;
-  path VertBox ; path VertBoxi ;
-  VertBox   := lrcorner Field[Bottom]  [OuterEdge] --
-               lrcorner Field[OuterEdge]     [Top] --
-               urcorner Field[Top]   [OuterMargin] --
-               urcorner Field[Bottom][OuterMargin] -- cycle ;
-   VertBoxi := lrcorner Field[Bottom]  [RightEdgeSeparator] --
-               lrcorner Field[RightEdgeSeparator]     [Top] --
-               urcorner Field[Top]            [RightMargin] --
-               urcorner Field[Bottom]         [RightMargin] -- cycle ;
-    path HorizBox ; path HorizBoxi ; path HorizBoxii ;
-    HorizBox  := fullsquare xysized (  paperwidth,.06paperheight)
-                            shifted (.5paperwidth, .7paperheight);
-    HorizBoxi := fullsquare xysized (  paperwidth,.08paperheight)
-                            shifted (.5paperwidth, .7paperheight);
-   HorizBoxii := fullsquare xysized (  marginwidth,.06paperheight)
-                            shifted (shifttomargin, .7paperheight);
-    pickup pencircle scaled 2pt ;
-    fill Page        withcolor \MPcolor{softthemecolor}   ;
-    fill VertBox     withcolor \MPcolor{lightthemecolor}  ;
-    fill VertBoxi    shifted(-edgewidth,0) withcolor white ;
-    fill HorizBoxi   withcolor white ;
-    fill HorizBox    withcolor \MPcolor{darkthemecolor}  ;
-    fill HorizBoxii  withcolor \MPcolor{softthemecolorv}  ;
-StopPage ;
-\stopuseMPgraphic
-%\startuseMPgraphic{partcontent}
-%    numeric width , height ;
-%    width  =  PaperWidth ;
-%    height = PaperHeight ;
-%    draw thetextext("\headnumbercontent",
-%         origin shifted(.3width,.33width))
-%         withcolor \MPcolor{titlecolor} ;
-%    draw thetextext("\headtextcontent",
-%         origin shifted(.3width,.13width))
-%         withcolor \MPcolor{titlecolor};
-%\stopuseMPgraphic
-\define[2]\left_margin_placement{%
-   \vbox{\localheadsetup\begstrut\dontleavehmode
-   \ifconditional\headshownumber
-     \vskip\dimexpr.06\paperwidth\relax
-     \rightskip = -.85\rightmarginwidth #1
-     \vskip\dimexpr.09\paperwidth\relax
-      #2
-     \vskip2.5\baselineskip
-   \fi
-}}
-\definelayer   [part]        [width=\paperwidth, height=\paperheight]
-\defineoverlay [partoverlay] [\useMPgraphic{crosspart}]
-\definemakeup  [part]        [doublesided=yes%
-                             ,pagestate=start%
-                             ,page={odd,}%
-                             ,headerstate=stop%
-                             ,footerstate=stop%
-                             ,topstate=stop%
-                             ,bottomstate=stop%
-                             ,textstate=stop%
-                             ,top=\pseudostrut\ignorespaces%
-                             ,bottom=\obeydepth\vss%
-                             ,height=\paperheight%
-                             ,align=flushright%
-                             ,before=\setupbackgrounds[page]
-                                     [background=partoverlay],
-                             ,after=]
-\setuphead     [part]        [placehead=yes,align=flushright,page=no,
-                              alternative=\v!command,
-                              \c!command=\left_margin_placement,
-%%                              alternative=paragraph,
-%%                              location=outermargin,
-%%                            numbercommand=\groupedcommand
-%%                              {\vskip\dimexpr.06\paperwidth\relax}
-%%                              {\blank},
-                             ]
-% startpartmakeup \part{} \stoppartmakeup
-% ------------- only set for chapter
+
 \startuseMPgraphic{MP:chapter}
     numeric width , height ;
     width  = \overlaywidth ;
@@ -1532,24 +1354,77 @@ StopPage ;
     text_back := fullsquare xscaled textwidth yscaled textheight cornered .5cm;
     fill text_back shifted(0,-.15textheight) withcolor white ;
 \stopuseMPgraphic
-\definelayer[lay:chapter][width=\paperwidth, height=\paperheight]
-\defineoverlay[olay:chapter][\directsetup{chapter:pagebackground}]
+
 \startsetups chapter:pagebackground
-\doifelsemode {chapterpage} {
-  \setlayer[lay:chapter][preset=lefttop]{\useMPgraphic{MP:chapter}}
-  \globaldisablemode[chapterpage]
-  }{}
-\placelayer[lay:chapter]
+  \doifelsemode {colorful:chapterpage} {
+    \setlayer[lay:chapter][preset=lefttop]{\useMPgraphic{MP:chapter}}
+    \globaldisablemode[colorful:chapterpage]
+  }{
+    \setlayer[lay:chapter][preset=lefttop]{\useMPgraphic{MP:all}}
+  }
+  \placelayer[lay:chapter]
 \stopsetups
-\startsetups chapter:before
-\globalenablemode[chapterpage]
+
+\define[2]\left_margin_placement{%
+  \vbox{\localheadsetup
+  \begstrut\dontleavehmode
+  \ifconditional\headshownumber
+    \vskip\dimexpr.06\paperwidth\relax
+    \rightskip = -.85\rightmarginwidth #1
+    \vskip\dimexpr.09\paperwidth\relax
+      #2
+    \vskip2.5\baselineskip
+  \fi
+}}
+
+\newdimen\shifttomargin
+\shifttomargin=\dimexpr\paperwidth-%
+            2\rightedgedistance-\rightedgewidth-%
+            .5\rightmarginwidth\relax%
+
+\startsetups memos:chap:colorful
+  \definelayer      [lay:all]  [repeat=yes,width=\paperwidth, height=\paperheight]
+  \definelayer      [lay:chapter][width=\paperwidth, height=\paperheight]
+  \defineoverlay    [olay:all]    [\useMPgraphic{MP:all}]
+  \defineoverlay    [partoverlay] [\useMPgraphic{crosspart}]
+  \defineoverlay    [olay:chapter][\directsetup{chapter:pagebackground}]
+  % \setupbackgrounds [page]     [background=olay:all,state=repeat]
+  \setupbackgrounds [page]     [background=olay:chapter]
+
+  \definemakeup  [part]        [doublesided=yes%
+                              ,pagestate=start%
+                              ,page={odd,}%
+                              ,headerstate=stop%
+                              ,footerstate=stop%
+                              ,topstate=stop%
+                              ,bottomstate=stop%
+                              ,textstate=stop%
+                              ,top=\pseudostrut\ignorespaces%
+                              ,bottom=\obeydepth\vss%
+                              ,height=\paperheight%
+                              ,align=flushright%
+                              ,before=\setupbackgrounds[page][background=partoverlay],
+                              ,after=]
+
+  \setuphead     [part]        [placehead=yes,align=flushright,page=no,
+                                alternative=\v!command,
+                                \c!command=\left_margin_placement,
+  %%                              alternative=paragraph,
+  %%                              location=outermargin,
+  %%                            numbercommand=\groupedcommand
+  %%                              {\vskip\dimexpr.06\paperwidth\relax}
+  %%                              {\blank},
+                              ]
+  % startpartmakeup \part{} \stoppartmakeup
+  % ------------- only set for chapter
+
+  \setuphead[chapter][before={\globaldisablemode[rocket:chapterpage]
+                              \globaldisablemode[hexa:chapterpage]
+                              \globalenablemode[colorful:chapterpage]
+                              \null\vskip2\baselineskip\relax},
+                      after={\null\vskip2\baselineskip\relax},]
+         
 \stopsetups
-\setuphead[chapter][before={\setupbackgrounds[page][background=olay:chapter]
-                            \setup{chapter:before}
-                            \null\vskip2\baselineskip\relax},
-                     after={\null\vskip2\baselineskip\relax
-                            \setupbackgrounds[page][background=olay:all,state=repeat]},]
-\fi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 一种 chapter 样式
 % Chapter            ｜   ｜
@@ -1557,65 +1432,72 @@ StopPage ;
 %                     \  /
 %    Chapter Title     \/
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\ifchap_sty_rocket
-  \startuseMPgraphic{style:chapter:number}
-    fill fullsquare   xysized (75pt , 150pt)
-                      shifted (0,     10pt)
-                      withcolor \MPcolor{lightthemecolor};
-    fill downtriangle xysized (75pt ,  40pt)
-                      shifted (0,   -78.4pt)
-                      withcolor \MPcolor{lightthemecolor};
-    label("\definedfont[Sans sa 4]
-            \ifnum{\somenamedheadnumber{chapter}{current}}>0
-              \somenamedheadnumber{chapter}{current}\fi",
-          origin shifted (0, -35pt)) withcolor white;
-  \stopuseMPgraphic
-  \definelayer  [layer:chapter:number]
+
+\startuseMPgraphic{style:chapter:rocket:number}
+  fill fullsquare   xysized (75pt , 150pt)
+                    shifted (0,     10pt)
+                    withcolor \MPcolor{lightthemecolor};
+  fill downtriangle xysized (75pt ,  40pt)
+                    shifted (0,   -78.4pt)
+                    withcolor \MPcolor{lightthemecolor};
+  label("\definedfont[Sans sa 4]
+          \ifnum{\somenamedheadnumber{chapter}{current}}>0
+            \somenamedheadnumber{chapter}{current}\fi",
+        origin shifted (0, -35pt)) withcolor white;
+\stopuseMPgraphic
+
+\startsetups memos:chap:rocket:background
+  \doifelsemode {rocket:chapterpage} {
+      \setlayer
+        [layer:chapter:rocket:number]
+        [preset=righttop,hoffset=16pt,]
+        {\useMPgraphic{style:chapter:rocket:number}}
+      \globaldisablemode[rocket:chapterpage]
+  } {
+      \setlayer
+        [layer:chapter:rocket:number]
+        [preset=middle]
+        {}
+  }
+  \placelayer[layer:chapter:rocket:number]
+\stopsetups
+
+\startsetups[memos:chap:rocketdown]
+  \globaldisablemode[colorful:chapterpage]
+  \globaldisablemode[hexa:chapterpage]
+  \globalenablemode[rocket:chapterpage]
+  \vbox{
+    \headsetupspacing\veryraggedright
+    \let\\\endgraf\let\crlf\endgraf
+    \ifnum{\somenamedheadnumber{chapter}{current}}>0
+      \framed[frame=off,bottomframe=on,offset=0pt,
+              framecolor=titlecolor,rulethickness=2pt]
+              {\color[white]{
+      \ifconditional\headshownumber
+      \strut\headnumbercontent\quad%\pa
+      \else\fakeheadnumbercontent\fi}}
+    \else
+      \framed[frame=off,offset=0pt,
+              framecolor=titlecolor]
+              {\color[white]{
+      \ifconditional\headshownumber
+      \strut\headnumbercontent\quad%\pa
+      \else\fakeheadnumbercontent\fi}}%
+    \fi
+    \begstrut\headtextcontent\endstrut
+  }
+\stopsetups
+
+\startsetups memos:chap:rocket
+  \definelayer  [layer:chapter:rocket:number]
                 [x=0mm, y=0mm,width=\paperwidth,height=\paperheight]
 
-  \defineoverlay   [pagebackground][\directsetup{pagebackground}]
-  \setupbackgrounds[page]          [background=pagebackground]
+  \defineoverlay   [hexa:background][\setups{memos:chap:rocket:background}]
+  \setupbackgrounds[page]          [background=hexa:background]
 
-  \startsetups pagebackground
-    \doifelsemode {chapterpage} {
-        \setlayer
-          [layer:chapter:number]
-          [preset=righttop,hoffset=16pt,]
-          {\useMPgraphic{style:chapter:number}}
-        \globaldisablemode[chapterpage]
-    } {
-        \setlayer
-          [layer:chapter:number]
-          [preset=middle]
-          {}
-    }
-    \placelayer[layer:chapter:number]
-  \stopsetups
   \defineheadalternative[rocketdown]
-                        [alternative=vertical,renderingsetup=rocketdown]
-  \startsetups[rocketdown]
-    \globalenablemode[chapterpage]
-    \vbox{
-      \headsetupspacing\veryraggedright
-      \let\\\endgraf\let\crlf\endgraf
-      \ifnum{\somenamedheadnumber{chapter}{current}}>0
-        \framed[frame=off,bottomframe=on,offset=0pt,
-                framecolor=titlecolor,rulethickness=2pt]
-                {\color[white]{
-        \ifconditional\headshownumber
-        \strut\headnumbercontent\quad%\pa
-        \else\fakeheadnumbercontent\fi}}
-      \else
-        \framed[frame=off,offset=0pt,
-                framecolor=titlecolor]
-                {\color[white]{
-        \ifconditional\headshownumber
-        \strut\headnumbercontent\quad%\pa
-        \else\fakeheadnumbercontent\fi}}%
-      \fi
-      \begstrut\headtextcontent\endstrut
-    }
-  \stopsetups
+                        [alternative=vertical,renderingsetup=memos:chap:rocketdown]
+
   \setuplabeltext[en]  [chapter=Chapter,preface=Preface,appendix=Appendix]
   \setuplabeltext[hans][chapter=Chapter,preface=Preface,appendix=Appendix]
   \setuplabeltext[hant][chapter=Chapter,preface=Preface,appendix=Appendix]
@@ -1626,83 +1508,84 @@ StopPage ;
   \setupheads[subsubsection]       [sectionsegments=section:*]
   \setupheads[subsubsubsection]    [sectionsegments=section:*]
   \setupheads[subsubsubsubsection] [sectionsegments=section:*]
-\fi
+\stopsetups
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 一种 chapter 样式 hexa
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\ifchap_sty_hexa%
-  \let\MPchaplabel\relax
-  \def\MPchaplabel{\ifzeronum\namedheadnumber{chapter}\relax%
-                    \else\sc Chapter\fi}
-  \startuseMPgraphic{style:chapter:number}
-      fill (dir(0) -- dir(60)  -- dir(120) -- dir(180)
-                    -- dir(240) -- dir(300) -- cycle)
-            scaled 60pt
-            withshademethod "linear"
-            withshadevector (10,-5)
-            withcolor green shadedinto blue
-            withtransparency (1,.5) ;
-      label("\definedfont[SansBold at 30pt]%
-             \somenamedheadnumber{chapter}{current}",
-            origin shifted(0,5pt)) withcolor white;
-      label("\definedfont[Sans]\MPchaplabel",
-            origin shifted(0,-30pt)) withcolor white;
-      \stopuseMPgraphic
-  \definelayer     [layer:chapter:number]
-                    [x=0mm, y=0mm,width=\paperwidth, height=\paperheight]
-  \defineoverlay
-    [pagebackground]
-    [\directsetup{pagebackground}]
+\let\hexa_MPchaplabel\relax
+\def\hexa_MPchaplabel{\ifzeronum\namedheadnumber{chapter}\relax%
+                      \else\sc Chapter\fi}
 
-  \setupbackgrounds
-    [page]
-    [background=pagebackground]
+\startuseMPgraphic{style:chapter:hexa:number}
+    fill (dir(0) -- dir(60)  -- dir(120) -- dir(180)
+                  -- dir(240) -- dir(300) -- cycle)
+          scaled 60pt
+          withshademethod "linear"
+          withshadevector (10,-5)
+          withcolor green shadedinto blue
+          withtransparency (1,.5) ;
+    label("\definedfont[SansBold at 30pt]%
+            \somenamedheadnumber{chapter}{current}",
+          origin shifted(0,5pt)) withcolor white;
+    label("\definedfont[Sans]\hexa_MPchaplabel",
+          origin shifted(0,-30pt)) withcolor white;
+\stopuseMPgraphic
 
-  \startsetups pagebackground
-    \doifelsemode {chapterpage} {
-        \setlayer
-          [layer:chapter:number]
-          [preset=righttop,hoffset=16pt,voffset=5\baselineskip]
-          {\useMPgraphic{style:chapter:number}}
-        \globaldisablemode[chapterpage]
-    } {
-        \setlayer
-          [layer:chapter:number]
-          [preset=middle]
-          {}
-    }
-    \placelayer[layer:chapter:number]
-  \stopsetups
-  \defineheadalternative[hexagradient][alternative=vertical,
-                                       renderingsetup=hexagradient]
-  \startsetups[hexagradient]
-    \globalenablemode[chapterpage]
-       \vbox{
-            \headsetupspacing\veryraggedleft
-            \let\\\endgraf\let\crlf\endgraf
-            \ifconditional\headshownumber
-                \strut\headnumbercontent\quad%\par % <-- commented out
-            \else\fakeheadnumbercontent\fi
-            \begstrut\headtextcontent\endstrut
-            \vskip\baselineskip\relax
-       }
-  \stopsetups
+\startsetups memos:chap:hexa:background
+  \doifelsemode {hexa:chapterpage} {
+      \setlayer
+        [layer:chapter:hexa:number]
+        [preset=righttop,hoffset=16pt,voffset=5\baselineskip]
+        {\useMPgraphic{style:chapter:hexa:number}}
+      \globaldisablemode[hexa:chapterpage]
+  } {
+      \setlayer
+        [layer:chapter:hexa:number]
+        [preset=middle]
+        {}
+  }
+  \placelayer[layer:chapter:hexa:number]
+\stopsetups
+
+\startsetups[memos:chap:hexagradient]
+  \globaldisablemode[rocket:chapterpage]
+  \globaldisablemode[colorful:chapterpage]
+  \globalenablemode[hexa:chapterpage]
+      \vbox{
+          \headsetupspacing\veryraggedleft
+          \let\\\endgraf\let\crlf\endgraf
+          \ifconditional\headshownumber
+              \strut\headnumbercontent\quad%\par % <-- commented out
+          \else\fakeheadnumbercontent\fi
+          \begstrut\headtextcontent\endstrut
+          \vskip\baselineskip\relax
+      }
+\stopsetups
+
+\startsetups memos:chap:hexa
+  \definelayer  [layer:chapter:hexa:number][x=0mm, y=0mm,width=\paperwidth, height=\paperheight]
+  \defineoverlay[hexa:pagebackground][\setups{memos:chap:hexa:background}]
+  \setupbackgrounds     [page][background=hexa:pagebackground]
+  \defineheadalternative[hexagradient][alternative=vertical,renderingsetup=memos:chap:hexagradient]
+
   \setuphead [chapter][alternative=hexagradient,numbercolor=white,]
   \setupheads[subsection,subsubsection,
               subsubsubsection,subsubsubsubsection]
               [sectionsegments=section:*]
-\fi
+\stopsetups
+
 % \starttitle[title=How to write a \tex{placetitle} command,]
 %            [author=Ben Lee User,date=\currentdate\space\currenttime]
 % \structureuservariable\c!author
 % \stoptitle
-\ifchap_sty_artical
-  \defineheadalternative
-    [artical]
-    [\c!alternative=\v!vertical,
-    \c!renderingsetup=\??headrenderings:artical]
 
-  \startsetups[\??headrenderings:artical]
+\startsetups memos:chap:article
+  \defineheadalternative
+    [article]
+    [\c!alternative=\v!vertical,
+    \c!renderingsetup=\??headrenderings:article]
+
+  \startsetups[\??headrenderings:article]
     \vbox {
       \headsetupspacing
       \ifconditional\headshownumber
@@ -1786,9 +1669,10 @@ StopPage ;
       {\structureuservariable{dateafter}}{}
     }
   \stopsetups
-  \setuphead[title][alternative=artical]
-\fi
-\ifchap_sty_publish
+  \setuphead[title][alternative=article]
+\stopsetups
+
+\startsetups memos:chap:publish
   \defineframed[chappublish]
   \defineframed[chapissue]
   \defineframed[chapdate]    [chapissue]
@@ -1844,53 +1728,57 @@ StopPage ;
     date=\currentdate,
     subtitle={ニュースレターの主要な語句},
     color=white]
-\fi
+\stopsetups
 %\chapter{dddd}
 %\sideframe{\input knuth }
-\ifchap_sty_kaolike
-\definelayer[chapvrule][x=\dimexpr+\textwidth+.5\rightmargindistance-2pt\relax,
-                        y=\dimexpr-\baselineskip-\topspace
-                                  -\headerheight-\headerdistance\relax,
-                        width=\paperwidth,height=\paperheight]
-\newdimen\d_temp_chapheight
-\d_temp_chapheight=\dimexpr-\baselineskip+\topspace
-                           +\headerheight+\headerdistance
-                           +64pt\relax
-\setuphead[chapter]
-          [align=flushright,
-           alternative=inmargin,
-           location=inoutermargin,
-           numberstyle=\definedfont[SansBold at 64pt],
-           before=\setlayer[chapvrule][]{
-                  \blackrule[width=2pt,
-                             height=\d_temp_chapheight,
-                             depth=.3\baselineskip,
-                             color=themecolor]}
-                  \placelayer[chapvrule],
-            after=\vskip2\baselineskip\relax
-                  \marginlist[dy=-\baselineskip],]
-\startsectionblockenvironment[appendix]
-  \setuphead[chapter][numberstyle=\definedfont[SansBold at 42pt]]
-\stopsectionblockenvironment
-\fi
 
-\ifbackground_colorful
-\startuseMPgraphic{MP:all}
-    numeric width ,                  height ;
-            width  = \overlaywidth ; height = \overlayheight ;
-    numeric textwidth ,              textheight ;
-    textwidth  := .9*\overlaywidth ; textheight := .92*\overlayheight ;
-    path paper_back ;%%% i
-    paper_back  := fullsquare xscaled width yscaled height ;
-    fill paper_back withcolor \MPcolor{softthemecolor} ;
-    path text_back ;%%% ii
-    text_back := fullsquare xscaled textwidth yscaled textheight cornered .5cm;
-    fill text_back withcolor white ;
-\stopuseMPgraphic
-\definelayer      [lay:all]  [repeat=yes,width=\paperwidth, height=\paperheight]
-\defineoverlay    [olay:all] [\useMPgraphic{MP:all}]
-\setupbackgrounds [page]     [background=olay:all,state=repeat]
-\fi
+\definecombinedlist [marginlist]  [section]
+\setupcombinedlist  [marginlist]  [list=section,criterium=current]
+
+\definelistalternative[marginlist]
+  [\c!distance=2em,% minial space between text and pagenumber
+   \c!width=0pt,
+   \c!stretch=10em,
+   \c!filler=\hskip.5em\gleaders\hbox to .5\emwidth{\hss.\hss}\hfill\hskip.5em\relax,
+   \c!renderingsetup=\??listrenderings:abc]
+
+\tolerant\protected\def\marginlist[#1]#:[#2]%
+  {\begingroup
+  \setuplist[section][
+    margin=0em,width=fit,align=inner,
+    alternative=marginlist,
+    distance=.5em,label=no,style=\rm\itx,
+    #1]%
+  \outermargin[#1]{\placecombinedlist[marginlist]}%
+  \endgroup}
+
+\startsetups memos:chap:kaolike
+  \definelayer[chapvrule][x=\dimexpr+\textwidth+.5\rightmargindistance-2pt\relax,
+                          y=\dimexpr-\baselineskip-\topspace
+                                    -\headerheight-\headerdistance\relax,
+                          width=\paperwidth,height=\paperheight]
+  \newdimen\d_temp_chapheight
+  \d_temp_chapheight=\dimexpr-\baselineskip+\topspace
+                            +\headerheight+\headerdistance
+                            +64pt\relax
+  \setuphead[chapter]
+            [align=flushright,
+            alternative=inmargin,
+            location=inoutermargin,
+            numberstyle=\definedfont[SansBold at 64pt],
+            before=\setlayer[chapvrule][]{
+                    \blackrule[width=2pt,
+                              height=\d_temp_chapheight,
+                              depth=.3\baselineskip,
+                              color=themecolor]}
+                    \placelayer[chapvrule],
+              after=\vskip2\baselineskip\relax
+                    \marginlist[dy=-\baselineskip],]
+  \startsectionblockenvironment[appendix]
+    \setuphead[chapter][numberstyle=\definedfont[SansBold at 42pt]]
+  \stopsectionblockenvironment
+\stopsetups
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                              目錄相關設置                           %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1912,15 +1800,16 @@ StopPage ;
              after=\vskip\baselineskip\relax]
 
 % \section{TOC: style}
-\iftocs_sty_default
+\define[3]\mms_partlabel_default%
+          {\framed[align=center,
+                    width=max,
+                    frame=off,
+                    foregroundstyle=bfa,
+                    foregroundcolor=themecolor]{%
+                      {第\ #1\ 编}\hbox to 1em{ } #2}}
+
+\startsetups memos:toc:default
   \edef\currenttocstyle{default}
-  \define[3]\mms_partlabel%
-            {\framed[align=center,
-                     width=max,
-                     frame=off,
-                     foregroundstyle=bfa,
-                     foregroundcolor=themecolor]{%
-                        {第\ #1\ 编}\hbox to 1em{ } #2}}
   \setupcombinedlist[content][
     list={part,%
           title,subject,
@@ -1934,7 +1823,7 @@ StopPage ;
               [width=3.5em,distance=.5em,alternative=c,
                before=,after=,label=yes,numberalign=flushright]
   \setuplist  [part]
-              [command=\mms_partlabel,alternative=interactive,before=\blank]
+              [command=\mms_partlabel_default,alternative=interactive,before=\blank]
   \setuplist  [title]              [margin=0.0em,style=bf]
   \setuplist  [subject]            [margin=1.0em]
   \setuplist  [chapter]            [margin=0.0em,style=bf,before=\blank[quarterline]]
@@ -1943,8 +1832,9 @@ StopPage ;
   \setuplist  [subsubsection]      [margin=1.0em,width=5.0em]
   \setuplist  [subsubsubsection]   [margin=1.0em,width=6.0em]
   \setuplist  [subsubsubsubsection][margin=1.0em,width=7.0em]
-\fi
-\iftocs_sty_simple
+\stopsetups
+
+\startsetups memos:toc:simple
   \edef\currenttocstyle{simple}
   \setupcombinedlist[content][list={part,%
                title,chapter,subject,section,
@@ -1968,13 +1858,14 @@ StopPage ;
   \setuplist  [subsubsection]      [margin=3.0em]
   \setuplist  [subsubsubsection]   [margin=4.0em]
   \setuplist  [subsubsubsubsection][margin=5.0em,width=2.0em]
-\fi
-\iftocs_sty_line
+\stopsetups
+
+\let\mms_partlabel_line\undefined
+\define[1]\parenpage{\hskip-.5\emwidth\relax(#1)}
+\define[1]\mms_partlabel_line{{\sc\color[themecolor]{Part (#1)}\ }}
+\define[1]\mms_chaplabel_line{{\sc\color[themecolor]{Chap (#1)}\ }}
+\startsetups memos:toc:line
   \edef\currenttocstyle{line}
-  \define[1]\parenpage{\hskip-.5\emwidth\relax(#1)}
-  \let\mms_partlabel\undefined
-  \define[1]\mms_partlabel{{\sc\color[themecolor]{Part (#1)}\ }}
-  \define[1]\mms_chaplabel{{\sc\color[themecolor]{Chap (#1)}\ }}
   \setupcombinedlist[content]
     [list={part,title,chapter,subject,
       section,subsubject,subsection,}]
@@ -1982,14 +1873,15 @@ StopPage ;
               [width=4.5em,margin=0.0em,distance=.0em]
   \setuplist  [section,subject,subsection]
               [width=0.0em,distance=.5em,alternative=c,]
-  \setuplist  [part]      [numbercommand=\mms_partlabel,after=]
-  \setuplist  [chapter]   [numbercommand=\mms_chaplabel,before=]
+  \setuplist  [part]      [numbercommand=\mms_partlabel_line,after=]
+  \setuplist  [chapter]   [numbercommand=\mms_chaplabel_line,before=]
   \setuplist  [title]     [margin=4.5em]
   \setuplist  [subject]   [margin=4.5em]
   \setuplist  [section]   [margin=3.5em]
   \setuplist  [subsection][margin=4.5em,alternative=d,pagecommand=\parenpage]
-\fi
-\iftocs_sty_madsen
+\stopsetups
+
+\startsetups memos:toc:madsen
   \edef\currenttocstyle{madsen}
   \definehead [tochead]   [title][alternative=madsentoc]
   \setupcombinedlist[content][list={part,title,chapter,subject,section}]
@@ -2008,8 +1900,9 @@ StopPage ;
   \setuplist  [subsubsection]      [margin=3.5em]
   \setuplist  [subsubsubsection]   [margin=4.5em]
   \setuplist  [subsubsubsubsection][margin=5.5em]
-\fi
-\iftocs_sty_colorful
+\stopsetups
+
+\startsetups memos:toc:colorful
   \edef\currenttocstyle{colorful}
   \startuseMPgraphic{MP:toc}
       numeric width , height ;
@@ -2044,20 +1937,23 @@ StopPage ;
   \setuplist  [title]     [margin=\backspace,color=themecolor]
   \setuplist  [subject]   [margin=\dimexpr\backspace+1em\relax]
   \setuplist  [section]   [margin=\dimexpr\backspace+1em\relax,headnumber=no]
-\fi
-\iftocs_sty_classicnovel
+\stopsetups
+
+\startsetups memos:toc:classicnovel
   \edef\currenttocstyle{classicnovel}
   \setupcombinedlist[content][list={part,title,chapter}]
   \setuplist        [part,chapter,title,][label=yes,after=,style=ss]
   \setuplist        [chapter][before=,]
   \setuplist        [title]  [margin=5em]
-\fi
-\iftocs_sty_classics
+\stopsetups
+
+\define[3]\mms_chaplabel_classics{\hbox to 1tw{#2第#1\hfill #3}}
+\startsetups memos:toc:classics
   \edef\currenttocstyle{classics}
-  \define[3]\mms_chaplabel{\hbox to 1tw{#2第#1\hfill #3}}
-  \setuplist [chapter] [alternative=interactive,command=\mms_chaplabel]
-\fi
-\iftocs_sty_rocket
+  \setuplist [chapter] [alternative=interactive,command=\mms_chaplabel_classics]
+\stopsetups
+
+\startsetups memos:toc:rocket
   \edef\currenttocstyle{rocket}
   \setuphead       [tochead][alternative=middle,before=\null\vskip2\baselineskip\relax]
   \setupcombinedlist[content][list={part,title,chapter,section,subject}]
@@ -2071,8 +1967,9 @@ StopPage ;
   \setuplist       [title]          [margin=3.0em,style=\ssbf\sc]
   \setuplist       [section]        [margin=3.5em,headnumber=no]
   \setuplist       [subject]        [margin=4.0em]
-\fi
-\iftocs_sty_hexa
+\stopsetups
+
+\startsetups memos:toc:hexa
   \edef\currenttocstyle{hexa}
   \setupcombinedlist[content][list={part,%
                      title,chapter,subject,section,
@@ -2096,7 +1993,7 @@ StopPage ;
   \setuplist  [subsubsection]      [margin=1.5em]
   \setuplist  [subsubsubsection]   [margin=2.0em]
   \setuplist  [subsubsubsubsection][margin=2.5em]
-\fi
+\stopsetups
 
 %\section{SCMD:placeTOCs}
 \tolerant\def\setupTOCs[#1]%
@@ -2111,8 +2008,7 @@ StopPage ;
 
 \tolerant\def\placeTOCs[#1]{\begingroup%
   \iffirstargument\getparameters[??TOCs][#1]\fi%
-  % \csname tocs_sty_\currenttocstyle false\endcsname
-  \csname tocs_sty_\??TOCsalternative true\endcsname
+  \setups{memos:toc:\??TOCsalternative}%
   \doifinsetelse{\namedheadparameter{tochead}\c!page}{no,disable}%
      {}{\startlayout[\??TOCslayout]}%
   \edef\p_title{\??TOCstitle}%
@@ -2127,25 +2023,7 @@ StopPage ;
 \definemarginframed [outermargin] [outer]
 \setupmargindata    [outermargin] [margin=margin,width=\outermarginwidth,align=inner,]
 \setupmarginframed  [outermargin] [margin=margin,width=\outermarginwidth,align=inner,]
-\definecombinedlist [marginlist]  [section]
-\setupcombinedlist  [marginlist]  [list=section,criterium=current]
 
-\definelistalternative[marginlist]
-  [\c!distance=2em,% minial space between text and pagenumber
-   \c!width=0pt,
-   \c!stretch=10em,
-   \c!filler=\hskip.5em\gleaders\hbox to .5\emwidth{\hss.\hss}\hfill\hskip.5em\relax,
-   \c!renderingsetup=\??listrenderings:abc]
-
-\tolerant\protected\def\marginlist[#1]#:[#2]%
-  {\begingroup
-  \setuplist[section][
-    margin=0em,width=fit,align=inner,
-    alternative=marginlist,
-    distance=.5em,label=no,style=\rm\itx,
-    #1]%
-  \outermargin[#1]{\placecombinedlist[marginlist]}%
-  \endgroup}
 
 %%%%%%%%%%%%%%%%%%%%
 % \section {Header and Footer Style}
@@ -2321,39 +2199,6 @@ StopPage ;
 
 %%%%%%%%%%%%%%%%%%%%
 
-\startuseMPgraphic{MPFrameUnified}%%% unified frame with configurable title
-  begingroup;
-     picture px ; numeric ox, titlex, titleh, align, titlepos ; path ax, titlebg ;
-     ox := BodyFontSize ;
-     ax := unitsquare xyscaled(OverlayWidth,OverlayHeight) ;
-     align := \MPvar{titlealign} ;
-     titlepos := \MPvar{titlepos} ;
-     px := textext(\MPstring{MPFrameTitle}) ;
-     if align = 1 :
-         titlex := 6ox;
-     elseif align = 3 :
-         titlex := OverlayWidth - 3ox - 2 * \overlaylinewidth ;
-     else :
-         titlex := OverlayWidth/2 ;
-     fi ;
-     if titlepos = 0 :
-         px := px shifted (titlex, OverlayHeight - ypart center px) ;
-         titlebg := boundingbox px enlarged (ox/2, ox/3) smoothed 2 ;
-     else :
-         titleh := ox * 1.8 ;
-         px := px shifted (titlex, OverlayHeight - titleh/2 - ypart center px) ;
-         titlebg := unitsquare xyscaled(OverlayWidth, titleh) 
-                    shifted (0, OverlayHeight - titleh) ;
-     fi ;
-     drawoptions (withpen pencircle scaled \overlaylinewidth withcolor \MPcolor{\overlaylinecolor});
-     fill ax withcolor \MPcolor{\overlaycolor} ; 
-     draw ax smoothed 2 ;
-     fill titlebg withcolor \MPcolor{\overlaylinecolor} ;
-     draw px withcolor white ;
-     setbounds currentpicture to ax ;
-  endgroup;
-\stopuseMPgraphic
-
 \startuseMPgraphic{MPFrameXXX}%%% ---| triangle frame |----
      picture pxxx ; numeric oxxx, hxxx ; path axxx, bxxx ;
      hxxx := OverlayHeight ;
@@ -2384,104 +2229,139 @@ StopPage ;
      setbounds currentpicture to axxx ;
 \stopuseMPgraphic
 
-\startuseMPgraphic{MPBoxFrame}
-  begingroup;
-    for i=1 upto nofmultipars :
-    a:= 1.5;
-    path p ; p:= \MPvar{type} scaled a;
-    path q ; q:= \MPvar{type} scaled 2a;
-    path MyBoxFrame;
-    MyBoxFrame := boundingbox multipars[i];
-    draw MyBoxFrame boxlineoptions
-         withpen pencircle scaled boxlinewidth;
-    draw MyBoxFrame
-          withpattern image (
-              fill p
-                    withcolor \MPcolor{green} withopacity .3;
-              fill q shifted (2a,0)
-                    withcolor \MPcolor{transparent};
-              fill p shifted (2a,-2a)
-                    withcolor \MPcolor{green} withopacity .3;
-              fill q shifted (0,-2a)
-                    withcolor \MPcolor{transparent};
-                    );
-    fill MyBoxFrame boxfilloptions withopacity .05;
-    endfor ;
-  endgroup;
-\stopuseMPgraphic
-
-\startuseMPgraphic{MPBoxChar}
-  begingroup;
-    for i=1 upto nofmultipars :
-    path MyBoxChar;
-    MyBoxChar := boundingbox multipars[i];
-    fill MyBoxChar boxfilloptions;
-    draw MyBoxChar boxlineoptions
-         withpen pencircle scaled boxlinewidth;
-    draw MyBoxChar
-         withpattern image (
-            draw textext("\MPvar{character}") rotated 45
-                withcolor \MPcolor{themecolor} withopacity .2;
-            );
-    endfor ;
-  endgroup;
-\stopuseMPgraphic
-
-\startuseMPgraphic{MPFrameShadow}
-begingroup;
-    path MyFrame, MyShadow;
-    numeric MyThickness; MyThickness := 10*boxlinewidth;
-    for i=1 upto nofmultipars:
-        MyFrame  := boundingbox multipars[i];
-        MyShadow := MyFrame shifted (1/2MyThickness*(1,-1));
-        draw (
-            (MyThickness*right + llcorner MyShadow)
-            --lrcorner MyShadow
-            --(MyThickness*down + urcorner MyShadow)
-            )
-            withpen pensquare scaled MyThickness withcolor \MPvar{shadowcolor};
-        fill MyFrame boxfilloptions;
-        draw MyFrame boxlineoptions
-                     withpen pencircle scaled boxlinewidth;
-    endfor;
-endgroup;
-\stopuseMPgraphic
-
-\startuseMPgraphic{MPFrameSym}
-  begingroup;
-    for i=1 upto nofmultipars :
-      % Draw the surrounding box
-      path p;
-      p :=  ( llcorner multipars[i]
-           -- lrcorner multipars[i]
-           -- urcorner multipars[i]
-           -- ulcorner multipars[i]
-           -- cycle ) ;
-      fill p withcolor boxfillcolor ;
-      draw p withcolor boxlinecolor ;
-      draw (p cutbefore point 3 of p cutafter point 4 of p)
-            withpen pencircle xscaled boxlinewidth
-            withcolor boxlinecolor ;
-      % Draw the info symbol
-      picture pic;
-      pic := textext.ulft("\tfa\color[themecolor]{\MPvar{symbol}}");
-      pic := pic shifted lrcorner multipars[i];
-      fill bbox pic withcolor white;
-      draw pic;
-    endfor ;
-  setbounds currentpicture to OverlayBox ;
-  endgroup;
-\stopuseMPgraphic
-
 \startuseMPgraphic{mpos:region:leftbar}
   draw_multi_pars;
   draw_multi_side;
 \stopuseMPgraphic
+%D ========== 颜色混合函数 ==========
 
-\defineoverlay[MPFrameI]    [\useMPgraphic{MPFrameUnified}{titlealign=1,titlepos=0}]
-\defineoverlay[MPFrameII]   [\useMPgraphic{MPFrameUnified}{titlealign=2,titlepos=0}]
-\defineoverlay[MPFrameIII]  [\useMPgraphic{MPFrameUnified}{titlealign=3,titlepos=0}]
-\defineoverlay[MPFrameIV]   [\useMPgraphic{MPFrameUnified}{titlealign=2,titlepos=1}]
+\startMPdefinitions
+  color CardPrimary, CardGradient, CardAccent, CardText, CardCategory;
+  CardPrimary  := (0.00, 0.47, 0.84); % 主色调（Metro蓝）
+  CardGradient := (0.93, 0.28, 0.60); % 渐变结束色（Modern粉）
+  CardAccent   := (0.30, 0.55, 0.85); % 强调色（Fluent装饰线）
+  
+  def MixWhite(expr basecolor, ratio) =
+    (basecolor * (1 - ratio) + white * ratio)
+  enddef;
+  
+  def MixBlack(expr basecolor, ratio) =
+    (basecolor * (1 - ratio) + black * ratio)
+  enddef;
+  
+  def DrawCardBackground(expr style, radius, gradh) =
+    begingroup;
+    numeric r;
+    r := radius;
+    if r = 0 :
+      if style = 1 : r := 0pt;  fi;
+      if style = 2 : r := 28pt; fi;
+      if style = 3 : r := 24pt; fi;
+      if style = 4 : r := 32pt; fi;
+    fi;
+    
+    for i=1 upto nofmultipars :
+      path p;
+      p := (llcorner multipars[i] -- lrcorner multipars[i] 
+         -- urcorner multipars[i] -- ulcorner multipars[i] -- cycle);
+      
+      if r > 0 :
+        p := p cornered r;
+      fi;
+      
+      if style = 1 :
+        fill p withcolor CardPrimary;
+        
+      elseif style = 2 :
+        fill p withcolor MixWhite(CardPrimary, 0.92);
+        
+        pair pc;
+        pc := center p;
+        path innerp;
+        innerp := p shifted -pc xyscaled(0.98, 0.96) shifted pc;
+        fill innerp withcolor MixWhite(CardPrimary, 0.96);
+        
+        draw p withpen pencircle scaled 0.5pt withcolor MixBlack(CardPrimary, 0.35);
+        
+        path topline;
+        topline := (xpart llcorner p + bbwidth(p)*0.2, ypart ulcorner p)
+                   -- (xpart llcorner p + bbwidth(p)*0.8, ypart ulcorner p);
+        draw topline withpen pencircle scaled 3pt withcolor CardAccent;
+        
+      elseif style = 3 :
+        fill p withcolor MixWhite(CardPrimary, 0.98);
+        draw p withpen pencircle scaled 0.5pt withcolor MixWhite(CardPrimary, 0.15);
+        
+      elseif style = 4 :
+        numeric barh;
+        barh := gradh;
+        
+        fill p withcolor white;
+        
+        save gradientpic;
+        picture gradientpic;
+        gradientpic := image(
+          path gradrect;
+          gradrect := unitsquare 
+                      xscaled bbwidth(p) 
+                      yscaled (barh)
+                      shifted (xpart llcorner p, ypart urcorner p - barh);
+          fill gradrect 
+            withshademethod "linear"
+            withshadevector (1,0)
+            withshadecolors (CardPrimary, CardGradient);
+        );
+        
+        clip gradientpic to p;
+        addto currentpicture also gradientpic;
+        
+        draw p withpen pencircle scaled 0.5pt withcolor MixWhite(CardPrimary, 0.06);
+        
+      fi;
+    endfor;
+    
+    setbounds currentpicture to OverlayBox;
+    endgroup;
+  enddef;
+\stopMPdefinitions
+
+%D ========== 四种风格的 MP Graphic ==========
+
+\startuseMPgraphic{MetroBG}
+  DrawCardBackground(1, 0pt, 0pt);
+\stopuseMPgraphic
+
+\startuseMPgraphic{FluentBG}
+  DrawCardBackground(2, 0pt, 0pt);
+\stopuseMPgraphic
+
+\startuseMPgraphic{macOSBG}
+  DrawCardBackground(3, 0pt, 0pt);
+\stopuseMPgraphic
+
+\startuseMPgraphic{ModernBG}
+  DrawCardBackground(4, 0pt, 4pt);
+\stopuseMPgraphic
+
+%D ========== Textbackground 定义 ==========
+
+\definetextbackground
+  [MetroCard]
+  [location=paragraph,
+   mp=MetroBG,
+   frame=off,
+   leftoffset=1.8em,
+   rightoffset=1.8em,
+   topoffset=1.8em,
+   bottomoffset=1.8em,
+   color=white,
+   before={\blank[big]},
+   after={\blank[big]}]
+
+\definetextbackground[FluentCard][MetroCard][mp=FluentBG,]
+\definetextbackground[macOSCard] [MetroCard][mp=macOSBG,]
+\definetextbackground[ModernCard][MetroCard][mp=ModernBG,]
+
 \defineoverlay[MPFrameV]    [\useMPgraphic{MPFrameXXX}]
 
 \setMPtext{MPFrameTitle}{} % initialize the text variable
@@ -2490,9 +2370,9 @@ endgroup;
 
 \defineframedtext[FrameText][
                   background=MPFrameI,       frame=off,    title=,
-                  framecolor=lightthemecolor,backgroundcolor=transparent,
+                  framecolor=lightthemecolor,backgroundcolor=transparentcolor,
                   rulethickness=1.5pt,       indenting={yes,2em},
-                  toffset=\bodyfontsize,    boffset=.5\bodyfontsize,
+                  toffset=.5\bodyfontsize, % if titlepos=1 , then toffset=\bodyfontsize
                   width=\textwidth,]
 
 \definecounter[FrameCounter]
@@ -2515,39 +2395,19 @@ endgroup;
    symbol=\usersymbolparameter{Frame},
    shadowcolor=lightthemecolor]
 
-\definetextbackground[simple]
-\definetextbackground[colorbox]
-\definetextbackground[symbolbox]  [colorbox] [mp=MPFrameSym]
-\definetextbackground[charbox]    [colorbox] [mp=MPBoxChar]
-\definetextbackground[framebox]   [colorbox] [mp=MPBoxFrame]
-\definetextbackground[shadowbox]  [colorbox] [mp=MPFrameShadow]
-\definetextbackground[blockbox]   [colorbox] [mp=mpos:region:leftbar]
-\definetextbackground[barbox]     [blockbox] [backgroundcolor=transparent]
+\definetextbackground[blockbox]
 
-\setuptextbackground  [simple][
-                      state=start,location=always,
-                      leftoffset=1ex,corner=round,
-                      before=\vskip.5\baselineskip\relax,
-                      after=\vskip.5\baselineskip\relax,
-                      background=color,backgroundcolor=transparent,
-                      frame=on,framecolor=lightthemecolor,
-                      rulethickness=1pt]
-\setuptextbackground [colorbox][% mp=MPFrameSym,MPFrameShadow,MPBoxChar,MPBoxFrame
-                      location=always,   mp=MPFrameSym,
+\setuptextbackground [blockbox][
+                      location=always,   mp=mpos:region:leftbar,
                       frame=off,         framecolor=framecolor,
-                      rulethickness=1pt, width=broad,
+                      width=broad,
                       topoffset=1ex,     bottomoffset=1ex,
-                      leftoffset=1ex,    rightoffset=1ex,
+                      leftoffset=2ex,    rightoffset=2ex,
+                      rulethickness=4pt,
                       background=color,  backgroundcolor=darkbackground,
                       before=\vskip.5\baselineskip\relax,
                        after=\vskip.5\baselineskip\relax]
-\setuptextbackground [shadowbox][
-                      rulethickness=.5pt,
-                      backgroundcolor=transparent]
-\setuptextbackground [blockbox][
-                      rulethickness=4pt,
-                      leftoffset=2ex,    rightoffset=2ex,]
-
+                       
 \definedescription   [excursus][
                       text={Excursus:~},headstyle=bold,width=broad,
                       alternative=top,  inbetween=,
@@ -2562,6 +2422,461 @@ endgroup;
 % \starttextbackground[colorbox]
 %   \input knuth
 % \stoptextbackground
+
+%D ========== 双栏标题框组件 ==========
+
+\startMPdefinitions
+  def DrawDualHeaderFrame(
+    expr shownumber, showtitle, titlealign, titlepos,
+         numberbgcolor, titlebgcolor, bodybgcolor, framecolor, linethickness,
+         numberratio, titleratio, radius, numbercolor, titlecolor,
+         bodybackground, leftframe, rightframe, topframe, bottomframe,
+         shadowcolor, symbol, character, headerbgcolor
+  ) =
+    begingroup;
+      numeric w, h, headerh, ox, r;
+      path mainframe, numberbox, titlebox, headerbox, divider;
+      picture numbertext, titletext;
+      
+      w := OverlayWidth;
+      h := OverlayHeight;
+      headerh := BodyFontSize * 2.2;
+      ox := linethickness/2;
+      r := radius;
+      
+      boolean hasheader;
+      hasheader := (shownumber > 0) or (showtitle > 0);
+      
+      mainframe := (ox, ox) -- (w-ox, ox) -- (w-ox, h-ox) -- (ox, h-ox) -- cycle;
+      
+      if (r > 0) :
+        mainframe := mainframe cornered r;
+      fi;
+      
+      if bodybackground = "shadowbox" :
+        numeric shadowthickness;
+        shadowthickness := 5 * linethickness;
+        
+        numeric shadowtop;
+        if (titlepos = 0) and hasheader :
+          shadowtop := h - headerh - ox;
+        else :
+          shadowtop := h - ox;
+        fi;
+        
+        path myshadow;
+        myshadow := (ox, ox) -- (w-ox, ox) -- (w-ox, shadowtop) -- (ox, shadowtop) -- cycle;
+        if (r > 0) :
+          myshadow := myshadow cornered r;
+        fi;
+        myshadow := myshadow shifted (shadowthickness/4 * (1,-1));
+        
+        draw (
+          (shadowthickness*right + llcorner myshadow)
+          -- lrcorner myshadow
+          -- (shadowthickness*down + urcorner myshadow)
+        ) withpen pensquare scaled shadowthickness withcolor shadowcolor;
+      fi;
+      
+      drawoptions(withpen pencircle scaled linethickness withcolor framecolor);
+      
+      path bodyframe;
+      if (titlepos = 0) and hasheader :
+        bodyframe := (ox, ox) -- (w-ox, ox) -- (w-ox, h-headerh-ox) -- (ox, h-headerh-ox) -- cycle;
+        if (r > 0) :
+          bodyframe := bodyframe cornered r;
+        fi;
+      else :
+        bodyframe := mainframe;
+      fi;
+      
+      if bodybackground = "charbox" :
+        fill bodyframe withcolor bodybgcolor;
+        if character <> "" :
+          draw bodyframe withpattern image (
+            draw textext(character) rotated 45
+                withcolor framecolor withopacity .2;
+          );
+        fi;
+      elseif bodybackground = "framebox" :
+        fill bodyframe withcolor bodybgcolor;
+        numeric a;
+        a := 2;
+        path p;
+        p := fullcircle scaled .1a;
+        picture patternimage;
+        patternimage := image (
+          fill p withcolor framecolor withopacity .1;
+          fill p shifted (a,-a) withcolor framecolor withopacity .1;
+        );
+        setbounds patternimage to ((0,0) -- (2a,0) -- (2a,-2a) -- (0,-2a) -- cycle);
+        draw bodyframe withpattern patternimage;
+      elseif bodybackground = "barbox" :
+        fill bodyframe withcolor bodybgcolor;
+        if leftframe > 0 :
+          path leftbar;
+          leftbar := (ox, ox) -- (ox + leftframe*4, ox) -- (ox + leftframe*4, h-ox) -- (ox, h-ox) -- cycle;
+          if (r > 0) :
+            leftbar := leftbar cornered r;
+          fi;
+          fill leftbar withcolor framecolor;
+        fi;
+      else :
+        fill bodyframe withcolor bodybgcolor;
+      fi;
+      
+      boolean allframesvisible;
+      allframesvisible := (leftframe > 0) and (rightframe > 0) and (topframe > 0) and (bottomframe > 0);
+      
+      numeric topborderpos;
+      if (titlepos = 0) and hasheader :
+        topborderpos := h - headerh - ox;
+      else :
+        topborderpos := h - ox;
+      fi;
+      
+      if allframesvisible :
+        if (r > 0) :
+          if (titlepos = 0) and hasheader :
+            draw (ox, ox) -- (ox, topborderpos);
+            draw (w-ox, ox) -- (w-ox, topborderpos);
+            draw (ox, ox) -- (w-ox, ox);
+            draw (ox, topborderpos) -- (w-ox, topborderpos);
+          else :
+            draw mainframe;
+          fi;
+        else :
+          draw (ox, ox) -- (ox, topborderpos);
+          draw (w-ox, ox) -- (w-ox, topborderpos);
+          draw (ox, ox) -- (w-ox, ox);
+          draw (ox, topborderpos) -- (w-ox, topborderpos);
+        fi;
+      else :
+        if leftframe > 0 :
+          draw (ox, ox) -- (ox, topborderpos);
+        fi;
+        if rightframe > 0 :
+          draw (w-ox, ox) -- (w-ox, topborderpos);
+        fi;
+        if bottomframe > 0 :
+          draw (ox, ox) -- (w-ox, ox);
+        fi;
+        if topframe > 0 :
+          draw (ox, topborderpos) -- (w-ox, topborderpos);
+        fi;
+      fi;
+      
+      if hasheader :
+        if titlepos = 0 :
+          numeric titletop;
+          titletop := h - headerh - ox;
+          
+          if showtitle > 0 :
+            if shownumber > 0 :
+              numbertext := textext(\MPstring{DualHeaderNumber});
+              titletext := textext(\MPstring{DualHeaderTitle});
+              
+              numeric numberboxwidth, titleboxwidth;
+              numberboxwidth := xpart urcorner numbertext - xpart llcorner numbertext;
+              numberboxwidth := numberboxwidth + 8pt;
+              titleboxwidth := xpart urcorner titletext - xpart llcorner titletext;
+              titleboxwidth := titleboxwidth + 8pt;
+              
+              numeric containerwidth, containerx;
+              containerwidth := numberboxwidth + titleboxwidth;
+              
+              if titlealign = 1 :
+                containerx := ox;
+              elseif titlealign = 3 :
+                containerx := w - containerwidth - ox;
+              else :
+                containerx := (w - containerwidth) / 2;
+              fi;
+              
+              numberbox := (containerx, titletop) 
+                         -- (containerx + numberboxwidth, titletop) 
+                         -- (containerx + numberboxwidth, titletop + headerh) 
+                         -- (containerx, titletop + headerh) -- cycle;
+              
+              if (r > 0) :
+                numberbox := numberbox cornered min(r, headerh/3);
+              fi;
+              
+              titlebox := (containerx + numberboxwidth, titletop) 
+                        -- (containerx + containerwidth, titletop) 
+                        -- (containerx + containerwidth, titletop + headerh) 
+                        -- (containerx + numberboxwidth, titletop + headerh) -- cycle;
+              
+              if (r > 0) :
+                titlebox := titlebox cornered min(r, headerh/3);
+              fi;
+              
+              fill numberbox withcolor numberbgcolor;
+              draw numberbox;
+              
+              fill titlebox withcolor titlebgcolor;
+              draw titlebox;
+              
+              numbertext := numbertext shifted (containerx + numberboxwidth/2, titletop + headerh/2 - ypart center numbertext);
+              draw numbertext withcolor numbercolor;
+              
+              titletext := titletext shifted (containerx + numberboxwidth + titleboxwidth/2, titletop + headerh/2 - ypart center titletext);
+              draw titletext withcolor titlecolor;
+              
+              if (r = 0) :
+                draw (containerx + numberboxwidth, titletop) -- (containerx + numberboxwidth, titletop + headerh);
+              fi;
+            else :
+              titletext := textext(\MPstring{DualHeaderTitle});
+              numeric titleboxwidth;
+              titleboxwidth := xpart urcorner titletext - xpart llcorner titletext;
+              titleboxwidth := titleboxwidth + 8pt;
+              
+              numeric titlexpos;
+              if titlealign = 1 :
+                titlexpos := ox;
+              elseif titlealign = 3 :
+                titlexpos := w - titleboxwidth - ox;
+              else :
+                titlexpos := (w - titleboxwidth) / 2;
+              fi;
+              
+              titlebox := (titlexpos, titletop) 
+                        -- (titlexpos + titleboxwidth, titletop) 
+                        -- (titlexpos + titleboxwidth, titletop + headerh) 
+                        -- (titlexpos, titletop + headerh) -- cycle;
+              
+              if (r > 0) :
+                titlebox := titlebox cornered min(r, headerh/3);
+              fi;
+              
+              fill titlebox withcolor framecolor;
+              draw titlebox;
+              
+              titletext := titletext shifted (titlexpos + titleboxwidth/2, titletop + headerh/2 - ypart center titletext);
+              draw titletext withcolor white;
+            fi;
+          else :
+            if shownumber > 0 :
+              numbertext := textext(\MPstring{DualHeaderNumber});
+              numeric numberboxwidth;
+              numberboxwidth := xpart urcorner numbertext - xpart llcorner numbertext;
+              numberboxwidth := numberboxwidth + 8pt;
+              
+              numeric numberxpos;
+              if titlealign = 1 :
+                numberxpos := ox;
+              elseif titlealign = 3 :
+                numberxpos := w - numberboxwidth - ox;
+              else :
+                numberxpos := (w - numberboxwidth) / 2;
+              fi;
+              
+              numberbox := (numberxpos, titletop) 
+                         -- (numberxpos + numberboxwidth, titletop) 
+                         -- (numberxpos + numberboxwidth, titletop + headerh) 
+                         -- (numberxpos, titletop + headerh) -- cycle;
+              
+              if (r > 0) :
+                numberbox := numberbox cornered min(r, headerh/3);
+              fi;
+              
+              fill numberbox withcolor numberbgcolor;
+              draw numberbox;
+              
+              numbertext := numbertext shifted (numberxpos + numberboxwidth/2, titletop + headerh/2 - ypart center numbertext);
+              draw numbertext withcolor numbercolor;
+            fi;
+          fi;
+        else :
+          headerbox := (ox, h-headerh) -- (w-ox, h-headerh) 
+                       -- (w-ox, h-ox) -- (ox, h-ox) -- cycle;
+          
+          if (r > 0) :
+            headerbox := headerbox cornered r;
+          fi;
+          
+          fill headerbox withcolor headerbgcolor;
+          
+          if shownumber > 0 :
+            numeric numberwidth;
+            if showtitle > 0 :
+              numberwidth := w * numberratio / (numberratio + titleratio);
+            else :
+              numberwidth := w - 2*ox;
+            fi;
+            
+            numberbox := (ox, h-headerh) -- (numberwidth-ox/2, h-headerh) 
+                         -- (numberwidth-ox/2, h-ox) -- (ox, h-ox) -- cycle;
+            
+            if (r > 0) :
+              numeric innerr;
+              innerr := min(r, headerh/3);
+              numberbox := numberbox cornered innerr;
+            fi;
+            
+            fill numberbox withcolor numberbgcolor;
+            draw numberbox;
+            
+            numbertext := textext(\MPstring{DualHeaderNumber});
+            numbertext := numbertext shifted (numberwidth/2, h - headerh/2 - ypart center numbertext);
+            draw numbertext withcolor numbercolor;
+          fi;
+          
+          if showtitle > 0 :
+            numeric titleleft;
+            if shownumber > 0 :
+              titleleft := w * numberratio / (numberratio + titleratio) + ox/2;
+            else :
+              titleleft := ox;
+            fi;
+            
+            titlebox := (titleleft, h-headerh) -- (w-ox, h-headerh) 
+                        -- (w-ox, h-ox) -- (titleleft, h-ox) -- cycle;
+            
+            if (r > 0) :
+              numeric innerr;
+              innerr := min(r, headerh/3);
+              titlebox := titlebox cornered innerr;
+            fi;
+            
+            fill titlebox withcolor titlebgcolor;
+            draw titlebox;
+            
+            numeric titlexpos;
+            if titlealign = 1 :
+              titlexpos := titleleft + (w - titleleft)/4;
+            elseif titlealign = 3 :
+              titlexpos := w - (w - titleleft)/4;
+            else :
+              titlexpos := titleleft + (w - titleleft)/2;
+            fi;
+            
+            titletext := textext(\MPstring{DualHeaderTitle});
+            titletext := titletext shifted (titlexpos, h - headerh/2 - ypart center titletext);
+            draw titletext withcolor titlecolor;
+          fi;
+          
+          if shownumber > 0 :
+            if showtitle > 0 :
+              if (r = 0) :
+                numeric dividerpos;
+                dividerpos := w * numberratio / (numberratio + titleratio);
+                draw (dividerpos, h-headerh) -- (dividerpos, h-ox);
+              fi;
+            fi;
+          fi;
+        fi;
+      fi;
+      
+      if bodybackground = "symbolbox" :
+        if symbol <> "" :
+          picture symtext;
+          symtext := textext(symbol);
+          symtext := symtext shifted (w - 0.5*BodyFontSize, 0.5*BodyFontSize - 1pt);
+          fill bbox symtext withcolor white;
+          draw symtext withcolor framecolor;
+        fi;
+      fi;
+      
+      setbounds currentpicture to mainframe;
+    endgroup;
+  enddef;
+\stopMPdefinitions
+
+\setMPtext{DualHeaderNumber}{}
+\setMPtext{DualHeaderTitle}{}
+\setMPtext{DualHeaderNumber}{\hbox spread \baselineskip{\hss\framedtextparameter{number}\hss}}
+\setMPtext{DualHeaderTitle} {\hbox spread \baselineskip{\hss\framedtextparameter{title}\hss}}
+
+\startuseMPgraphic{DualHeaderFrame}
+  DrawDualHeaderFrame(
+    \MPvar{shownumber},
+    \MPvar{showtitle},
+    \MPvar{titlealign},
+    \MPvar{titlepos},
+    \MPvar{numberbgcolor},
+    \MPvar{titlebgcolor},
+    \MPvar{bodybgcolor},
+    \MPvar{framecolor},
+    \MPvar{linethickness},
+    \MPvar{numberratio},
+    \MPvar{titleratio},
+    \MPvar{radius},
+    \MPvar{numbercolor},
+    \MPvar{titlecolor},
+    \MPvar{bodybackground},
+    \MPvar{leftframe},
+    \MPvar{rightframe},
+    \MPvar{topframe},
+    \MPvar{bottomframe},
+    \MPvar{shadowcolor},
+    \MPvar{symbol},
+    \MPvar{character},
+    \MPvar{headerbgcolor}
+  );
+\stopuseMPgraphic
+
+\defineoverlay[DualHeaderBox][\useMPgraphic{DualHeaderFrame}{
+  shownumber=\framedtextparameter{shownumber},
+  showtitle=\framedtextparameter{showtitle},
+  titlealign=\framedtextparameter{titlealign},
+  titlepos=\framedtextparameter{titlepos},
+  numberbgcolor="\framedtextparameter{numberbgcolor}",
+   titlebgcolor="\framedtextparameter{titlebgcolor}",
+    bodybgcolor="\framedtextparameter{bodybgcolor}",
+     framecolor="\framedtextparameter{framecolor}",
+  linethickness=\framedtextparameter{rulethickness},
+  numberratio=\framedtextparameter{numberratio},
+  titleratio=\framedtextparameter{titleratio},
+  radius=\framedtextparameter{radius},
+     numbercolor="\framedtextparameter{numbercolor}",
+      titlecolor="\framedtextparameter{titlecolor}",
+  bodybackground="\framedtextparameter{bodybackground}",
+  leftframe=\framedtextparameter{leftframe},
+  rightframe=\framedtextparameter{rightframe},
+  topframe=\framedtextparameter{topframe},
+  bottomframe=\framedtextparameter{bottomframe},
+  shadowcolor="\framedtextparameter{shadowcolor}",
+  symbol="\framedtextparameter{symbol}",
+  character="\framedtextparameter{character}",
+  headerbgcolor="\framedtextparameter{headerbgcolor}"
+}]
+
+\defineframedtext[DualHeaderText][
+  background=DualHeaderBox,
+  frame=off,
+  number=,
+  title=,
+  shownumber=1,
+  showtitle=1,
+  titlealign=2,
+  titlepos=1,
+  numberbgcolor=lightthemecolor,
+  titlebgcolor=white,
+  bodybgcolor=white,
+  framecolor=lightthemecolor,
+  rulethickness=1.5pt,
+  numberratio=1,
+  titleratio=1,
+  radius=0pt,
+  numbercolor=white,
+  titlecolor=lightthemecolor,
+  bodybackground=simple,
+  leftframe=1,
+  rightframe=1,
+  topframe=1,
+  bottomframe=1,
+  shadowcolor=gray,
+  symbol=,
+  character=,
+  headerbgcolor=transparentcolor,
+  indenting={yes,2em},
+  toffset=2.5\bodyfontsize,
+  width=\textwidth,
+  before=,
+  after=,
+]
 
 \startuseMPgraphic{rules:under:round}{radius}
   fill unitsquare
@@ -2794,7 +3109,7 @@ fill pc withcolor \MPcolor{lightthemecolor};
   location=always,    frame=off,
   rulethickness=1pt,  leftoffset=4pt,
   framecolor=darkgray,mp=mpos:region:leftbar,
-  background=color,   backgroundcolor=transparent,]
+  background=color,   backgroundcolor=transparentcolor,]
 \setuplinenumbering[
   location=inner,align=inner,
   distance=-1em,  margin=0em,
@@ -3378,7 +3693,7 @@ end
                      withpen pencircle scaled 2pt
                      withcolor \MPcolor{\itemgroupparameter{color}};
   draw  (fullsquare scaled height)
-             withpen pencircle scaled 0pt withcolor \MPcolor{transparent} ;
+             withpen pencircle scaled 0pt withtransparency (1,0) ;
 \stopuseMPgraphic
 \startuniqueMPgraphic{sym:square}
   save height , depth ;
@@ -3390,7 +3705,7 @@ end
               withpen pencircle scaled 1pt
               withcolor \MPcolor{\itemgroupparameter{color}};
   draw  (fullsquare scaled height)
-             withpen pencircle scaled 0pt withcolor \MPcolor{transparent} ;
+             withpen pencircle scaled 0pt withtransparency (1,0) ;
 \stopuniqueMPgraphic
 \startuniqueMPgraphic{sym:circle}
   save height , depth ;
@@ -3402,7 +3717,7 @@ end
               withpen pencircle scaled 1pt
               withcolor \MPcolor{\itemgroupparameter{color}};
   draw  (fullsquare scaled height)
-             withpen pencircle scaled 0pt withcolor \MPcolor{transparent} ;
+             withpen pencircle scaled 0pt withtransparency (1,0) ;
 \stopuniqueMPgraphic
 \startuniqueMPgraphic{sym:bullet}
   save height , depth ;
@@ -3413,12 +3728,12 @@ end
   fill bullet crossingunder (fullsquare scaled height)
               withpen pencircle scaled 1pt withcolor \MPcolor{\itemgroupparameter{color}};
   draw  (fullsquare scaled height)
-             withpen pencircle scaled 0pt withcolor \MPcolor{transparent} ;
+             withpen pencircle scaled 0pt withtransparency (1,0) ;
 \stopuniqueMPgraphic
-\definesymbol [mp:squares] [{\lower.2ex\hbox{\useMPgraphic{sym:squares-random}}}]
-\definesymbol [mp:square]  [{\lower.2ex\hbox{\uniqueMPgraphic{sym:square}}}]
-\definesymbol [mp:circle]  [{\lower.2ex\hbox{\uniqueMPgraphic{sym:circle}}}]
-\definesymbol [mp:bullet]  [{\lower.2ex\hbox{\uniqueMPgraphic{sym:bullet}}}]
+\definesymbol [mp:squares] [{\lower.3ex\vbox{\useMPgraphic{sym:squares-random}}}]
+\definesymbol [mp:square]  [{\lower.3ex\vbox{\uniqueMPgraphic{sym:square}}}]
+\definesymbol [mp:circle]  [{\lower.3ex\vbox{\uniqueMPgraphic{sym:circle}}}]
+\definesymbol [mp:bullet]  [{\lower.3ex\vbox{\uniqueMPgraphic{sym:bullet}}}]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                               封面相關設置                             %%%%%%
@@ -3817,6 +4132,15 @@ endfor;
     \setupmodule   [fontsize=14pt,papersize=kindle,layout=kindle]
 \stopmode
 %\section{SCMD:fakesc}
+
+\permanent\def\utf #1{\clf_utfchar {0x#1}}
+\definefontfeature[f:case][mode=node,case=yes]
+\definefontfeature[f:pnum][mode=node,lnum=yes,pnum=yes]
+\definefontfeature[f:onum][lnum=no,pnum=no,onum=yes,liga=yes,kern=yes]
+\definefontfeature[f:tnum][mode=node,pnum=no,tnum=yes]
+\definefontfeature[f:caps][always][smcp=yes]
+
+
 \def\fakesc{\begingroup%
     \let\par=\space\obeylines\obeyspaces%
     \let\myspace=\space\dosmallcaps}
@@ -3831,6 +4155,7 @@ endfor;
              \fi
         \let\next=\dosc
    \fi\next}
+   
 %{\it Not everyone is a typographer to
 %produce the appropriate fine-typography glyphs
 %for their favourite font to cater to
@@ -3896,6 +4221,37 @@ endfor;
   \else\cnt_floor=0#1#2\relax%
   \number\cnt_floor\relax\fi%
 }
+
+%%%%% \processaction 执行顺序，需要先定义这些参数
+
+\processaction[\currentmoduleparameter{chapterstyle}]%
+   [      line=>\setups{memos:chap:line},
+      colorful=>\setups{memos:chap:colorful},
+        madsen=>\setups{memos:chap:madsen},
+        rocket=>\setups{memos:chap:rocket},
+          hexa=>\setups{memos:chap:hexa},
+        simple=>\setups{memos:chap:simple},
+      classics=>\setups{memos:chap:classics},
+  classicnovel=>\setups{memos:chap:classicnovel},
+       kaolike=>\setups{memos:chap:kaolike},
+       article=>\setups{memos:chap:article},
+       publish=>\setups{memos:chap:publish},
+          none=>\relax,
+    \v!default=>\setups{memos:chap:default},
+    \v!unknown=>\errorparameter{chapterstyle},]
+
+\processaction[\currentmoduleparameter{tocstyle}][
+          line=>\setups{memos:toc:line},
+      colorful=>\setups{memos:toc:colorful},
+        madsen=>\setups{memos:toc:madsen},
+        rocket=>\setups{memos:toc:rocket},
+          hexa=>\setups{memos:toc:hexa},
+        simple=>\setups{memos:toc:simple},
+      classics=>\setups{memos:toc:classics},
+  classicnovel=>\setups{memos:toc:classicnovel},
+          none=>\relax,
+    \v!default=>\setups{memos:toc:default},
+    \v!unknown=>\errorparameter{tocstyle},]
 
 \protect
 \stopmodule

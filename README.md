@@ -32,11 +32,26 @@
 
 ## 安裝
 
+### 1. 安裝 basicexam 模塊
+
 下載後，放置在 context 安裝路徑下（context-osx-arm64/tex/texmf-local/）。（context-osx-arm64 文件名可能根据不同的操作系統而不同）
 
 在終端中使用：`mtxrun --generate` 刷新文件索引。
 
 在文件中使用 `\usemodule[basicexam]` 即可使用。
+
+### 2. 安裝 visualcounter 模塊
+
+本項目使用了 visualcounter 模塊，需要自行安裝：
+
+1. 從 GitHub 下載：[https://github.com/adityam/visualcounter](https://github.com/adityam/visualcounter)
+2. 將 `t-visualcounter.mkvi` 文件複製到 context 安裝路徑下的 `tex/texmf-local/context/third/` 目錄
+3. 運行 `mtxrun --generate` 刷新文件索引
+
+或者使用 ConTeXt 的模塊管理器安裝：
+```bash
+mtxrun --script install-modules --install visualcounter
+```
 
 ## 示例
 
@@ -222,6 +237,8 @@ t-basicexam/
 │               ├── demo-search.tex             # 演示搜索功能
 │               ├── i-basicexam.pdf            # 接口文檔 PDF
 │               ├── i-basicexam.xml            # 接口文檔 XML
+│               ├── present-original.tex       # 原始演示文件
+│               ├── test-comprehensive.tex     # 綜合測試文件
 │               └── t-basicexam.pdf           # 源代碼文檔 PDF
 ├── tex/                                     # 源代碼目錄
 │   └── context/
@@ -229,10 +246,11 @@ t-basicexam/
 │           └── basicexam/
 │               ├── data/                        # 數據文件目錄
 │               │   ├── README.md              # 數據文件說明
+│               │   ├── basicexam-sql.lua      # SQL 數據庫文件
+│               │   ├── bg_img.png             # 背景圖片
 │               │   ├── pinyin.txt             # 拼音數據文件
 │               │   ├── sort-imp-zh.lua        # 中文排序實現（Lua）
-│               │   ├── sunwb_strokeorder.txt # 筆順數據文件
-│               │   └── test-comprehensive.tex # 綜合測試文件
+│               │   └── sunwb_strokeorder.txt # 筆順數據文件
 │               ├── fonts/                       # 字體配置目錄
 │               │   ├── README.md              # 字體配置詳細說明
 │               │   ├── symb-imp-notosymb.mkiv # 符號定義
@@ -240,8 +258,8 @@ t-basicexam/
 │               │   ├── type-imp-adobe.mkiv   # Adobe 字體集
 │               │   ├── type-imp-macos.mkiv   # macOS 系統字體集
 │               │   └── type-imp-source.mkiv  # Source Han 字體集
-│               ├── basicexam-sql.lua          # SQL 數據庫文件
 │               ├── s-memos.mklx              # memos 模塊源代碼
+│               ├── s-poriginal.mkiv          # 原始演示模塊
 │               ├── t-basicexam.mklx           # basicexam 模塊源代碼
 │               └── t-zhindex.mklx            # zhindex 模塊源代碼
 ├── .gitignore                               # Git 忽略文件配置

@@ -1,0 +1,782 @@
+\usemodule[memos][fontsize=16pt,fontstyle=ss]
+\usemodule[basicexam]
+\usemodule[poriginal][color=red]
+\starttext
+
+\TitlePage[title=这是文章标题,subtitle=这是副标题,author=\moduleparameter{poriginal}{color},]{}
+
+\Topics{这是篇章目录页}
+
+\Topic{这是主要篇章}
+
+  \Subject{这是主题}  \currentmoduleparameter{color} \input knuth
+
+\Topic{Font}
+
+  \Subject{FontFamily}
+  
+\startxtable
+  \startxrow
+    \startxcell fontfamily     \stopxcell
+    \startxcell groupedcommand \stopxcell
+    \startxcell declaredcommand\stopxcell
+    \startxcell result         \stopxcell
+  \stopxrow
+  \startxrow
+    \startxcell Serif          \stopxcell
+    \startxcell \type{\style[rm]{Abc}}\stopxcell
+    \startxcell \type{\rm Abc} \stopxcell
+    \startxcell {\rm Abc}      \stopxcell
+  \stopxrow
+  \startxrow
+    \startxcell Sans           \stopxcell
+    \startxcell \type{\style[ss]{Abc}}\stopxcell
+    \startxcell \type{\ss Abc} \stopxcell
+    \startxcell {\ss Abc}      \stopxcell
+  \stopxrow
+  \startxrow
+    \startxcell Mono           \stopxcell
+    \startxcell \type{\style[tt]{Abc}}\stopxcell
+    \startxcell \type{\tt Abc} \stopxcell
+    \startxcell {\tt Abc}      \stopxcell
+  \stopxrow
+  \startxrow
+    \startxcell Hand           \stopxcell
+    \startxcell \type{\style[hw]{Abc}}\stopxcell
+    \startxcell \type{\hw Abc} \stopxcell
+    \startxcell {\hw Abc}      \stopxcell
+  \stopxrow
+\stopxtable
+
+\startxtable
+  \startxrow
+    \startxcell fontstyle      \stopxcell
+    \startxcell groupedcommand \stopxcell
+    \startxcell declaredcommand\stopxcell
+    \startxcell result         \stopxcell
+  \stopxrow
+  \startxrow
+    \startxcell normal          \stopxcell
+    \startxcell \type{\style[tf]{Abc}}\stopxcell
+    \startxcell \type{\tf Abc} \stopxcell
+    \startxcell {\tf Abc}      \stopxcell
+  \stopxrow
+  \startxrow
+    \startxcell Bold           \stopxcell
+    \startxcell \type{\style[bold]{Abc}}\stopxcell
+    \startxcell \type{\bf Abc} \stopxcell
+    \startxcell {\bf Abc}      \stopxcell
+  \stopxrow
+  \startxrow
+    \startxcell italic          \stopxcell
+    \startxcell \type{\style[it]{Abc}}\stopxcell
+    \startxcell \type{\it Abc} \stopxcell
+    \startxcell {\it Abc}      \stopxcell
+  \stopxrow
+  \startxrow
+    \startxcell CAPS           \stopxcell
+    \startxcell \type{\style[sc]{Abc}}\stopxcell
+    \startxcell \type{\sc Abc} \stopxcell
+    \startxcell {\sc Abc}      \stopxcell
+  \stopxrow
+\stopxtable
+  
+  \Subject{Font Decoration}
+  
+\useURL[bing]   [http://bing.com/]          [] [I prefer dog.]
+\useurl[mail]   [mailto:nobody@example.zzz] [] [visible@mailaddress.zzz]
+
+\startpoints
+  \item \hbox to 8em{GOTO LINK \hfil} \goto{Wiki}[url(http://wiki.contextgarden.net)]
+  \item \hbox to 8em{GOTO PAGE \hfil} \goto{Other page}[page(3)]
+  \item \hbox to 8em{URL       \hfil} \from[bing]
+  \item \hbox to 8em{MAIL      \hfil} \from[mail]
+\stoppoints
+  
+\startpoints[horizontal,two]\ssx
+  \startitem \type{\overbar{Lorem ipsum}       }\hfill\overbar{Lorem ipsum}       \stopitem
+  \startitem \type{\underbar{Lorem ipsum}      }\hfill\underbar{Lorem ipsum}      \stopitem
+  \startitem \type{\overstrike{Lorem ipsum}    }\hfill\overstrike{Lorem ipsum}    \stopitem
+  \startitem \type{\understrike{Lorem ipsum}   }\hfill\understrike{Lorem ipsum}   \stopitem
+  \startitem \type{\overbars{Lorem ipsum}      }\hfill\overbars{Lorem ipsum}      \stopitem
+  \startitem \type{\underbars{Lorem ipsum}     }\hfill\underbars{Lorem ipsum}     \stopitem
+  \startitem \type{\overstrikes{Lorem ipsum}   }\hfill\overstrikes{Lorem ipsum}   \stopitem
+  \startitem \type{\understrikes{Lorem ipsum}  }\hfill\understrikes{Lorem ipsum}  \stopitem
+  \startitem \type{\hiddenbar{Lorem ipsum}     }\hfill\hiddenbar{Lorem ipsum}     \stopitem
+  \startitem \type{\outline{Lorem ipsum}       }\hfill\outline{Lorem ipsum}       \stopitem
+  \startitem \type{\outlined{Lorem ipsum}      }\hfill\outlined{Lorem ipsum}      \stopitem
+  \startitem \type{\backgroundbar{Lorem ipsum} }\hfill\backgroundbar{Lorem ipsum} \stopitem
+  \startitem \type{\mathbackground{Lorem ipsum}}\hfill\mathbackground{Lorem ipsum}\stopitem
+  \startitem \type{\undergraphic{Lorem ipsum}  }\hfill\undergraphic{Lorem ipsum}  \stopitem
+  \startitem \type{\underrandom{Lorem ipsum}   }\hfill\underrandom{Lorem ipsum}   \stopitem
+  \startitem \type{\underrandoms{Lorem ipsum}  }\hfill\underrandoms{Lorem ipsum}  \stopitem
+  \startitem \type{\underdash{Lorem ipsum}     }\hfill\underdash{Lorem ipsum}     \stopitem
+  \startitem \type{\underdashes{Lorem ipsum}   }\hfill\underdashes{Lorem ipsum}   \stopitem
+  \startitem \type{\underdot{Lorem ipsum}      }\hfill\underdot{Lorem ipsum}      \stopitem
+  \startitem \type{\underdots{Lorem ipsum}     }\hfill\underdots{Lorem ipsum}     \stopitem
+  \startitem \type{\underround{Lorem ipsum}    }\hfill\underround{Lorem ipsum}    \stopitem
+  \startitem \type{\bigunderdot{Lorem ipsum}   }\hfill\bigunderdot{Lorem ipsum}   \stopitem
+\stoppoints
+  
+\Topic{列表、表格、图片}
+
+\Subject{列表环境示例}
+
+\startbuffer
+  \startpoints
+    \item 这是无序列表
+      \startpoints
+        \item 这是无序列表
+        \startpoints
+          \item 这是无序列表
+        \stoppoints
+      \stoppoints
+  \stoppoints
+  
+  \doloopoverlist
+   {shadowedsquare,shadowedcircle,shadowedsquares,shadowedcircles,
+    bullet,mp:bullet,
+    circle,mp:circle,
+    diamond,blackdiamond,asterisk,
+    square,mp:square,blacksquare,mp:squares}
+   {\startpoints[\recursestring]\item 这是无序列表\stoppoints}  
+\stopbuffer
+
+\typebuffer\blank
+
+\startcolumns[n=2]
+\getbuffer
+\stopcolumns
+
+\page
+\null
+
+\startbuffer
+  \startordinals
+    \item 这是有序列表
+      \startordinals
+        \item 这是有序列表
+          \startordinals
+            \item 这是有序列表
+          \stopordinals
+     \stopordinals
+  \stopordinals
+  
+  \doloopoverlist
+   {Co:num,CO:num,Cr:num,CR:num,Cs:num,CS:num,
+   Co:Alph,CO:Alph,Cr:Alph,CR:Alph,Cs:Alph,CS:Alph,
+   Co:alph,CO:alph,Cr:alph,CR:alph,Cs:alph,CS:alph,
+   Co:cn,CO:cn,Cr:cn,CR:cn,Cs:cn,CS:cn,
+   Co:hira,CO:hira,Cr:hira,CR:hira,Cs:hira,CS:hira,
+   Co:kata,CO:kata,Cr:kata,CR:kata,Cs:kata,CS:kata,}
+   {\startordinals[\recursestring,nostopper]\item 这是有序列表\stopordinals} 
+\stopbuffer
+
+\typebuffer\blank
+
+\startcolumns[n=3]
+\getbuffer
+\stopcolumns
+
+\Subject{表格环境}
+
+\movesidefloat[y=-.3\baselineskip]
+\startplacefigure [location={none,left,high,low},title=figure]
+  \externalfigure [][height=6\baselineskip]
+\stopplacefigure
+
+\startplacefullfig [title=fullwidth figure]
+  \externalfigure [][width=\dimexpr\textwidth+\rightmargintotal\relax,height=3\baselineskip]
+\stopplacefullfig
+
+\startplacetextfig [title={text figure},location={high,low}]
+  \externalfigure [][height=4\baselineskip,width=1tw]
+\stopplacetextfig
+
+\startplacemarginfig [title=margin figure,location={outermargin}]
+  \externalfigure [][width=\rightmarginwidth,height=5\baselineskip]
+\stopplacemarginfig
+
+\startplacefullfig [location=none]
+   \startsubfloatnumbering
+     \startfloatcombination [width=\dimexpr\textwidth+\rightmargintotal\relax,nx=3,distance=1mm,after=,inbetween=]
+       \startplacefigure [title=Left]   \externalfigure \stopplacefigure
+       \startplacefigure [title=Middle] \externalfigure \stopplacefigure
+       \startplacefigure [title=Right]  \externalfigure \stopplacefigure
+     \stopfloatcombination
+   \stopsubfloatnumbering
+\stopplacefullfig
+
+\startbuffer
+  \startlocalfootnotes
+    \startxtable
+        \startxrow[header]
+          \startxcell 我走在命运为我规定的路上， 虽然我并不愿意走在这条路上， 
+                      但是我除了满腔悲愤的走在这条路上别无选择\footnote{First} \stopxcell
+          \startxcell 你今天是一个孤独的怪人，你离群索居，总有一天你会成为一个民族！\footnote{Second} \stopxcell
+        \stopxrow
+      \startxrow[body]
+        \startxcell 我走在命运为我规定的路上， 虽然我并不愿意走在这条路上， 
+                    但是我除了满腔悲愤的走在这条路上别无选择\footnote{First} \stopxcell
+        \startxcell 你今天是一个孤独的怪人，你离群索居，总有一天你会成为一个民族！\footnote{Second} \stopxcell
+      \stopxrow
+      \startxrow[footer]
+        \startxcell 受苦的人，没有悲观的权利。一个受苦的人，如果悲观了，就没有了面对现实的勇气，
+                    也没有了与苦难抗争的力量，结果是他将受到更大的苦。\footnote{Third} \stopxcell
+        \startxcell 所谓高贵的灵魂，即对自己怀有敬畏之心。\footnote{Fourth}  \stopxcell
+      \stopxrow
+      \startxrow[lastrow]
+        \startxcell 受苦的人，没有悲观的权利。一个受苦的人，如果悲观了，就没有了面对现实的勇气，
+                    也没有了与苦难抗争的力量，结果是他将受到更大的苦。\footnote{Third} \stopxcell
+        \startxcell 所谓高贵的灵魂，即对自己怀有敬畏之心。\footnote{Fourth}  \stopxcell
+      \stopxrow
+    \stopxtable
+    {\setupnotation[footnote][alternative={text},distance=.2em,after=\hskip1.5em]%
+     \hbox{\placelocalfootnotes}}
+  \stoplocalfootnotes
+\stopbuffer
+
+\movesidefloat[y=.3\baselineskip]
+\startplacetable [location={none,left,high,low}]
+  \getbuffer
+\stopplacetable
+
+\startplacefulltab [title=fullwidth table]
+  \getbuffer
+\stopplacefulltab
+
+\startplacetexttab [title={text table},location={high,low,middle}]
+    \getbuffer
+\stopplacetexttab
+
+\startplacefulltab [location=none]
+   \startsubfloatnumbering
+     \startfloatcombination [width=\dimexpr\textwidth+\rightmargintotal\relax,nx=3,distance=1mm,after=,inbetween=]
+       \startplacetable [title=Left]   \getbuffer \stopplacetable
+       \startplacetable [title=Middle] \getbuffer \stopplacetable
+       \startplacetable [title=Right]  \getbuffer \stopplacetable
+     \stopfloatcombination
+   \stopsubfloatnumbering
+\stopplacefulltab
+
+\startplacetexttab[title=name of table]
+  \getbuffer
+\stopplacetexttab
+
+\Topic{双栏标题框组件测试}
+
+\Subject{基础功能测试}
+
+\subsection{完整双栏标题框（默认）}
+
+\startDualHeaderText[number={No.001},title={这是标题}]
+这是一个完整的双栏标题框示例。左侧显示编号，右侧显示标题。
+\stopDualHeaderText
+
+\subsection{仅显示编号}
+
+\startDualHeaderText[number={A-123},showtitle=0]
+这个框只显示编号，不显示标题。
+\stopDualHeaderText
+
+\subsection{仅显示标题}
+
+\startDualHeaderText[title={仅标题示例},shownumber=0]
+这个框只显示标题，不显示编号。
+\stopDualHeaderText
+
+\subsection{无编号和标题}
+
+\startDualHeaderText[number=,title=,shownumber=0,showtitle=0,toffset=0.5\bodyfontsize]
+当编号和标题都为空时，不显示标题栏。需要手动调整 toffset 参数。
+\stopDualHeaderText
+
+\Subject{背景样式测试}
+
+\subsection{simple 样式（默认）}
+
+\startDualHeaderText[
+  number=,
+  title=,
+  shownumber=0,
+  showtitle=0,
+  toffset=0.5\bodyfontsize,
+  bodybackground=simple
+]
+这是默认的简单样式，带完整边框。
+\stopDualHeaderText
+
+\startDualHeaderText[
+  number=,
+  title=,
+  shownumber=0,
+  showtitle=0,
+  toffset=0.5\bodyfontsize,
+  bodybackground=simple,
+  bodybgcolor=softthemecolor,
+]
+这是默认的简单样式，带完整边框。
+\stopDualHeaderText
+
+\subsection{symbolbox 样式}
+
+\startDualHeaderText[
+  number={Symbol},
+  title={符号框样式},
+  bodybackground=symbolbox,
+  symbol=\usersymbolparameter{Frame}
+]
+symbolbox 样式会在右下角显示一个符号。
+\stopDualHeaderText
+
+\subsection{charbox 样式}
+
+\startDualHeaderText[
+  number={Char},
+  title={字符图案样式},
+  bodybackground=charbox,
+  character={$\star$}
+]
+charbox 样式会在背景显示旋转45度的字符图案。
+\stopDualHeaderText
+
+\subsection{framebox 样式}
+
+\startDualHeaderText[
+  number={Char},
+  title={字符图案样式},
+  bodybackground=framebox,
+]
+framebox 样式会在背景显示棋盘格图案。
+\stopDualHeaderText
+
+\subsection{shadowbox 样式（自定义阴影色）}
+
+\startDualHeaderText[
+  number={Shadow},
+  title={阴影框样式},
+  bodybackground=shadowbox,
+  shadowcolor=lightthemecolor,
+]
+shadowbox 样式会在右下角显示阴影效果。这里使用了自定义的阴影颜色。
+\stopDualHeaderText
+
+\subsection{shadowbox 样式（自动阴影色）}
+
+\startDualHeaderText[
+  number={Auto},
+  title={自动阴影色},
+  bodybackground=shadowbox,
+  shadowcolor=white,
+]
+当 shadowcolor 为 white 时，自动使用边框颜色和白色的混合色。
+\stopDualHeaderText
+
+\subsection{barbox 样式}
+
+\startDualHeaderText[
+  number={Bar},
+  title={条形样式},
+  bodybackground=barbox,
+  leftframe=1,
+]
+barbox 样式会在左侧显示一个色条。
+\stopDualHeaderText
+
+\Subject{边框控制测试}
+
+\subsection{仅左边框}
+
+\startDualHeaderText[
+  shownumber=0,
+  showtitle=0,
+  leftframe=1,
+  rightframe=0,
+  topframe=0,
+  bottomframe=0,
+  toffset=0.5\bodyfontsize,
+]
+只显示左边框。
+\stopDualHeaderText
+
+\subsection{仅左右边框}
+
+\startDualHeaderText[
+  shownumber=0,
+  showtitle=0,
+  leftframe=1,
+  rightframe=1,
+  topframe=0,
+  bottomframe=0,
+  toffset=0.5\bodyfontsize,
+]
+只显示左右边框。
+\stopDualHeaderText
+
+\subsection{无边框}
+
+\startDualHeaderText[
+  shownumber=0,
+  showtitle=0,
+  leftframe=0,
+  rightframe=0,
+  topframe=0,
+  bottomframe=0,
+  toffset=0.5\bodyfontsize,
+  bodybgcolor=softthemecolor,
+]
+不显示任何边框。
+\stopDualHeaderText
+
+\Subject{宽度比例测试}
+
+\subsection{1:2 比例}
+
+\startDualHeaderText[
+  number={No.},
+  title={标题宽度是编号的两倍},
+  numberratio=1,
+  titleratio=2
+]
+标题的宽度是编号的两倍。
+\stopDualHeaderText
+
+\subsection{1:3 比例}
+
+\startDualHeaderText[
+  number={A},
+  title={标题宽度是编号的三倍},
+  numberratio=1,
+  titleratio=3
+]
+标题的宽度是编号的三倍。
+\stopDualHeaderText
+
+\Subject{圆角测试}
+
+\subsection{圆角效果}
+
+\startDualHeaderText[
+  number={圆角},
+  title={圆角效果演示},
+  radius=10pt
+]
+使用 radius 参数设置圆角半径。标题栏背景色会自动遮盖圆角区域的空白。
+\stopDualHeaderText
+
+\subsection{大圆角}
+
+\startDualHeaderText[
+  number={大圆角},
+  title={大圆角效果},
+  radius=15pt
+]
+更大的圆角半径。
+\stopDualHeaderText
+
+\subsection{无圆角}
+
+\startDualHeaderText[
+  number={无圆角},
+  title={无圆角效果},
+  radius=0pt
+]
+默认无圆角。
+\stopDualHeaderText
+
+\Subject{标题栏背景色测试}
+
+\subsection{自定义标题栏背景色}
+
+\startDualHeaderText[
+  number={自定义},
+  title={自定义标题栏背景色},
+  titlebgcolor=white,
+  numberbgcolor=blue,
+]
+可以自定义标题栏的背景色。
+\stopDualHeaderText
+
+\subsection{透明标题栏背景}
+
+\startDualHeaderText[
+  number={透明},
+  title={透明标题栏背景},
+  titlebgcolor=transparentcolor,
+  bodybgcolor=transparentcolor,
+]
+标题栏背景可以设置为透明。
+\stopDualHeaderText
+
+\Subject{颜色测试}
+
+\subsection{自定义颜色}
+
+\startDualHeaderText[
+  number={自定义},
+  title={自定义颜色示例},
+  numberbgcolor=red,
+  titlebgcolor=blue,
+  bodybgcolor=yellow,
+  framecolor=red,
+  numbercolor=white,
+  titlecolor=white,
+]
+可以自定义各种颜色。
+\stopDualHeaderText
+
+\Subject{组合效果测试}
+
+\subsection{阴影 + 圆角}
+
+\startDualHeaderText[
+  number={组合},
+  title={阴影+圆角},
+  bodybackground=shadowbox,
+  radius=8pt,
+  shadowcolor=lightthemecolor,
+]
+阴影和圆角的组合效果。
+\stopDualHeaderText
+
+\subsection{左侧条 + 无标题}
+
+\startDualHeaderText[
+  number={组合},
+  bodybackground=barbox,
+  leftframe=1,
+  showtitle=0,
+]
+左侧色条 + 无标题的组合效果。
+\stopDualHeaderText
+
+\subsection{字符图案 + 圆角}
+
+\startDualHeaderText[
+  number={组合},
+  title={字符图案+圆角},
+  bodybackground=charbox,
+  character={$\heartsuit$},
+  radius=10pt,
+]
+字符图案和圆角的组合效果。
+\stopDualHeaderText
+
+\subsection{仅左边框模拟 blockbox}
+
+\startDualHeaderText[
+  number={模拟},
+  title={模拟 blockbox},
+  leftframe=1,
+  rightframe=0,
+  topframe=0,
+  bottomframe=0,
+  rulethickness=2pt
+]
+通过设置仅显示左边框，可以模拟 blockbox 的效果。
+\stopDualHeaderText
+
+\Subject{titlepos=0（顶部标题）}
+
+\subsection{完整双栏标题框}
+
+\startDualHeaderText[
+  number={No.1},
+  title={顶部标题},
+  titlepos=0,
+]
+这是 titlepos=0 的效果，标题显示在顶部，占用正文空间。
+\stopDualHeaderText
+
+\subsection{仅标题}
+
+\startDualHeaderText[
+  shownumber=0,
+  title={仅标题},
+  titlepos=0,
+]
+只显示标题，不显示编号。
+\stopDualHeaderText
+
+\subsection{仅编号}
+
+\startDualHeaderText[
+  shownumber=1,
+  showtitle=0,
+  number={No.2},
+  titlepos=0,
+]
+只显示编号，不显示标题。
+\stopDualHeaderText
+
+\subsection{标题和编号（左对齐）}
+
+\startDualHeaderText[
+  number={No.3},
+  title={左对齐标题},
+  titlepos=0,
+  titlealign=1,
+]
+标题左对齐，编号右对齐。
+\stopDualHeaderText
+
+\subsection{标题和编号（右对齐）}
+
+\startDualHeaderText[
+  number={No.4},
+  title={右对齐标题},
+  titlepos=0,
+  titlealign=3,
+]
+标题右对齐，编号左对齐。
+\stopDualHeaderText
+
+\Subject{组合效果测试}
+
+\subsection{titlepos=0 + 圆角}
+
+\startDualHeaderText[
+  number={No.5},
+  title={圆角顶部标题},
+  titlepos=0,
+  radius=5pt,
+]
+titlepos=0 与圆角效果的组合。
+\stopDualHeaderText
+
+\subsection{titlepos=0 + 阴影}
+
+\startDualHeaderText[
+  number={No.6},
+  title={阴影顶部标题},
+  titlepos=0,
+  bodybackground=shadowbox,
+]
+titlepos=0 与阴影效果的组合。
+\stopDualHeaderText
+
+\subsection{titlepos=0 + 自定义颜色}
+
+\startDualHeaderText[
+  number={No.7},
+  title={自定义颜色},
+  titlepos=0,
+  numberbgcolor=blue,
+  titlecolor=red,
+  numbercolor=white,
+]
+titlepos=0 与自定义颜色的组合。
+\stopDualHeaderText
+
+\Subject{其他环境}
+
+\startdescription{人性，太人性的}
+人类的生命，不能以时间长短来衡量，心中充满爱时，刹那即为永恒！ ——尼采
+完全不谈自己是一种甚为高贵的虚伪。 
+\stopdescription
+
+\starthangdescr{Description}
+\input knuthmath
+\stophangdescr
+
+\starttopdescr{Description}
+\input knuthmath
+\stoptopdescr
+
+\starttips{Description}
+\input knuthmath
+\stoptips
+
+\startexcursus{Description}
+\input knuthmath
+\stopexcursus
+
+\startremark
+\input knuthmath
+\stopremark
+
+\Subject{和教学相关的一些环境}
+
+\question{Lorem ipsum}
+
+\question{Lorem ipsum\choice{Lorem ipsum,Lorem ipsum,Lorem ipsum,Lorem ipsum}}
+
+\question{Lorem ipsum\problem{\pitem{Lorem ipsum}\pitem{Lorem ipsum}\pitem{Lorem ipsum}}}
+
+\startlexicalentry[class=名,accent=1]{太陽}
+  \startlexicallists
+    \item 太陽系の中心をなし、地球にもっとも近い恒星。お日さま。\antonym{太陰}。
+    \item 光明・希望の象徴。「心の\alias」
+      \startlexicallists
+        \item 太陽系の中心をなし、地球にもっとも近い恒星。お日さま。\example{太陰}。
+        \item 光明・希望の象徴。「心の\alias」
+          \startlexicallists
+            \item 太陽系の中心をなし、地球にもっとも近い恒星。お日さま。\refer{太陰}。
+            \item 光明・希望の象徴。「心の\alias」
+              \startlexicallists
+                \item 太陽系の中心をなし、地球にもっとも近い恒星。お日さま。\junction{太陰}。
+                \item 光明・希望の象徴。「心の\alias」
+              \stoplexicallists
+          \stoplexicallists
+      \stoplexicallists
+  \stoplexicallists
+\stoplexicalentry
+
+\startlexicalsyntax[class=名,accent=1]{太陽}
+  \lexicalgrammar 太陽系の中心をなし、地球にもっとも近い恒星。\par
+  \lexicalgrammar 太陽系の中心をなし、地球にもっとも近い恒星。\par
+  \startlexicalgrammar
+    太陽系の中心をなし、地球にもっとも近い恒星。
+    \startlexicallists
+      \item 太陽系の中心をなし、地球にもっとも近い恒星。お日さま。\lexicalemph{太陰}。
+      \item 光明・希望の象徴。「心の\alias」
+    \stoplexicallists
+  \stoplexicalgrammar
+
+  \startlexicalexample ワインをは飲みますが、ビールをはのみません。\stoplexicalexample
+  \startlexicalexample ワインをは飲みますが、ビールをはのみません。\stoplexicalexample
+  \startlexicalexample
+    ワインをは飲みますが、ビールをはのみません。
+    \startlexicallists
+      \item 私はワインは飲みますが、ビールは飲みません。
+      \item 映画は見ませんが、ドラマは見ます。
+      \item 豚肉は食べませんが、牛肉や鶏肉はよく食べます。
+    \stoplexicallists
+  \stoplexicalexample
+  
+  \startlexicalmeaning{Aの状態ではなくなるまでにBを完了する}\\
+    \junction{動詞辞書形・テイル形・ナイ形}\\
+    \junction{形容詞・形容動詞の連体形（現在肯定形・現在否定形）}\\
+    \junction{名詞＋の}
+    \startlexicallists
+      \item 明るいうちに、帰ったほうがいい。
+      \item 元気なうちに、世界一周旅行がしたい。
+    \stoplexicallists
+  \stoplexicalmeaning
+
+  \startlexicaljunction
+    太陽系の中心をなし、地球にもっとも近い恒星。
+    \startlexicallists
+      \item 明るいうちに、帰ったほうがいい。
+      \item 元気なうちに、世界一周旅行がしたい。
+    \stoplexicallists
+  \stoplexicaljunction
+  
+  \startlexicalcomparing
+    太陽系の中心をなし、地球にもっとも近い恒星。
+    \startlexicallists
+      \item 明るいうちに、帰ったほうがいい。
+      \item 元気なうちに、世界一周旅行がしたい。
+    \stoplexicallists
+  \stoplexicalcomparing
+  
+  \startlexicalsummary
+    太陽系の中心をなし、地球にもっとも近い恒星。
+    \startlexicallists
+      \item 明るいうちに、帰ったほうがいい。
+      \item 元気なうちに、世界一周旅行がしたい。
+    \stoplexicallists
+  \stoplexicalsummary
+\stoplexicalsyntax
+
+\stoptext
