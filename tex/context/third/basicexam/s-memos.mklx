@@ -449,7 +449,9 @@
 %%  ！！！ 應該只考慮 英數 和 漢字 之間的空間插入，符號 和 漢字 之間的間距不應該由這個程式控制
 
 \startluacode
-  Thirddata = Thirddata or {}
+thirddata = thirddata or {}
+thirddata.memos = thirddata.memos or {}
+local memos = thirddata.memos
 
   local glyph_id = nodes.nodecodes.glyph
   local node_insertbefore = node.insertbefore
@@ -504,7 +506,7 @@
       return legalsymbolinchinese[c]
   end
 
-  function Thirddata.processmystuff(head)
+  function thirddata.memos.processmystuff(head)
       local n = head
       while n do
           if n.id == glyph_id then
@@ -557,11 +559,11 @@
       return head, done
   end
 
-  nodes.tasks.appendaction("processors", "after", "Thirddata.processmystuff")
+  nodes.tasks.appendaction("processors", "after", "thirddata.memos.processmystuff")
 \stopluacode
 
-\def\disablepanguspace{\ctxluacode{nodes.tasks.disableaction("processors","Thirddata.processmystuff")}}
-\def\enablepanguspace {\ctxluacode{nodes.tasks.enableaction ("processors","Thirddata.processmystuff")}}
+\def\disablepanguspace{\ctxluacode{nodes.tasks.disableaction("processors","thirddata.memos.processmystuff")}}
+\def\enablepanguspace {\ctxluacode{nodes.tasks.enableaction ("processors","thirddata.memos.processmystuff")}}
 
 \startprotectedcolors
   \definecolor [transparentcolor] [r=0,g=1,b=1,t=0,a=normal]
@@ -932,7 +934,7 @@
 
   local textwidth  = tostring(twr/65536) .. "pt"
   local theight    = ph - Het - Fob        -- textheight 是 頁面 - 頂部 - 尾部
-  textheight       = tostring(theight/65536) .. "pt"
+  local textheight       = tostring(theight/65536) .. "pt"
 
   local backspace           = tostring(Lm/65536)  .. "pt"
   local rightmargin         = tostring(Rmm/65536) .. "pt"

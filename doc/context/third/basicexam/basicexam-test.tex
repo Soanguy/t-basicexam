@@ -22,7 +22,6 @@
 \dontcomplain
 
 \placecontent
-
 \chapter{Overview}
 
 % ==============================================
@@ -533,8 +532,8 @@ This is the main part of the question.
 \stopquestion
 
 \question[answer=bbb]
-{This is the main part of the question.}
-\startanswer This is a detailed explanation of this topic.\stopanswer
+{This is the main part of the question.
+\startanswer This is a detailed explanation of this topic.\stopanswer}
 
 \startquestion
 This is the main part of the question.
@@ -553,12 +552,12 @@ This is the main part of the question.
 \question
 {This is the main part of the question.
   \problem[textstyle=ss]
-    {\pitem[answer=ggg]{This is the first small question.}
-     \startanswer This is a detailed explanation of this topic.\stopanswer
-     \pitem[answer=hhh]{This is the second small question.}
-     \startanswer This is a detailed explanation of this topic.\stopanswer
-     \pitem[answer=iii]{This is the second small question.}
-     \startanswer This is a detailed explanation of this topic.\stopanswer
+    {\pitem[answer=ggg]{This is the first small question.
+        \answer{This is a detailed explanation of this topic.}}
+     \pitem[answer=hhh]{This is the second small question.
+        \answer{This is a detailed explanation of this topic.}}
+     \pitem[answer=iii]{This is the second small question.
+        \answer{This is a detailed explanation of this topic.}}
   }
 }
 \stopbuffer
@@ -577,10 +576,10 @@ This is the main part of the question.
 \startpitem[answer={ccc,will be replace}]
    Lorem ipsum dolor sit amet,
    \fillin{Lorem ipsum,the real answer}
-\stoppitem
 \startanswer
  Here is answer.
 \stopanswer
+\stoppitem
 \stopbuffer
 
 \subsection{fillin }
@@ -755,39 +754,43 @@ of human kindness won the day.
 By default, answers are extracted from chapter 0 (i.e., no chapter). Therefore, if answers are located under chapters, you should start from chapter 1.
 
 \startbuffer
-\dorecurse{5}{\typeanswerbychap{1},}
+% List format (default)
+\typeanswer[start=1,total=5]{}
 
-\newcount\tempa\tempa=2\relax
-\dorecurse{5}{\typeanswerbychap[\tempa]{1},\advance\tempa by 1\relax}
+% Table format
+\typeanswer[method=table,start=1,total=10,rows=2,columns=5]{}
 
-\typeanswerdirect{1-5}
+% Table alt format
+\typeanswer[method=table,layout=alt,start=1,total=10,rows=5,columns=2]{}
+
+% Direct access
+\typeanswer[method=direct]{0-Q-5}
 \stopbuffer
 
 \typebuffer
 \getbuffer
 
 \startbuffer
-\typeanswerlist{5}
-     
-\typeanswerlist[1]{5}   
- 
-\typeanswerlist[1][2]{5}
+% List format variations
+\typeanswer[start=1,total=5]{}
+
+\typeanswer[start=1,total=5,separator={; }]{}
+
+\typeanswer[start=1,total=5,showid=no]{}
 \stopbuffer
 
 \typebuffer
+
 \getbuffer
 
 \startbuffer
-\typeanswertable[2,5]          \null\par
-\typeanswertable[2,5][1]       \null\par
-\typeanswertable[2,5][1][6]    \null\par
+\typeanswer[method=table,start=1,total=10,rows=2,columns=5]{}
 
-\typeanswertablealt[2,5]       \null\par
-\typeanswertablealt[2,5][1]    \null\par
-\typeanswertablealt[2,5][1][6] \null\par
+\typeanswer[method=table,layout=alt,start=1,total=10,rows=5,columns=2]{}
 \stopbuffer
 
 \typebuffer
+
 \getbuffer
 
 \section{Score}
@@ -1043,28 +1046,6 @@ for handwritten answers, commonly used in composition sections.
 
 \getbuffer
 
-\section{User Question Environment}
-
-The \type{userquestion} and \type{useritem} environments provide flexibility
-for question types not covered by the standard environments.
-
-\startbuffer
-\setupuserquestion[point=1,showanswer=true,showpoint=true]
-\useritem{Answer 1} XXXX
-
-\useritem{Answer 2} XXXX
-
-\useritem{Answer 3} XXXX
-
-\startuserquestion
-XXXXXX\useritem{A} \useritem{B} \useritem{C}
-\stopuserquestion
-\stopbuffer
-
-\typebuffer
-
-\getbuffer
-
 \section{Symbols}
 
 The module provides a comprehensive set of marking symbols for answers.
@@ -1137,59 +1118,31 @@ Available conversion sets for circled numbers:
 \HL
 \stoptabulate
 
-\section{Multilingual Support}
-
-The module provides multilingual support through \type{\userlanguage}:
-
-\starttabulate[|l|l|p|]
-\HL
-\NC Language \NC Code \NC Description \NC\NR
-\HL
-\NC English \NC en \NC Latin script, modern font \NC\NR
-\NC Chinese (Simplified) \NC cn, hans \NC Simplified Chinese \NC\NR
-\NC Chinese (Traditional) \NC hant \NC Traditional Chinese \NC\NR
-\NC Japanese \NC ja \NC Japanese with ruby support \NC\NR
-\HL
-\stoptabulate
-
-\startbuffer
-\userlanguage[en]{This is English text.}
-
-\userlanguage[cn]{这是中文文本。}
-
-\userlanguage[ja]{これは日本語のテキストです。}
-\stopbuffer
-
-\typebuffer
-
-\getbuffer
-
 \chapter{More Test}
 
 \question[I][answer=1,showanswer=true,showpoint=true]
-  {one nest\answer{explain}}\answer{explain}
+  {one nest\answer{explain}}
 
 \question[I][answer=1,showanswer=true,showpoint=true]{one nest
   \question[A][answer=2]{two nest
-    \question[I][answer=3]{three nest\answer{explain in question}}\answer{explain out question}
-    \question[I][answer=4]{three nest\answer{explain in question}}\answer{explain out question}
-    \question[I][answer=5]{three nest\answer{explain in question}}\answer{explain out question}
+    \question[I][answer=3]{three nest\answer{explain in question}}
+    \question[I][answer=4]{three nest\answer{explain in question}}
+    \question[I][answer=5]{three nest\answer{explain in question}}
   }
   \question[n][answer=2]{two nest
-    \question[I][answer=6]{three nest\answer{explain in question}}\answer{explain out question}
-    \question[I][answer=7]{three nest\answer{explain in question}}\answer{explain out question}
-    \question[I][answer=8]{three nest\answer{explain in question}}\answer{explain out question}
+    \question[I][answer=6]{three nest\answer{explain in question}}
+    \question[I][answer=7]{three nest\answer{explain in question}}
+    \question[I][answer=8]{three nest\answer{explain in question}}
   }
 }
 
 \question[showanswer=true,showpoint=true]{new test
   \problem{
-    \pitem[answer=A]{new test 1\answer{explain}}\answer{explain}
-    \pitem[answer=B]{new test 2\answer{explain}}\answer{explain}
-    \pitem[answer=C]{new test 3\answer{explain}}\answer{explain}
+    \pitem[answer=A]{new test 1\answer{explain}}
+    \pitem[answer=B]{new test 2\answer{explain}}
+    \pitem[answer=C]{new test 3\answer{explain}}
   }
 }
-
 
 \question[point=1,showpoint=true,answer=9]
 {It should be reset back to 1 here.\choice{XXX,YYY,ZZZ}}
