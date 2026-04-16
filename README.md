@@ -100,7 +100,15 @@ mtxrun --script install-modules --install visualcounter
 \stopmaterial
 ```
 
-> 增加了在終端中的信息輸出，包括題號， 答案， 分值， 等內容。（`\usemodule[mode=check]` 即可啟用。）
+
+> 现在可以通过下面的几个命令快速的定制自己想要的环境：
+> ```
+> \UnlimitedPushLevel{\currentexamenvironment}% 开始一个新的环境
+> \showpointoranswer[\currentexamenvironment][point]% 显示问题的分数
+> \showpointoranswer[\currentexamenvironment][answer]% 显示问题的答案
+> \UnlimitedAddScoredAnswer{\currentanswer}{\currentpoint}% 添加问题的答案和分数
+> \UnlimitedPopLevel % 退出当前环境
+> ```
 
 > 更多的示例和使用方法可以参考 doc/context/third/basicexam/basicexam-test.pdf
 
@@ -121,52 +129,6 @@ mtxrun --script install-modules --install visualcounter
 - **靈活的頁面設置**：支持自定義紙張大小、行高、字體等
 - **豐富的字號系統**：moresize 模式下提供從初號（42pt）到小九號（3pt）的完整字號體系
 - **多語言支持**：原生支持中文簡體（hans）、繁體（hant）、日文和英文
-- **字體特性支持**：支持大小寫轉換（case）、數字格式（pnum/tnum）、舊式數字（onum）等高級字體特性
-- **PDF 交互功能**：自動生成書簽、支持超鏈接、目錄交互等
-- **外部圖片支持**：自動按順序搜索 pdf、png、jpg 格式圖片
-- **框架文本環境**：
-  - `FrameText`：帶標題的框架文本（可設置標題、背景、邊框等）
-  - `chappublish`、`chapissue`、`chapdate`、`chapsubtitle`：章節相關的框架
-  - `LeftCodeExampleFramed`、`RightCodeExampleFramed`：代碼示例框架
-- **文本背景環境**：
-  - `simple`：簡單背景（圓角邊框）
-  - `colorbox`：彩色框（深色背景）
-  - `symbolbox`：符號框（帶符號裝飾）
-  - `charbox`：字符框（帶字符裝飾）
-  - `framebox`：框架框（帶框架裝飾）
-  - `shadowbox`：陰影框（帶陰影效果）
-  - `blockbox`：塊框（左側彩色條）
-  - `barbox`：條框（透明背景的塊框）
-  - `framedcode`：框架代碼（圓角、深色背景）
-  - `halfframedcode`：半框架代碼（55% 寬度）
-  - `wideframedcode`：寬框架代碼（跨邊距寬度）
-  - `framelmverbatim`：框架逐字文本（左側彩色條）
-- **引用命令**：
-  - `refin`：引用到章節（如 `\refin[chap:sec1]` 顯示 "Chapter 1"）
-  - `refat`：引用到頁碼（如 `\refat[chap:sec1]` 顯示 "Page 1"）
-  - `linkto`：智能鏈接（print 模式下為 url，否則為 from）
-- **自定義列表樣式**：
-  - `ordinals`：序數列表（1, i, a, i 四級嵌套）
-  - `points`：符號列表（bullet, diamond, asterisk, star 四級嵌套）
-  - `remark`：備注枚舉（按章節編號）
-- **描述環境**：
-  - `excursus`：插入說明框（帶背景框）
-  - `hangdescr`：懸掛描述
-  - `topdescr`：頂部描述
-  - `description`：標準描述
-- **註釋系統**：
-  - `marginnote`：邊註（顯示在頁邊距）
-  - `sidenote`：側註（顯示在外邊距，帶星號標記）
-- **特殊裝飾**：
-  - `underround`：圓角下劃線
-  - `bigunderdot`：大圓點下劃線
-  - `shadowedsquare` / `shadowedcircle`：陰影方框/圓框符號
-- **寬度調整**：
-  - `widersame`：擴展到同側邊距
-  - `widerside`：擴展到兩側邊距
-  - `widerpara`：擴展段落寬度
-  - `startwidenfloat` / `stopwidenfloat`：擴展浮動環境寬度
-
 
 使用方法：
 ```tex
@@ -174,7 +136,6 @@ mtxrun --script install-modules --install visualcounter
   papersize=A4,
   layout=moderate,
   mainlanguage=hans,
-  lineheight=1.5\bodyfontsize,
   fontsize=11pt,
   themecolor=blue,
   chapterstyle=simple,
