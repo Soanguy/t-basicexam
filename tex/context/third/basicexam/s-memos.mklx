@@ -57,6 +57,7 @@
 \newif\ifhdr_sty_book         \hdr_sty_bookfalse%
 \newif\ifhdr_sty_novel        \hdr_sty_novelfalse%
 \newif\ifhdr_sty_colorful     \hdr_sty_colorfulfalse%
+\newif\ifhdr_sty_madsen     \hdr_sty_madsenfalse%
 \newif\ifhdr_sty_hctext       \hdr_sty_hctextfalse%
 \newif\ifhdr_sty_fctext       \hdr_sty_fctextfalse%
 \newif\ifhdr_sty_foemargin    \hdr_sty_foemarginfalse%
@@ -91,6 +92,7 @@
    [       book=>\hdr_sty_booktrue,
           novel=>\hdr_sty_noveltrue,
        colorful=>\hdr_sty_colorfultrue,
+         madsen=>\hdr_sty_madsentrue,
          hctext=>\hdr_sty_hctexttrue,
          fctext=>\hdr_sty_fctexttrue,
       foemargin=>\hdr_sty_foemargintrue,
@@ -441,7 +443,7 @@
 \definedate   [line]  [yy,-,mm,-,dd]%25-01-11
 \definedate   [yyddmm]   [yy,/,dd,/,mm]%25/11/01
 %D \starttyping
-%D  \currentdate[chinese] \currentdate[default] 
+%D  \currentdate[chinese] \currentdate[default]
 %D  \currentdate[slash] \currentdate[line]
 %D  \currentdate[yyddmm]
 %D \stoptyping
@@ -2036,12 +2038,11 @@ context.definelayout(
   \framed[frame=off,bottomframe=on,
           align=low,
           height=\headerheight,width=max]
-         {\rm\userpagenumber  \quad
+         {\ifdone\rm\userpagenumber  \quad\fi
           \ifzeronum\namedheadnumber{section}\relax
-          \else
-          %\limitatetext{}{10cm}{...}
-          \hw %Section \headnumber[section]\quad
-                      \getmarking[section]\fi}
+          \else%\limitatetext{}{10cm}{...}
+          \hw  \ifdone\else\getmarking[sectionnumber]\quad\fi
+               \getmarking[section]\fi}
 \stopsetups
 \startsetups hdr:even:chaptermark
   \framed[frame=off,bottomframe=on,
@@ -2050,9 +2051,9 @@ context.definelayout(
          {\ifzeronum\namedheadnumber{chapter}\relax
           \else
           %\limitatetext{}{10cm}{...}
-          \hw %Chapter \headnumber[chapter]\quad
+          \hw \ifdone\else\getmarking[chapternumber]\quad\fi
                       \getmarking[chapter]
-          \fi\quad \rm\userpagenumber }
+          \fi\ifdone\quad \rm\userpagenumber\fi}
 \stopsetups
 % Pair 2 : hdr:odd:noveltitlemark & hdr:even:novelchapmark
 \startsetups hdr:odd:noveltitlemark
@@ -2069,22 +2070,23 @@ context.definelayout(
 \stopsetups
 % Pair 3 ：hdr:edge:structuremark
 \startsetups hdr:odd:edgesectionmark
-  \framed[width=max,     height=max,       style=\ss,
+  \framed[width=max,     height=max,       foregroundstyle=\ss,
           corner=08,     location=lohi,    frame=off]
          {\hbox orientation 1 {\fetchmark[section][first]}}
 \stopsetups
 \startsetups hdr:odd:edgechaptermark
-  \framed[width=max,     height=max,       style=\ss,
+  \framed[width=max,     height=max,       foregroundstyle=\ss,
           corner=08,     location=lohi,    frame=off]
         {\hbox orientation 1 {\fetchmark[chapter][first]}}
 \stopsetups
 % Pair 4 ：hdr:edge:pagenumber
 \startsetups ftr:framedpagenumber
-  \framed[width=max,             height=3em,
+  \vbox{\null\vfil
+  \framed[width=6em,             height=2em,
           corner=00,             location=lohi,
-          framecolor=white,      rulethickness=2pt,
+          rulethickness=0pt,     radius=10pt,
           background=color,      backgroundcolor=themecolor,
-          foreground=color,      foregroundcolor=white,]{\completepagenumber}
+          foreground=color,      foregroundcolor=white,]{\completepagenumber}\vfil}%
 \stopsetups
 % Pair 5 ：pagenumber at variant location
 \startsetups hdr:center:pagenumber
@@ -2099,11 +2101,12 @@ context.definelayout(
   \framed[width=max,height=max,location={lohi},align={flushright},frame=off]
          {\completepagenumber}
 \stopsetups
+
+
 \ifhdr_sty_book%
   \setupheadertexts  []
-
-  \setupheadertexts  [\setups [hdr:odd:sectionmark]][][]
-                     [\setups [hdr:even:chaptermark]]
+  \setupheadertexts  [\donetrue\setups [hdr:odd:sectionmark]][][]
+                     [\donetrue\setups [hdr:even:chaptermark]]
 \fi
 \ifhdr_sty_novel%
   \setupheadertexts  []
@@ -2145,47 +2148,58 @@ context.definelayout(
 \fi
 %%%%%%%%%%%%%%%%%%%
 \ifhdr_sty_foemargin% doublesided page : page number in outermargin
-\setupheadertexts    []% delete middle of header
-\setupfootertexts[margin] []
-                 [\setups[hdr:right:pagenumber]]
-                 [\setups[hdr:left:pagenumber]][]
-\setuppagenumbering [alternative=doublesided,]
+  \setupheadertexts    []% delete middle of header
+  \setupfootertexts[margin] []
+                   [\setups[hdr:right:pagenumber]]
+                   [\setups[hdr:left:pagenumber]][]
+  \setuppagenumbering [alternative=doublesided,]
 \fi
 %%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%
 \ifhdr_sty_hoemargin%
-\setupheader [state=start]
-\startsetups [header:leftpage]
-     \startalignment[flushouter]\setscript[hanzi]
-     \kern-\leftmarginwidth\relax
-     \color[themecolor]{\prefixedpagenumber}
-     \quad% \undepthed
-     {\blackrule
-         [width=\linewidth,color=themecolor,
-          height=\headerheight,depth=.3\baselineskip,]}%\strutht,
-          %depth=\dimexpr\headerheight+\topspace\relax,
-     \quad
-     \color[themecolor]{\getmarking[chapternumber] \quad {\bi\getmarking[chapter]}} \hss
-     \stopalignment
-\stopsetups
-\startsetups [header:rightpage]
-     \startalignment[flushouter]
-     \color[themecolor]{\getmarking[sectionnumber] \quad {\bi\getmarking[section]}}
-     \quad% \undepthed
-     {\blackrule
-         [width=\linewidth,color=themecolor,
-         height=\headerheight,depth=.3\baselineskip,]}%\strutht,
-          %depth=\dimexpr\headerheight+\topspace\relax,
-     \quad
-     \color[themecolor]{\prefixedpagenumber}
-     \kern-\rightmarginwidth\relax
-     \stopalignment
-\stopsetups
-\setuppagenumbering [alternative=doublesided,]
-\setupheadertexts[]
-\setupheadertexts[text]
-     [] [\directsetup{header:rightpage}]
-        [\directsetup{header:leftpage}] []
+  \setupheader [state=start]
+  \startsetups [header:leftpage]
+       \startalignment[flushouter]\setscript[hanzi]
+       \kern-\leftmarginwidth\relax
+       \color[themecolor]{\prefixedpagenumber}
+       \quad% \undepthed
+       {\blackrule
+           [width=\linewidth,color=themecolor,
+            height=\headerheight,depth=.3\baselineskip,]}%\strutht,
+            %depth=\dimexpr\headerheight+\topspace\relax,
+       \quad
+       \color[themecolor]{\getmarking[chapternumber] \quad {\bi\getmarking[chapter]}} \hss
+       \stopalignment
+  \stopsetups
+  \startsetups [header:rightpage]
+       \startalignment[flushouter]
+       \color[themecolor]{\getmarking[sectionnumber] \quad {\bi\getmarking[section]}}
+       \quad% \undepthed
+       {\blackrule
+           [width=\linewidth,color=themecolor,
+           height=\headerheight,depth=.3\baselineskip,]}%\strutht,
+            %depth=\dimexpr\headerheight+\topspace\relax,
+       \quad
+       \color[themecolor]{\prefixedpagenumber}
+       \kern-\rightmarginwidth\relax
+       \stopalignment
+  \stopsetups
+  \setuppagenumbering [alternative=doublesided,]
+  \setupheadertexts[]
+  \setupheadertexts[text]
+       [] [\directsetup{header:rightpage}]
+          [\directsetup{header:leftpage}] []
+\fi
+
+\ifhdr_sty_madsen
+\setupheader        [state=start]
+\setupheadertexts  []
+\setupheadertexts  [margin]
+               [][\donefalse\setups [hdr:odd:sectionmark]]
+                 [\donefalse\setups [hdr:even:chaptermark]][]
+\setupheadertexts[edge]
+               [][\setups[ftr:framedpagenumber]]
+                 [\setups[ftr:framedpagenumber]][]
 \fi
 %%%%%%%%%%%%%%%%%%%%
 %\section{symbol}
@@ -2264,7 +2278,7 @@ context.definelayout(
     
     for i=1 upto nofmultipars :
       path p;
-      p := (llcorner multipars[i] -- lrcorner multipars[i] 
+      p := (llcorner multipars[i] -- lrcorner multipars[i]
          -- urcorner multipars[i] -- ulcorner multipars[i] -- cycle);
       
       if r > 0 :
@@ -2304,11 +2318,11 @@ context.definelayout(
         picture gradientpic;
         gradientpic := image(
           path gradrect;
-          gradrect := unitsquare 
-                      xscaled bbwidth(p) 
+          gradrect := unitsquare
+                      xscaled bbwidth(p)
                       yscaled (barh)
                       shifted (xpart llcorner p, ypart urcorner p - barh);
-          fill gradrect 
+          fill gradrect
             withshademethod "linear"
             withshadevector (1,0)
             withshadecolors (CardPrimary, CardGradient);
@@ -2428,44 +2442,95 @@ context.definelayout(
 %D ========== 双栏标题框组件 ==========
 
 \startMPdefinitions
+  vardef GetTextWidth(expr textpic) =
+    xpart urcorner textpic - xpart llcorner textpic
+  enddef;
+  
+  vardef DrawHeaderBox(expr boxpath, bgcolor, showframe, framecolor, radius, headerh) =
+    path resultbox;
+    resultbox := boxpath;
+    if (radius > 0) :
+      resultbox := resultbox cornered min(radius, headerh/3);
+    fi;
+    fill resultbox withcolor bgcolor;
+    if showframe > 0 :
+      draw resultbox withcolor framecolor;
+    fi;
+    resultbox
+  enddef;
+  
+  vardef AlignTextPosition(expr textpic, left, right, align, padding) =
+    numeric textw, pos;
+    textw := GetTextWidth(textpic);
+    if align = 1 :
+      pos := left + textw/2 + padding;
+    elseif align = 3 :
+      pos := right - textw/2 - padding;
+    else :
+      pos := left + (right - left)/2;
+    fi;
+    pos
+  enddef;
+  
+  vardef CalcBoxX(expr boxwidth, align, totalwidth, margin) =
+    if align = 1 :
+      margin
+    elseif align = 3 :
+      totalwidth - boxwidth - margin
+    else :
+      (totalwidth - boxwidth) / 2
+    fi
+  enddef;
+  
+  def DrawDivider(expr x, top, bottom) =
+    draw (x, top) -- (x, bottom);
+  enddef;
+  
   def DrawDualHeaderFrame(
-    expr shownumber, showtitle, titlealign, titlepos,
-         numberbgcolor, titlebgcolor, bodybgcolor, framecolor, linethickness,
-         numberratio, titleratio, radius, numbercolor, titlecolor,
-         bodybackground, leftframe, rightframe, topframe, bottomframe,
-         shadowcolor, symbol, character, headerbgcolor
+    expr shownumber, showtitle,
+         titlepos, titlealign, numberalign,
+         numberbgcolor, titlebgcolor, bodybgcolor, headerbgcolor,
+         numbercolor, titlecolor,
+         framecolor, numberframecolor, titleframecolor,
+         numberframe, titleframe,
+         leftframe, rightframe, topframe, bottomframe,
+         numberratio, titleratio,
+         linethickness, radius,
+         bodybackground, shadowcolor,
+         symbol, character,
+         headerdivider
   ) =
     begingroup;
       numeric w, h, headerh, ox, r;
       path mainframe, numberbox, titlebox, headerbox, divider;
       picture numbertext, titletext;
-      
+
       w := OverlayWidth;
       h := OverlayHeight;
       headerh := BodyFontSize * 2.2;
       ox := linethickness/2;
       r := radius;
-      
+
       boolean hasheader;
       hasheader := (shownumber > 0) or (showtitle > 0);
-      
+
       mainframe := (ox, ox) -- (w-ox, ox) -- (w-ox, h-ox) -- (ox, h-ox) -- cycle;
-      
+
       if (r > 0) :
         mainframe := mainframe cornered r;
       fi;
-      
+
       if bodybackground = "shadowbox" :
         numeric shadowthickness;
         shadowthickness := 5 * linethickness;
-        
+
         numeric shadowtop;
         if (titlepos = 0) and hasheader :
           shadowtop := h - headerh - ox;
         else :
           shadowtop := h - ox;
         fi;
-        
+
         path myshadow;
         myshadow := (ox, ox) -- (w-ox, ox) -- (w-ox, shadowtop) -- (ox, shadowtop) -- cycle;
         if (r > 0) :
@@ -2483,7 +2548,7 @@ context.definelayout(
       drawoptions(withpen pencircle scaled linethickness withcolor framecolor);
       
       path bodyframe;
-      if (titlepos = 0) and hasheader :
+      if hasheader :
         bodyframe := (ox, ox) -- (w-ox, ox) -- (w-ox, h-headerh-ox) -- (ox, h-headerh-ox) -- cycle;
         if (r > 0) :
           bodyframe := bodyframe cornered r;
@@ -2531,7 +2596,7 @@ context.definelayout(
       allframesvisible := (leftframe > 0) and (rightframe > 0) and (topframe > 0) and (bottomframe > 0);
       
       numeric topborderpos;
-      if (titlepos = 0) and hasheader :
+      if hasheader :
         topborderpos := h - headerh - ox;
       else :
         topborderpos := h - ox;
@@ -2563,9 +2628,6 @@ context.definelayout(
         if bottomframe > 0 :
           draw (ox, ox) -- (w-ox, ox);
         fi;
-        if topframe > 0 :
-          draw (ox, topborderpos) -- (w-ox, topborderpos);
-        fi;
       fi;
       
       if hasheader :
@@ -2579,81 +2641,47 @@ context.definelayout(
               titletext := textext(\MPstring{DualHeaderTitle});
               
               numeric numberboxwidth, titleboxwidth;
-              numberboxwidth := xpart urcorner numbertext - xpart llcorner numbertext;
-              numberboxwidth := numberboxwidth + 8pt;
-              titleboxwidth := xpart urcorner titletext - xpart llcorner titletext;
-              titleboxwidth := titleboxwidth + 8pt;
+              numberboxwidth := GetTextWidth(numbertext) + 8pt;
+              titleboxwidth := GetTextWidth(titletext) + 8pt;
               
               numeric containerwidth, containerx;
               containerwidth := numberboxwidth + titleboxwidth;
+              containerx := CalcBoxX(containerwidth, titlealign, w, ox);
               
-              if titlealign = 1 :
-                containerx := ox;
-              elseif titlealign = 3 :
-                containerx := w - containerwidth - ox;
-              else :
-                containerx := (w - containerwidth) / 2;
-              fi;
+              numberbox := DrawHeaderBox(
+                (containerx, titletop) -- (containerx + numberboxwidth, titletop)
+                -- (containerx + numberboxwidth, titletop + headerh) -- (containerx, titletop + headerh) -- cycle,
+                numberbgcolor, numberframe, numberframecolor, r, headerh
+              );
               
-              numberbox := (containerx, titletop) 
-                         -- (containerx + numberboxwidth, titletop) 
-                         -- (containerx + numberboxwidth, titletop + headerh) 
-                         -- (containerx, titletop + headerh) -- cycle;
-              
-              if (r > 0) :
-                numberbox := numberbox cornered min(r, headerh/3);
-              fi;
-              
-              titlebox := (containerx + numberboxwidth, titletop) 
-                        -- (containerx + containerwidth, titletop) 
-                        -- (containerx + containerwidth, titletop + headerh) 
-                        -- (containerx + numberboxwidth, titletop + headerh) -- cycle;
-              
-              if (r > 0) :
-                titlebox := titlebox cornered min(r, headerh/3);
-              fi;
-              
-              fill numberbox withcolor numberbgcolor;
-              draw numberbox;
-              
-              fill titlebox withcolor titlebgcolor;
-              draw titlebox;
-              
+              titlebox := DrawHeaderBox(
+                (containerx + numberboxwidth, titletop) -- (containerx + containerwidth, titletop)
+                -- (containerx + containerwidth, titletop + headerh) -- (containerx + numberboxwidth, titletop + headerh) -- cycle,
+                titlebgcolor, titleframe, titleframecolor, r, headerh
+              );
+
               numbertext := numbertext shifted (containerx + numberboxwidth/2, titletop + headerh/2 - ypart center numbertext);
               draw numbertext withcolor numbercolor;
               
               titletext := titletext shifted (containerx + numberboxwidth + titleboxwidth/2, titletop + headerh/2 - ypart center titletext);
               draw titletext withcolor titlecolor;
               
-              if (r = 0) :
-                draw (containerx + numberboxwidth, titletop) -- (containerx + numberboxwidth, titletop + headerh);
+              if (r = 0) and (headerdivider > 0) :
+                DrawDivider(containerx + numberboxwidth, titletop, titletop + headerh);
               fi;
             else :
               titletext := textext(\MPstring{DualHeaderTitle});
               numeric titleboxwidth;
-              titleboxwidth := xpart urcorner titletext - xpart llcorner titletext;
-              titleboxwidth := titleboxwidth + 8pt;
+              titleboxwidth := GetTextWidth(titletext) + 8pt;
               
               numeric titlexpos;
-              if titlealign = 1 :
-                titlexpos := ox;
-              elseif titlealign = 3 :
-                titlexpos := w - titleboxwidth - ox;
-              else :
-                titlexpos := (w - titleboxwidth) / 2;
-              fi;
+              titlexpos := CalcBoxX(titleboxwidth, titlealign, w, ox);
               
-              titlebox := (titlexpos, titletop) 
-                        -- (titlexpos + titleboxwidth, titletop) 
-                        -- (titlexpos + titleboxwidth, titletop + headerh) 
-                        -- (titlexpos, titletop + headerh) -- cycle;
-              
-              if (r > 0) :
-                titlebox := titlebox cornered min(r, headerh/3);
-              fi;
-              
-              fill titlebox withcolor framecolor;
-              draw titlebox;
+              titlebox := DrawHeaderBox(
+                (titlexpos, titletop) -- (titlexpos + titleboxwidth, titletop)
+                -- (titlexpos + titleboxwidth, titletop + headerh) -- (titlexpos, titletop + headerh) -- cycle,
+                framecolor, titleframe, titleframecolor, r, headerh
+              );
               
               titletext := titletext shifted (titlexpos + titleboxwidth/2, titletop + headerh/2 - ypart center titletext);
               draw titletext withcolor white;
@@ -2662,36 +2690,26 @@ context.definelayout(
             if shownumber > 0 :
               numbertext := textext(\MPstring{DualHeaderNumber});
               numeric numberboxwidth;
-              numberboxwidth := xpart urcorner numbertext - xpart llcorner numbertext;
-              numberboxwidth := numberboxwidth + 8pt;
-              
+              numberboxwidth := GetTextWidth(numbertext) + 8pt;
+
               numeric numberxpos;
-              if titlealign = 1 :
-                numberxpos := ox;
-              elseif titlealign = 3 :
-                numberxpos := w - numberboxwidth - ox;
-              else :
-                numberxpos := (w - numberboxwidth) / 2;
-              fi;
+              numberxpos := CalcBoxX(numberboxwidth, titlealign, w, ox);
               
-              numberbox := (numberxpos, titletop) 
-                         -- (numberxpos + numberboxwidth, titletop) 
-                         -- (numberxpos + numberboxwidth, titletop + headerh) 
-                         -- (numberxpos, titletop + headerh) -- cycle;
-              
-              if (r > 0) :
-                numberbox := numberbox cornered min(r, headerh/3);
-              fi;
-              
-              fill numberbox withcolor numberbgcolor;
-              draw numberbox;
+              numberbox := DrawHeaderBox(
+                (numberxpos, titletop) -- (numberxpos + numberboxwidth, titletop)
+                -- (numberxpos + numberboxwidth, titletop + headerh) -- (numberxpos, titletop + headerh) -- cycle,
+                numberbgcolor, numberframe, numberframecolor, r, headerh
+              );
               
               numbertext := numbertext shifted (numberxpos + numberboxwidth/2, titletop + headerh/2 - ypart center numbertext);
               draw numbertext withcolor numbercolor;
             fi;
           fi;
+          if (topframe > 0) :
+            draw (ox, topborderpos) -- (w-ox, topborderpos);
+          fi;
         else :
-          headerbox := (ox, h-headerh) -- (w-ox, h-headerh) 
+          headerbox := (ox, h-headerh) -- (w-ox, h-headerh)
                        -- (w-ox, h-ox) -- (ox, h-ox) -- cycle;
           
           if (r > 0) :
@@ -2708,20 +2726,16 @@ context.definelayout(
               numberwidth := w - 2*ox;
             fi;
             
-            numberbox := (ox, h-headerh) -- (numberwidth-ox/2, h-headerh) 
-                         -- (numberwidth-ox/2, h-ox) -- (ox, h-ox) -- cycle;
-            
-            if (r > 0) :
-              numeric innerr;
-              innerr := min(r, headerh/3);
-              numberbox := numberbox cornered innerr;
-            fi;
-            
-            fill numberbox withcolor numberbgcolor;
-            draw numberbox;
+            numberbox := DrawHeaderBox(
+              (ox, h-headerh) -- (numberwidth-ox/2, h-headerh)
+              -- (numberwidth-ox/2, h-ox) -- (ox, h-ox) -- cycle,
+              numberbgcolor, numberframe, numberframecolor, r, headerh
+            );
             
             numbertext := textext(\MPstring{DualHeaderNumber});
-            numbertext := numbertext shifted (numberwidth/2, h - headerh/2 - ypart center numbertext);
+            numeric numberxpos;
+            numberxpos := AlignTextPosition(numbertext, ox, numberwidth - ox/2, numberalign, 4pt);
+            numbertext := numbertext shifted (numberxpos, h - headerh/2 - ypart center numbertext);
             draw numbertext withcolor numbercolor;
           fi;
           
@@ -2733,42 +2747,33 @@ context.definelayout(
               titleleft := ox;
             fi;
             
-            titlebox := (titleleft, h-headerh) -- (w-ox, h-headerh) 
-                        -- (w-ox, h-ox) -- (titleleft, h-ox) -- cycle;
-            
-            if (r > 0) :
-              numeric innerr;
-              innerr := min(r, headerh/3);
-              titlebox := titlebox cornered innerr;
-            fi;
-            
-            fill titlebox withcolor titlebgcolor;
-            draw titlebox;
-            
-            numeric titlexpos;
-            if titlealign = 1 :
-              titlexpos := titleleft + (w - titleleft)/4;
-            elseif titlealign = 3 :
-              titlexpos := w - (w - titleleft)/4;
-            else :
-              titlexpos := titleleft + (w - titleleft)/2;
-            fi;
+            titlebox := DrawHeaderBox(
+              (titleleft, h-headerh) -- (w-ox, h-headerh)
+              -- (w-ox, h-ox) -- (titleleft, h-ox) -- cycle,
+              titlebgcolor, titleframe, titleframecolor, r, headerh
+            );
             
             titletext := textext(\MPstring{DualHeaderTitle});
+            numeric titlexpos;
+            titlexpos := AlignTextPosition(titletext, titleleft, w - ox, titlealign, 4pt);
             titletext := titletext shifted (titlexpos, h - headerh/2 - ypart center titletext);
             draw titletext withcolor titlecolor;
           fi;
           
           if shownumber > 0 :
             if showtitle > 0 :
-              if (r = 0) :
+              if (r = 0) and (headerdivider > 0) :
                 numeric dividerpos;
                 dividerpos := w * numberratio / (numberratio + titleratio);
-                draw (dividerpos, h-headerh) -- (dividerpos, h-ox);
+                DrawDivider(dividerpos, h-headerh, h-ox);
               fi;
             fi;
           fi;
         fi;
+      fi;
+      
+      if (titlepos = 1) and hasheader and (topframe > 0) :
+        draw (ox, topborderpos) -- (w-ox, topborderpos);
       fi;
       
       if bodybackground = "symbolbox" :
@@ -2793,91 +2798,85 @@ context.definelayout(
 
 \startuseMPgraphic{DualHeaderFrame}
   DrawDualHeaderFrame(
-    \MPvar{shownumber},
-    \MPvar{showtitle},
-    \MPvar{titlealign},
-    \MPvar{titlepos},
-    \MPvar{numberbgcolor},
-    \MPvar{titlebgcolor},
-    \MPvar{bodybgcolor},
-    \MPvar{framecolor},
-    \MPvar{linethickness},
-    \MPvar{numberratio},
-    \MPvar{titleratio},
-    \MPvar{radius},
-    \MPvar{numbercolor},
-    \MPvar{titlecolor},
-    \MPvar{bodybackground},
-    \MPvar{leftframe},
-    \MPvar{rightframe},
-    \MPvar{topframe},
-    \MPvar{bottomframe},
-    \MPvar{shadowcolor},
-    \MPvar{symbol},
-    \MPvar{character},
-    \MPvar{headerbgcolor}
+    \MPvar{shownumber}, \MPvar{showtitle},
+    \MPvar{titlepos}, \MPvar{titlealign}, \MPvar{numberalign},
+    \MPvar{numberbgcolor}, \MPvar{titlebgcolor}, \MPvar{bodybgcolor}, \MPvar{headerbgcolor},
+    \MPvar{numbercolor}, \MPvar{titlecolor},
+    \MPvar{framecolor}, \MPvar{numberframecolor}, \MPvar{titleframecolor},
+    \MPvar{numberframe}, \MPvar{titleframe},
+    \MPvar{leftframe}, \MPvar{rightframe}, \MPvar{topframe}, \MPvar{bottomframe},
+    \MPvar{numberratio}, \MPvar{titleratio},
+    \MPvar{linethickness}, \MPvar{radius},
+    \MPvar{bodybackground}, \MPvar{shadowcolor},
+    \MPvar{symbol}, \MPvar{character},
+    \MPvar{headerdivider}
   );
 \stopuseMPgraphic
 
 \defineoverlay[DualHeaderBox][\useMPgraphic{DualHeaderFrame}{
   shownumber=\framedtextparameter{shownumber},
   showtitle=\framedtextparameter{showtitle},
-  titlealign=\framedtextparameter{titlealign},
   titlepos=\framedtextparameter{titlepos},
+  titlealign=\framedtextparameter{titlealign},
+  numberalign=\framedtextparameter{numberalign},
   numberbgcolor="\framedtextparameter{numberbgcolor}",
-   titlebgcolor="\framedtextparameter{titlebgcolor}",
-    bodybgcolor="\framedtextparameter{bodybgcolor}",
-     framecolor="\framedtextparameter{framecolor}",
-  linethickness=\framedtextparameter{rulethickness},
-  numberratio=\framedtextparameter{numberratio},
-  titleratio=\framedtextparameter{titleratio},
-  radius=\framedtextparameter{radius},
-     numbercolor="\framedtextparameter{numbercolor}",
-      titlecolor="\framedtextparameter{titlecolor}",
-  bodybackground="\framedtextparameter{bodybackground}",
+  titlebgcolor="\framedtextparameter{titlebgcolor}",
+  bodybgcolor="\framedtextparameter{bodybgcolor}",
+  headerbgcolor="\framedtextparameter{headerbgcolor}",
+  numbercolor="\framedtextparameter{numbercolor}",
+  titlecolor="\framedtextparameter{titlecolor}",
+  framecolor="\framedtextparameter{framecolor}",
+  numberframecolor="\framedtextparameter{numberframecolor}",
+  titleframecolor="\framedtextparameter{titleframecolor}",
+  numberframe=\framedtextparameter{numberframe},
+  titleframe=\framedtextparameter{titleframe},
   leftframe=\framedtextparameter{leftframe},
   rightframe=\framedtextparameter{rightframe},
   topframe=\framedtextparameter{topframe},
   bottomframe=\framedtextparameter{bottomframe},
+  numberratio=\framedtextparameter{numberratio},
+  titleratio=\framedtextparameter{titleratio},
+  linethickness=\framedtextparameter{rulethickness},
+  radius=\framedtextparameter{radius},
+  bodybackground="\framedtextparameter{bodybackground}",
   shadowcolor="\framedtextparameter{shadowcolor}",
   symbol="\framedtextparameter{symbol}",
   character="\framedtextparameter{character}",
-  headerbgcolor="\framedtextparameter{headerbgcolor}"
+  headerdivider=\framedtextparameter{headerdivider}
 }]
 
 \defineframedtext[DualHeaderText][
   background=DualHeaderBox,
   frame=off,
-  number=,
-  title=,
   shownumber=1,
   showtitle=1,
-  titlealign=2,
   titlepos=1,
+  titlealign=2,
+  numberalign=2,
   numberbgcolor=lightthemecolor,
   titlebgcolor=white,
   bodybgcolor=white,
-  framecolor=lightthemecolor,
-  rulethickness=1.5pt,
-  numberratio=1,
-  titleratio=1,
-  radius=0pt,
+  headerbgcolor=transparentcolor,
   numbercolor=white,
   titlecolor=lightthemecolor,
-  bodybackground=simple,
+  framecolor=lightthemecolor,
+  numberframecolor=lightthemecolor,
+  titleframecolor=lightthemecolor,
+  numberframe=1,
+  titleframe=1,
   leftframe=1,
   rightframe=1,
   topframe=1,
   bottomframe=1,
-  shadowcolor=gray,
-  symbol=,
-  character=,
-  headerbgcolor=transparentcolor,
+  numberratio=1,
+  titleratio=1,
+  rulethickness=1.5pt,
+  radius=0pt,
+  bodybackground=simple,
+  headerdivider=0,
   indenting={yes,2em},
   toffset=2.5\bodyfontsize,
   width=\textwidth,
-  before=,
-  after=,
 ]
 
 \startuseMPgraphic{rules:under:round}{radius}
@@ -2916,7 +2915,7 @@ us := BodyFontSize;
 ps := fullsquare scaled .5us;
 draw ps shifted (.2us, -.2us) withcolor .5white  withpen pencircle scaled 1pt;
 draw ps shifted (.4us, -.0us) withcolor \MPcolor{lightthemecolor}  withpen pencircle scaled 1pt;
-\stopuseMPgraphic 
+\stopuseMPgraphic
 
 \startuseMPgraphic{mp:itemgroup:circles}
 numeric uc; path pc;
@@ -3536,134 +3535,134 @@ suggest=\symbol[fontawesome][star]]
 % \section{PinYin}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \startluacode
-function commands.convertpinyin(text,number)
-     local replaced
-     local number = tonumber(number)
-     if string.find(text,"a") or string.find(text,"e") then
-         if number==1 then
-             text = string.gsub(text,"a","ā")
-             text = string.gsub(text,"e","ē")
-         elseif number==2 then
-             text = string.gsub(text,"a","á")
-             text = string.gsub(text,"e","é")
-         elseif number==3 then
-             text = string.gsub(text,"a","ǎ")
-             text = string.gsub(text,"e","ě")
-         elseif number==4 then
-             text = string.gsub(text,"a","à")
-             text = string.gsub(text,"e","è")
-         end
-         replaced = false
-     else
-         replaced = true
-     end
-     while replaced do
-         if number==1 then
-             text = string.gsub(text,"i","ī")
-             text = string.gsub(text,"o","ō")
-             if string.find(text,"o") then else text =
-string.gsub(text,"u","ū") end
-             text = string.gsub(text,"v","ǖ")
-         elseif number==2 then
-             text = string.gsub(text,"i","í")
-             text = string.gsub(text,"o","ó")
-             if string.find(text,"o") then else text =
-string.gsub(text,"u","ú") end
-             text = string.gsub(text,"v","ǘ")
-         elseif number==3 then
-             text = string.gsub(text,"o","ǒ")
-             text = string.gsub(text,"i","ǐ")
-             if string.find(text,"o") then else text =
-string.gsub(text,"u","ǔ") end
-             text = string.gsub(text,"u","ǔ")
-             text = string.gsub(text,"v","ǚ")
-         elseif number==4 then
-             text = string.gsub(text,"o","ò")
-             text = string.gsub(text,"i","ì")
-             if string.find(text,"o") then else text =
-string.gsub(text,"u","ù") end
-             text = string.gsub(text,"v","ǜ")
-         end
-         replaced = false
-     end
-     tex.sprint(tex.ctxcatcodes,text)
-end
+  function commands.convertpinyin(text,number)
+      local replaced
+      local number = tonumber(number)
+      if string.find(text,"a") or string.find(text,"e") then
+          if number==1 then
+              text = string.gsub(text,"a","ā")
+              text = string.gsub(text,"e","ē")
+          elseif number==2 then
+              text = string.gsub(text,"a","á")
+              text = string.gsub(text,"e","é")
+          elseif number==3 then
+              text = string.gsub(text,"a","ǎ")
+              text = string.gsub(text,"e","ě")
+          elseif number==4 then
+              text = string.gsub(text,"a","à")
+              text = string.gsub(text,"e","è")
+          end
+          replaced = false
+      else
+          replaced = true
+      end
+      while replaced do
+          if number==1 then
+              text = string.gsub(text,"i","ī")
+              text = string.gsub(text,"o","ō")
+              if string.find(text,"o") then else text =
+  string.gsub(text,"u","ū") end
+              text = string.gsub(text,"v","ǖ")
+          elseif number==2 then
+              text = string.gsub(text,"i","í")
+              text = string.gsub(text,"o","ó")
+              if string.find(text,"o") then else text =
+  string.gsub(text,"u","ú") end
+              text = string.gsub(text,"v","ǘ")
+          elseif number==3 then
+              text = string.gsub(text,"o","ǒ")
+              text = string.gsub(text,"i","ǐ")
+              if string.find(text,"o") then else text =
+  string.gsub(text,"u","ǔ") end
+              text = string.gsub(text,"u","ǔ")
+              text = string.gsub(text,"v","ǚ")
+          elseif number==4 then
+              text = string.gsub(text,"o","ò")
+              text = string.gsub(text,"i","ì")
+              if string.find(text,"o") then else text =
+  string.gsub(text,"u","ù") end
+              text = string.gsub(text,"v","ǜ")
+          end
+          replaced = false
+      end
+      tex.sprint(tex.ctxcatcodes,text)
+  end
 
-local letter = lpeg.R("az")
-local number = lpeg.R("09")
+  local letter = lpeg.R("az")
+  local number = lpeg.R("09")
 
-local pinyin = lpeg.C(letter^1) * lpeg.C(number^0) /
-commands.convertpinyin
+  local pinyin = lpeg.C(letter^1) * lpeg.C(number^0) /
+  commands.convertpinyin
 
-local parser = (pinyin)^0
+  local parser = (pinyin)^0
 
-function commands.pinyin(str)
-     str = string.gsub(str,"r1","1r")
-     str = string.gsub(str,"r2","2r")
-     str = string.gsub(str,"r3","3r")
-     str = string.gsub(str,"r4","4r")
-     str = string.gsub(str,"r5","5r")
-     str = string.gsub(str,"ng1","1ng")
-     str = string.gsub(str,"ng2","2ng")
-     str = string.gsub(str,"ng3","3ng")
-     str = string.gsub(str,"ng4","4ng")
-     str = string.gsub(str,"ng5","5ng")
-     str = string.gsub(str,"n1","1n")
-     str = string.gsub(str,"n2","2n")
-     str = string.gsub(str,"n3","3n")
-     str = string.gsub(str,"n4","4n")
-     str = string.gsub(str,"n1","5n")
-     str = string.gsub(str,"ai1","a1i")
-     str = string.gsub(str,"ai2","a2i")
-     str = string.gsub(str,"ai3","a3i")
-     str = string.gsub(str,"ai4","a4i")
-     str = string.gsub(str,"ai5","a5i")
-     str = string.gsub(str,"ei1","e1i")
-     str = string.gsub(str,"ei2","e2i")
-     str = string.gsub(str,"ei3","e3i")
-     str = string.gsub(str,"ei4","e4i")
-     str = string.gsub(str,"ei5","e5i")
-     str = string.gsub(str,"ao1","a1o")
-     str = string.gsub(str,"ao2","a2o")
-     str = string.gsub(str,"ao3","a3o")
-     str = string.gsub(str,"ao4","a4o")
-     str = string.gsub(str,"ao5","a5o")
-     str = string.gsub(str,"ou1","o1u")
-     str = string.gsub(str,"ou2","o2u")
-     str = string.gsub(str,"ou3","o3u")
-     str = string.gsub(str,"ou4","o4u")
-     str = string.gsub(str,"ou5","o5u")
-     str = string.gsub(str,"uu1","v1")
-     str = string.gsub(str,"uu2","v2")
-     str = string.gsub(str,"uu3","v3")
-     str = string.gsub(str,"uu4","v4")
-     str = string.gsub(str,"uu","ü")
-     str = string.gsub(str,"o1","ō")
-     str = string.gsub(str,"o2","ó")
-     str = string.gsub(str,"o3","ǒ")
-     str = string.gsub(str,"o4","ò")
-     str = string.gsub(str,"e1","ē")
-     str = string.gsub(str,"e2","é")
-     str = string.gsub(str,"e3","ě")
-     str = string.gsub(str,"e4","è")
-     str = string.gsub(str,"i1","ī")
-     str = string.gsub(str,"i2","í")
-     str = string.gsub(str,"i3","ǐ")
-     str = string.gsub(str,"i4","ì")
-     str = string.gsub(str,"u1","ū")
-     str = string.gsub(str,"u2","ú")
-     str = string.gsub(str,"u3","ǔ")
-     str = string.gsub(str,"u4","ù")
-     str = string.gsub(str,"v1","ǖ")
-     str = string.gsub(str,"v2","ǘ")
-     str = string.gsub(str,"v3","ǚ")
-     str = string.gsub(str,"v4","ǜ")
-     str = string.gsub(str,"a1","ā")
-     str = string.gsub(str,"a2","á")
-     str = string.gsub(str,"a3","ǎ")
-     str = string.gsub(str,"a4","à")
-     tex.sprint(tex.ctxcatcodes,str)
-end
+  function commands.pinyin(str)
+      str = string.gsub(str,"r1","1r")
+      str = string.gsub(str,"r2","2r")
+      str = string.gsub(str,"r3","3r")
+      str = string.gsub(str,"r4","4r")
+      str = string.gsub(str,"r5","5r")
+      str = string.gsub(str,"ng1","1ng")
+      str = string.gsub(str,"ng2","2ng")
+      str = string.gsub(str,"ng3","3ng")
+      str = string.gsub(str,"ng4","4ng")
+      str = string.gsub(str,"ng5","5ng")
+      str = string.gsub(str,"n1","1n")
+      str = string.gsub(str,"n2","2n")
+      str = string.gsub(str,"n3","3n")
+      str = string.gsub(str,"n4","4n")
+      str = string.gsub(str,"n1","5n")
+      str = string.gsub(str,"ai1","a1i")
+      str = string.gsub(str,"ai2","a2i")
+      str = string.gsub(str,"ai3","a3i")
+      str = string.gsub(str,"ai4","a4i")
+      str = string.gsub(str,"ai5","a5i")
+      str = string.gsub(str,"ei1","e1i")
+      str = string.gsub(str,"ei2","e2i")
+      str = string.gsub(str,"ei3","e3i")
+      str = string.gsub(str,"ei4","e4i")
+      str = string.gsub(str,"ei5","e5i")
+      str = string.gsub(str,"ao1","a1o")
+      str = string.gsub(str,"ao2","a2o")
+      str = string.gsub(str,"ao3","a3o")
+      str = string.gsub(str,"ao4","a4o")
+      str = string.gsub(str,"ao5","a5o")
+      str = string.gsub(str,"ou1","o1u")
+      str = string.gsub(str,"ou2","o2u")
+      str = string.gsub(str,"ou3","o3u")
+      str = string.gsub(str,"ou4","o4u")
+      str = string.gsub(str,"ou5","o5u")
+      str = string.gsub(str,"uu1","v1")
+      str = string.gsub(str,"uu2","v2")
+      str = string.gsub(str,"uu3","v3")
+      str = string.gsub(str,"uu4","v4")
+      str = string.gsub(str,"uu","ü")
+      str = string.gsub(str,"o1","ō")
+      str = string.gsub(str,"o2","ó")
+      str = string.gsub(str,"o3","ǒ")
+      str = string.gsub(str,"o4","ò")
+      str = string.gsub(str,"e1","ē")
+      str = string.gsub(str,"e2","é")
+      str = string.gsub(str,"e3","ě")
+      str = string.gsub(str,"e4","è")
+      str = string.gsub(str,"i1","ī")
+      str = string.gsub(str,"i2","í")
+      str = string.gsub(str,"i3","ǐ")
+      str = string.gsub(str,"i4","ì")
+      str = string.gsub(str,"u1","ū")
+      str = string.gsub(str,"u2","ú")
+      str = string.gsub(str,"u3","ǔ")
+      str = string.gsub(str,"u4","ù")
+      str = string.gsub(str,"v1","ǖ")
+      str = string.gsub(str,"v2","ǘ")
+      str = string.gsub(str,"v3","ǚ")
+      str = string.gsub(str,"v4","ǜ")
+      str = string.gsub(str,"a1","ā")
+      str = string.gsub(str,"a2","á")
+      str = string.gsub(str,"a3","ǎ")
+      str = string.gsub(str,"a4","à")
+      tex.sprint(tex.ctxcatcodes,str)
+  end
 \stopluacode
 
 \defineruby[pinyin]  [style=\txx]

@@ -20,6 +20,7 @@
 %D 定义关键词
 \immutable\def\m!basicexam{basicexam}
 
+\definesystemconstant{close}
 \definesystemconstant{choice}
 \definesystemconstant{solution}
 \definesystemconstant{writing}
@@ -28,7 +29,7 @@
 \definesystemconstant{question}
 \definesystemconstant{material}
 \definesystemconstant{optclose}
-\definesystemconstant{frame}
+\definesystemconstant{examitem}
 
 \startinterface all
 \setinterfaceconstant {class}          {class}
@@ -112,8 +113,6 @@
     \expandafter\secondoftwoarguments
   \fi}
 
-\newwrite\examanswer
-
 \newif\iflay_twoup   \lay_twoupfalse
 \newif\ifhdr_default \hdr_defaultfalse
 
@@ -143,14 +142,14 @@
 \newcount\parentitemnumber% \parentitemnumber 会等于父级列表环境的序号
 
 \startluacode
-thirddata = thirddata or { }
-thirddata.basicexam_sql = thirddata.basicexam_sql or { }
-local basicexam_sql = thirddata.basicexam_sql
-basicexam_sql.libfile = ""
+  thirddata = thirddata or { }
+  thirddata.basicexam_sql = thirddata.basicexam_sql or { }
+  local basicexam_sql = thirddata.basicexam_sql
+  basicexam_sql.libfile = ""
 
-function basicexam_sql.set_libpath(path)
-    basicexam_sql.libfile = path
-end
+  function basicexam_sql.set_libpath(path)
+      basicexam_sql.libfile = path
+  end
 \stopluacode
 
 \processallactionsinset[\currentmoduleparameter{showanswer}][
@@ -208,8 +207,8 @@ end
   local U = thirddata.basicexam_unlimited
 
   U.check_mode = false
-  local report = logs.reporter("basicexam      ", "level")
-  local function report_if_check(...) if U.check_mode then report(...) end end
+  local _report = logs.reporter("basicexam      ", "level")
+  local function report(...) if U.check_mode then _report(...) end end
 
   function U.enable_check()
     U.check_mode = true
@@ -270,7 +269,7 @@ end
     U.answer_tree.is_leaf = false
     U.current_node = U.answer_tree
     U.level_stack = {U.answer_tree}
-    report_if_check("Tree initialized")
+    report("Tree initialized")
   end
 
   --[[
@@ -362,21 +361,8 @@ end
   function U.set_extra_data(key, value)
     if U.current_node then
       U.current_node.extra_data[key] = value
-      report_if_check("Set extra data: %s = %s", key, tostring(value))
+      report("Set extra data: %s = %s", key, tostring(value))
     end
-  end
-
-  --[[
-  获取节点的额外数据
-  TeX接口: UnlimitedGetExtraData(id, key)
-  参数:
-    id - 节点ID
-    key - 数据键名
-  返回: 数据值（从dataset读取，需编译两次）
-  ]]
-  function U.get_extra_data(id, key)
-    local data = job.datasets.getdata("UnlimitedDataset", id)
-    if data and data[key] then context(tostring(data[key])) end
   end
 
   --[[
@@ -395,7 +381,7 @@ end
   进入新层级
   TeX接口: UnlimitedPushLevel(env_type)
   参数: env_type - 环境类型
-  功能: 创建新节点并设为当前节点
+  功能: 创建新节点并设为当前节点，同时维护环境栈用于嵌套检查
   ]]
   function U.push_level(env_type)
     if not U.answer_tree then U.init_tree() end
@@ -404,7 +390,7 @@ end
     table.insert(parent.children, new_node)
     U.current_node = new_node
     table.insert(U.level_stack, new_node)
-    report_if_check("Pushed level %d: %s (%s)", new_node.depth, new_node.id, env_type)
+    report("Pushed level %d: %s (%s)", new_node.depth, new_node.id, env_type)
   end
 
   --[[
@@ -435,18 +421,37 @@ end
     U.current_node.is_leaf = true
     update_ancestors(U.current_node, pt, pt > 0 and 1 or 0)
     save_to_dataset(U.current_node)
-    report_if_check("Added answer: %s, point=%.1f, order=%s", answer, pt, order)
+    report("Added answer: %s, point=%.1f, order=%s", answer, pt, order)
   end
 
   --[[
   退出当前层级
-  TeX接口: UnlimitedPopLevel()
+  TeX接口: UnlimitedPopLevel() 或 UnlimitedPopLevelChecked(env_type)
+  参数: env_type - (可选) 期望的环境类型，提供时会检查环境名称是否匹配
   功能: 返回到父节点，如果当前节点有子节点则标记为非叶子
   ]]
-  function U.pop_level()
-    if #U.level_stack <= 1 then return end
+  function U.pop_level(env_type)
+    if #U.level_stack <= 1 then
+      if env_type then
+        report("ERROR: 多余的 \\stop%s，无对应 \\start%s", env_type, env_type)
+      end
+      return
+    end
+    
+    if env_type then
+      local current_env = U.current_node.env_type
+      if current_env ~= env_type then
+        report("ERROR: 禁止跨层闭合！当前最内层未闭合环境：%s，你试图提前闭合环境：%s", current_env, env_type)
+        return
+      end
+    end
     
     local node = U.current_node
+    
+    if node.is_leaf and #node.children == 0 and node.answer == "" and node.currentpoint == 0 then
+      report("WARNING: %s环境内容为空！ID=%s，层级=%d，请检查是否遗漏答案或分数", node.env_type, node.id, node.depth)
+    end
+    
     if #node.children > 0 and node.is_leaf then
       local pt = node.currentpoint
       node.is_leaf = false
@@ -467,13 +472,29 @@ end
         node.parent.totalpoint = node.parent.totalpoint - pt + new_total
         node.parent.totalnumber = node.parent.totalnumber - (pt > 0 and 1 or 0) + new_num
       end
-      report_if_check("Node recalculated: %.1f -> %.1f", pt, new_total)
+      report("Node recalculated: %.1f -> %.1f", pt, new_total)
     end
     
     save_to_dataset(node)
     table.remove(U.level_stack)
     U.current_node = U.level_stack[#U.level_stack]
-    report_if_check("Popped to level %d", U.current_node.depth)
+    report("Popped to level %d", U.current_node.depth)
+  end
+
+  --[[
+  检查是否有未闭合的环境
+  TeX接口: UnlimitedCheckUnclosed()
+  功能: 在文档结束时检查是否有未闭合的环境
+  ]]
+  function U.check_unclosed()
+    if #U.level_stack > 1 then
+      local unclosed_count = #U.level_stack - 1
+      report("ERROR: 剩余 %d 层环境未闭合", unclosed_count)
+      for i = 2, #U.level_stack do
+        local node = U.level_stack[i]
+        report("  未闭合: %s (层级 %d)", node.env_type, node.depth)
+      end
+    end
   end
 
   --[[
@@ -544,23 +565,11 @@ end
   function U.get_current_id() return U.current_node and U.current_node.id or "" end
 
   --[[
-  从dataset读取数据
-  TeX接口: UnlimitedGetFromDataset(id, key)
-  参数:
-    id - 节点ID
-    key - 属性名
-  ]]
-  function U.get_from_dataset(id, key)
-    local data = job.datasets.getdata("UnlimitedDataset", id)
-    if data and data[key] then context(tostring(data[key])) end
-  end
-
-  --[[
   调试输出树结构
   TeX接口: UnlimitedDebug()
   ]]
   function U.debug_tree()
-    report("\n========== Answer Tree ==========")
+    report("========== Answer Tree ==========")
     local function show(node, depth)
       local indent = string.rep("  ", depth)
       report("%s[%d] %s: order=%s, answer=%s, point=%.1f, total=%d/%.1f",
@@ -599,6 +608,7 @@ end
   end
 
   function U.finalize_check()
+    U.check_unclosed()
     if not U.check_mode then return end
     U.debug_tree()
     local tsvname = tex.jobname .. "-answers.tsv"
@@ -620,13 +630,20 @@ end
 % 添加带分数的答案 % 用法: \UnlimitedAddScoredAnswer{A}{100} % 为当前节点设置答案和分数
 \def\UnlimitedAddScoredAnswer#1#2{\ctxlua{thirddata.basicexam_unlimited.add_scored_answer([==[#1]==], [==[#2]==])}}
 
-% 退出当前层级 % 用法: \UnlimitedPopLevel % 返回父节点，有子节点则标记为非叶子
+% 退出当前层级 % 返回父节点，有子节点则标记为非叶子
 \def\UnlimitedPopLevel{\ctxlua{thirddata.basicexam_unlimited.pop_level()}}
 
-% 获取当前深度 % 用法: \UnlimitedDepth → 输出数字
+% 退出当前层级（带环境名称检查）
+% 用法: \UnlimitedPopLevelChecked{question}
+\def\UnlimitedPopLevelChecked#1{\ctxlua{thirddata.basicexam_unlimited.pop_level([==[#1]==])}}
+
+% 检查是否有未闭合的环境
+\def\UnlimitedCheckUnclosed{\ctxlua{thirddata.basicexam_unlimited.check_unclosed()}}
+
+% 获取当前深度 %输出数字
 \def\UnlimitedDepth{\ctxlua{context(thirddata.basicexam_unlimited.get_depth())}}
 
-% 获取当前节点ID % 用法: \UnlimitedCurrentID → 输出 Q-1, Q-2-1 等
+% 获取当前节点ID %输出 Q-1, Q-2-1 等
 \def\UnlimitedCurrentID{\ctxlua{context(thirddata.basicexam_unlimited.get_current_id())}}
 
 % 保存当前节点ID到宏 % 用法: \UnlimitedSaveCurrentID\MyID % 之后可用 \MyID 引用此ID
@@ -647,14 +664,11 @@ end
 % 获取节点总分 (同DisplayPoint)
 \def\UnlimitedTotalPoint#1{\UnlimitedDisplayPoint{#1}}
 
-% 从dataset读取当前节点答案 % 用法: \UnlimitedCurrentAnswer % 需要编译两次才能显示
+% 从dataset读取当前节点答案
 \def\UnlimitedCurrentAnswer{\datasetvariable{UnlimitedDataset}{\UnlimitedCurrentID}{answer}}
 
-% 从dataset读取当前节点分数 % 用法: \UnlimitedCurrentPoint % 需要编译两次才能显示
+% 从dataset读取当前节点分数
 \def\UnlimitedCurrentPoint{\datasetvariable{UnlimitedDataset}{\UnlimitedCurrentID}{totalpoint}}
-
-% 从dataset读取指定节点数据 % 用法: \UnlimitedGetFromDataset{Q-1}{answer}
-\def\UnlimitedGetFromDataset#1#2{\datasetvariable{UnlimitedDataset}{#1}{#2}}
 
 % 检查dataset中是否有数据 % 用法: \UnlimitedHasDataset{Q-1} → yes/no
 \def\UnlimitedHasDataset#1{\doifelsesomething{\datasetvariable{UnlimitedDataset}{#1}{id}}{yes}{no}}
@@ -662,17 +676,38 @@ end
 % 设置当前节点的额外数据 % 用法: \UnlimitedSetExtraData{totalitemnumber}{4} % 用于存储选择题排版信息等元数据
 \def\UnlimitedSetExtraData#1#2{\ctxlua{thirddata.basicexam_unlimited.set_extra_data([==[#1]==], [==[#2]==])}}
 
-% 从dataset获取节点的额外数据（需编译两次） % 用法: \UnlimitedGetExtraData{Q-1}{totalitemnumber}
-\def\UnlimitedGetExtraData#1#2{\datasetvariable{UnlimitedDataset}{#1}{#2}}
-
 % 获取当前节点的额外数据（实时，当前编译中） % 用法: \UnlimitedGetCurrentExtraData{totalitemnumber}
 \def\UnlimitedGetCurrentExtraData#1{\ctxlua{thirddata.basicexam_unlimited.get_current_extra_data([==[#1]==])}}
 
-% 输出树结构到日志 % 用法: \UnlimitedDebug
+% 从dataset获取节点的额外数据（需编译两次） % 用法: \UnlimitedGetExtraData{Q-1}{totalitemnumber}
+\def\UnlimitedGetExtraData#1#2{\datasetvariable{UnlimitedDataset}{#1}{#2}}
+
+% 输出树结构到日志
 \def\UnlimitedDebug{\ctxlua{thirddata.basicexam_unlimited.debug_tree()}}
 
 % 导出答案到TSV文件 % 用法: \UnlimitedExport{answers.tsv}
 \def\UnlimitedExport#1{\ctxlua{thirddata.basicexam_unlimited.export_answers([==[#1]==])}}
+
+\def\BasicExamPushLevel#parent#current{%
+  \edef\currentparentenvironment{#parent}%
+  \edef\currentchildenvironment{#current}%
+  \UnlimitedPushLevel{#current}
+  \c_currentitemnumber = 0\relax
+  \initcollectanswer
+  \ifx\currentparentenvironment\s!choice
+  \else
+    \iftok{#parent}{close}%
+      \hbox{\hsize\scratchdimen\noindent\strut
+      \showpointoranswer[#parent][point]%
+      \showpointoranswer[#parent][answer]}%
+    \else
+      \showpointoranswer[#parent][point]%
+      \showpointoranswer[#parent][answer]\fi
+    \UnlimitedAddScoredAnswer{\currentanswer}{\currentpoint}
+  \fi
+}
+
+\def\BasicExamPopLevel{\UnlimitedPopLevelChecked\currentchildenvironment}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{尚未處理的組合　/ Command under handling / 未完成のコマンド}
@@ -714,17 +749,6 @@ end
 \definedataset       [ExamDataset]
 \definedataset       [ExamDatasetHelper]
 \definetextbackground[env!solution]
-
-\startuseMPgraphic{rules:under:wave}
-    vardef lsin primary x =
-        lua("mp.print(math.sin(" & decimal x & "))")
-    enddef ;
-    draw function(1, "x", "lsin(1.2*x)", 0, RuleWidth, .1pt)
-         shifted (0,RuleFactor*RuleOffset+RuleDepth)
-         withpen pencircle scaled RuleThickness
-         withcolor RuleColor ;
-    setbounds currentpicture to unitsquare xysized(RuleWidth,RuleHeight) ;
-\stopuseMPgraphic
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% ego=section isea=subsection
@@ -816,13 +840,13 @@ end
   [\c!renderingsetup=\????examinforenderings:\s!default]
 
 \defineexaminfoalternative
-  [\s!frame]
-  [\c!renderingsetup=\????examinforenderings:\s!frame]
+  [\c!frame]
+  [\c!renderingsetup=\????examinforenderings:\c!frame]
 
 \startsetups[\????examinforenderings:\s!default]
 \stopsetups
 
-\startsetups[\????examinforenderings:\s!frame]
+\startsetups[\????examinforenderings:\c!frame]
   \dontleavehmode\inheritedexaminfoframed
 \stopsetups
 
@@ -921,23 +945,6 @@ end
 \def\p_assign_currentlabel[#1,#2,#3]#4%
  {\expandafter\def\csname  left_assigned#4label\endcsname{#1}%
   \expandafter\def\csname right_assigned#4label\endcsname{#2}}
-
-\tolerant\protected\def\BasicExamPushLevel{%
-  \ifx\currentexamenvironment\s!problem\else
-    \UnlimitedPushLevel{\currentexamenvironment}
-    \c_currentitemnumber = 0\relax
-    \initcollectanswer
-    \ifx\currentexamenvironment\s!choice\else
-      \showpointoranswer[\currentexamenvironment][point]%
-      \showpointoranswer[\currentexamenvironment][answer]%
-      \UnlimitedAddScoredAnswer{\currentanswer}{\currentpoint}\fi
-  \fi
-}
-
-\tolerant\protected\def\BasicExamPopLevel{%
-  \ifx\currentexamenvironment\s!problem\else
-    \UnlimitedPopLevel\fi
-}
 
 \def\correct#1{#1\collectanswer{#1}}%定义可以收集答案的命令，该命令将会累积收集答案
 
@@ -1173,7 +1180,10 @@ end
         \edef\p_option{\questionparameter\c!option,#2}%
       \fi
   \fi
-  \edef\currentexamenvironment{\iftok{\questionparameter\c!class}{\s!problem}\s!problem\else\s!question\fi}%
+  \edef\currentexamenvironment%
+    {\iftok{\questionparameter\c!class}{\s!problem}\s!problem\else
+        \iftok{\questionparameter\c!class}{\s!writing}\s!writing\else
+          \s!question\fi\fi}%
   \doiftrue\s!question\c!reset{\resetcounter[itemgroup:env!\c!questioname]}%
   \ifx\currentexamenvironment\s!example
     \setup_itemgroup_temp[example][#2][#3]\else
@@ -1181,13 +1191,15 @@ end
   \ifx\currentexamenvironment\s!problem\else
     \item[\questionparameter\c!reference]%
     \resetcounter[itemgroup:env!problem]%
-    \fi
-  \BasicExamPushLevel
+    \BasicExamPushLevel\s!question\currentexamenvironment
+  \fi
   \usequestionstyleandcolor\c!textstyle\c!textcolor
   \save_question_order}
 
 \protected\def\stopnamedquestion{%
-  \BasicExamPopLevel
+  \ifx\currentexamenvironment\s!problem\else
+    \BasicExamPopLevel
+  \fi
   \stopitemgroup\endgroup
 }
 
@@ -1429,7 +1441,6 @@ end
 \tolerant\protected\def\startnamedchoice[#1]#*[#2]#*[#S#3]#*%
  {\begingroup
   \def\currentchoice{#1}%
-  \edef\currentexamenvironment{choice}%
   \ifarguments
         \edef\p_option{\choiceparameter\c!option}%
     \or \edef\p_option{\choiceparameter\c!option}%
@@ -1443,7 +1454,7 @@ end
         \edef\p_option{\choiceparameter\c!option,#2}\fi
         \setupcurrentchoice[#3]%
   \fi
-  \BasicExamPushLevel
+  \BasicExamPushLevel\s!choice\s!choice
   \doifelsesomething{\UnlimitedGetExtraData{\UnlimitedCurrentID}{totalitemnumber}}%
      {\scratchcounter\UnlimitedGetExtraData{\UnlimitedCurrentID}{totalitemnumber}}%
      {\scratchcounter\zerocount}%
@@ -1483,8 +1494,8 @@ end
     \else\collectedanswer\fi}%
   \UnlimitedAddScoredAnswer{\currentanswer}{\currentprevpoint}%
   \choiceparameter\c!inlineright
-  \BasicExamPopLevel
   \stopitemgroup
+  \BasicExamPopLevel
   \endgroup}
 
 \definechoice[choice]
@@ -1632,7 +1643,6 @@ end
 
 \tolerant\protected\def\startoldsolution[#1]#:#2\stopoldsolution%
 {\begingroup
-  \env_solutiontrue\set_envitem_counter
   \lettonothing\getsolutionbuffer
   \lettonothing\getinlinesolutionbuffer
   \cdef\currentsolution{#1}%
@@ -1707,10 +1717,9 @@ end
 \tolerant\protected\def\startpitem[#1]#*%
 {\begingroup
     \edef\currentexamitem{pitem}%
-    \edef\currentexamenvironment{examitem}%
     \iffirstargument\setuppitem[#1]\fi%
     \startitem[\examitemparameter{pitem}{reference}]%
-      \BasicExamPushLevel
+      \BasicExamPushLevel\s!examitem\currentexamitem
       \useexamitemstyleandcolor\c!textstyle\c!textcolor
 }
 
@@ -1876,8 +1885,11 @@ end
     \edef\currentfillin{#1}%
     \ifparameters\or\or\setupcurrentfillin[#2]\or\setupfillin[#2]\fi
     \global\advance\c_fillinnumber by 1\relax
-    \def\currentfillinanswer{\usefillinstyleandcolor\c!answerstyle\c!answercolor
-      \toks0={#3}\ifempty\toks0\currentprevanswer\else#3\fi}% 如果 #3 为空，就使用前一個答案
+    \def\currentfillinanswer%
+     {\usefillinstyleandcolor\c!answerstyle\c!answercolor
+      \toks0={#3}\ifempty\toks0 ???
+        \ifdefined\currentprevanswer\currentprevanswer\fi
+      \else #3\fi}% 如果 #3 为空，就使用前一個答案
     \edef\p_number{\number\c_fillinnumber}%
     \edef\p_align{\fillinparameter\c!align}%
     \edef\currentfillinalternative{\fillinparameter\c!alternative}%
@@ -1900,12 +1912,12 @@ end
       {\parfillskip=0pt \finalhyphendemerits=0 \par}%
       {\allowbreak}%
     \edef\currentanswer      {#3\collectanswer{#3}}%
-    \edef\currentfillinanswer{#3}%
     \toks0={#3}%
     \ifempty\toks0
          \edef\currentanswer{\currentprevanswer}% 讓 fillin 繼承 前一個答案
     \else\edef\currentanswer{\collectedanswer}%
     \fi\xdef\currentprevanswer{\currentanswer}%
+  \ifdefined\currentpoint \relax\else\let\currentpoint\empty\fi
   \UnlimitedAddScoredAnswer{\currentanswer}{\currentpoint}%
   \endgroup
 }
@@ -1915,8 +1927,8 @@ end
   [\c!renderingsetup=\????fillinrenderings:\s!default]
 
 \definefillinalternative
-  [\s!frame]
-  [\c!renderingsetup=\????fillinrenderings:\s!frame]
+  [\c!frame]
+  [\c!renderingsetup=\????fillinrenderings:\c!frame]
 
 \definefillinalternative
   [simple]
@@ -1925,21 +1937,6 @@ end
 \startsetups[\????fillinrenderings:\s!default]
   \edef\currentbar{\fillinparameter\c!rule}%
   \edef\p_empty{\fillinparameter\c!empty}%
-  \ifmode_showanswer\edef\p_empty{\v!none}\fi
-  \setupbar[\currentbar][%
-           rulethickness=\fillinparameter{rulethickness},
-         foregroundcolor=\fillinparameter{foregroundcolor},
-         foregroundstyle=\fillinparameter{style},
-                continue=\fillinparameter{continue},
-                    unit=\fillinparameter{unit},
-                   order=\fillinparameter{order},
-                  method=\fillinparameter{method},
-                      dy=\fillinparameter{dy},
-                     max=\fillinparameter{max},
-                  repeat=\fillinparameter{repeat},
-                   color=\fillinparameter{color},
-                  offset=\fillinparameter{offset},
-                      mp=\fillinparameter{mp}]%
   \edef\p_n{\fillinparameter\c!n}%
   \def\currentfillincontent%
     {\ifchknum\p_n\or
@@ -1950,10 +1947,14 @@ end
       \ifx\p_empty\v!none   \currentfillinanswer\fi
       \interwordspacesafter \scratchcounterone
     \fi}
-  \csname \currentbar\endcsname{\currentfillincontent}%
+  \start
+    \dontleavehmode
+    \let\barparameter\fillinparameter
+    \node_rules_set\currentbar{\currentfillincontent}%
+  \stop
 \stopsetups
 
-\startsetups[\????fillinrenderings:\s!frame]
+\startsetups[\????fillinrenderings:\c!frame]
   \edef\p_empty{\fillinparameter\c!empty}%
   \def\currentfillincontent{%
     \ifx\p_empty\v!yes   \fi
@@ -1975,6 +1976,17 @@ end
 \definefillin[fillin]
 \definefillin[fillinframe]  [alternative=frame,offset=0pt,location=low,left=\thinspace,right=\thinspace,align={lohi,center}]
 \definefillin[fillinbracket][fillinframe][left=(,right=),align={center,autoright},framecolor=transparentcolor,style=,]
+
+\startuseMPgraphic{rules:under:wave}
+  vardef lsin primary x =
+      lua("mp.print(math.sin(" & decimal x & "))")
+  enddef ;
+  draw function(1, "x", "lsin(1.2*x)", 0, RuleWidth, .1pt)
+        shifted (0,RuleFactor*RuleOffset+RuleDepth)
+        withpen pencircle scaled RuleThickness
+        withcolor RuleColor ;
+  setbounds currentpicture to unitsquare xysized(RuleWidth,RuleHeight) ;
+\stopuseMPgraphic
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{設置 material 環境}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2128,22 +2140,9 @@ end
   \setupmaterial[\currentmaterial][#1]%
   \edef\indicator_type{\namedmaterialparameter\currentmaterial\c!type}%
   \edef\indicator_reset{\namedmaterialparameter\currentmaterial\c!reset}%
-  \namedmaterialparameter\currentmaterial\c!style
-  \setupbars
-    [\c!method=\namedmaterialparameter\currentmaterial\c!method,% new: 0=center nested, 1=stack nested
-    \c!continue=\namedmaterialparameter\currentmaterial\c!continue,
-    \c!empty=\namedmaterialparameter\currentmaterial\c!empty,   % new: yes = hide text
-    \c!offset=\namedmaterialparameter\currentmaterial\c!offset, % upwards, replaces: topoffset bottomoffset
-    \c!dy=\namedmaterialparameter\currentmaterial\c!dy,
-    \c!max=\namedmaterialparameter\currentmaterial\c!max,
-    \c!style=\namedmaterialparameter\currentmaterial\c!style,
-    \c!rulethickness=\namedmaterialparameter\currentmaterial\c!rulethickness,
-    \c!order=\namedmaterialparameter\currentmaterial\c!order,
-    \c!unit=\namedmaterialparameter\currentmaterial\c!unit,  % so now we are relative
-    \c!color=\namedmaterialparameter\currentmaterial\c!color]% replaces: rulecolor
-  \processaction[\indicator_type]%
-            [line=>\let\indicator_type\underbar,%
-             none=>\let\indicator_type\relax]%
+  \def\barparameter{\namedmaterialparameter\currentmaterial}%
+  \iftok{\indicator_type}{line}\let\indicator_type\underbar
+    \else\let\indicator_type\relax\fi
   \usematerialstyleandcolor\c!style\c!color%
   \indicator_type\bgroup
   \namedmaterialparameter\currentmaterial\c!before%
@@ -2164,22 +2163,9 @@ end
   \setupmaterial[\currentmaterial][#1]%
   \edef\indicator_type{\namedmaterialparameter\currentmaterial\c!type}%
   \edef\indicator_reset{\namedmaterialparameter\currentmaterial\c!reset}%
-  \namedmaterialparameter\currentmaterial\c!style
-  \setupbars
-    [\c!method=\namedmaterialparameter\currentmaterial\c!method,% new: 0=center nested, 1=stack nested
-    \c!continue=\namedmaterialparameter\currentmaterial\c!continue,
-    \c!empty=\namedmaterialparameter\currentmaterial\c!empty,   % new: yes = hide text
-    \c!offset=\namedmaterialparameter\currentmaterial\c!offset, % upwards, replaces: topoffset bottomoffset
-    \c!dy=\namedmaterialparameter\currentmaterial\c!dy,
-    \c!max=\namedmaterialparameter\currentmaterial\c!max,
-    \c!style=\namedmaterialparameter\currentmaterial\c!style,
-    \c!rulethickness=\namedmaterialparameter\currentmaterial\c!rulethickness,
-    \c!order=\namedmaterialparameter\currentmaterial\c!order,
-    \c!unit=\namedmaterialparameter\currentmaterial\c!unit,  % so now we are relative
-    \c!color=\namedmaterialparameter\currentmaterial\c!color]% replaces: rulecolor
-  \processaction[\indicator_type]%
-            [line=>\let\indicator_type\underbar,%
-             none=>\let\indicator_type\relax]%
+  \def\barparameter{\namedmaterialparameter\currentmaterial}%
+  \iftok{\indicator_type}{line}\let\indicator_type\underbar
+    \else\let\indicator_type\relax\fi
   \usematerialstyleandcolor\c!style\c!color%
   \indicator_type\bgroup
   \namedmaterialparameter\currentmaterial\c!before%
@@ -2340,6 +2326,8 @@ end
             frame=off,
             stopper=.,
             distance=.5em,
+           % barcolor=,
+           % barstyle=,
             after=\blank[halfline]]
 
 \startluacode
@@ -2396,9 +2384,9 @@ end
   \begingroup
     \setupbar[underbar][color=\closeparameter{barcolor},mp=\closeparameter{barstyle}]%
     \startbar[underbar]%
-      \scratchcounter\numexpr\closeparameter\c!n/\plustwo\relax
+      \scratchcounter\numexpr8/\plustwo\relax
       \interwordspacesbefore\scratchcounter
-        \zwj\runninghbox{\resetbar{#1}}\zwj
+         \zwj\runninghbox{\resetbar{#1}}\zwj
       \interwordspacesafter\scratchcounter
     \stopbar
   \endgroup}
@@ -2449,23 +2437,18 @@ end
       \else
         \scratchdimen\zeropoint
       \fi\fi
-      \scratchdimenone=\closeparameter\c!width\relax
+      \scratchdimenone{\closeparameter\c!width}\relax
       \edef\currentitemnumber{\the\c_closetest_temp}%
       \save_question_order
-      \UnlimitedPushLevel{\currentexamenvironment}%
-      \c_currentitemnumber = 0\relax
-      \initcollectanswer
-      \hbox{\hsize\scratchdimen\noindent\strut
-        \showpointoranswer[\currentexamenvironment][point]%
-        \showpointoranswer[\currentexamenvironment][answer]}%
+      \edef\currentanswer{\currentprevanswer}%
+      \edef\currentpoint{\currentprevpoint}%
+      \BasicExamPushLevel\currentexamenvironment\currentexamenvironment
       \hbox{\hsize\scratchdimenone\noindent\strut\close_order}%
       \vtop{\hsize=\dimexpr\textwidth-\scratchdimen-\scratchdimenone\relax
         \ctxlua{thirddata.basicexam.close_next_index()}%
         \edef\close_param_i{\ctxlua{thirddata.basicexam.close_get_param1()}}%
         \edef\close_param_ii{\ctxlua{thirddata.basicexam.close_get_param2()}}%
         \edef\close_content{\ctxlua{thirddata.basicexam.close_get_choice()}}%
-        \c_currentitemnumber = 0\relax
-        \initcollectanswer
         \ifx\close_param_i\empty
           \startchoice\expandafter\processcommacommand\expandafter[\close_content]\docloseitem\stopchoice
         \else\ifx\close_param_ii\empty
@@ -2473,16 +2456,14 @@ end
         \else
           \expandafter\startchoice\expandafter[\close_param_i]\expandafter[\close_param_ii]\expandafter\processcommacommand\expandafter[\close_content]\docloseitem\stopchoice
         \fi\fi
-      \UnlimitedAddScoredAnswer{\closeparameter\c!answer}{\closeparameter\c!point}%
-      \UnlimitedPopLevel}%
+      }%
+      \BasicExamPopLevel
     }\par
-    \advance\c_closetest by 1\relax
-  }%
+  \advance\c_closetest by 1\relax}%
   \doiftrueelse\s!close\c!reset\relax
     {\c_closetest_temp=\numexpr\c_closetest_temp - 1\relax
      \setcounter[itemgroup:env!question][\c_closetest_temp]}%
-  \c_closetest=0\relax
-  \BasicExamPopLevel}
+  \c_closetest=0\relax}
 
 \tolerant\protected\def\startclose[#1]#*%
  {\begingroup
@@ -2586,7 +2567,6 @@ end
 
 \tolerant\protected\def\ocitem[#1]#:#2%
  {\begingroup
- \edef\currentexamenvironment{examitem}%
  \doifelse
       {\namedexamitemparameter{optclose}{point}}%
       {}{}% 如果 optclose 的 point 为空什么都不做，否则定义 point
@@ -2607,7 +2587,8 @@ end
         \doiftrue{examitem}\c!continue{\parentitemnumber=\currentitemnumber\relax}%
         \useexamitemstyleandcolor\c!textstyle\c!textcolor
         \allowbreak\doifsomethingelse{#2}{(#2)}{}% 放置選項，類似 inlinechoice
-        \BasicExamPushLevel\BasicExamPopLevel
+        \BasicExamPushLevel\s!examitem\currentexamitem
+        \BasicExamPopLevel
         \save_question_order
   \stopitemgroup
   \endgroup}
@@ -2856,7 +2837,7 @@ end
   \edef\p_showid    {\typeanswerparameter{showid}}%
   \edef\p_showanswer{\typeanswerparameter{showanswer}}%
   \edef\p_layout    {\typeanswerparameter{layout}}%
-  \ifx\p_chapter\empty
+  \ifnum\p_chapter=0
     \c_typeanswer_chapter=\namedheadnumber{chapter}\relax
   \else
     \c_typeanswer_chapter=\numexpr\p_chapter\relax
@@ -3601,6 +3582,7 @@ draw p
 \startmode[teacher]
   \mode_showanswertrue
   \mode_showpointtrue
+  \setupfillin[empty=none]
 \stopmode
 \startmode[student]
   \mode_showanswerfalse
