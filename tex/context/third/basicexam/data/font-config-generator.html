@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConTeXt 字体配置生成器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#4f46e5',
+              'primary-light': '#818cf8',
+              success: '#10b981',
+              warning: '#f59e0b',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background: radial-gradient(#eaedf6, #c4bef1 51.68%, #efe1fe);
+        min-height: 100vh;
+      }
+
+      .glass-card {
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .output-box {
+        background: #1e293b;
+        color: #e2e8f0;
+        font-family: 'SF Mono', Monaco, monospace;
+        white-space: pre-wrap;
+      }
+
+      .modal,
+      .mode-content,
+      .collapsible-content {
+        display: none;
+      }
+
+      .modal.active {
+        display: flex;
+        backdrop-filter: blur(8px);
+      }
+
+      .mode-content.active,
+      .collapsible-content.expanded {
+        display: block;
+      }
+
+      .collapsible-header .toggle-icon {
+        transform: rotate(-90deg);
+        transition: transform 0.2s;
+      }
+
+      .collapsible-header.expanded .toggle-icon {
+        transform: rotate(0deg);
+      }
+
+      .sidebar {
+        transition: width 0.3s ease;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(12px);
+      }
+
+      .sidebar.collapsed {
+        width: 56px !important;
+      }
+
+      .sidebar.collapsed .sidebar-text,
+      .sidebar.collapsed .sidebar-input {
+        display: none;
+      }
+
+      .main-content {
+        transition: padding-left 0.3s ease;
+        padding-left: 240px;
+        padding-top: 76px;
+        padding-right: 1rem;
+        padding-bottom: 5rem;
+      }
+
+      .main-content.expanded {
+        padding-left: 72px;
+      }
+
+      .footer-bar {
+        position: fixed;
+        bottom: 0;
+        left: 224px;
+        right: 0;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(8px);
+        border-top: 1px solid #e2e8f0;
+        padding: 12px 16px;
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        z-index: 20;
+        transition: left 0.3s ease;
+      }
+
+      .footer-bar.expanded {
+        left: 56px;
+      }
+
+      #manualFooter {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body class="bg-slate-50 text-slate-800 min-h-screen">
+    <header class="fixed top-0 left-0 right-0 z-40 bg-gradient-to-r from-primary to-purple-700 text-white shadow-lg">
+      <div class="flex items-center justify-between px-4 py-3">
+        <div class="flex items-center gap-4">
+          <button onclick="toggleSidebar()" class="p-2 hover:bg-white/10 rounded-lg transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <div>
+            <h1 class="text-lg font-semibold">ConTeXt 字体配置生成器</h1>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 ml-4 pl-4 border-l border-white/20">
+          <span id="statusDot" class="w-2 h-2 rounded-full"></span>
+          <span id="statusText" class="text-sm">检测字体服务器...</span>
+          <button onclick="refreshFonts()" class="p-1 hover:bg-white/10 rounded transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <aside id="sidebar"
+      class="sidebar fixed left-0 top-[60px] bottom-0 w-56 border-r border-slate-200 z-30 overflow-hidden">
+      <div class="p-3">
+        <div class="mb-4 sidebar-input">
+          <label class="text-xs text-slate-500 mb-1 block">配置名称</label>
+          <input type="text" id="configName" value="myfonts"
+            class="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:border-primary">
+        </div>
+        <div class="mb-4 sidebar-input">
+          <label class="text-xs text-slate-500 mb-1 block">语言</label>
+          <select id="language"
+            class="w-full px-2 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:border-primary">
+            <option value="simplified-chinese">简体中文</option>
+            <option value="traditional-chinese">繁体中文</option>
+            <option value="japanese">日语</option>
+            <option value="korean">韩语</option>
+            <option value="unknown">其他</option>
+          </select>
+        </div>
+        <div class="border-t border-slate-200 pt-3">
+          <div class="text-xs text-slate-400 mb-2 sidebar-text">模式选择</div>
+          <button onclick="switchMode('auto')" id="btnAuto"
+            class="w-full p-2 rounded-lg transition-all mb-2 bg-indigo-50 border-2 border-primary">
+            <div class="flex items-center justify-center gap-2">
+              <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span class="sidebar-text font-medium text-sm">自动模式</span>
+            </div>
+          </button>
+          <button onclick="switchMode('manual')" id="btnManual"
+            class="w-full p-2 rounded-lg transition-all border-2 border-transparent hover:bg-slate-50">
+            <div class="flex items-center justify-center gap-2">
+              <svg class="w-5 h-5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              <span class="sidebar-text font-medium text-sm">手动模式</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <main id="mainContent" class="main-content pt-[76px] pr-4 pb-20">
+      <div class="flex flex-col gap-4">
+        <div class="grid lg:grid-cols-2 gap-4">
+          <div class="glass-card rounded-xl shadow-lg overflow-hidden">
+            <div class="px-4 py-3 border-b border-slate-200/50 font-medium">配置选项</div>
+            <div id="configPanel" class="p-4">
+              <div id="autoMode" class="mode-content active">
+                <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-3 mb-4 text-xs text-slate-600">
+                  <strong class="text-primary">提示：</strong>为 Serif、Sans、Mono、Handwriting 和 Math
+                  分别选择字体系列。系统会自动检测每个系列的子字体样式。
+                </div>
+                <div id="autoTypeConfigs"></div>
+              </div>
+
+              <div id="manualMode" class="mode-content">
+                <div class="flex gap-1 mb-4">
+                  <div id="step1" class="flex-1 p-2 bg-indigo-50 border-2 border-primary rounded text-center text-xs">1.
+                    字体类型</div>
+                  <div id="step2"
+                    class="flex-1 p-2 bg-slate-100 border-2 border-transparent rounded text-center text-xs text-slate-500">
+                    2. 样式配置</div>
+                  <div id="step3"
+                    class="flex-1 p-2 bg-slate-100 border-2 border-transparent rounded text-center text-xs text-slate-500">
+                    3. Fallback</div>
+                </div>
+                <div id="stepContent1">
+                  <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-3 mb-4 text-xs text-slate-600">
+                    <strong class="text-primary">提示：</strong>可以同时选择多个字体类型进行配置。点击类型按钮可切换选中状态。
+                  </div>
+                  <div class="text-sm font-medium mb-2 pb-1 border-b border-slate-200">选择字体类型（可多选）</div>
+                  <div class="grid grid-cols-5 gap-2 mb-4">
+                    <button id="typeSerif" onclick="toggleType('serif')"
+                      class="p-2 bg-indigo-50 border-2 border-primary rounded-lg text-center">
+                      <div class="text-lg">T</div>
+                      <div class="text-xs">Serif</div>
+                    </button>
+                    <button id="typeSans" onclick="toggleType('sans')"
+                      class="p-2 bg-indigo-50 border-2 border-primary rounded-lg text-center">
+                      <div class="text-lg">T</div>
+                      <div class="text-xs">Sans</div>
+                    </button>
+                    <button id="typeMono" onclick="toggleType('mono')"
+                      class="p-2 bg-indigo-50 border-2 border-primary rounded-lg text-center">
+                      <div class="text-lg">M</div>
+                      <div class="text-xs">Mono</div>
+                    </button>
+                    <button id="typeHandw" onclick="toggleType('handw')"
+                      class="p-2 bg-slate-100 border-2 border-slate-200 rounded-lg text-center hover:border-primary-light">
+                      <div class="text-lg">H</div>
+                      <div class="text-xs">Hand</div>
+                    </button>
+                    <button id="typeMath" onclick="toggleType('math')"
+                      class="p-2 bg-slate-100 border-2 border-slate-200 rounded-lg text-center hover:border-primary-light">
+                      <div class="text-lg">∑</div>
+                      <div class="text-xs">Math</div>
+                    </button>
+                  </div>
+                </div>
+                <div id="stepContent2" class="hidden">
+                  <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-3 mb-4 text-xs text-slate-600">
+                    <strong class="text-primary">提示：</strong>选择 Regular 字体后，点击"自动填充"按钮可自动检测并填充该字体系列的其他样式。
+                  </div>
+                  <div id="styleConfigArea"></div>
+                </div>
+                <div id="stepContent3" class="hidden">
+                  <div class="text-sm font-medium mb-2 pb-1 border-b border-slate-200">Fallback 字体配置</div>
+                  <div id="fallbackConfigArea"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card rounded-xl shadow-lg overflow-hidden">
+            <div class="px-4 py-3 border-b border-slate-200/50 font-medium">生成结果</div>
+            <div class="p-4">
+              <div class="output-box relative p-3 rounded-lg text-xs leading-relaxed max-h-[500px] overflow-auto">
+                <button onclick="copyOutput()"
+                  class="copy-btn absolute top-2 right-2 bg-white/10 text-slate-300 px-2 py-1 rounded text-xs hover:bg-white/20">复制</button>
+                <div id="output">点击"生成配置"按钮...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="footerBar" class="footer-bar">
+          <div id="autoFooter" class="flex gap-2">
+            <button onclick="generateConfig()"
+              class="px-4 py-2 bg-primary text-white rounded-md text-sm hover:bg-indigo-600">生成配置</button>
+            <button onclick="downloadConfig()"
+              class="px-4 py-2 bg-slate-100 rounded-md text-sm hover:bg-slate-200">下载文件</button>
+            <button onclick="clearForm()"
+              class="px-4 py-2 bg-slate-100 rounded-md text-sm hover:bg-slate-200">清空</button>
+          </div>
+          <div id="manualFooter" class="flex gap-2 hidden">
+            <button id="prevBtn" onclick="prevStep(currentStep - 1)"
+              class="px-4 py-2 bg-slate-100 rounded-md text-sm hover:bg-slate-200 hidden">上一步</button>
+            <button id="nextBtn" onclick="nextStep(currentStep + 1)"
+              class="px-4 py-2 bg-primary text-white rounded-md text-sm hover:bg-indigo-600">下一步：配置样式</button>
+            <button id="generateBtn" onclick="generateConfig()"
+              class="px-4 py-2 bg-primary text-white rounded-md text-sm hover:bg-indigo-600 hidden">生成配置</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="fontModal" class="modal fixed inset-0 bg-black/30 z-50 items-center justify-center" onclick="closeModal()">
+      <div class="bg-white rounded-xl w-11/12 max-w-lg max-h-4/5 overflow-hidden flex flex-col shadow-2xl"
+        onclick="event.stopPropagation()">
+        <div class="px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+          <h3 class="font-medium">选择字体</h3>
+          <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-xl">&times;</button>
+        </div>
+        <div class="p-4 overflow-auto flex-1">
+          <div class="flex gap-2 mb-3">
+            <input type="text" id="fontSearchInput" placeholder="搜索字体..." oninput="filterFonts()"
+              class="flex-1 px-2 py-1.5 border border-slate-200 rounded-md text-sm">
+            <select id="fontTypeFilter" onchange="filterFonts()"
+              class="px-2 py-1.5 border border-slate-200 rounded-md text-sm">
+              <option value="">全部</option>
+              <option value="serif">Serif</option>
+              <option value="sans">Sans</option>
+              <option value="mono">Mono</option>
+              <option value="handw">Hand</option>
+            </select>
+          </div>
+          <div id="fontList" class="max-h-80 overflow-auto">
+            <div class="text-center py-4 text-slate-400">加载中...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="familyModal" class="modal fixed inset-0 bg-black/30 z-50 items-center justify-center"
+      onclick="closeFamilyModal()">
+      <div class="bg-white rounded-xl w-11/12 max-w-lg max-h-4/5 overflow-hidden flex flex-col shadow-2xl"
+        onclick="event.stopPropagation()">
+        <div class="px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+          <h3 class="font-medium">选择字体系列</h3>
+          <button onclick="closeFamilyModal()" class="text-slate-400 hover:text-slate-600 text-xl">&times;</button>
+        </div>
+        <div class="p-4 overflow-auto flex-1">
+          <div class="flex gap-2 mb-3">
+            <input type="text" id="familySearchInput" placeholder="搜索字体系列..." oninput="filterModalFamilies()"
+              class="flex-1 px-2 py-1.5 border border-slate-200 rounded-md text-sm">
+            <select id="familyTypeFilterModal" onchange="filterModalFamilies()"
+              class="px-2 py-1.5 border border-slate-200 rounded-md text-sm">
+              <option value="">全部类型</option>
+              <option value="serif">Serif</option>
+              <option value="sans">Sans</option>
+              <option value="mono">Mono</option>
+              <option value="handw">Hand</option>
+            </select>
+          </div>
+          <div id="familyList" class="max-h-80 overflow-auto">
+            <div class="text-center py-4 text-slate-400">加载中...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="mathFontModal" class="modal fixed inset-0 bg-black/30 z-50 items-center justify-center"
+      onclick="closeMathFontModal()">
+      <div class="bg-white rounded-xl w-11/12 max-w-md max-h-4/5 overflow-hidden flex flex-col shadow-2xl"
+        onclick="event.stopPropagation()">
+        <div class="px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+          <h3 class="font-medium">选择数学字体</h3>
+          <button onclick="closeMathFontModal()" class="text-slate-400 hover:text-slate-600 text-xl">&times;</button>
+        </div>
+        <div class="p-4 overflow-auto flex-1">
+          <input type="text" id="mathFontSearchInput" placeholder="搜索数学字体..." oninput="filterMathFonts()"
+            class="w-full px-2 py-1.5 border border-slate-200 rounded-md text-sm mb-3">
+          <div id="mathFontList" class="max-h-80 overflow-auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const FONT_SERVER = 'http://localhost:8081';
+      let allFonts = {};
+      let allFamilies = {};
+      let currentMode = 'auto';
+      let selectedTypes = ['serif', 'sans', 'mono'];
+      let currentStep = 1;
+      let pickerTarget = { type: 'serif', style: 'regular' };
+      let sidebarCollapsed = false;
+
+      const ALL_STYLES = [
+        'regular', 'italic',
+        'bold', 'bolditalic',
+        'light', 'lightitalic',
+        'extralight', 'extralightitalic',
+        'medium', 'mediumitalic',
+        'semibold', 'semibolditalic',
+        'extrabold', 'extrabolditalic',
+        'thin', 'thinitalic',
+        'black', 'blackitalic'
+      ];
+      const STYLE_LABELS = {
+        regular: 'Regular', italic: 'Italic',
+        bold: 'Bold', bolditalic: 'Bold Italic',
+        light: 'Light', lightitalic: 'Light Italic',
+        extralight: 'ExtraLight', extralightitalic: 'ExtraLight Italic',
+        medium: 'Medium', mediumitalic: 'Medium Italic',
+        semibold: 'SemiBold', semibolditalic: 'SemiBold Italic',
+        extrabold: 'ExtraBold', extrabolditalic: 'ExtraBold Italic',
+        thin: 'Thin', thinitalic: 'Thin Italic',
+        black: 'Black', blackitalic: 'Black Italic'
+      };
+
+      const CONTEXT_MATH_FONTS = [
+        { value: 'antykwa', label: 'Antykwa' },
+        { value: 'bonum', label: 'Bonum' },
+        { value: 'cambria', label: 'Cambria' },
+        { value: 'concrete', label: 'Concrete' },
+        { value: 'dejavu', label: 'DejaVu' },
+        { value: 'ebgaramond', label: 'EBGaramond' },
+        { value: 'erewhon', label: 'Erewhon' },
+        { value: 'iwona', label: 'Iwona' },
+        { value: 'kpfonts', label: 'KpFonts' },
+        { value: 'kurier', label: 'Kurier' },
+        { value: 'libertinus', label: 'Libertinus' },
+        { value: 'lucida', label: 'Lucida' },
+        { value: 'modern', label: 'Modern (默认)' },
+        { value: 'pagella', label: 'Pagella' },
+        { value: 'schola', label: 'Schola' },
+        { value: 'stixtwo', label: 'STIXTwo' },
+        { value: 'termes', label: 'Termes' },
+        { value: 'xcharter', label: 'XCharter' }
+      ];
+
+      let autoConfig = {
+        serif: { family: null, subfonts: {}, fallback: {} },
+        sans: { family: null, subfonts: {}, fallback: {} },
+        mono: { family: null, subfonts: {}, fallback: {} },
+        handw: { family: null, subfonts: {}, fallback: {} },
+        math: { family: null, subfonts: {}, fallback: {} }
+      };
+
+      let manualConfig = {};
+      ['serif', 'sans', 'mono', 'handw', 'math'].forEach(type => {
+        manualConfig[type] = {};
+        ALL_STYLES.forEach(s => manualConfig[type][s] = '');
+        manualConfig[type].fallback = {};
+        ALL_STYLES.forEach(s => manualConfig[type].fallback[s] = '');
+      });
+
+      function toggleSidebar() {
+        sidebarCollapsed = !sidebarCollapsed;
+        document.getElementById('sidebar').classList.toggle('collapsed', sidebarCollapsed);
+        document.getElementById('mainContent').classList.toggle('expanded', sidebarCollapsed);
+        document.getElementById('footerBar').classList.toggle('expanded', sidebarCollapsed);
+      }
+
+      async function checkFontServer() {
+        const dot = document.getElementById('statusDot');
+        const text = document.getElementById('statusText');
+        try {
+          const res = await fetch(`${FONT_SERVER}/api/fonts`, { method: 'HEAD', mode: 'cors' });
+          if (res.ok) {
+            dot.className = 'w-2 h-2 rounded-full bg-green-400';
+            text.textContent = '字体服务器已连接';
+            loadFonts();
+          } else { throw new Error(); }
+        } catch {
+          dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+          text.textContent = '运行 mtxrun --script server --auto';
+        }
+      }
+
+      async function loadFonts() {
+        try {
+          const res = await fetch(`${FONT_SERVER}/api/fonts`);
+          const data = await res.json();
+          allFonts = data.fonts || {};
+          allFamilies = data.families || {};
+          document.getElementById('statusText').textContent = `已加载 ${Object.keys(allFonts).length} 个字体`;
+          renderAutoTypeConfigs();
+          renderStyleConfig();
+          renderFallbackConfig();
+        } catch (e) { console.error('加载字体失败:', e); }
+      }
+
+      function refreshFonts() { fetch(`${FONT_SERVER}/api/refresh`).then(() => loadFonts()); }
+
+      function switchMode(mode) {
+        currentMode = mode;
+        const btnAuto = document.getElementById('btnAuto');
+        const btnManual = document.getElementById('btnManual');
+        if (mode === 'auto') {
+          btnAuto.className = 'w-full p-2 rounded-lg transition-all mb-2 bg-indigo-50 border-2 border-primary';
+          btnManual.className = 'w-full p-2 rounded-lg transition-all border-2 border-transparent hover:bg-slate-50';
+        } else {
+          btnAuto.className = 'w-full p-2 rounded-lg transition-all mb-2 border-2 border-transparent hover:bg-slate-50';
+          btnManual.className = 'w-full p-2 rounded-lg transition-all border-2 border-primary bg-indigo-50';
+        }
+        document.getElementById('autoMode').classList.toggle('active', mode === 'auto');
+        document.getElementById('manualMode').classList.toggle('active', mode === 'manual');
+        document.getElementById('autoFooter').style.display = mode === 'auto' ? 'flex' : 'none';
+        document.getElementById('manualFooter').style.display = mode === 'manual' ? 'flex' : 'none';
+      }
+
+      function getMathConfigHtml(mode, fallbackValue) {
+        const clearFn = mode === 'auto' ? "clearAutoType('math')" : "clearManualMath()";
+        const fallbackId = mode === 'auto' ? 'auto-math-fallback-regular' : 'math-fallback-regular';
+        const openPicker = mode === 'auto' ? "openFallbackPicker('math', 'regular')" : "openManualFallbackPicker('math', 'regular')";
+        const updateFn = mode === 'auto' ? "updateAutoFallback('math', 'regular', this.value)" : "updateManualFallback('math', 'regular', this.value)";
+        return `
+          <div class="flex gap-2 mb-2">
+            <button onclick="openMathFontPicker('${mode}')" class="px-2 py-1 bg-slate-100 rounded text-xs hover:bg-slate-200">选择数学字体</button>
+            <button onclick="${clearFn}" class="px-2 py-1 bg-slate-100 rounded text-xs hover:bg-slate-200">清除</button>
+          </div>
+          <div class="text-sm font-medium mb-1 mt-2">Fallback 字体（可选）</div>
+          <div class="text-xs text-slate-500 mb-2">点击输入框选择备用字体：</div>
+          <div class="flex items-center gap-2 mb-1.5">
+            <label class="text-xs text-slate-500 w-20">Regular:</label>
+            <input type="text" value="${fallbackValue}" id="${fallbackId}" placeholder="点击选择 fallback 字体"
+              onclick="${openPicker}" onchange="${updateFn}"
+              class="flex-1 px-2 py-1 border border-slate-200 rounded text-xs">
+          </div>
+        `;
+      }
+
+      function renderAutoTypeConfigs() {
+        const container = document.getElementById('autoTypeConfigs');
+        const types = [
+          { key: 'serif', label: 'Serif', icon: 'T' },
+          { key: 'sans', label: 'Sans', icon: 'T' },
+          { key: 'mono', label: 'Mono', icon: 'M' },
+          { key: 'handw', label: 'Handwriting', icon: 'H' },
+          { key: 'math', label: 'Math', icon: '∑' }
+        ];
+
+        let html = '';
+        types.forEach(t => {
+          const config = autoConfig[t.key];
+          let displayName = '';
+          if (t.key === 'math') {
+            displayName = config.family ? (CONTEXT_MATH_FONTS.find(f => f.value === config.family)?.label || config.family) : '点击选择...';
+          } else {
+            displayName = config.family ? (allFamilies[config.family]?.name || config.family) : '点击选择...';
+          }
+          const subfontCount = Object.keys(config.subfonts).filter(k => config.subfonts[k]).length;
+
+          html += `
+        <div class="border border-slate-200 rounded-lg mb-2 overflow-hidden">
+          <div class="p-2.5 bg-slate-50 flex justify-between items-center cursor-pointer hover:bg-indigo-50" onclick="${t.key === 'math' ? `openMathFontPicker('auto')` : `openFamilyPicker('${t.key}')`}">
+            <div>
+              <span class="font-semibold text-sm">${t.icon} ${t.label}</span>
+              <span class="text-xs text-slate-500 ml-2">${displayName}</span>
+            </div>
+            <div class="text-xs text-slate-500">
+              ${t.key !== 'math' && subfontCount > 0 ? `已检测 ${subfontCount} 个样式` : ''}
+              <span class="ml-1">${t.key === 'math' ? '▼' : '▶'}</span>
+            </div>
+          </div>
+          <div id="config-${t.key}" class="p-3 ${t.key === 'math' ? '' : 'hidden'}">
+        `;
+
+          if (t.key === 'math') {
+            html += getMathConfigHtml('auto', autoConfig.math.fallback.regular || '');
+          } else {
+            html += `
+            <div class="flex gap-2 mb-2">
+              <button onclick="openFamilyPicker('${t.key}')" class="px-2 py-1 bg-slate-100 rounded text-xs hover:bg-slate-200">选择字体系列</button>
+              <button onclick="clearAutoType('${t.key}')" class="px-2 py-1 bg-slate-100 rounded text-xs hover:bg-slate-200">清除</button>
+            </div>
+            <div id="subfonts-${t.key}"></div>
+          `;
+          }
+          html += '</div></div>';
+        });
+        container.innerHTML = html;
+      }
+
+      function openMathFontPicker(mode) {
+        pickerTarget = { mode, type: 'math', style: 'regular' };
+        document.getElementById('mathFontModal').classList.add('active');
+        document.getElementById('mathFontSearchInput').value = '';
+        renderMathFontList();
+      }
+
+      function closeMathFontModal() {
+        document.getElementById('mathFontModal').classList.remove('active');
+      }
+
+      function filterMathFonts() {
+        renderMathFontList();
+      }
+
+      function renderMathFontList() {
+        const search = document.getElementById('mathFontSearchInput').value.toLowerCase();
+        let fonts = CONTEXT_MATH_FONTS;
+        if (search) {
+          fonts = fonts.filter(f => f.value.includes(search) || f.label.toLowerCase().includes(search));
+        }
+
+        const list = document.getElementById('mathFontList');
+        if (fonts.length === 0) {
+          list.innerHTML = '<div class="text-center py-4 text-slate-400">未找到数学字体</div>';
+          return;
+        }
+
+        const currentValue = pickerTarget.mode === 'auto' ? autoConfig.math.family : manualConfig.math.regular;
+
+        list.innerHTML = fonts.map(font => `
+        <div onclick="selectMathFont('${font.value}')" 
+          class="px-3 py-2 rounded cursor-pointer hover:bg-slate-100 flex justify-between items-center ${currentValue === font.value ? 'bg-indigo-50 text-primary' : ''}">
+          <span class="font-medium text-sm">${font.label}</span>
+          ${currentValue === font.value ? '<span class="text-xs">✓</span>' : ''}
+        </div>
+      `).join('');
+      }
+
+      function selectMathFont(value) {
+        if (pickerTarget.mode === 'auto') {
+          autoConfig.math.family = value;
+          autoConfig.math.subfonts = { regular: value };
+          renderAutoTypeConfigs();
+        } else {
+          manualConfig.math.regular = value;
+          renderStyleConfig();
+        }
+        closeMathFontModal();
+      }
+
+      function openFamilyPicker(type) {
+        pickerTarget = { type, style: 'family' };
+        document.getElementById('familyModal').classList.add('active');
+        document.getElementById('familySearchInput').value = '';
+        renderFamilyList();
+      }
+
+      function closeFamilyModal() { document.getElementById('familyModal').classList.remove('active'); }
+
+      function filterModalFamilies() { renderFamilyList(); }
+
+      function renderFamilyList() {
+        const search = document.getElementById('familySearchInput').value.toLowerCase();
+        const typeFilter = document.getElementById('familyTypeFilterModal').value;
+        let families = Object.entries(allFamilies);
+        if (search) families = families.filter(([k, v]) => k.includes(search) || (v.name && v.name.toLowerCase().includes(search)));
+        if (typeFilter) families = families.filter(([k, v]) => v.types && v.types.includes(typeFilter));
+        families = families.slice(0, 200);
+
+        const list = document.getElementById('familyList');
+        if (families.length === 0) {
+          list.innerHTML = '<div class="text-center py-4 text-slate-400">未找到字体系列</div>';
+          return;
+        }
+        list.innerHTML = families.map(([key, family]) => `
+        <div onclick="selectFamilyForType('${key}')" class="px-2 py-2 rounded cursor-pointer hover:bg-slate-100 flex justify-between items-center">
+          <span class="font-medium text-sm">${family.name || key}</span>
+          <span class="text-xs text-slate-400">${family.fonts ? family.fonts.length : 0} 样式 · ${(family.types || []).join(', ')}</span>
+        </div>
+      `).join('');
+      }
+
+      async function selectFamilyForType(key) {
+        autoConfig[pickerTarget.type].family = key;
+        try {
+          const res = await fetch(`${FONT_SERVER}/api/subfonts?name=${encodeURIComponent(key)}`);
+          const subfonts = await res.json();
+          if (subfonts && !subfonts.error) {
+            autoConfig[pickerTarget.type].subfonts = subfonts;
+            renderAutoTypeConfigs();
+            renderAutoSubfonts(pickerTarget.type);
+            const configBody = document.getElementById(`config-${pickerTarget.type}`);
+            if (configBody) configBody.classList.remove('hidden');
+          }
+        } catch (e) { console.error('获取子字体失败:', e); }
+        closeFamilyModal();
+      }
+
+      function renderAutoSubfonts(type) {
+        const container = document.getElementById(`subfonts-${type}`);
+        const subfonts = autoConfig[type].subfonts;
+        if (!subfonts || Object.keys(subfonts).length === 0) {
+          container.innerHTML = '<div class="text-slate-500 text-xs">未检测到子字体</div>';
+          return;
+        }
+
+        let html = '<div class="text-xs text-slate-500 mb-2">检测到的样式：</div>';
+        html += '<div class="flex flex-wrap gap-1 mb-3">';
+        ALL_STYLES.forEach(s => {
+          if (subfonts[s]) {
+            html += `<span class="px-2 py-0.5 bg-green-100 text-green-600 rounded text-xs">${STYLE_LABELS[s]}</span>`;
+          }
+        });
+        html += '</div>';
+
+        html += '<div class="text-sm font-medium mb-1 mt-2">Fallback 字体（可选）</div>';
+        html += '<div class="text-xs text-slate-500 mb-2">点击输入框选择备用字体：</div>';
+
+        ALL_STYLES.forEach(s => {
+          if (subfonts[s]) {
+            const fallbackValue = autoConfig[type].fallback[s] || '';
+            html += `
+          <div class="flex items-center gap-2 mb-1.5">
+            <label class="text-xs text-slate-500 w-20">${STYLE_LABELS[s]}:</label>
+            <input type="text" value="${fallbackValue}" id="auto-${type}-fallback-${s}" placeholder="点击选择 fallback 字体"
+              onclick="openFallbackPicker('${type}', '${s}')" onchange="updateAutoFallback('${type}', '${s}', this.value)"
+              class="flex-1 px-2 py-1 border border-slate-200 rounded text-xs">
+          </div>
+          `;
+          }
+        });
+        container.innerHTML = html;
+      }
+
+      function clearAutoType(type) {
+        autoConfig[type] = { family: null, subfonts: {}, fallback: {} };
+        renderAutoTypeConfigs();
+      }
+
+      function clearManualMath() {
+        manualConfig.math = { regular: '', fallback: {} };
+        ALL_STYLES.forEach(s => manualConfig.math.fallback[s] = '');
+        renderStyleConfig();
+      }
+
+      function updateAutoFallback(type, style, value) { autoConfig[type].fallback[style] = value; }
+
+      function openFallbackPicker(type, style) {
+        pickerTarget = { type, style, isFallback: true };
+        document.getElementById('fontModal').classList.add('active');
+        document.getElementById('fontSearchInput').value = '';
+        renderFontList(Object.entries(allFonts));
+      }
+
+      function toggleType(type) {
+        const btn = document.getElementById(`type${type.charAt(0).toUpperCase() + type.slice(1)}`);
+        if (selectedTypes.includes(type)) {
+          if (selectedTypes.length > 1) {
+            selectedTypes = selectedTypes.filter(t => t !== type);
+            btn.className = 'p-2 bg-slate-100 border-2 border-slate-200 rounded-lg text-center hover:border-primary-light';
+          }
+        } else {
+          selectedTypes.push(type);
+          btn.className = 'p-2 bg-indigo-50 border-2 border-primary rounded-lg text-center';
+        }
+      }
+
+      function nextStep(step) {
+        currentStep = step;
+        updateStepIndicator();
+        showStepContent(step);
+        updateFooterButtons();
+      }
+
+      function prevStep(step) {
+        currentStep = step;
+        updateStepIndicator();
+        showStepContent(step);
+        updateFooterButtons();
+      }
+
+      function updateFooterButtons() {
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const generateBtn = document.getElementById('generateBtn');
+
+        prevBtn.classList.toggle('hidden', currentStep === 1);
+        nextBtn.classList.toggle('hidden', currentStep === 3);
+        generateBtn.classList.toggle('hidden', currentStep !== 3);
+
+        if (currentStep === 1) {
+          nextBtn.textContent = '下一步：配置样式';
+        } else if (currentStep === 2) {
+          nextBtn.textContent = '下一步：Fallback';
+        }
+      }
+
+      function updateStepIndicator() {
+        for (let i = 1; i <= 3; i++) {
+          const stepEl = document.getElementById(`step${i}`);
+          if (i < currentStep) {
+            stepEl.className = 'flex-1 p-2 bg-green-50 border-2 border-green-500 rounded text-center text-xs text-green-600';
+          } else if (i === currentStep) {
+            stepEl.className = 'flex-1 p-2 bg-indigo-50 border-2 border-primary rounded text-center text-xs';
+          } else {
+            stepEl.className = 'flex-1 p-2 bg-slate-100 border-2 border-transparent rounded text-center text-xs text-slate-500';
+          }
+        }
+      }
+
+      function showStepContent(step) {
+        document.getElementById('stepContent1').classList.toggle('hidden', step !== 1);
+        document.getElementById('stepContent2').classList.toggle('hidden', step !== 2);
+        document.getElementById('stepContent3').classList.toggle('hidden', step !== 3);
+        if (step === 2) renderStyleConfig();
+        else if (step === 3) renderFallbackConfig();
+      }
+
+      function renderStyleConfig() {
+        const area = document.getElementById('styleConfigArea');
+        let html = '';
+        selectedTypes.forEach(type => {
+          const typeLabel = type === 'handw' ? 'Handwriting' : type === 'math' ? 'Math' : type.charAt(0).toUpperCase() + type.slice(1);
+          const isMath = type === 'math';
+          const displayName = isMath && manualConfig.math.regular
+            ? (CONTEXT_MATH_FONTS.find(f => f.value === manualConfig.math.regular)?.label || manualConfig.math.regular)
+            : '点击选择...';
+
+          html += `
+        <div class="border border-slate-200 rounded-lg mb-2 overflow-hidden">
+          <div class="${isMath ? '' : 'collapsible-header'} p-2.5 bg-slate-50 flex justify-between items-center cursor-pointer hover:bg-indigo-50" ${isMath ? `onclick="openMathFontPicker('manual')"` : `onclick="toggleCollapsible(this)"`}>
+            <div>
+              <span class="font-semibold text-sm">${typeLabel}</span>
+              ${isMath ? `<span class="text-xs text-slate-500 ml-2">${displayName}</span>` : ''}
+            </div>
+            <div class="text-xs text-slate-500">
+              <span class="ml-1">${isMath ? '▼' : '▶'}</span>
+            </div>
+          </div>
+          <div class="${isMath ? '' : 'collapsible-content'} p-3">
+        `;
+          if (type === 'math') {
+            html += getMathConfigHtml('manual', manualConfig[type].fallback.regular || '');
+          } else {
+            ALL_STYLES.forEach(s => {
+              const value = manualConfig[type][s] || '';
+              html += `
+            <div class="grid grid-cols-[100px_1fr_auto] gap-2 items-center mb-2">
+              <label class="text-xs text-slate-500">${STYLE_LABELS[s]}</label>
+              <input type="text" value="${value}" id="${type}-${s}" placeholder="点击选择字体"
+                onclick="openFontPicker('${type}', '${s}')" onchange="updateManualConfig('${type}', '${s}', this.value)"
+                class="px-2 py-1 border border-slate-200 rounded text-xs">
+              ${s === 'regular' ? `<button onclick="autoFillStyles('${type}', true)" class="px-2 py-1 bg-primary text-white rounded text-xs hover:bg-indigo-600">填充</button>` : ''}
+            </div>
+            `;
+            });
+          }
+          html += '</div></div>';
+        });
+        area.innerHTML = html;
+      }
+
+      function toggleCollapsible(header) {
+        header.classList.toggle('expanded');
+        header.nextElementSibling.classList.toggle('expanded');
+      }
+
+      async function autoFillStyles(type, forceOverwrite = false) {
+        const regularFont = document.getElementById(`${type}-regular`)?.value;
+        if (!regularFont) return;
+        const fontInfo = allFonts[regularFont];
+        if (!fontInfo) return;
+        const familyName = fontInfo.familyname;
+        if (!familyName) return;
+        try {
+          const res = await fetch(`${FONT_SERVER}/api/subfonts?name=${encodeURIComponent(familyName.toLowerCase())}`);
+          const subfonts = await res.json();
+          if (subfonts && !subfonts.error) {
+            ALL_STYLES.forEach(s => {
+              if (subfonts[s] && s !== 'regular') {
+                const input = document.getElementById(`${type}-${s}`);
+                if (input && (forceOverwrite || !input.value)) {
+                  input.value = subfonts[s];
+                  manualConfig[type][s] = subfonts[s];
+                }
+              }
+            });
+          }
+        } catch (e) { console.error('自动填充失败:', e); }
+      }
+
+      function renderFallbackConfig() {
+        const area = document.getElementById('fallbackConfigArea');
+        let html = '';
+        selectedTypes.forEach(type => {
+          if (type === 'math') return;
+          const typeLabel = type === 'handw' ? 'Handwriting' : type.charAt(0).toUpperCase() + type.slice(1);
+          html += `
+        <div class="border border-slate-200 rounded-lg mb-2 overflow-hidden">
+          <div class="collapsible-header p-2.5 bg-slate-50 flex justify-between items-center cursor-pointer hover:bg-indigo-50" onclick="toggleCollapsible(this)">
+            <span class="font-medium text-sm">${typeLabel} Fallback</span>
+            <span class="toggle-icon text-xs">▼</span>
+          </div>
+          <div class="collapsible-content p-3">
+        `;
+          ALL_STYLES.forEach(s => {
+            const value = manualConfig[type].fallback[s] || '';
+            html += `
+          <div class="flex items-center gap-2 mb-1.5">
+            <label class="text-xs text-slate-500 w-20">${STYLE_LABELS[s]}:</label>
+            <input type="text" value="${value}" id="${type}-fallback-${s}" placeholder="点击选择 fallback 字体"
+              onclick="openManualFallbackPicker('${type}', '${s}')" onchange="updateManualFallback('${type}', '${s}', this.value)"
+              class="flex-1 px-2 py-1 border border-slate-200 rounded text-xs">
+          </div>
+          `;
+          });
+          html += '</div></div>';
+        });
+        area.innerHTML = html;
+      }
+
+      function updateManualConfig(type, style, value) { manualConfig[type][style] = value; }
+      function updateManualFallback(type, style, value) { manualConfig[type].fallback[style] = value; }
+
+      function openFontPicker(type, style) {
+        pickerTarget = { type, style };
+        document.getElementById('fontModal').classList.add('active');
+        document.getElementById('fontSearchInput').value = '';
+        renderFontList(Object.entries(allFonts));
+      }
+
+      function openManualFallbackPicker(type, style) {
+        pickerTarget = { type, style, isManualFallback: true };
+        document.getElementById('fontModal').classList.add('active');
+        document.getElementById('fontSearchInput').value = '';
+        renderFontList(Object.entries(allFonts));
+      }
+
+      function closeModal() { document.getElementById('fontModal').classList.remove('active'); }
+
+      function filterFonts() {
+        const search = document.getElementById('fontSearchInput').value.toLowerCase();
+        const typeFilter = document.getElementById('fontTypeFilter').value;
+        let fonts = Object.entries(allFonts);
+        if (search) fonts = fonts.filter(([k, v]) => k.toLowerCase().includes(search) || (v.familyname && v.familyname.toLowerCase().includes(search)));
+        if (typeFilter) fonts = fonts.filter(([k, v]) => v.type === typeFilter);
+        renderFontList(fonts.slice(0, 200));
+      }
+
+      function renderFontList(fonts) {
+        const list = document.getElementById('fontList');
+        if (fonts.length === 0) {
+          list.innerHTML = '<div class="text-center py-4 text-slate-400">未找到字体</div>';
+          return;
+        }
+        list.innerHTML = fonts.map(([name, info]) => `
+        <div onclick="selectFont('${name}')" class="px-2 py-2 rounded cursor-pointer hover:bg-slate-100 flex justify-between items-center">
+          <span class="font-medium text-sm">${name}</span>
+          <span class="text-xs text-slate-400">${info.familyname || ''} · ${info.type || ''}</span>
+        </div>
+      `).join('');
+      }
+
+      function selectFont(name) {
+        if (pickerTarget.isFallback) {
+          const input = document.getElementById(`auto-${pickerTarget.type}-fallback-${pickerTarget.style}`);
+          if (input) { input.value = name; input.dispatchEvent(new Event('change')); }
+        } else if (pickerTarget.isManualFallback) {
+          const input = document.getElementById(`${pickerTarget.type}-fallback-${pickerTarget.style}`);
+          if (input) { input.value = name; input.dispatchEvent(new Event('change')); }
+        } else {
+          const input = document.getElementById(`${pickerTarget.type}-${pickerTarget.style}`);
+          if (input) { input.value = name; input.dispatchEvent(new Event('change')); }
+          if (pickerTarget.style === 'regular') setTimeout(() => autoFillStyles(pickerTarget.type), 100);
+        }
+        closeModal();
+      }
+
+      function generateConfig() {
+        if (currentMode === 'auto') generateAutoConfig();
+        else generateManualConfig();
+      }
+
+      function generateAutoConfig() {
+        const name = document.getElementById('configName').value || 'myfonts';
+        const lang = document.getElementById('language').value;
+
+        let config = `\\definefontfeature [${lang}] [default]\n`;
+        config += `\\definefontfeature [boldslanted] [default] [effect={width=0.30,auto=yes,slant=.2}]\n`;
+        config += `\\unprotect\n`;
+        config += `\\starttypescriptcollection[${name}]\n`;
+        config += `  \\definetypescriptprefix [f:${name}] [${lang}]\n\n`;
+
+        const types = ['serif', 'sans', 'mono', 'handw'];
+        types.forEach(type => {
+          const typeConfig = autoConfig[type];
+          if (!typeConfig.family) return;
+          const family = allFamilies[typeConfig.family];
+          if (!family) return;
+          const subfonts = typeConfig.subfonts;
+          const fallbacks = typeConfig.fallback;
+          const typeLabel = type === 'handw' ? 'handwriting' : type;
+          const prefix = type === 'handw' ? 'Handwriting' : type.charAt(0).toUpperCase() + type.slice(1);
+
+          config += `  \\starttypescript [${typeLabel}] [${name}] [\\s!name]\n`;
+          config += `    \\setups[\\s!font:\\s!fallback:\\typescriptone]\n`;
+
+          ALL_STYLES.forEach(s => {
+            const fontName = subfonts[s];
+            const fallback = fallbacks[s];
+            let fallbackStr = fallback ? `,\\s!fallbacks=${name}-${type}-${s}` : '';
+            const styleName = prefix + (s === 'regular' ? '' : s.charAt(0).toUpperCase() + s.slice(1));
+
+            const isItalicStyle = s.includes('italic');
+            const hasHandwriting = autoConfig.handw.family && autoConfig.handw.subfonts[s];
+            const shouldUseHandwriting = (type === 'serif' || type === 'sans') && isItalicStyle && hasHandwriting;
+
+            if (fontName) {
+              if (shouldUseHandwriting) {
+                const handwStyleName = 'Handwriting' + (s === 'regular' ? '' : s.charAt(0).toUpperCase() + s.slice(1));
+                config += `    \\edefinefontsynonym [${styleName}] [${handwStyleName}] [\\s!features=\\typescriptprefix{f:${name}}${fallbackStr}]\n`;
+              } else {
+                config += `    \\definefontsynonym [${styleName}] [\\s!name:${fontName}] [\\s!features=\\typescriptprefix{f:${name}}${fallbackStr}]\n`;
+              }
+            } else if (shouldUseHandwriting) {
+              const handwStyleName = 'Handwriting' + (s === 'regular' ? '' : s.charAt(0).toUpperCase() + s.slice(1));
+              config += `    \\edefinefontsynonym [${styleName}] [${handwStyleName}] [\\s!features=\\typescriptprefix{f:${name}}${fallbackStr}]\n`;
+            }
+          });
+          config += `  \\stoptypescript\n\n`;
+        });
+
+        ALL_STYLES.forEach(s => {
+          types.forEach(type => {
+            const typeConfig = autoConfig[type];
+            if (!typeConfig.family) return;
+            const subfonts = typeConfig.subfonts;
+            const fallbacks = typeConfig.fallback;
+            const fallback = fallbacks[s];
+            const fontName = subfonts[s];
+            if (fallback && fontName) {
+              const prefix = type === 'handw' ? 'Handwriting' : type.charAt(0).toUpperCase() + type.slice(1);
+              const styleName = prefix + (s === 'regular' ? '' : s.charAt(0).toUpperCase() + s.slice(1));
+              config += `  \\definefontfallback [${name}-${type}-${s}] [${styleName}] [\\s!name:${fallback}]\n`;
+            }
+          });
+        });
+
+        config += `\\stoptypescriptcollection\n`;
+        config += `\\protect\n\n`;
+        config += `% ##############################################################################\n`;
+        config += `% #####################         font - define         ##########################\n`;
+        config += `% ##############################################################################\n`;
+        config += `\\starttypescript [${name}]\n`;
+        if (autoConfig.serif.family) config += `    \\definetypeface [${name}] [rm] [serif]       [${name}]\n`;
+        if (autoConfig.sans.family) config += `    \\definetypeface [${name}] [ss] [sans]        [${name}]\n`;
+        if (autoConfig.mono.family) config += `    \\definetypeface [${name}] [tt] [mono]        [${name}]\n`;
+        if (autoConfig.handw.family) config += `    \\definetypeface [${name}] [hw] [handwriting] [${name}]\n`;
+        const mathFont = autoConfig.math.family || 'modern';
+        const mathFallback = autoConfig.math.fallback.regular;
+        config += `    \\definetypeface [${name}] [mm] [math]        [${mathFont}] [default]\n`;
+        if (mathFallback) {
+          config += `    \\definefontfallback [${name}-math-fallback] [MathRoman] [\\s!name:${mathFallback}]\n`;
+        }
+        config += `\\stoptypescript\n\n`;
+        config += `\\definefontalternative[LF]\n`;
+        config += `\\definefontalternative[LI]\n`;
+        config += `\\definefontalternative[MF]\n`;
+        config += `\\definefontalternative[MI]\n`;
+
+        const bodyfontTypes = [
+          { type: 'serif', label: 'rm', prefix: 'Serif' },
+          { type: 'sans', label: 'ss', prefix: 'Sans' },
+          { type: 'mono', label: 'tt', prefix: 'Mono' },
+          { type: 'handw', label: 'hw', prefix: 'Handwriting' }
+        ];
+
+        bodyfontTypes.forEach(bt => {
+          if (!autoConfig[bt.type].family) return;
+          config += `\\definebodyfont [default] [${bt.label}]\n`;
+          config += `   [LF=${bt.prefix}Light        sa 1,\n`;
+          config += `    LI=${bt.prefix}LightItalic  sa 1,\n`;
+          config += `    tf=${bt.prefix}             sa 1,\n`;
+          config += `    it=${bt.prefix}Italic       sa 1,\n`;
+          config += `    MF=${bt.prefix}Medium       sa 1,\n`;
+          config += `    MI=${bt.prefix}MediumItalic sa 1,\n`;
+          config += `    bf=${bt.prefix}Bold         sa 1,\n`;
+          config += `    bi=${bt.prefix}BoldItalic   sa 1,\n`;
+          config += `    sl=${bt.prefix}Slanted      sa 1,\n`;
+          config += `    bs=${bt.prefix}BoldSlanted  sa 1,\n`;
+          config += `    sc=${bt.prefix}Caps         sa 1]\n`;
+        });
+
+        config += `\n\\usetypescript[${name}]\n`;
+        config += `\\setupbodyfont[${name}]\n`;
+        document.getElementById('output').textContent = config;
+      }
+
+      function generateManualConfig() {
+        const name = document.getElementById('configName').value || 'myfonts';
+        const lang = document.getElementById('language').value;
+
+        let config = `\\definefontfeature [${lang}] [default]\n`;
+        config += `\\definefontfeature [boldslanted] [default] [effect={width=0.30,auto=yes,slant=.2}]\n`;
+        config += `\\unprotect\n`;
+        config += `\\starttypescriptcollection[${name}]\n`;
+        config += `  \\definetypescriptprefix [f:${name}] [${lang}]\n\n`;
+
+        selectedTypes.forEach(type => {
+          if (type === 'math') return;
+          const regular = document.getElementById(`${type}-regular`)?.value;
+          if (!regular) return;
+          const typeLabel = type === 'handw' ? 'handwriting' : type;
+          const prefix = type === 'handw' ? 'Handwriting' : type.charAt(0).toUpperCase() + type.slice(1);
+
+          config += `  \\starttypescript [${typeLabel}] [${name}] [\\s!name]\n`;
+          config += `    \\setups[\\s!font:\\s!fallback:\\typescriptone]\n`;
+
+          ALL_STYLES.forEach(s => {
+            const fontEl = document.getElementById(`${type}-${s}`);
+            const fontName = fontEl?.value;
+            const fallbackEl = document.getElementById(`${type}-fallback-${s}`);
+            const fallback = fallbackEl?.value;
+            let fallbackStr = fallback ? `,\\s!fallbacks=${name}-${type}-${s}` : '';
+            const styleName = prefix + (s === 'regular' ? '' : s.charAt(0).toUpperCase() + s.slice(1));
+
+            const isItalicStyle = s.includes('italic');
+            const hasHandwriting = selectedTypes.includes('handw') && document.getElementById(`handw-${s}`)?.value;
+            const shouldUseHandwriting = (type === 'serif' || type === 'sans') && isItalicStyle && hasHandwriting;
+
+            if (fontName) {
+              if (shouldUseHandwriting) {
+                const handwStyleName = 'Handwriting' + (s === 'regular' ? '' : s.charAt(0).toUpperCase() + s.slice(1));
+                config += `    \\edefinefontsynonym [${styleName}] [${handwStyleName}] [\\s!features=\\typescriptprefix{f:${name}}${fallbackStr}]\n`;
+              } else {
+                config += `    \\definefontsynonym [${styleName}] [\\s!name:${fontName}] [\\s!features=\\typescriptprefix{f:${name}}${fallbackStr}]\n`;
+              }
+            } else if (shouldUseHandwriting) {
+              const handwStyleName = 'Handwriting' + (s === 'regular' ? '' : s.charAt(0).toUpperCase() + s.slice(1));
+              config += `    \\edefinefontsynonym [${styleName}] [${handwStyleName}] [\\s!features=\\typescriptprefix{f:${name}}${fallbackStr}]\n`;
+            }
+          });
+          config += `  \\stoptypescript\n\n`;
+        });
+
+        ALL_STYLES.forEach(s => {
+          selectedTypes.forEach(type => {
+            if (type === 'math') return;
+            const fallbackEl = document.getElementById(`${type}-fallback-${s}`);
+            const fallback = fallbackEl?.value;
+            const fontEl = document.getElementById(`${type}-${s}`);
+            const fontName = fontEl?.value;
+            if (fallback && fontName) {
+              const prefix = type === 'handw' ? 'Handwriting' : type.charAt(0).toUpperCase() + type.slice(1);
+              const styleName = prefix + (s === 'regular' ? '' : s.charAt(0).toUpperCase() + s.slice(1));
+              config += `  \\definefontfallback [${name}-${type}-${s}] [${styleName}] [\\s!name:${fallback}]\n`;
+            }
+          });
+        });
+
+        config += `\\stoptypescriptcollection\n`;
+        config += `\\protect\n\n`;
+        config += `% ##############################################################################\n`;
+        config += `% #####################         font - define         ##########################\n`;
+        config += `% ##############################################################################\n`;
+        config += `\\starttypescript [${name}]\n`;
+        if (selectedTypes.includes('serif') && document.getElementById('serif-regular')?.value) {
+          config += `    \\definetypeface [${name}] [rm] [serif]       [${name}]\n`;
+        }
+        if (selectedTypes.includes('sans') && document.getElementById('sans-regular')?.value) {
+          config += `    \\definetypeface [${name}] [ss] [sans]        [${name}]\n`;
+        }
+        if (selectedTypes.includes('mono') && document.getElementById('mono-regular')?.value) {
+          config += `    \\definetypeface [${name}] [tt] [mono]        [${name}]\n`;
+        }
+        if (selectedTypes.includes('handw') && document.getElementById('handw-regular')?.value) {
+          config += `    \\definetypeface [${name}] [hw] [handwriting] [${name}]\n`;
+        }
+        if (selectedTypes.includes('math')) {
+          const mathFont = manualConfig.math.regular || 'modern';
+          const mathFallback = manualConfig.math.fallback.regular;
+          config += `    \\definetypeface [${name}] [mm] [math]        [${mathFont}] [default]\n`;
+          if (mathFallback) {
+            config += `    \\definefontfallback [${name}-math-fallback] [MathRoman] [\\s!name:${mathFallback}]\n`;
+          }
+        }
+        config += `\\stoptypescript\n\n`;
+        config += `\\definefontalternative[LF]\n`;
+        config += `\\definefontalternative[LI]\n`;
+        config += `\\definefontalternative[MF]\n`;
+        config += `\\definefontalternative[MI]\n`;
+
+        const bodyfontTypes = [
+          { type: 'serif', label: 'rm', prefix: 'Serif' },
+          { type: 'sans', label: 'ss', prefix: 'Sans' },
+          { type: 'mono', label: 'tt', prefix: 'Mono' },
+          { type: 'handw', label: 'hw', prefix: 'Handwriting' }
+        ];
+
+        bodyfontTypes.forEach(bt => {
+          if (!selectedTypes.includes(bt.type)) return;
+          const regular = document.getElementById(`${bt.type}-regular`)?.value;
+          if (!regular) return;
+          config += `\\definebodyfont [default] [${bt.label}]\n`;
+          config += `   [LF=${bt.prefix}Light        sa 1,\n`;
+          config += `    LI=${bt.prefix}LightItalic  sa 1,\n`;
+          config += `    tf=${bt.prefix}             sa 1,\n`;
+          config += `    it=${bt.prefix}Italic       sa 1,\n`;
+          config += `    MF=${bt.prefix}Medium       sa 1,\n`;
+          config += `    MI=${bt.prefix}MediumItalic sa 1,\n`;
+          config += `    bf=${bt.prefix}Bold         sa 1,\n`;
+          config += `    bi=${bt.prefix}BoldItalic   sa 1,\n`;
+          config += `    sl=${bt.prefix}Slanted      sa 1,\n`;
+          config += `    bs=${bt.prefix}BoldSlanted  sa 1,\n`;
+          config += `    sc=${bt.prefix}Caps         sa 1]\n`;
+        });
+
+        config += `\n\\usetypescript[${name}]\n`;
+        config += `\\setupbodyfont[${name}]\n`;
+        document.getElementById('output').textContent = config;
+      }
+
+      function copyOutput() {
+        const text = document.getElementById('output').textContent;
+        navigator.clipboard.writeText(text);
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = '已复制!';
+        setTimeout(() => btn.textContent = '复制', 1500);
+      }
+
+      function downloadConfig() {
+        const text = document.getElementById('output').textContent;
+        const name = document.getElementById('configName').value || 'myfonts';
+        const blob = new Blob([text], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `type-imp-${name}.mkiv`;
+        a.click();
+      }
+
+      function clearForm() {
+        document.getElementById('configName').value = 'myfonts';
+        if (currentMode === 'auto') {
+          ['serif', 'sans', 'mono', 'handw', 'math'].forEach(type => {
+            autoConfig[type] = { family: null, subfonts: {}, fallback: {} };
+          });
+          renderAutoTypeConfigs();
+        } else {
+          ['serif', 'sans', 'mono', 'handw', 'math'].forEach(type => {
+            ALL_STYLES.forEach(s => {
+              manualConfig[type][s] = '';
+              manualConfig[type].fallback[s] = '';
+            });
+          });
+          currentStep = 1;
+          updateStepIndicator();
+          showStepContent(1);
+          renderStyleConfig();
+          renderFallbackConfig();
+          updateFooterButtons();
+        }
+        document.getElementById('output').textContent = '点击"生成配置"按钮...';
+      }
+
+      checkFontServer();
+    </script>
+  </body>
+
+</html>

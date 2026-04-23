@@ -25,8 +25,9 @@
 
 \def\han#1{{\hw #1}}
 
-\definepapertitle[papertitles][secret,title,subject,information,notice]
+\definepapertitle[papertitles]
 \setuppapertitle [papertitles][
+    list={secret,title,subject,information,notice},
     secretstyle=\ss,
     titlestyle=\ssa,
     subjectstyle=\ssb,
@@ -74,7 +75,7 @@
 
   \startchoice
     \citem {$\{2\}$}
-    \citem {$\{2, 3\}$}
+    \citem[*] {$\{2, 3\}$}
     \citem {$\{3, 4\}$}
     \citem {$\{2, 3, 4\}$}
   \stopchoice
@@ -101,6 +102,7 @@
     \m {a}. Our proof of the theorem uses that we can parametrize this curve
     locally around the origin as a function graph \m {u = t} and \m {v =
     f(\inverse{g}\of(t))}.
+    \setupfloats[freeregion=no]
     \startplacefloat[figure][reference=fig:lHospital]
       \enabledirectives[metapost.text.fasttrack]
       \startMPcode[offset=1TS]
@@ -185,7 +187,7 @@
 \startquestion
   已知 $z = 2 - i$，则 $z (\bar{z} + i) = $ \fillin{}
   \startchoice
-    \citem {$6 - 2i$}
+    \citem[*] {$6 - 2i$}
     \citem {$2 - 2i$}
     \citem {$6 + 2i$}
     \citem {$4 + 2i$}
@@ -198,7 +200,7 @@
   \startchoice
     \citem {$2$}
     \citem {$2 \sqrt{2}$}
-    \citem {$4$}
+    \citem[*] {$4$}
     \citem {$4 \sqrt{2}$}
   \stopchoice
 \stopquestion
@@ -210,7 +212,7 @@
     \citem {$\left( 0               , \frac{\pi}{2}  \right)$}
     \citem {$\left( \frac{\pi}{2} , \pi            \right)$}
     \citem {$\left( \pi           , \frac{3\pi}{2} \right)$}
-    \citem {$\left( \frac{3\pi}{2}, 2\pi           \right)$}
+    \citem[*] {$\left( \frac{3\pi}{2}, 2\pi           \right)$}
   \stopchoice
 \stopquestion
 
@@ -219,7 +221,7 @@
   已知 $F_1$，$F_2$ 是椭圆 $C \colon \frac{x^2}{9} + \frac{y^2}{4} = 1$ 的两个焦点，
   点 $M$ 在 $C$ 上，则 $|M F_1| \cdot |M F_2|$ 的最大值为 \fillin{}
   \startchoice
-    \citem {$13$}
+    \citem[*] {$13$}
     \citem {$12$}
     \citem {$9$}
     \citem {$6$}
@@ -231,7 +233,7 @@
   若 $\tan\theta = -2$，则 $\frac{\sin\theta (1 + \sin 2\theta)}{\sin\theta + \cos\theta} = $ \fillin{}
   \startchoice
     \citem {$-\frac{6}{5}$}
-    \citem {$-\frac{2}{5}$}
+    \citem[*] {$-\frac{2}{5}$}
     \citem {$\frac{2}{5}$}
     \citem {$\frac{6}{5}$}
   \stopchoice
@@ -243,7 +245,7 @@
   \startchoice
     \citem {$e^b < a$}
     \citem {$e^a < b$}
-    \citem {$0 < a < e^b$}
+    \citem[*] {$0 < a < e^b$}
     \citem {$0 < b < e^a$}
   \stopchoice
 \stopquestion
@@ -256,7 +258,7 @@
   丙表示事件“两次取出的球的数字之和是 $8$”，
   丁表示事件“两次取出的球的数字之和是 $7$”，则 \fillin{}
   \startchoice
-    \citem {甲与丙相互独立}
+    \citem[*] {甲与丙相互独立}
     \citem {甲与丁相互独立}
     \citem {乙与丙相互独立}
     \citem {丙与丁相互独立}
@@ -267,19 +269,19 @@
 
 % 13.
 \startquestion
-  已知函数 $f(x) = x^3 (a \cdot 2^x - 2^{-x})$ 是偶函数，则 $a = $ \fillin{} 。
+  已知函数 $f(x) = x^3 (a \cdot 2^x - 2^{-x})$ 是偶函数，则 $a = $ \fillin{1} 。
 \stopquestion
 
 % 14.
 \startquestion
   已知 $O$ 为坐标原点，抛物线 $C \colon y^2 = 2px$（$p > 0$）的焦点为 $F$，
   $P$ 为 $C$ 上一点，$PF$ 与 $x$ 轴垂直，$Q$ 为 $x$ 轴上一点，且 $PQ \perp OP$，
-  若 $|FQ| = 6$，则 $C$ 的准线方程为 \fillin{} 。
+  若 $|FQ| = 6$，则 $C$ 的准线方程为 \fillin{2} 。
 \stopquestion
 
 % 15.
 \startquestion
-  函数 $f(x) = |2x - 1| - 2 \ln x$ 的最小值为 \fillin{} 。
+  函数 $f(x) = |2x - 1| - 2 \ln x$ 的最小值为 \fillin{3} 。
 \stopquestion
 
 % 16.
@@ -290,7 +292,7 @@
   它们的面积之和 $S_1 = {240}{dm^2}$，
   对折 $2$ 次共可以得到 {5 x 12}{dm}，{10 x 6}{dm}，
   {20 x 3}{dm} 三种规格的图形，它们的面积之和 $S_2 = {240}{dm^2}$，
-  以此类推。则对折 $4$ 次共可以得到不同规格图形的种数为 \fillin{} ；
+  以此类推。则对折 $4$ 次共可以得到不同规格图形的种数为 \fillin{4} ；
   如果对折 $n$ 次，那么 $\sum_{k=1}^n S_k = $ \fillin{} \unit{dm^2}。
 \stopquestion
 
@@ -1460,7 +1462,7 @@ For well over a hundred years the most influential English dictionary was Samuel
 \isea{（共15小题；每小题1分，满分15分）}
 阅读下面短文，从每题所给的A、B、C、D四个选项中选出最佳选项。
 
-\startclose
+\startclose[point=1]
 I’ve been motivated — and demotivated — by other folks’ achievements all my life.
 
 When I was a teenager, a neighborhood friend 
@@ -1487,6 +1489,7 @@ I’ve
 
 \isea{（共10小题；每小题1.5分，满分15分）}
 阅读下面短文，在空白处填入1个适当的单词或括号内单词的正确形式。
+\setupocitem[point=1.5]
 
 Heatherwick Studio recently built a greenhouse at the edge of the National Trust’s Woolbeding Gardens. This beautiful structure, named Glasshouse, is at the centre of a new garden that shows how the Silk Road influeVLes English gardens even in modern times.
 
@@ -1579,6 +1582,14 @@ Para 2
 
 Four days later, when I was back in Vienna, I called Gunter as promised. He picked me up at the bus station where he had dropped me off four days before. Beaming a warm smile at him, I gave him a big hug the moment I saw him. We chatted happily on the way to the airport. I told him that thanks to his generosity and timely help, everything had gone smoothly. When he stopped his taxi outside the airport, I paid him for the “double car ride”, back and forth from the airport to the bus station, together with a generous tip that he turned down. I also gave him an attractive souvenir I had bought at Prague, which he accepted with delight. We became good friends and kept in touch with each other regularly. I felt blessed to have such a warm-hearted friend like Gunter.
 \stopanswer
+
+
+\chapter{Answer List}
+
+%\typeanswertable[2,5][1][1]
+%\typeanswertable[2,5][2][1]
+%\typeanswertable[11,5][3][1]
+%\typeanswertable[1,5][3][56]
 
 \stoptext
 

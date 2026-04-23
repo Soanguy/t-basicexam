@@ -3,8 +3,7 @@
 % Author: Shueng Mosan
 % Date: 2024-10-24
 \usemodule[memos]
-\usemodule[basicexam]
-%\usemodule[basicexam][mode={teacher,check}]
+\usemodule[basicexam][mode={teacher,check}]
 
 \setupinteraction[state=start]
 \setuptextrules[style=\tf\ss,before=,after=,rulethickness=.5pt]
@@ -585,25 +584,20 @@ This is the main part of the question.
 \subsection{fillin }
 
 \start
+
 \setupquestion[answer=cxxx,showanswer=false,point=2,showpoint=false]
 
 \startquestion[showanswer=false]
   Lorem ipsum dolor sit amet,
   \startproblem
     {\setupfillin[empty=number, n=5]\getbuffer}
-    {\setupfillin[empty=number, n=*]\getbuffer}
     {\setupfillin[empty=number, align=autoright,n=5]\getbuffer}
-    {\setupfillin[empty=number, align=autoright,n=*]\getbuffer}
     
     {\setupfillin[empty=yes,    n=5]\getbuffer}
-    {\setupfillin[empty=yes,    n=*]\getbuffer}
     {\setupfillin[empty=yes,    align=autoright,n=5]\getbuffer}
-    {\setupfillin[empty=yes,    align=autoright,n=*]\getbuffer}
-    
+
     {\setupfillin[empty=none,   n=5]\getbuffer}
-    {\setupfillin[empty=none,   n=*]\getbuffer}
     {\setupfillin[empty=none,   align=autoright,n=5]\getbuffer}
-    {\setupfillin[empty=none,   align=autoright,n=*]\getbuffer}
   \stopproblem
 \stopquestion
 
@@ -619,17 +613,12 @@ This is the main part of the question.
     {\setupfillin[empty=number, n=5]\getbuffer}
     {\setupfillin[empty=yes,    n=5]\getbuffer}
     {\setupfillin[empty=none,   n=5]\getbuffer}
-    {\setupfillin[empty=number, n=*]\getbuffer} 
-    {\setupfillin[empty=yes,    n=*]\getbuffer}
-    {\setupfillin[empty=none,   n=*]\getbuffer}
     {\setupfillin[empty=number, align=autoright,n=5]\getbuffer}
     {\setupfillin[empty=yes,    align=autoright,n=5]\getbuffer}
     {\setupfillin[empty=none,   align=autoright,n=5]\getbuffer}
-    {\setupfillin[empty=number, align=autoright,n=*]\getbuffer}
-    {\setupfillin[empty=yes,    align=autoright,n=*]\getbuffer}
-    {\setupfillin[empty=none,   align=autoright,n=*]\getbuffer}
   \stopproblem
 \stopquestion
+
 \stop
 
 \section{Material}
@@ -749,49 +738,92 @@ of human kindness won the day.
 \typebuffer
 \getbuffer
 
-\section{answer box}
+\section{Answer Output (typeanswer)}
 
-By default, answers are extracted from chapter 0 (i.e., no chapter). Therefore, if answers are located under chapters, you should start from chapter 1.
+The \type{\typeanswer} command is used to output collected answers, supporting multiple output styles and customizable parameters.
+
+\subsection{Core Parameters}
+
+\starttabulate[|l|p|]
+\HL
+\NC Parameter \NC Description \NC\NR
+\HL
+\NC \type{start} \NC Starting question number \NC\NR
+\NC \type{stop} \NC Ending question number \NC\NR
+\NC \type{total} \NC Total number of questions (alternative to stop) \NC\NR
+\NC \type{chapter} \NC Chapter number (default: current chapter) \NC\NR
+\NC \type{alternative} \NC Output style \NC\NR
+\NC \type{rows}, \type{columns} \NC Table rows and columns \NC\NR
+\NC \type{separator} \NC Separator (for text style) \NC\NR
+\NC \type{left}, \type{right} \NC Content to wrap around answers \NC\NR
+\NC \type{before}, \type{after} \NC Content before and after each item \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Predefined Alternatives}
 
 \startbuffer
 % List format (default)
-\typeanswer[start=1,total=5]{}
+\typeanswer[start=1,total=5,alternative=list]{}
 
 % Table format
-\typeanswer[method=table,start=1,total=10,rows=2,columns=5]{}
+\typeanswer[start=1,total=10,alternative=table,rows=2,columns=5]{}
 
-% Table alt format
-\typeanswer[method=table,layout=alt,start=1,total=10,rows=5,columns=2]{}
+% Text format
+\typeanswer[start=1,total=5,alternative=text,separator={\quad},left={\(},right={\)}]{}
+
+% Grid format
+\typeanswer[start=1,total=10,alternative=grid,rows=5,columns=2]{}
 
 % Direct access
-\typeanswer[method=direct]{0-Q-5}
+\typeanswer[alternative=direct]{1-Q-5}
 \stopbuffer
 
 \typebuffer
+
 \getbuffer
+
+\subsection{Custom Alternative}
+
+Users can define custom output styles using \type{\definetypeansweralternative}:
 
 \startbuffer
-% List format variations
-\typeanswer[start=1,total=5]{}
+\unprotect
+\definetypeansweralternative
+  [mycustom]
+  [renderingsetup=\????typeanswerrenderings:mycustom]
 
-\typeanswer[start=1,total=5,separator={; }]{}
+\startsetups[\????typeanswerrenderings:mycustom]
+  \scratchcounter=\numexpr\c_typeanswer_stop-\c_typeanswer_start+1\relax
+  \c_typeanswer_index=\c_typeanswer_start
+  \dorecurse\scratchcounter{%
+    \bf Question \typeanswergetnumber: \typeanswergetanswer (\typeanswergetpoint points)\par
+    \advance\c_typeanswer_index by 1\relax}
+\stopsetups
+\protect
 
-\typeanswer[start=1,total=5,showid=no]{}
+\typeanswer[start=1,total=3,alternative=mycustom]{}
 \stopbuffer
 
 \typebuffer
 
 \getbuffer
 
-\startbuffer
-\typeanswer[method=table,start=1,total=10,rows=2,columns=5]{}
+\subsection{User Commands}
 
-\typeanswer[method=table,layout=alt,start=1,total=10,rows=5,columns=2]{}
-\stopbuffer
+User commands available for customizing alternatives:
 
-\typebuffer
-
-\getbuffer
+\starttabulate[|l|p|]
+\HL
+\NC Command \NC Description \NC\NR
+\HL
+\NC \type{\typeanswercurrentindex} \NC Current index \NC\NR
+\NC \type{\typeanswergetnumber} \NC Get question number \NC\NR
+\NC \type{\typeanswergetanswer} \NC Get answer \NC\NR
+\NC \type{\typeanswergetpoint} \NC Get point value \NC\NR
+\NC \type{\typeanswergetdirect{id}{field}} \NC Directly get specified data \NC\NR
+\HL
+\stoptabulate
 
 \section{Score}
 
@@ -1182,3 +1214,72 @@ Available conversion sets for circled numbers:
 
 
 \stoptext
+
+
+## 统计信息完整汇总
+
+### 一、答案树结构信息
+
+每个题目节点包含以下信息：
+
+| 属性 | 说明 | 获取方式 |
+|------|------|----------|
+| `id` | 节点唯一标识（如 `jobname-1-Q-1`） | `\UnlimitedCurrentID` |
+| `order` | 层级顺序（如 `1`, `2-1`, `2-2-1`） | `\UnlimitedGetAnswer{ID}{order}` |
+| `answer` | 答案内容 | `\UnlimitedGetAnswer{ID}{answer}` |
+| `point` | 当前节点分数（叶子节点有效） | `\UnlimitedGetAnswer{ID}{point}` |
+| `totalpoint` | 该节点及子节点总分 | `\UnlimitedGetAnswer{ID}{totalpoint}` |
+| `totalnumber` | 该节点及子节点总数 | `\UnlimitedGetAnswer{ID}{totalnumber}` |
+| `is_leaf` | 是否为叶子节点 | `\UnlimitedGetAnswer{ID}{is_leaf}` |
+| `depth` | 节点深度（0=根节点） | `\UnlimitedGetDepth` |
+
+### 二、Structure 层级统计
+
+| 命令 | 说明 |
+|------|------|
+| `\UnlimitedStructureTotalNumber{level}{number}` | 指定层级的顶层题目数量 |
+| `\UnlimitedStructureTotalPoint{level}{number}` | 指定层级的总分 |
+| `\UnlimitedStructureLeafNumber{level}{number}` | 指定层级的叶子节点数 |
+| `\UnlimitedCurrentStructureTotalNumber{level}` | 当前层级的顶层题目数量 |
+| `\UnlimitedCurrentStructureTotalPoint{level}` | 当前层级的总分 |
+| `\UnlimitedCurrentStructureLeafNumber{level}` | 当前层级的叶子节点数 |
+
+**参数说明**：
+- `level`: 1=chapter, 2=section, 3=subsection...
+- `number`: 该层级的编号
+
+### 三、节点信息获取
+
+| 命令 | 说明 |
+|------|------|
+| `\UnlimitedCurrentID` | 当前节点 ID |
+| `\UnlimitedGetDepth` | 当前节点深度 |
+| `\UnlimitedGetAnswer{ID}{key}` | 获取指定节点的属性 |
+| `\UnlimitedGetCurrentExtraData{key}` | 获取当前节点的额外数据 |
+
+**key 可选值**：`point`, `answer`, `totalpoint`, `totalnumber`, `is_leaf`, `order`
+
+### 四、额外数据
+
+通过 `\UnlimitedSetExtraData{key}{value}` 设置的额外信息，如：
+- `totalitemnumber`: choice 环境的选项数量
+- `availablecolumns`: 可用列数
+- `itemmaxwidth`: 选项最大宽度
+
+### 五、使用示例
+
+```tex
+% 获取第一章统计
+第一章题目总数: \UnlimitedStructureTotalNumber{1}{1}
+第一章总分: \UnlimitedStructureTotalPoint{1}{1}
+
+% 获取指定题目信息
+题目1分数: \UnlimitedGetAnswer{jobname-1-Q-1}{point}
+题目1答案: \UnlimitedGetAnswer{jobname-1-Q-1}{answer}
+
+% 在题目内部获取当前信息
+\question[point=5,answer=A]{题目
+  当前ID: \UnlimitedCurrentID
+  当前深度: \UnlimitedGetDepth
+}
+```

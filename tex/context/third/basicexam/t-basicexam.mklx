@@ -20,7 +20,6 @@
 %D 定义关键词
 \immutable\def\m!basicexam{basicexam}
 
-\definesystemconstant{close}
 \definesystemconstant{choice}
 \definesystemconstant{solution}
 \definesystemconstant{writing}
@@ -87,7 +86,7 @@
       \csname p_#1_#2\endcsname = 0\relax
     \fi
   \fi
-  \ifnum\csname p_#1_#2\endcsname=1\relax
+  \ifnum\numexpr\csname p_#1_#2\endcsname=1\relax
     \expandafter\firstofoneargument
   \else
     \expandafter\gobbleoneargument
@@ -107,7 +106,7 @@
       \csname p_#1_#2\endcsname = 0\relax
     \fi
   \fi
-  \ifnum\csname p_#1_#2\endcsname=1\relax
+  \ifnum\numexpr\csname p_#1_#2\endcsname=1\relax
     \expandafter\firstoftwoarguments
   \else
     \expandafter\secondoftwoarguments
@@ -256,7 +255,7 @@
     return {
       id = id or "unknown", env_type = env_type or "unknown", depth = depth, parent = parent,
       children = {}, totalnumber = 0, totalpoint = 0, currentpoint = 0,
-      answer = "", order = "", is_leaf = true, child_counter = 0,
+      answer = "", order = "", is_leaf = false, child_counter = 0,
       extra_data = {},
     }
   end
@@ -293,14 +292,22 @@
   end
 
   --[[
-  生成题目序号: 在同一父节点下递增序号
+  生成题目序号: 生成完整的层级路径序号
+  格式: depth=1 → "31", depth=2 → "31-1", depth=3 → "31-1-1"
+  参数: parent - 父节点
   返回: 序号字符串
   ]]
-  local function generate_order()
-    local parent = U.current_node
+  local function generate_order(parent)
     if not parent then return "1" end
     parent.order_counter = (parent.order_counter or 0) + 1
-    return tostring(parent.order_counter)
+    local my_order = tostring(parent.order_counter)
+    if parent.id == "root" then
+      return my_order
+    elseif parent.order and parent.order ~= "" then
+      return parent.order .. "-" .. my_order
+    else
+      return my_order
+    end
   end
 
   --[[
@@ -387,10 +394,11 @@
     if not U.answer_tree then U.init_tree() end
     local parent = U.current_node
     local new_node = create_node(generate_level_id(), env_type, parent.depth + 1, parent)
+    new_node.order = generate_order(parent)
     table.insert(parent.children, new_node)
     U.current_node = new_node
     table.insert(U.level_stack, new_node)
-    report("Pushed level %d: %s (%s)", new_node.depth, new_node.id, env_type)
+    report("Pushed level %d: %s (%s), order=%s", new_node.depth, new_node.id, env_type, new_node.order)
   end
 
   --[[
@@ -404,24 +412,22 @@
   function U.add_scored_answer(answer, point)
     if not U.current_node or #U.current_node.children > 0 then return end
     
+    local is_first_time = not U.current_node.is_leaf
+    
     if U.current_node.is_leaf then
       local old_pt = U.current_node.currentpoint
       U.current_node.currentpoint = 0
       U.current_node.answer = ""
-      U.current_node.order = ""
-      U.current_node.order_counter = 0
-      update_ancestors(U.current_node, -old_pt, old_pt > 0 and -1 or 0)
+      update_ancestors(U.current_node, -old_pt, 0)
     end
     
-    local order = generate_order()
     local pt = tonumber(point) or 0
     U.current_node.answer = answer or ""
     U.current_node.currentpoint = pt
-    U.current_node.order = order
     U.current_node.is_leaf = true
-    update_ancestors(U.current_node, pt, pt > 0 and 1 or 0)
+    update_ancestors(U.current_node, pt, is_first_time and 1 or 0)
     save_to_dataset(U.current_node)
-    report("Added answer: %s, point=%.1f, order=%s", answer, pt, order)
+    report("Added answer: %s, point=%.1f, order=%s", answer, pt, U.current_node.order)
   end
 
   --[[
@@ -457,8 +463,6 @@
       node.is_leaf = false
       node.currentpoint = 0
       node.answer = ""
-      node.order = ""
-      node.order_counter = 0
       
       local new_total, new_num = 0, 0
       for _, child in ipairs(node.children) do
@@ -547,6 +551,94 @@
     elseif key == "answer" then context(d.answer)
     elseif key == "is_leaf" then context(d.is_leaf and "true" or "false")
     elseif key == "totalnumber" then context(d.totalnumber or 0)
+    elseif key == "order" then context(d.order or "")
+    end
+  end
+
+  --[[
+  获取指定 structure level 的统计信息
+  参数: 
+    level - structure level (1=chapter, 2=section, etc.)
+    number - 该层级的编号
+  返回: {totalnumber, totalpoint, leafnumber}
+  ]]
+  function U.get_structure_stats(level, number)
+    local jobname = tex.jobname or "unknown"
+    local prefix
+    if level == 1 then
+      prefix = string.format("%s-%d-Q-", jobname, number)
+    else
+      prefix = string.format("%s-", jobname)
+      local sectiondata = structures.sectiondata
+      if sectiondata then
+        for _, data in ipairs(sectiondata) do
+          if data.numberdata and data.numberdata.numbers then
+            local nums = data.numberdata.numbers
+            if nums[level] == number then
+              local ref = nums[2] or nums[1]
+              prefix = string.format("%s-%d-", jobname, ref)
+              break
+            end
+          end
+        end
+      end
+    end
+    
+    local stats = {totalnumber = 0, totalpoint = 0, leafnumber = 0}
+    
+    local function count_node(node)
+      if node.id and prefix and node.id:find(prefix, 1, true) then
+        if node.parent and node.parent.id == "root" then
+          stats.totalnumber = stats.totalnumber + 1
+          stats.totalpoint = stats.totalpoint + node.totalpoint
+          if node.is_leaf then
+            stats.leafnumber = stats.leafnumber + 1
+          end
+        end
+      end
+      for _, child in ipairs(node.children) do count_node(child) end
+    end
+    
+    if U.answer_tree then count_node(U.answer_tree) end
+    return stats
+  end
+
+  --[[
+  获取当前 structure 的统计信息
+  参数: level - structure level (1=chapter, 2=section, etc.)
+  返回: {totalnumber, totalpoint, leafnumber}
+  ]]
+  function U.get_current_structure_stats(level)
+    local sectiondata = structures.sections.current()
+    if sectiondata and sectiondata.numberdata and sectiondata.numberdata.numbers then
+      local numbers = sectiondata.numberdata.numbers
+      local number = numbers[level] or numbers[2] or numbers[1]
+      if number then
+        return U.get_structure_stats(level, tonumber(number) or 0)
+      end
+    end
+    return {totalnumber = 0, totalpoint = 0, leafnumber = 0}
+  end
+
+  --[[
+  TeX接口: 获取 structure 统计
+  参数:
+    level - structure level (1=chapter, 2=section)
+    number - 该层级的编号 (可选，不提供则使用当前 structure)
+    key - 要获取的属性 (totalnumber/totalpoint/leafnumber)
+  ]]
+  function U.tex_get_structure(level, number, key)
+    local stats
+    if number and number ~= "" then
+      stats = U.get_structure_stats(tonumber(level) or 1, tonumber(number) or 0)
+    else
+      stats = U.get_current_structure_stats(tonumber(level) or 1)
+    end
+    report("Structure stats (level=%s, number=%s): totalnumber=%s, totalpoint=%s, leafnumber=%s", 
+      level, number or "current", stats.totalnumber, stats.totalpoint, stats.leafnumber)
+    if key == "totalnumber" then context(stats.totalnumber)
+    elseif key == "totalpoint" then context(stats.totalpoint)
+    elseif key == "leafnumber" then context(stats.leafnumber)
     end
   end
 
@@ -569,16 +661,50 @@
   TeX接口: UnlimitedDebug()
   ]]
   function U.debug_tree()
-    report("========== Answer Tree ==========")
-    local function show(node, depth)
-      local indent = string.rep("  ", depth)
-      report("%s[%d] %s: order=%s, answer=%s, point=%.1f, total=%d/%.1f",
-        indent, node.depth, node.id, node.order, node.answer,
-        node.currentpoint, node.totalnumber, node.totalpoint)
-      for _, child in ipairs(node.children) do show(child, depth + 1) end
+    local function truncate(str, max_len)
+      if not str or str == "" then return string.rep(" ", max_len) end
+      str = tostring(str)
+      if #str > max_len then
+        return string.sub(str, 1, max_len - 3) .. "..."
+      else
+        return str .. string.rep(" ", max_len - #str)
+      end
     end
-    if U.answer_tree then show(U.answer_tree, 0) end
-    report("=================================\n")
+    
+    local function format_num(num, width)
+      local str = string.format("%.1f", num or 0)
+      if #str > width then
+        str = string.sub(str, 1, width)
+      end
+      return string.rep(" ", width - #str) .. str
+    end
+    
+    local function show(node, depth, is_last, prefix)
+      if node.depth == 0 then
+        report("Answer Tree")
+        report("────────────────────────────────────────────────────────────────────────────────")
+      else
+        local connector = is_last and "└── " or "├── "
+        local order_str = truncate(node.order, 8)
+        local answer_str = truncate(node.is_leaf and node.answer or "", 15)
+        local point_str = format_num(node.is_leaf and node.currentpoint or 0, 5)
+        local total_str = format_num(node.totalpoint, 5)
+        local num_str = string.format("%2d", node.totalnumber or 0)
+        
+        report("%s%s%s│ ans:%s│ pt:%s│ tot:%s│ n:%s",
+          prefix, connector, order_str, answer_str, point_str, total_str, num_str)
+      end
+      
+      local child_prefix = prefix .. (node.depth == 0 and "" or (is_last and "    " or "│   "))
+      for i, child in ipairs(node.children) do
+        show(child, depth + 1, i == #node.children, child_prefix)
+      end
+    end
+    
+    if U.answer_tree then 
+      show(U.answer_tree, 0, true, "")
+    end
+    report("────────────────────────────────────────────────────────────────────────────────")
   end
 
   --[[
@@ -594,7 +720,7 @@
     local function write_node(node)
       if node.depth > 0 then
         file:write(node.depth, T, node.id, T, node.env_type, T,
-          node.is_leaf and node.order or "", T,
+          node.order, T,
           node.is_leaf and node.answer or "", T,
           string.format("%.1f", node.is_leaf and node.currentpoint or 0), T,
           string.format("%.1f", node.totalpoint), T,
@@ -661,8 +787,29 @@
 % 获取节点下题目总数 % 用法: \UnlimitedTotalNumber{Q-1} → 输出数字
 \def\UnlimitedTotalNumber#1{\ctxlua{thirddata.basicexam_unlimited.tex_get("#1", "totalnumber")}}
 
+% 获取节点 order % 用法: \UnlimitedGetOrder{Q-1} → 输出 order
+\def\UnlimitedGetOrder#1{\ctxlua{thirddata.basicexam_unlimited.tex_get("#1", "order")}}
+
 % 获取节点总分 (同DisplayPoint)
 \def\UnlimitedTotalPoint#1{\UnlimitedDisplayPoint{#1}}
+
+% 获取指定 structure level 的题目总数 % 用法: \UnlimitedStructureTotalNumber{1}{1} → 输出数字 (level 1=chapter, number=1)
+\def\UnlimitedStructureTotalNumber#1#2{\ctxlua{thirddata.basicexam_unlimited.tex_get_structure(#1, "#2", "totalnumber")}}
+
+% 获取指定 structure level 的总分 % 用法: \UnlimitedStructureTotalPoint{1}{1} → 输出分数
+\def\UnlimitedStructureTotalPoint#1#2{\ctxlua{thirddata.basicexam_unlimited.tex_get_structure(#1, "#2", "totalpoint")}}
+
+% 获取指定 structure level 的叶子节点数 % 用法: \UnlimitedStructureLeafNumber{1}{1} → 输出数字
+\def\UnlimitedStructureLeafNumber#1#2{\ctxlua{thirddata.basicexam_unlimited.tex_get_structure(#1, "#2", "leafnumber")}}
+
+% 获取当前 structure 的题目总数 % 用法: \UnlimitedCurrentStructureTotalNumber{1} → 输出数字
+\def\UnlimitedCurrentStructureTotalNumber#1{\ctxlua{thirddata.basicexam_unlimited.tex_get_structure(#1, "", "totalnumber")}}
+
+% 获取当前 structure 的总分 % 用法: \UnlimitedCurrentStructureTotalPoint{1} → 输出分数
+\def\UnlimitedCurrentStructureTotalPoint#1{\ctxlua{thirddata.basicexam_unlimited.tex_get_structure(#1, "", "totalpoint")}}
+
+% 获取当前 structure 的叶子节点数 % 用法: \UnlimitedCurrentStructureLeafNumber{1} → 输出数字
+\def\UnlimitedCurrentStructureLeafNumber#1{\ctxlua{thirddata.basicexam_unlimited.tex_get_structure(#1, "", "leafnumber")}}
 
 % 从dataset读取当前节点答案
 \def\UnlimitedCurrentAnswer{\datasetvariable{UnlimitedDataset}{\UnlimitedCurrentID}{answer}}
@@ -691,7 +838,7 @@
 \def\BasicExamPushLevel#parent#current{%
   \edef\currentparentenvironment{#parent}%
   \edef\currentchildenvironment{#current}%
-  \UnlimitedPushLevel{#current}
+  \UnlimitedPushLevel{#current}%
   \c_currentitemnumber = 0\relax
   \initcollectanswer
   \ifx\currentparentenvironment\s!choice
@@ -702,8 +849,9 @@
       \showpointoranswer[#parent][answer]}%
     \else
       \showpointoranswer[#parent][point]%
-      \showpointoranswer[#parent][answer]\fi
-    \UnlimitedAddScoredAnswer{\currentanswer}{\currentpoint}
+      \showpointoranswer[#parent][answer]%
+    \fi
+    \UnlimitedAddScoredAnswer{\currentanswer}{\currentpoint}%
   \fi
 }
 
@@ -854,60 +1002,61 @@
 
 \defineexaminfo[moreexaminfo]    [style=ttx]
 \defineexaminfo[solutionexaminfo]
-\defineexaminfo[questionexaminfo]
+\defineexaminfo[itemgroupexaminfo]
 \defineexaminfo[examitemexaminfo]
 \defineexaminfo[closeexaminfo]    [width=2em]
 
 \tolerant\protected\def\showpointoranswer[#1]#*[#2]%
  {\edef\currentmode{#2}% check point or answer
-  \edef\p_totalpoint {\csname #1parameter\endcsname {totalpoint}}%
-  \edef\p_totalanswer{\csname #1parameter\endcsname{totalanswer}}%
+  \overloaded\expandafter\let\expandafter\p_currentparameter\csname #1parameter\endcsname%
+  \edef\p_totalpoint {\p_currentparameter{totalpoint}}%
+  \edef\p_totalanswer{\p_currentparameter{totalanswer}}%
   \ifx\currentmode\c!answer
-    \ifempty{\csname #1parameter\endcsname\c!showanswer}\else
+    \ifempty{\p_currentparameter\c!showanswer}\else
       \doiftrueelse{#1}\c!showanswer\mode_showanswertrue\mode_showanswerfalse
     \fi
-    \ifempty{\csname #1parameter\endcsname\c!showscript}\else
+    \ifempty{\p_currentparameter\c!showscript}\else
       \doiftrueelse{#1}\c!showscript\mode_showscripttrue\mode_showscriptfalse
     \fi
     \ifmode_showanswer\mode_showscriptfalse\fi
     \ifmode_showscript\mode_showanswerfalse\fi
   \else
-    \ifempty{\csname #1parameter\endcsname\c!showpoint}\else
+    \ifempty{\p_currentparameter\c!showpoint}\else
       \doiftrueelse{#1}\c!showpoint\mode_showpointtrue\mode_showpointfalse
     \fi
   \fi
-  \ifempty{\csname #1parameter\endcsname{showmore}}\else
+  \ifempty{\p_currentparameter{showmore}}\else
     \doiftrueelse{#1}{showmore}\mode_showmoretrue\mode_showmorefalse
   \fi
   \edef\currentpoint{%
-    \expandafter\ifempty{\csname #1parameter\endcsname\c!point}
+    \ifempty{\p_currentparameter\c!point}
       \ifdefined\currentprevpoint\currentprevpoint\fi
-    \else\csname #1parameter\endcsname\c!point\fi}%
-  \edef\currentanswer{\csname #1parameter\endcsname\c!answer}%
+    \else\p_currentparameter\c!point\fi}%
+  \edef\currentanswer{\p_currentparameter\c!answer}%
   \begingroup
-    \p_assigned_currentlabel{#1}{#2}%
+    \expandafter\edef\csname p_current#1#2label\endcsname{\p_currentparameter{#2label}}%
     \expandafter\expandafter
       \expandafter\p_pass_currentlabel
         \expandafter\expandafter
           \expandafter[\csname p_current#1#2label\endcsname]{#2}%
-    \def\left_assignedlabel {\csname  left_assigned#2label\endcsname}%
-    \def\right_assignedlabel{\csname right_assigned#2label\endcsname}%
     \csname ifmode_show#2\endcsname
-      \dousestyleparameter    {\csname #1parameter\endcsname{#2style}}%
-      \dousecolorparameter    {\csname #1parameter\endcsname{#2color}}%
+      \dousestyleparameter    {\p_currentparameter{#2style}}%
+      \dousecolorparameter    {\p_currentparameter{#2color}}%
       \csname\e!start #1examinfo\endcsname
         \left_assignedlabel
           \ifx\currentmode\c!point% if #2 = point
             \iftok{#1}{solution}
               \currentpointforsolution
             \else
-              \UnlimitedCurrentPoint
+              \ifempty\currentpoint\p_totalpoint
+                \else\UnlimitedCurrentPoint\fi
             \fi
           \else% if #2 = answer
             \iftok{#1}{solution}
               \currentprevsolutionanswer
             \else
-              \UnlimitedCurrentAnswer
+              \ifempty\currentanswer\p_totalanswer
+                \else\UnlimitedCurrentAnswer\fi
             \fi
           \fi
         \right_assignedlabel
@@ -917,34 +1066,25 @@
     \xdef\currentprevsolutionanswer{\UnlimitedCurrentAnswer}%
     % moreinfo 没有设置 label 参数，
     \ifx\currentmode\c!answer\ifmode_showmore
-      \dousestyleparameter    {\csname #1parameter\endcsname{moreinfostyle}}%
-      \dousecolorparameter    {\csname #1parameter\endcsname{moreinfocolor}}%
-      \startmoreexaminfo\csname #1parameter\endcsname{moreinfo}\stopmoreexaminfo
+      \dousestyleparameter    {\p_currentparameter{moreinfostyle}}%
+      \dousecolorparameter    {\p_currentparameter{moreinfocolor}}%
+      \startmoreexaminfo\p_currentparameter\endcsname{moreinfo}\stopmoreexaminfo
     \fi\fi
   \endgroup
   \allowbreak
   \ifdefined\currentprevpoint\else
-    \edef\currentprevpoint{\csname #1parameter\endcsname\c!point}\fi
+    \edef\currentprevpoint{\p_currentparameter\c!point}\fi
   \ifdefined\currentprevanswer
-    \edef\currentprevanswer{\csname #1parameter\endcsname\c!answer}\else
-    \edef\currentprevanswer{\csname #1parameter\endcsname\c!answer}%
+    \edef\currentprevanswer{\p_currentparameter\c!answer}\else
+    \edef\currentprevanswer{\p_currentparameter\c!answer}%
   \fi
   \removeunwantedspaces\allowbreak
 }
 
-\def\p_assigned_currentlabel#1#2{%
-  \expandafter\edef%
-    \csname p_current#1#2label%
-      \expandafter\expandafter
-        \expandafter\endcsname
-          \expandafter\expandafter
-            \expandafter{%
-              \csname #1parameter\endcsname{#2label}}}
-
 \def\p_pass_currentlabel[#1]{\p_assign_currentlabel[#1,,]}
 \def\p_assign_currentlabel[#1,#2,#3]#4%
- {\expandafter\def\csname  left_assigned#4label\endcsname{#1}%
-  \expandafter\def\csname right_assigned#4label\endcsname{#2}}
+ {\def\left_assignedlabel {#1}%
+  \def\right_assignedlabel{#2}}
 
 \def\correct#1{#1\collectanswer{#1}}%定义可以收集答案的命令，该命令将会累积收集答案
 
@@ -1066,142 +1206,92 @@
   \startitemgroup[env!#1][\p_option]%
 }
 
-\installnamespace          {question}
-\installcommandhandler \????question  {question}  \????question
-
-\appendtoks
-  \frozen\instance\protected\edefcsname        \currentquestion\endcsname{\directnamedquestion[\currentquestion]}%
-  \frozen\instance\protected\edefcsname\e!start\currentquestion\endcsname{\startnamedquestion [\currentquestion]}%
-  \frozen\instance\protected\edefcsname\e!stop \currentquestion\endcsname{\stopnamedquestion}%
-  \edef\c!questioname{\ifempty\currentquestion question\else\currentquestion\fi}
-  \defineitemgroup[env!\c!questioname]% 每次都新建一个 itemgroup 来避免设置之间的冲突
-\to \everydefinequestion
-
-\appendtoks
-    \edef\c!questioname{\ifempty\currentquestion question\else\currentquestion\fi}
-    \setupitemgroup[env!\c!questioname][env!question]
-\to \everysetupquestion
-
-\let\strc_question_normal_setup\setupquestion
-
-\permanent\overloaded\tolerant\protected\def\setupquestion[#S#category]#spacer[#S#levels]#spacer[#S#options]#spacer[#S#settings]%
-% category level|each options|settings settings|options
-  {\ifarguments% nothing to set up
-  \or
-    \edef\strc_question_setup_what{#levels}%
-    \edef\strc_itemgroups_setup_what{#levels}%
-    \strc_question_normal_setup  [#category]% == settings
-    \edef\c!questioname{\ifempty\currentquestion question\else\currentquestion\fi}
-    \ifhastok={#category}%
-      \setupitemgroup[env!\c!questioname][1][#category]\else
-      \setupitemgroup[env!\c!questioname][1][\c!option={#category}]\fi
-  \or
-    \edef\strc_question_setup_what{#levels}%
-    \edef\strc_itemgroups_setup_what{#levels}%
-    \strc_question_setup_each{#category}{#levels}%
-    \ifhastok={#levels}%
-      \setupitemgroup[env!\c!questioname][1][\c!option={#category},#levels]\else
-      \setupitemgroup[env!\c!questioname][1][\c!option={#levels}]\fi
-  \or
-    \edef\strc_question_setup_what{#levels}%
-    \edef\strc_itemgroups_setup_what{#levels}%
-    \ifx\strc_question_setup_what\v!each
-      \strc_question_setup_each{#category}{#options}%
-    \else
-      \strc_question_setup_list{#levels}{#category}{#options}%
+\permanent\tolerant\protected\def\startnamedquestion[#S#category]#spacer[#S#options]#spacer[#S#settings]%
+  {\begingroup % (1)
+    \nofarguments\lastarguments
+    \cdef\currentitemgroup{#category}% no nested mixing of itemgroups
+    \let\currentparentitemgroup\currentitemgroup
+    \global\advanceby\c_strc_itemgroups_nesting\plusone
+    \def\currentitemlevel{\the\c_strc_itemgroups_nesting}%
+    \expanded{\chaintocurrentitemgroup{\currentparentitemgroup:\currentitemlevel}}%
+    \cdef\currentitemgroup{\currentparentitemgroup:\currentitemlevel}%
+    \edef\p_itemgroups_options{\itemgroupparameter\c!option}%
+    \lettonothing\p_itemgroups_extra_options
+    \ifcase\nofarguments
+      \strc_itemgroups_start_indeed{}%
+    \or
+      \strc_itemgroups_start_indeed{}%
+    \or
+      \ifhastok={#options}%
+        \strc_itemgroups_start_indeed{#options}%
+      \else
+        \edef\p_itemgroups_extra_options{#options}%
+        \strc_itemgroups_start_indeed{}%
+      \fi
+    \or
+       \ifhastok={#options}%
+        \strc_itemgroups_start_indeed{#options}%
+      \else
+        \edef\p_itemgroups_extra_options{#options}%
+        \strc_itemgroups_start_indeed{#settings}%
+      \fi
     \fi
-    \ifchknum\detokenize{#levels}\or
-      \setupitemgroup[env!\c!questioname][#levels][#category][#options]\else
-      \setupitemgroup[env!\c!questioname][#category][#options]\fi
-  \or
-    \edef\strc_question_setup_what{#levels}%
-    \edef\strc_itemgroups_setup_what{#levels}%
-    \ifx\strc_question_setup_what\v!each
-      \strc_question_setup_each{#category}{#options}%
-      \strc_question_setup_each{#category}{#settings}%
-    \else
-      \strc_question_setup_list{#levels}{#category}{#options}%
-      \strc_question_setup_list{#levels}{#category}{#settings}%
+    \edef\currentexamenvironment%
+      {\iftok{\itemgroupparameter\c!class}{\s!problem}\s!problem
+        \else
+          \iftok{\itemgroupparameter\c!class}{\s!writing}\s!writing
+          \else
+            question\fi\fi}%
+    \doiftrue{itemgroup}\c!reset{\setcounter[itemgroup:env!#1][0]}%
+    \ifx\currentexamenvironment\s!problem\else
+      \item[\itemgroupparameter\c!reference]%
+      \BasicExamPushLevel{itemgroup}\currentexamenvironment
     \fi
-    \setupitemgroup[env!\c!questioname][#levels][#options][#settings]%
-  \fi}
+    \useitemgroupstyleandcolor\c!textstyle\c!textcolor
+    \save_question_order
+}
 
-\def\strc_question_setup_each#category#whatever%
-  {\ifhastok={#whatever}%
-       \strc_question_normal_setup[#category][#whatever]%
-       %% 这里有一个问题在于 \setupquestion[A][key=value] 不生效
-       %% 但是如果修改成为   \setupquestion[question][key=value]就会生效
-   \else
-     \strc_question_normal_setup[#category][\c!option={#whatever}]%
-   \fi}
-
-\def\strc_question_setup_list_level_a#category#whatever#level%
-  {\ifchknum\detokenize{#level}\or
-    \strc_question_normal_setup[#category:#level][#whatever]%
-   \or
-    \strc_question_normal_setup[#category:1][\c!option={#level},#whatever]%
-   \fi\edef\c!questioname{#category}}
-
-\def\strc_question_setup_list_level_b#category#whatever#level%
-  {\strc_question_normal_setup[#category:#level][\c!option={#whatever}]%
-   \edef\c!questioname{#category}}
-
-\def\strc_question_setup_list#subcategories#category#whatever%
-  {\ifhastok={#whatever}%
-      \processcommalist[#subcategories]{\strc_question_setup_list_level_a{#category}{#whatever}}%
-    \else
-      \processcommalist[#subcategories]{\strc_question_setup_list_level_b{#category}{#whatever}}%
-    \fi}
+\permanent\tolerant\protected\def\stopnamedquestion{%
+  \ifx\currentexamenvironment\s!problem\else\BasicExamPopLevel\fi
+  \stopitemgroup}
 
 \tolerant\protected\def\directnamedquestion[#1]#*[#S#2]#*[#S#3]#*%
  {\groupedcommand{\startnamedquestion[#1][#2][#3]}{\stopnamedquestion}}
 
-\tolerant\protected\def\startnamedquestion[#1]#*[#S#2]#*[#S#3]#*%
- {\begingroup\nofarguments\lastarguments
-  \cdef\currentquestion{#1}% no nested mixing of itemgroups
-  \let\currentparentquestion\currentquestion
-  \let\c!questioname\currentquestion% 重置 questionname
-  \ifcase\nofarguments
-       \edef\p_option{\questionparameter\c!option}\setupcurrentquestion[]%
-    \or\edef\p_option{\questionparameter\c!option}\setupcurrentquestion[]%
-    \or
-      \ifhastok={#2}%
-        \setupcurrentquestion[#2]%
-        \edef\p_option{\questionparameter\c!option}%
-      \else
-        \edef\p_option{\questionparameter\c!option,#2}%
-      \fi
-    \or
-      \ifhastok={#2}% \question[textcolor=red]
-        \setupcurrentquestion[#2,#3]%
-        \edef\p_option{\questionparameter\c!option}%
-      \else% \question[8][textcolor=red]
-        \setupcurrentquestion[#3]%
-        \edef\p_option{\questionparameter\c!option,#2}%
-      \fi
-  \fi
-  \edef\currentexamenvironment%
-    {\iftok{\questionparameter\c!class}{\s!problem}\s!problem\else
-        \iftok{\questionparameter\c!class}{\s!writing}\s!writing\else
-          \s!question\fi\fi}%
-  \doiftrue\s!question\c!reset{\resetcounter[itemgroup:env!\c!questioname]}%
-  \ifx\currentexamenvironment\s!example
-    \setup_itemgroup_temp[example][#2][#3]\else
-    \setup_itemgroup_temp[\c!questioname][#2][#3]\fi
-  \ifx\currentexamenvironment\s!problem\else
-    \item[\questionparameter\c!reference]%
-    \resetcounter[itemgroup:env!problem]%
-    \BasicExamPushLevel\s!question\currentexamenvironment
-  \fi
-  \usequestionstyleandcolor\c!textstyle\c!textcolor
-  \save_question_order}
-
-\protected\def\stopnamedquestion{%
-  \ifx\currentexamenvironment\s!problem\else
-    \BasicExamPopLevel
-  \fi
-  \stopitemgroup\endgroup
+\permanent\tolerant\protected\def\definequestion[#1][#2][#3]{
+  \nofarguments\lastarguments
+  \ifcase\nofarguments\or\defineitemgroup[env!#1]\or\defineitemgroup[env!#1][#2]\or\defineitemgroup[env!#1][#2][#3]\fi
+  \frozen\instance\protected\edefcsname         #1\endcsname{\directnamedquestion[env!#1]}%
+  \frozen\instance\protected\edefcsname\e!start #1\endcsname{\startnamedquestion [env!#1]}%
+  \frozen\instance\protected\edefcsname\e!stop  #1\endcsname{\stopnamedquestion}%
 }
+
+\permanent\tolerant\protected\def\setupquestion[#S#category]#spacer[#S#levels]#spacer[#S#options]#spacer[#S#settings]% category level|each options|settings settings|options
+  {\ifarguments
+     % nothing to set up
+   \or
+     \edef\strc_itemgroups_setup_what{#levels}%
+     \strc_itemgroups_normal_setup[#category]% == settings \setupquestion[key=value]
+   \or
+     \edef\strc_itemgroups_setup_what{#levels}%
+     \strc_itemgroups_setup_each{env!#category}{#levels}%
+   \or
+     \edef\strc_itemgroups_setup_what{#levels}%
+     \ifx\strc_itemgroups_setup_what\v!each
+       \strc_itemgroups_setup_each{env!#category}{#options}%
+     \else
+       \strc_itemgroups_setup_list{#levels}{env!#category}{#options}%
+     \fi
+   \or
+     \edef\strc_itemgroups_setup_what{#levels}%
+     \ifx\strc_itemgroups_setup_what\v!each
+       \strc_itemgroups_setup_each{env!#category}{#options}%
+       \strc_itemgroups_setup_each{env!#category}{#settings}%
+     \else
+       \strc_itemgroups_setup_list{#levels}{env!#category}{#options}%
+       \strc_itemgroups_setup_list{#levels}{env!#category}{#settings}%
+     \fi
+   \fi}
 
 \defineframed[MiddleFramed] [width=1.5em,rulethickness=0pt,strut=no,height=.8\baselineskip,
                              background=color,backgroundcolor=themecolor,
@@ -1228,10 +1318,13 @@
 
 %\setupquestion[option=ExampleNumberI,width=3em,stopper=,]
 
+\definequestion[question]
+\definequestion[subquestion]
+
 \setupquestion
   [\c!class=question,
   %\c!reset=,
-  %example=,
+  % example=,
   %\c!showpoint=,
   %\c!showanswer=,
   %\c!point=,
@@ -1242,27 +1335,27 @@
   %\c!answercolor=,
   \c!pointlabel={,\examtexts{point}},
   \c!answerlabel={\examtexts{answer},},
-  \c!indenting=no,
-  \c!way=bychapter,
+  \c!indenting=no,]
+
+\setupquestion[question]
+  [\c!way=bychapter,
   \c!numberconversion=tnum,
   \c!option={n,packed,joinedup,continue},]
-
-\definequestion[question]
-\definequestion[subquestion]
 
 \setupquestion[question][2,3]
   [\c!left=(,\c!lefttext=(,
    \c!right=),\c!righttext=),
    \c!stopper=,
    \c!distance=.5em,
-   \c!option={n,packed,joinedup,continue},]
+   \c!option={n,packed,joinedup,continue},
+  ]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{设置 problem 环境 / Problem Environment}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \definequestion[problem][\c!class=\s!problem]
-\def\setupproblem{\setupquestion[problem][2]}
+\def\setupproblem{\setupitemgroup[env!problem][2]}
 
 \setupproblem
   [\c!class=\s!problem,
@@ -1278,26 +1371,24 @@
 
 \definequestion[writing][class=\s!writing]
 \definequestion[subwriting][class=\s!writing]
-\def\setupwriting{\setupquestion[writing]}
-\def\setupsubwriting{\setupquestion[subwriting]}
+\def\setupwriting{\setupitemgroup[env!writing]}
+\def\setupsubwriting{\setupitemgroup[env!subwriting]}
 
 \let\definewriting\definequestion
 
-\setupwriting
+\setupitemgroup[env!writing][each]
   [\c!answer={\examtexts{writing}},
-   \c!answerstyle=\ttx,
-   \c!answercolor=,
-   \c!answerlabel={\examtexts{answer},},
-   \c!pointstyle=\ttx,
-  %\c!pointcolor=,
-   \c!pointlabel={,\examtexts{point}},
    \c!option={n,packed,joinedup,continue},
    totalanswer={\examtexts{writing}},% totalanswer 会覆盖 answer
   ]
 
-\setupsubwriting
-  [answer={\examtexts{writing}},
-   pointlabel={,\examtexts{point}},]
+\setupitemgroup[env!subwriting][2,3]
+  [\c!left=(,\c!lefttext=(,
+   \c!right=),\c!righttext=),
+   \c!stopper=,
+   \c!distance=.5em,
+   \c!option={n,packed,joinedup,continue},
+  ]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{设置 choice 环境}
@@ -1492,6 +1583,9 @@
       \ifdefined\currentprevanswer
         \currentprevanswer\fi
     \else\collectedanswer\fi}%
+  \ifdefined\currentprevpoint\else
+    \def\currentprevpoint{}%
+  \fi
   \UnlimitedAddScoredAnswer{\currentanswer}{\currentprevpoint}%
   \choiceparameter\c!inlineright
   \stopitemgroup
@@ -1505,7 +1599,7 @@
 \setupchoice [\c!answerstyle=\ss,
               \c!answercolor=red,
               \c!inlinechoice=false,
-              \c!point=\questionparameter\c!point,
+              \c!point=\itemgroupparameter\c!point,
               \c!numberconversion=A,
               \c!option={A,packed,joinedup,nowhite,},
                  maxiwidth=.9\hsize,]
@@ -1686,8 +1780,6 @@
   %\c!rulethickness=,
   state=start,
   corner=round,
-  before=\vskip.5\baselineskip\relax,
-  after=\vskip.5\baselineskip\relax,
   background=color,backgroundcolor=transparentcolor,
   rulethickness=1pt]
 
@@ -1714,11 +1806,11 @@
                 %reference=,
                 ]
 
-\tolerant\protected\def\startpitem[#1]#*%
+\tolerant\protected\def\startpitem#*[#1]%
 {\begingroup
     \edef\currentexamitem{pitem}%
     \iffirstargument\setuppitem[#1]\fi%
-    \startitem[\examitemparameter{pitem}{reference}]%
+    \startitem[\namedexamitemparameter\currentexamitem\c!reference]%
       \BasicExamPushLevel\s!examitem\currentexamitem
       \useexamitemstyleandcolor\c!textstyle\c!textcolor
 }
@@ -1730,13 +1822,54 @@
 \defineexamitem[citem]
 \def\setupcitem{\setupexamitem[citem]}
 
+\def\c!fullline{fullline}
+
+\setupcitem[fullline=no,]
+
+\newconditional\c_choice_item_fullline
+\newconditional\c_strc_itemgroups_item_fullline
+
+\installcorenamespace{itemgroupfullline}
+
+\def\strc_itemgroups_collected_store#1\stopitem
+  {\advanceby\c_strc_itemgroups_collected_stored\plusone
+   \defcsname\??itemgroupstack\the\c_strc_itemgroups_collected_stored\endcsname
+     {\startitemgroupitem#1\stopitemgroupitem}%
+   \ifconditional\c_strc_itemgroups_item_fullline
+     \defcsname\??itemgroupfullline\the\c_strc_itemgroups_collected_stored\endcsname{1}%
+   \else
+     \defcsname\??itemgroupfullline\the\c_strc_itemgroups_collected_stored\endcsname{0}%
+   \fi
+   \c_strc_itemgroups_item_fullline\conditionalfalse}
+
+\def\strc_itemgroups_collected_flush_horizontal
+  {\begingroup
+   \scratchcounter\itemgroupparameter\c!n\relax
+   \ifcsname\??itemgroupfullline\the\c_strc_itemgroups_collected_current\endcsname
+     \edef\m_fullline{\csname\??itemgroupfullline\the\c_strc_itemgroups_collected_current\endcsname}%
+   \else
+     \def\m_fullline{0}%
+   \fi
+   \ifnum\numexpr\m_fullline=1\relax
+     \par\noindent\m_strc_itemgroups_collected\par
+   \else
+     \ifnum\numexpr\c_strc_itemgroups_collected_done>\plusone\relax
+       \ifcase\modulonumber\scratchcounter\c_strc_itemgroups_collected_done\relax
+         \hfill\allowbreak
+       \fi
+     \fi
+     \noindent
+     \hbox to {\availablehsize/\scratchcounter}{\m_strc_itemgroups_collected\hss}%
+   \fi
+   \endgroup}
+
 \edef\applychoicestyleandcolor{%
   \ifempty\p_answerstyle
-        \dousestyleparameter{\questionparameter\c!answerstyle}%
-  \else \dousestyleparameter{\choiceparameter  \c!answerstyle}\fi
+        \dousestyleparameter{\itemgroupparameter\c!answerstyle}%
+  \else \dousestyleparameter{\choiceparameter   \c!answerstyle}\fi
   \ifempty\p_answercolor
-        \dousecolorparameter{\questionparameter\c!answercolor}%
-  \else \dousecolorparameter{\choiceparameter  \c!answercolor}\fi
+        \dousecolorparameter{\itemgroupparameter\c!answercolor}%
+  \else \dousecolorparameter{\choiceparameter   \c!answercolor}\fi
 }
 
 \protected\def\check_correct_choice#1#2{%
@@ -1791,13 +1924,26 @@
     \else  \d_width_cit_max = \d_width_cit%
     \fi}%%%% 遞歸計算出最大寬度
 
-\tolerant\protected\def\startcitem[#1]#*[#2]#:#3\stopcitem{% #1 correct answer
+\tolerant\protected\def\startcitem[#S#1]#spacer[#S#2]#:#3\stopcitem{%
   \edef\currentexaminfo{citem}%
-  \ifsecondargument\setupcitem[#2]\fi%                     #2 option
-  \get_citem_text[{#3}]%                                   #3 choice content
-  \edef\p_correctmark_p{#1}\edef\p_correctmark_m{*}%
+  \edef\currentexamitem{citem}%
+  \c_strc_itemgroups_item_fullline\conditionalfalse
+  \edef\p_correctmark_p{}\edef\p_correctmark_m{*}%
+  \ifparameter#1\or
+    \ifhastok={#1}%
+      \setupcurrentexamitem[#1]%
+      \doiftrue\s!examitem\c!fullline{\c_strc_itemgroups_item_fullline\conditionaltrue}%
+    \else
+      \edef\p_correctmark_p{#1}%
+    \fi
+  \fi
+  \ifparameter#2\or
+    \setupcurrentexamitem[#2]%
+    \doiftrue\s!examitem\c!fullline{\c_strc_itemgroups_item_fullline\conditionaltrue}%
+  \fi
+  \get_citem_text[{#3}]%
   \global\advance\c_currentitemnumber by 1\relax
-  \check_correct_choice{#1}{#3}%
+  \check_correct_choice{\p_correctmark_p}{#3}%
   \removeunwantedspaces
   \lettonothing\currentexaminfo}
 
@@ -1809,9 +1955,17 @@
 \def\pitem_indeed[#1]#2{
   \startpitem[#1]{#2}\stoppitem}
 
-\def\citem{\dosingleempty\citem_indeed}
-\def\citem_indeed[#1]#2{%
-  \startcitem[#1]{#2}\stopcitem}
+\def\citem{\dodoubleempty\citem_indeed}
+\def\citem_indeed[#1][#2]#3{%
+  \ifparameter#1\or
+    \ifparameter#2\or
+      \startcitem[#1][#2]{#3}\stopcitem
+    \else
+      \startcitem[#1]{#3}\stopcitem
+    \fi
+  \else
+    \startcitem{#3}\stopcitem
+  \fi}
 
 %D 谨慎使用下面的 fragilecitem，他并不安全。很有可能导致错误
 
@@ -1887,7 +2041,7 @@
     \global\advance\c_fillinnumber by 1\relax
     \def\currentfillinanswer%
      {\usefillinstyleandcolor\c!answerstyle\c!answercolor
-      \toks0={#3}\ifempty\toks0 ???
+      \toks0={#3}\ifempty\toks0 \UnlimitedCurrentAnswer
         \ifdefined\currentprevanswer\currentprevanswer\fi
       \else #3\fi}% 如果 #3 为空，就使用前一個答案
     \edef\p_number{\number\c_fillinnumber}%
@@ -1936,6 +2090,7 @@
 
 \startsetups[\????fillinrenderings:\s!default]
   \edef\currentbar{\fillinparameter\c!rule}%
+  \ifmode_showanswer\setfillinparameter{empty}{none}\fi
   \edef\p_empty{\fillinparameter\c!empty}%
   \edef\p_n{\fillinparameter\c!n}%
   \def\currentfillincontent%
@@ -1949,7 +2104,7 @@
     \fi}
   \start
     \dontleavehmode
-    \let\barparameter\fillinparameter
+    \overloaded\let\barparameter\fillinparameter
     \node_rules_set\currentbar{\currentfillincontent}%
   \stop
 \stopsetups
@@ -2140,7 +2295,7 @@
   \setupmaterial[\currentmaterial][#1]%
   \edef\indicator_type{\namedmaterialparameter\currentmaterial\c!type}%
   \edef\indicator_reset{\namedmaterialparameter\currentmaterial\c!reset}%
-  \def\barparameter{\namedmaterialparameter\currentmaterial}%
+  \overloaded\def\barparameter{\namedmaterialparameter\currentmaterial}%
   \iftok{\indicator_type}{line}\let\indicator_type\underbar
     \else\let\indicator_type\relax\fi
   \usematerialstyleandcolor\c!style\c!color%
@@ -2163,7 +2318,7 @@
   \setupmaterial[\currentmaterial][#1]%
   \edef\indicator_type{\namedmaterialparameter\currentmaterial\c!type}%
   \edef\indicator_reset{\namedmaterialparameter\currentmaterial\c!reset}%
-  \def\barparameter{\namedmaterialparameter\currentmaterial}%
+  \overloaded\def\barparameter{\namedmaterialparameter\currentmaterial}%
   \iftok{\indicator_type}{line}\let\indicator_type\underbar
     \else\let\indicator_type\relax\fi
   \usematerialstyleandcolor\c!style\c!color%
@@ -2332,27 +2487,25 @@
 
 \startluacode
   local close_data = {
-    choices = {},
-    params = {},
-    count = 0,
+    items = {},
     current = 0,
   }
 
   function thirddata.basicexam.close_reset()
-    close_data.choices = {}
-    close_data.params = {}
-    close_data.count = 0
+    close_data.items = {}
     close_data.current = 0
   end
 
   function thirddata.basicexam.close_add_choice(param1, param2, content)
-    close_data.count = close_data.count + 1
-    close_data.choices[close_data.count] = content or ""
-    close_data.params[close_data.count] = {param1 or "", param2 or ""}
+    close_data.items[#close_data.items + 1] = {
+      param1 = param1 or "",
+      param2 = param2 or "",
+      content = content or ""
+    }
   end
 
   function thirddata.basicexam.close_get_count()
-    return close_data.count
+    return #close_data.items
   end
 
   function thirddata.basicexam.close_start_place()
@@ -2365,18 +2518,14 @@
   end
 
   function thirddata.basicexam.close_get_choice()
-    local result = close_data.choices[close_data.current] or ""
-    tex.sprint(result)
+    local item = close_data.items[close_data.current]
+    tex.sprint(item and item.content or "")
   end
 
-  function thirddata.basicexam.close_get_param1()
-    local result = close_data.params[close_data.current] and close_data.params[close_data.current][1] or ""
-    tex.sprint(result)
-  end
-
-  function thirddata.basicexam.close_get_param2()
-    local result = close_data.params[close_data.current] and close_data.params[close_data.current][2] or ""
-    tex.sprint(result)
+  function thirddata.basicexam.close_get_param(idx)
+    local item = close_data.items[close_data.current]
+    if not item then tex.sprint("") return end
+    tex.sprint(idx == 1 and item.param1 or item.param2)
   end
 \stopluacode
 
@@ -2384,7 +2533,7 @@
   \begingroup
     \setupbar[underbar][color=\closeparameter{barcolor},mp=\closeparameter{barstyle}]%
     \startbar[underbar]%
-      \scratchcounter\numexpr8/\plustwo\relax
+      \scratchcounter\numexpr\closeparameter\c!n/\plustwo\relax
       \interwordspacesbefore\scratchcounter
          \zwj\runninghbox{\resetbar{#1}}\zwj
       \interwordspacesafter\scratchcounter
@@ -2397,11 +2546,8 @@
   \advance\c_closetest by 1\relax
   \closebar{\number\c_closetest}%
   \ifempty{#3}%
-    \ifempty{#2}%
-      \ctxlua{thirddata.basicexam.close_add_choice("", "", [==[#1]==])}%
-    \else
-      \ctxlua{thirddata.basicexam.close_add_choice([==[#1]==], "", [==[#2]==])}%
-    \fi
+    \ifempty{#2}\ctxlua{thirddata.basicexam.close_add_choice(nil, nil, [==[#1]==])}%
+    \else\ctxlua{thirddata.basicexam.close_add_choice([==[#1]==], nil, [==[#2]==])}\fi
   \else
     \ctxlua{thirddata.basicexam.close_add_choice([==[#1]==], [==[#2]==], [==[#3]==])}%
   \fi}
@@ -2446,8 +2592,8 @@
       \hbox{\hsize\scratchdimenone\noindent\strut\close_order}%
       \vtop{\hsize=\dimexpr\textwidth-\scratchdimen-\scratchdimenone\relax
         \ctxlua{thirddata.basicexam.close_next_index()}%
-        \edef\close_param_i{\ctxlua{thirddata.basicexam.close_get_param1()}}%
-        \edef\close_param_ii{\ctxlua{thirddata.basicexam.close_get_param2()}}%
+        \edef\close_param_i{\ctxlua{thirddata.basicexam.close_get_param(1)}}%
+        \edef\close_param_ii{\ctxlua{thirddata.basicexam.close_get_param(2)}}%
         \edef\close_content{\ctxlua{thirddata.basicexam.close_get_choice()}}%
         \ifx\close_param_i\empty
           \startchoice\expandafter\processcommacommand\expandafter[\close_content]\docloseitem\stopchoice
@@ -2611,7 +2757,7 @@
 
 \def\score_calc#1{% only show number
   \global\c_stepscore_temp=#1\relax%
-  \ifnum\c_stepscore=0\global\c_stepscore=#1\relax\else%
+  \ifnum\numexpr\c_stepscore=0\relax\global\c_stepscore=#1\relax\else%
   \global\c_stepscore=\numexpr\c_stepscore+\c_stepscore_temp\relax%
   \fi\number\c_stepscore%
 }
@@ -2787,7 +2933,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \installnamespace {typeanswer}
+\installnamespace {typeansweralternative}
+\installnamespace {typeanswerrenderings}
+
 \installcommandhandler \????typeanswer {typeanswer} \????typeanswer
+\installcommandhandler \????typeansweralternative {typeansweralternative} \????typeansweralternative
 
 \appendtoks
   \frozen\instance\protected\edefcsname \currenttypeanswer\endcsname{\directnamedtypeanswer[\currenttypeanswer]}%
@@ -2798,15 +2948,14 @@
    start=1,
    stop=,
    total=,
-   method=list,
    rows=,
    columns=,
-   separator={, },
-   idstyle=\tt,
-   answerstyle=\ss,
-   showid=yes,
-   showanswer=yes,
-   layout=horizontal,
+   separator={ },
+   left=,
+   right=,
+   before=,
+   after=,
+   alternative=list,
    ]
 
 \newcount\c_typeanswer_index
@@ -2814,13 +2963,45 @@
 \newcount\c_typeanswer_start
 \newcount\c_typeanswer_stop
 
-\def\typeanswer_getdata#1{%
+\def\typeanswercurrentindex{\the\c_typeanswer_index}
+
+\def\typeanswergetnumber{%
   \datasetvariable{UnlimitedDataset}%
     {\jobname-\the\c_typeanswer_chapter-Q-\the\c_typeanswer_index}%
-    {#1}}
+    {number}}
 
-\def\typeanswer_getdata_direct#1#2{%
+\def\typeanswergetanswer{%
+  \datasetvariable{UnlimitedDataset}%
+    {\jobname-\the\c_typeanswer_chapter-Q-\the\c_typeanswer_index}%
+    {answer}}
+
+\def\typeanswergetpoint{%
+  \datasetvariable{UnlimitedDataset}%
+    {\jobname-\the\c_typeanswer_chapter-Q-\the\c_typeanswer_index}%
+    {totalpoint}}
+
+\def\typeanswergetdirect#1#2{%
   \datasetvariable{UnlimitedDataset}{\jobname-#1}{#2}}
+
+\definetypeansweralternative
+  [list]
+  [\c!renderingsetup=\????typeanswerrenderings:list]
+
+\definetypeansweralternative
+  [table]
+  [\c!renderingsetup=\????typeanswerrenderings:table]
+
+\definetypeansweralternative
+  [text]
+  [\c!renderingsetup=\????typeanswerrenderings:text]
+
+\definetypeansweralternative
+  [direct]
+  [\c!renderingsetup=\????typeanswerrenderings:direct]
+
+\definetypeansweralternative
+  [grid]
+  [\c!renderingsetup=\????typeanswerrenderings:grid]
 
 \tolerant\protected\def\directnamedtypeanswer[#1]#*[#2]#:#3{%
   \begingroup
@@ -2830,15 +3011,17 @@
   \edef\p_start     {\typeanswerparameter{start}}%
   \edef\p_stop      {\typeanswerparameter{stop}}%
   \edef\p_total     {\typeanswerparameter{total}}%
-  \edef\p_method    {\typeanswerparameter{method}}%
   \edef\p_rows      {\typeanswerparameter{rows}}%
   \edef\p_columns   {\typeanswerparameter{columns}}%
   \edef\p_separator {\typeanswerparameter{separator}}%
-  \edef\p_showid    {\typeanswerparameter{showid}}%
-  \edef\p_showanswer{\typeanswerparameter{showanswer}}%
-  \edef\p_layout    {\typeanswerparameter{layout}}%
-  \ifnum\p_chapter=0
-    \c_typeanswer_chapter=\namedheadnumber{chapter}\relax
+  \edef\p_left      {\typeanswerparameter{left}}%
+  \edef\p_right     {\typeanswerparameter{right}}%
+  \edef\p_before    {\typeanswerparameter{before}}%
+  \edef\p_after     {\typeanswerparameter{after}}%
+  \edef\p_alternative{\typeanswerparameter{alternative}}%
+  \def\p_directarg{#3}%
+  \ifnum\numexpr\p_chapter=0\relax
+    \c_typeanswer_chapter=\numexpr\namedheadnumber{chapter}\relax
   \else
     \c_typeanswer_chapter=\numexpr\p_chapter\relax
   \fi
@@ -2852,69 +3035,63 @@
   \else
     \c_typeanswer_stop=\numexpr\p_stop\relax
   \fi\par
-  \ifx\p_method\v!list
-    \typeanswer_output_list
+  \edef\currenttypeansweralternative{\p_alternative}%
+  \ifcsname\currenttypeansweralternativehash\s!parent\endcsname \else
+    \edef\currenttypeansweralternative{list}%
   \fi
-  \ifx\p_method\v!table
-    \ifx\p_layout{alt}
-      \typeanswer_output_table_alt
-    \else
-      \typeanswer_output_table
-    \fi
-  \fi
-  \iftok{\p_method}{inline}%
-    \typeanswer_output_inline
-  \fi
-  \iftok{\p_method}{direct}%
-    \typeanswer_output_direct{#3}%
-  \fi
+  \edef\p_renderingsetup{\typeansweralternativeparameter\c!renderingsetup}%
+  \directsetup\p_renderingsetup
   \par
   \endgroup}
 
-\def\typeanswer_output_list{%
+\startsetups[\????typeanswerrenderings:list]
+  \startitemize[n,packed]
   \scratchcounter=\numexpr\c_typeanswer_stop-\c_typeanswer_start+1\relax
   \c_typeanswer_index=\c_typeanswer_start
   \dorecurse\scratchcounter{%
-    \doifelse\p_showid\v!yes
-      {{\typeanswerparameter{idstyle}\typeanswer_getdata{number}}}{}%
-    \doifelse\p_showanswer\v!yes
-      {{\typeanswerparameter{answerstyle}\typeanswer_getdata{answer}}}{}%
-    \ifnum\c_typeanswer_index<\c_typeanswer_stop
-      \p_separator
-    \fi
-    \advance\c_typeanswer_index by 1\relax}}
+    \startitem
+    \p_before
+    （\typeanswergetpoint 分）\p_left\typeanswergetanswer\p_right
+    \p_after
+    \stopitem
+    \advance\c_typeanswer_index by 1\relax}
+  \stopitemize
+\stopsetups
 
-\def\typeanswer_output_inline{%
-  \scratchcounter=\numexpr\c_typeanswer_stop-\c_typeanswer_start+1\relax
-  \c_typeanswer_index=\c_typeanswer_start
-  \dorecurse\scratchcounter{%
-    \doifelse\p_showid\v!yes
-      {{\typeanswerparameter{idstyle}\typeanswer_getdata{number}}}{}%
-    \doifelse\p_showanswer\v!yes
-      {{\typeanswerparameter{answerstyle}\typeanswer_getdata{answer}}}{}%
-    \ifnum\c_typeanswer_index<\c_typeanswer_stop
-      \p_separator
-    \fi
-    \advance\c_typeanswer_index by 1\relax}}
-
-\def\typeanswer_output_table{
+\startsetups[\????typeanswerrenderings:table]
   \ifx\p_rows\empty\def\p_rows{1}\fi
   \ifx\p_columns\empty\def\p_columns{5}\fi
   \ctxcommand{typeanswer_table(
     "\jobname",\the\c_typeanswer_chapter,
     \the\c_typeanswer_start,\the\c_typeanswer_stop,
-    "\p_rows","\p_columns")}}
+    "\p_rows","\p_columns")}
+\stopsetups
 
-\def\typeanswer_output_table_alt{
+\startsetups[\????typeanswerrenderings:text]
+  \scratchcounter=\numexpr\c_typeanswer_stop-\c_typeanswer_start+1\relax
+  \c_typeanswer_index=\c_typeanswer_start
+  \dorecurse\scratchcounter{%
+    \p_before
+    \typeanswergetnumber.\p_left\typeanswergetanswer\p_right
+    \ifnum\numexpr\c_typeanswer_index<\c_typeanswer_stop\relax
+      \p_separator
+    \fi
+    \p_after
+    \advance\c_typeanswer_index by 1\relax}
+\stopsetups
+
+\startsetups[\????typeanswerrenderings:direct]
+  \typeanswergetdirect{\p_directarg}{answer}
+\stopsetups
+
+\startsetups[\????typeanswerrenderings:grid]
   \ifx\p_rows\empty\def\p_rows{5}\fi
   \ifx\p_columns\empty\def\p_columns{2}\fi
-  \ctxcommand{typeanswer_table_alt(
+  \ctxcommand{typeanswer_grid(
     "\jobname",\the\c_typeanswer_chapter,
     \the\c_typeanswer_start,\the\c_typeanswer_stop,
-    "\p_rows","\p_columns")}}
-
-\def\typeanswer_output_direct#1{%
-  \typeanswer_getdata_direct{#1}{answer}}
+    "\p_rows","\p_columns")}
+\stopsetups
 
 \def\resetanswerid{\global\c_typeanswer_index=0\relax}
 
@@ -2933,50 +3110,48 @@
     local idx = start_idx
     local prefix = string.format("%s-%d-Q-", jobname, chapter)
     context.bTABLE()
-    for r = 1, rows do
-      context.bTR()
-      for c = 1, cols do
-        if idx <= stop_idx then
-          context.bTD()
-          context(get_dataset_value(prefix .. idx, "number"))
-          context.eTD()
-          idx = idx + 1
-        end
+    context.bTR()
+    for c = 1, cols do
+      if idx <= stop_idx then
+        context.bTD()
+        context(get_dataset_value(prefix .. idx, "number"))
+        context.eTD()
+        idx = idx + 1
       end
-      context.eTR()
-      context.bTR()
-      idx = idx - cols
-      for c = 1, cols do
-        if idx <= stop_idx then
-          context.bTD()
-          context(get_dataset_value(prefix .. idx, "answer"))
-          context.eTD()
-          idx = idx + 1
-        end
-      end
-      context.eTR()
     end
+    context.eTR()
+    idx = start_idx
+    context.bTR()
+    for c = 1, cols do
+      if idx <= stop_idx then
+        context.bTD()
+        context(get_dataset_value(prefix .. idx, "answer"))
+        context.eTD()
+        idx = idx + 1
+      end
+    end
+    context.eTR()
     context.eTABLE()
   end
 
-  commands.typeanswer_table_alt = function(jobname, chapter, start_idx, stop_idx, rows, cols)
+  commands.typeanswer_grid = function(jobname, chapter, start_idx, stop_idx, rows, cols)
     rows = tonumber(rows) or 5
     cols = tonumber(cols) or 2
     local idx = start_idx
     local prefix = string.format("%s-%d-Q-", jobname, chapter)
     context.bTABLE()
     for r = 1, rows do
+      if idx > stop_idx then break end
       context.bTR()
       for c = 1, cols do
-        if idx <= stop_idx then
-          context.bTD()
-          context(get_dataset_value(prefix .. idx, "number"))
-          context.eTD()
-          context.bTD()
-          context(get_dataset_value(prefix .. idx, "answer"))
-          context.eTD()
-          idx = idx + 1
-        end
+        if idx > stop_idx then break end
+        context.bTD()
+        context(get_dataset_value(prefix .. idx, "number"))
+        context.eTD()
+        context.bTD()
+        context(get_dataset_value(prefix .. idx, "answer"))
+        context.eTD()
+        idx = idx + 1
       end
       context.eTR()
     end
@@ -3109,29 +3284,29 @@
 
 % 绘制圆圈
 \startuseMPgraphic{mp:circle}
-numeric w;
-w := OverlayWidth ;  % 获取框架宽度
-draw fullcircle
-  scaled .8w
-  withpen pencircle scaled OverlayLineWidth
-  withcolor OverlayLineColor ;
+  numeric w;
+  w := OverlayWidth ;  % 获取框架宽度
+  draw fullcircle
+    scaled .8w
+    withpen pencircle scaled OverlayLineWidth
+    withcolor OverlayLineColor ;
 \stopuseMPgraphic
 
 % 绘制叉号
 \startuseMPgraphic{mp:cross}
-path p ;
-% 对角线路径（左下到右上）
-p := (-0.35, -0.35) -- (0.35, 0.35) ;
-draw p
-  scaled OverlayWidth
-  withpen pencircle scaled OverlayLineWidth
-  withcolor OverlayLineColor ;
-% 对角线路径（左上到右下）
-p := (-0.35, 0.35) -- (0.35, -0.35) ;  % 左上到右下
-draw p
-  scaled OverlayWidth
-  withpen pencircle scaled OverlayLineWidth
-  withcolor OverlayLineColor ;
+  path p ;
+  % 对角线路径（左下到右上）
+  p := (-0.35, -0.35) -- (0.35, 0.35) ;
+  draw p
+    scaled OverlayWidth
+    withpen pencircle scaled OverlayLineWidth
+    withcolor OverlayLineColor ;
+  % 对角线路径（左上到右下）
+  p := (-0.35, 0.35) -- (0.35, -0.35) ;  % 左上到右下
+  draw p
+    scaled OverlayWidth
+    withpen pencircle scaled OverlayLineWidth
+    withcolor OverlayLineColor ;
 \stopuseMPgraphic
 
 \defineoverlay[circle][\useMPgraphic{mp:circle}]
@@ -3148,82 +3323,6 @@ draw p
    rulethickness=1pt]
 
 \defineframed[symcross][symcircle][background=cross]
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%D \section{Multilingual support}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% 我们重定义了之前的userlanguage，现在可以直接通过language 命令来切换预设好的环境定义
-%% 但是需要注意必须要预先定义好字体才可以正常切换。
-%% 因为修改了 language 的 setups，导致会修改全局的字体设置，因此 basicexam 应该放在 最开始加载
-%% 这样后续如果使用 修改字体的 模块的话，才会生效
-
-\def\lang_set_if_provided#1#2#3{%
-  \ifcsname lang:#1#2\endcsname
-    \expandafter#3\expandafter[\lastnamedcs]%
-  \fi
-}
-
-\permanent\protected\def\defineuserlanguage[#1]#*[#2]%
-  {\getparameters[lang:#1][#2]%
-   \startsetups[lang:#1:setup]%
-      \lang_set_if_provided{#1}{bodyfont}\switchtobodyfont
-      \lang_set_if_provided{#1}{interlinespace}\setuplocalinterlinespace
-      \lang_set_if_provided{#1}{align}\setupalign
-      \lang_set_if_provided{#1}{indenting}\setupindenting
-      \lang_set_if_provided{#1}{whitespace}\setupwhitespace
-      \lang_set_if_provided{#1}{script}\setlocalscript
-      \lang_set_if_provided{#1}{fallbackfont}\setups
-   \stopsetups
-   \setuplanguage[#1][setups=lang:#1:setup,#2]}
-
-\let\setupuserlanguage\defineuserlanguage
-
-\setupuserlanguage[en][
-  bodyfont={modern,\fontstyle},
-  fallbackfont=none,
-  script=latin,
-  patterns=en,
-  align={bottom,width},
-  interlinespace=2.8ex,
-  indenting=none,]
-
-\setupuserlanguage[cn][
-  bodyfont={adobehans,\fontstyle},
-  fallbackfont=none,
-  patterns={zh,en},
-  script=hanzi,
-  interlinespace=1.5em,
-  align={height,hanging,justified},
-  indenting={first,always,2em},]
-
-\setupuserlanguage[hans][
-  bodyfont={adobehans,\fontstyle},
-  fallbackfont=none,
-  patterns={zh,en},
-  script=hanzi,
-  interlinespace=1.5em,
-  align={height,hanging,justified},
-  indenting={first,always,2em},]
-
-\setupuserlanguage[hant][
-  bodyfont={adobehant,\fontstyle},
-  fallbackfont=none,
-  patterns={zh,en},
-  script=hanzi,
-  interlinespace=1.5em,
-  align={height,hanging,justified},
-  indenting={first,always,2em},]
-
-\setupuserlanguage[ja][
-  bodyfont={adobenihon,\fontstyle},
-  fallbackfont=none,
-  patterns={ja,en},
-  script=nihongo,
-  interlinespace=1.5em,
-  align={height,hanging,justified},
-  indenting={first,always,1em},]
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{Extra Command}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -3386,6 +3485,8 @@ draw p
   corner=00,location=high,radius=2pt,align={center,lohi},
   framecolor=themecolor,foregroundcolor=themecolor,foregroundstyle=\ssxx]
 
+\defineframed[lexicaltagframe][lexicalframe]
+
 \defineframed[lexicalinnerframe][lexicalframe]
 \setupframed [lexicalinnerframe][
   offset=none,toffset=2pt,boffset=2pt,
@@ -3439,7 +3540,6 @@ draw p
 \to \everylexicalentry
 
 \setuplexicalentry[
-  \c!language=\currentlanguage,
   \c!style=\definedfont[Serif],
   \c!after=\blank[halfline],
   \c!prefix=no,
@@ -3460,7 +3560,7 @@ draw p
 \tolerant\protected\def\startnamedlexicalentry[#1]#*[#2]#*#:#3%
  {\begingroup
     \cdef\currentlexicalentry{#1}%
-    \setuplexicalentry[#2]%
+    \ifhastok={#2}\setuplexicalentry[#2]\fi
     \the\everylexicalentry
     \def\alias      {\lexicalentryparameter{alias}}%
     \edef\p_accent  {\lexicalentryparameter{accent}}%
@@ -3469,8 +3569,7 @@ draw p
     \edef\p_indexcmd{\lexicalentryparameter{indexcommand}}%
     \edef\p_indexcls{\lexicalentryparameter{indexclass}}%
     \edef\p_indexCLS{grammar}%
-    \language[\lexicalentryparameter\c!language]%
-    \setupindenting[none]%
+    \setupindenting[\lexicalentryparameter\c!indenting]%
     \lexicalentryparameter\c!before
     \uselexicalentrystyleandcolor\c!style\c!color
     \bgroup
@@ -3484,18 +3583,20 @@ draw p
           \incrementcounter[\currentlexicalentry]%
           \convertedcounter[\currentlexicalentry]}%
       \fi
-      \lexicalentryparameter{textcommand}{#3}%
-    \egroup
+      \lexicalentryparameter{entrycommand}{#3}%
+    \egroup\penalty0
     \ifx\p_indexcmd\empty
-      \ifx\p_indexcls\p_indexCLS\grammarindex{#3}\functionindex{\lexicalentryparameter{function}+#3}%
+      \ifx\p_indexcls\p_indexCLS
+        \grammarindex{#3}%
+        \functionindex{\lexicalentryparameter{function}+#3}%
       \else\entryindex{#3}\fi
     \else\lexicalentryparameter{indexcommand}{#3}\fi
     \textreference[#3]{#3}
-    \ifhastok={#2}
-      \processcommacommand[\p_class]{\thinspace\lexicalframe}%
-      \processcommacommand[\p_accent]{\thinspace\lexicalframe[width=\bodyfontsize]}%
-    \else
-      \processcommacommand[#2]{\thinspace\lexicalframe}%
+    \ifhastok={#2}\bgroup
+      \processcommacommand[\p_class]{\penalty0\thinspace\lexicaltagframe}%
+      \processcommacommand[\p_accent]{\penalty0\thinspace\lexicaltagframe[width=\bodyfontsize]}\egroup
+    \else\bgroup
+      \processcommacommand[#2]{\penalty0\thinspace\lexicaltagframe}\egroup
     \fi
     \lexicalentryparameter\c!inbetween}
 
@@ -3503,8 +3604,8 @@ draw p
   \lexicalentryparameter\c!after
   \endgroup}
 
-\definelexicalentry[lexicalentry]  [state=stop]
-\definelexicalentry[lexicalsyntax] [indexclass=grammar]
+\definelexicalentry[lexicalentry]  [state=stop,indenting=none]
+\definelexicalentry[lexicalsyntax] [indexclass=grammar,indenting=none]
 
 \defineitemgroup  [lexicallists]  [levels=4]
 \setupitemgroup   [lexicallists]  [each] [before=,after=,left=,right=,width=1.5em,
@@ -3590,6 +3691,8 @@ draw p
 \stopmode
 
 \startmode[check]
+  \mode_showanswertrue
+  \mode_showpointtrue
   \ctxlua{thirddata.basicexam_unlimited.enable_check()}
 \stopmode
 

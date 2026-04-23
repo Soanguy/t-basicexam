@@ -1048,38 +1048,6 @@
         </cd:assignments>
     </cd:define>
 
-    <cd:define name="assignment-setupuserlanguage">
-        <cd:assignments list="yes">
-            <cd:parameter name="style">
-                <cd:resolve name="value-style"/>
-            </cd:parameter>
-            <cd:parameter name="color">
-                <cd:constant type="cd:color"/>
-            </cd:parameter>
-            <cd:parameter name="bodyfont">
-                <cd:constant type="cd:name"/>
-            </cd:parameter>
-            <cd:parameter name="fallbackfont">
-                <cd:constant type="cd:name"/>
-            </cd:parameter>
-            <cd:parameter name="patterns">
-                <cd:constant type="cd:name"/>
-            </cd:parameter>
-            <cd:parameter name="script">
-                <cd:constant type="cd:name"/>
-            </cd:parameter>
-            <cd:parameter name="interlinespace">
-                <cd:constant type="cd:dimension"/>
-            </cd:parameter>
-            <cd:parameter name="align">
-                <cd:inherit name="setupalign"/>
-            </cd:parameter>
-            <cd:parameter name="indenting">
-                <cd:inherit name="setupindenting"/>
-            </cd:parameter>
-        </cd:assignments>
-    </cd:define>
-
     <cd:define name="assignment-setuplexicalentry">
         <cd:assignments list="yes">
             <cd:parameter name="style">
@@ -1549,6 +1517,7 @@
             <cd:resolve name="argument-text"/>
         </cd:arguments>
     </cd:command>
+
 <!--    <cd:command name="description" generated="yes" variant="example" level="document" category="structure" file="strc-des.mkvi">
         <cd:sequence>
             <cd:variable value="description"/>
@@ -1836,54 +1805,6 @@
         </cd:arguments>
     </cd:command>
 
-    <cd:command name="defineuserlanguage" level="style" category="structure" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:keywords>
-                <cd:constant type="cd:name"/>
-            </cd:keywords>
-            <cd:keywords optional="yes">
-                <cd:constant type="cd:name"/>
-            </cd:keywords>
-            <cd:assignments list="yes" optional="yes">
-                <cd:inherit name="setupuserlanguage"/>
-            </cd:assignments>
-        </cd:arguments>
-    </cd:command>
-
-    <cd:command name="setupuserlanguage" level="style" category="structure" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:keywords list="yes" optional="yes">
-                <cd:constant type="cd:name"/>
-            </cd:keywords>
-            <cd:keywords list="yes" optional="yes">
-                <cd:constant type="cd:name"/>
-            </cd:keywords>
-            <cd:resolve name="assignment-setupuserlanguage"/>
-        </cd:arguments>
-    </cd:command>
-
-    <cd:command name="userlanguage" level="document" category="structure" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:keywords>
-                <cd:constant type="cd:name"/>
-            </cd:keywords>
-            <cd:assignments list="yes" optional="yes">
-                <cd:inherit name="setupuserlanguage"/>
-            </cd:assignments>
-        </cd:arguments>
-    </cd:command>
-
-    <cd:command name="userlanguage" type="environment" level="document" category="structure" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:keywords>
-                <cd:constant type="cd:name"/>
-            </cd:keywords>
-            <cd:assignments list="yes" optional="yes">
-                <cd:inherit name="setupuserlanguage"/>
-            </cd:assignments>
-        </cd:arguments>
-    </cd:command>
-
     <cd:command name="setupwritingbox" level="style" category="structure" file="t-basicexam.mklx">
         <cd:arguments>
             <cd:resolve name="assignment-setupwritingbox"/>
@@ -2044,46 +1965,6 @@
             </cd:parameter>
         </cd:assignments>
     </cd:define>
-
-    <cd:command name="defineuserquestion" level="style" category="structure" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:keywords>
-                <cd:constant type="cd:name"/>
-            </cd:keywords>
-            <cd:keywords optional="yes">
-                <cd:constant type="cd:name"/>
-            </cd:keywords>
-            <cd:assignments list="yes" optional="yes">
-                <cd:inherit name="setupuserquestion"/>
-            </cd:assignments>
-        </cd:arguments>
-    </cd:command>
-
-    <cd:command name="setupuserquestion" level="style" category="structure" keywords="counter" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:keywords list="yes" optional="yes">
-                <cd:constant type="cd:name"/>
-            </cd:keywords>
-            <cd:resolve name="assignment-setupuserquestion"/>
-        </cd:arguments>
-    </cd:command>
-
-    <cd:command name="userquestion" type="environment" level="document" category="structure" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:assignments list="yes" optional="yes">
-                <cd:inherit name="setupuserquestion"/>
-            </cd:assignments>
-        </cd:arguments>
-    </cd:command>
-
-    <cd:command name="useritem" level="document" category="structure" file="t-basicexam.mklx">
-        <cd:arguments>
-            <cd:assignments list="yes" optional="yes">
-                <cd:inherit name="setupuserquestion"/>
-            </cd:assignments>
-            <cd:resolve name="argument-text"/>
-        </cd:arguments>
-    </cd:command>
 
     <cd:command name="definedbquestion" level="style" category="structure" file="t-basicexam.mklx">
         <cd:arguments>

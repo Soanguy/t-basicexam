@@ -13,13 +13,16 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \startmodule[memos]
 \unprotect
+\def\userlanguageparameter#1{\csname lang:\currentlanguage #1\endcsname}
+
 \setupmodule [
               papersize=A4,
               layout=moderate,
               mainlanguage=hans,
-              lineheight=\languageparameter{interlinespace},
-              fallbackfont=\languageparameter{fallbackfont},
-              bodyfont=\languageparameter{bodyfont},
+              language=hans,
+              lineheight=\userlanguageparameter{interlinespace},
+              fallbackfont=\userlanguageparameter{fallbackfont},
+              bodyfont=\userlanguageparameter{bodyfont},
               fontstyle=rm,
               fontsize=11pt,
               textcount=40, heightcount=40, margincount=0,
@@ -28,8 +31,7 @@
               themecolor=,
               chapterstyle=default,
               hdrstyle=,
-              tocstyle=,
-              background=,]
+              tocstyle=,]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \def\errorparameter#1{%
     \writestatus{module error}{!! Something Wrong happened at #1}
@@ -93,6 +95,7 @@
           novel=>\hdr_sty_noveltrue,
        colorful=>\hdr_sty_colorfultrue,
          madsen=>\hdr_sty_madsentrue,
+        kaolike=>\hdr_sty_hoemargintrue,
          hctext=>\hdr_sty_hctexttrue,
          fctext=>\hdr_sty_fctexttrue,
       foemargin=>\hdr_sty_foemargintrue,
@@ -287,34 +290,10 @@
   \resetfontfallback[fallback-hanwboldslanted]
   \resetfontfallback[fallback-hanwcaps]
 \stopsetups
-
-\setuplanguage[en]
-  [script=latin,patterns=en,
-   bodyfont=modern,
-   fallbackfont=none,
-   align={bottom,width},
-   interlinespace=2.8ex,
-   indenting=none,]
-
-\setuplanguage[cn]
-  [script=latin,patterns=en,
-   bodyfont=adobehans,
-   fallbackfont=none,
-   align={bottom,width},
-   interlinespace=2.8ex,
-   indenting=none,]
+\input type-bak-fallbacks.mkiv
 
 \setuplanguage  [hans]
                 [   date={\v!year,年,mm,月,dd,日},
-                  setups={lang:hans},
-                 spacing=packed,
-                patterns={zh,en},
-                  script=hanzi,
-                bodyfont=adobehans,
-           fallbackfont=cormorantlight,
-          interlinespace=1.5em,
-                   align={height,hanging,justified},
-               indenting={first,always,2em},
             leftsentence=——,       rightsentence=——,
          leftsubsentence=——,    rightsubsentence=——,
            leftquotation=「,      rightquotation=」,
@@ -338,15 +317,6 @@
              friday:mnem={周五},   saturday:mnem={周六},
              sunday:mnem={周日}]
 \setuplanguage  [hant] [date={\v!year,年,mm,月,dd,日},
-                  setups={lang:hant},
-                 spacing=packed,
-                patterns={zh,en},
-                  script=hanzi,
-                bodyfont=lihant,
-           fallbackfont=cormorantlight,
-          interlinespace=1.5em,
-                   align={height,hanging,justified},
-               indenting={first,always,2em},
             leftsentence=——,      rightsentence=——,
          leftsubsentence=——,   rightsubsentence=——,
            leftquotation=「,     rightquotation=」,
@@ -370,15 +340,6 @@
              friday:mnem={週五},   saturday:mnem={週六},
              sunday:mnem={週日}]
 \setuplanguage  [ja]  [\c!date={西暦,\v!year,年,mm,月,dd,日},
-                        setups={lang:ja},
-                       spacing=packed,
-                      patterns={ja,en},
-                        script=nihongo,
-                      bodyfont=adobenihon,
-                 fallbackfont=ibmplex,
-                interlinespace=1.5em,
-                         align={height,hanging,justified},
-                     indenting={first,always,1em},
                   leftsentence=——,    rightsentence=——,
                leftsubsentence=——, rightsubsentence=——,
                  leftquotation=「,   rightquotation=」,
@@ -400,28 +361,119 @@
                    friday:mnem={金},  saturday:mnem={土},
                    sunday:mnem={日}]
 
-\input type-bak-fallbacks.mkiv
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%D \section{Multilingual support}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% 我们重定义了之前的userlanguage，现在可以直接通过language 命令来切换预设好的环境定义
+%% 但是需要注意必须要预先定义好字体才可以正常切换。
+%% 因为修改了 language 的 setups，导致会修改全局的字体设置，因此 basicexam 应该放在 最开始加载
+%% 这样后续如果使用 修改字体的 模块的话，才会生效
+
+
+
+\def\lang_set_if_provided#1#2#3{%
+  \ifcsname lang:#1#2\endcsname
+    \expandafter#3\expandafter[\lastnamedcs]%
+  \fi
+}
+
+\permanent\protected\def\defineuserlanguage[#1]#*[#2]%
+  {\getparameters[lang:#1][#2]%
+   \startsetups[lang:#1:setup]%
+    \lang_set_if_provided{#1}{script}\setlocalscript
+    \lang_set_if_provided{#1}{fallbackfont}\setups
+    \lang_set_if_provided{#1}{bodyfont}\switchtobodyfont
+    \lang_set_if_provided{#1}{interlinespace}\setuplocalinterlinespace
+    \lang_set_if_provided{#1}{align}\setupalign
+    \lang_set_if_provided{#1}{indenting}\setupindenting
+    \lang_set_if_provided{#1}{whitespace}\setupwhitespace
+   \stopsetups
+   \setuplanguage[#1][setups=lang:#1:setup,#2]}
+
+\let\setupuserlanguage\defineuserlanguage
+
+\setupuserlanguage[en][
+  bodyfont=modern,
+  fallbackfont=none,
+  script=latin,
+  patterns=en,
+  align={bottom,width},
+  interlinespace=2.8ex,
+  whitespace=big,
+  indenting=none,]
+
+\setupuserlanguage[cn][
+  bodyfont=adobehans,
+  fallbackfont=none,
+  patterns={zh,en},
+  script=hanzi,
+  interlinespace=1.5em,
+  whitespace=none,
+  align={height,hanging,justified},
+  indenting={first,always,2em},]
+
+\setupuserlanguage[hans][
+  bodyfont=adobehans,
+  fallbackfont=fallback:cormorant,
+  patterns={zh,en},
+  script=hanzi,
+  interlinespace=1.5em,
+  whitespace=none,
+  align={height,hanging,justified},
+  indenting={first,always,2em},]
+
+\setupuserlanguage[hant][
+  bodyfont=adobehant,
+  fallbackfont=fallback:cormorant,
+  patterns={zh,en},
+  script=hanzi,
+  interlinespace=1.5em,
+  whitespace=none,
+  align={height,hanging,justified},
+  indenting={first,always,2em},]
+
+\setupuserlanguage[ja][
+  bodyfont=adobenihon,
+  fallbackfont=fallback:ibmplex,
+  patterns={ja,en},
+  script=nihongo,
+  interlinespace=1.5em,
+  whitespace=none,
+  align={height,hanging,justified},
+  indenting={first,always,1em},]
+
+
 \mainlanguage        [\moduleparameter{memos}{mainlanguage}]
-\language            [\moduleparameter{memos}{mainlanguage}]
-\setglobalscript     [\languageparameter{script}]
+\language            [\moduleparameter{memos}{language}]
 \setups{fallback:\moduleparameter{memos}{fallbackfont}}
+\setglobalscript     [\userlanguageparameter{script}]
+% 确保用户指定的 fontsize 已定义
+% 如果 fontsize 未定义，则从 default 环境继承创建
+\edef\m_memos_fontsize{\moduleparameter{memos}{fontsize}}%
+\ifx\m_memos_fontsize\empty\else
+  \normalizebodyfontsize\normalizedfontsize\m_memos_fontsize
+  \ifcsname\??fontbodyknown\normalizedfontsize\endcsname\else
+    \definebodyfontenvironment[\normalizedfontsize]%
+  \fi
+\fi
 \setupbodyfont       [\moduleparameter{memos}{bodyfont},
                       \moduleparameter{memos}{fontstyle},
                       \moduleparameter{memos}{fontsize}]
-\setupalign          [\languageparameter\c!align]%
-\setupwhitespace     [\languageparameter{whitespace}]%
-\setupindenting      [\languageparameter\c!indenting]%
-\setupinterlinespace [line=\languageparameter{interlinespace}]% 必须先于 layout 进行定义。否则 hermes 无法获取 baselineskip
+\setupalign          [\userlanguageparameter\c!align]%
+\setupwhitespace     [\userlanguageparameter{whitespace}]%
+\setupindenting      [\userlanguageparameter\c!indenting]%
+\setupinterlinespace [line=\userlanguageparameter{interlinespace}]% 必须先于 layout 进行定义。否则 hermes 无法获取 baselineskip
 
 \definedelimitedtext [paren]       [location=text]
 \setupdelimitedtext  [paren:1]     [left={\,(\nobreak}, right={\nobreak)\,}]
 \setupdelimitedtext  [paren:2]     [left={\,[\nobreak}, right={\nobreak]\,}]
 \setupdelimitedtext  [paren:3]     [left={\,\{\nobreak}, right={\nobreak\}\,}]
 \setupdelimitedtext  [quotation]   [language=local,repeat=yes,location=paragraph]
-\setupdelimitedtext  [quotation:1] [left=\symbol[leftquotation]\nobreak,
+\setupdelimitedtext  [quotation:1] [left=\penalty0\symbol[leftquotation]\nobreak,
                                     middle=\symbol[leftquotation]\nobreak,
                                     right=\nobreak\symbol[rightquotation]]
-\setupdelimitedtext  [quotation:2] [left=\symbol[leftquote]\nobreak,
+\setupdelimitedtext  [quotation:2] [left=\penalty0\symbol[leftquote]\nobreak,
                                     middle=\symbol[leftquotation]\nobreak,
                                     right=\nobreak\symbol[rightquote]]
 
@@ -437,11 +489,11 @@
 %\def\href#1#2{\useURL[#2][{#2}][][{#1}]\goto{\url[#2]}[url(#1)]}
 %\href{o}{https://www.bilibili.com/video/}
 
-\definedate   [chinese]   [year:cn-d,年,month,day:cn,号]
-\definedate   [default]  [year:n,年,mm,月,dd,日]% 2025年01月11日
-\definedate   [slash] [yy,/,mm,/,dd]%25/01/11
-\definedate   [line]  [yy,-,mm,-,dd]%25-01-11
-\definedate   [yyddmm]   [yy,/,dd,/,mm]%25/11/01
+\definedate   [chinese] [year:cn-d,年,month,day:cn,号]
+\definedate   [default] [year:n,年,mm,月,dd,日]% 2025年01月11日
+\definedate   [slash]   [yy,/,mm,/,dd]%25/01/11
+\definedate   [line]    [yy,-,mm,-,dd]%25-01-11
+\definedate   [yyddmm]  [yy,/,dd,/,mm]%25/11/01
 %D \starttyping
 %D  \currentdate[chinese] \currentdate[default]
 %D  \currentdate[slash] \currentdate[line]
@@ -451,9 +503,9 @@
 %%  ！！！ 應該只考慮 英數 和 漢字 之間的空間插入，符號 和 漢字 之間的間距不應該由這個程式控制
 
 \startluacode
-thirddata = thirddata or {}
-thirddata.memos = thirddata.memos or {}
-local memos = thirddata.memos
+  thirddata = thirddata or {}
+  thirddata.memos = thirddata.memos or {}
+  local memos = thirddata.memos
 
   local glyph_id = nodes.nodecodes.glyph
   local node_insertbefore = node.insertbefore
@@ -610,8 +662,8 @@ local memos = thirddata.memos
   \definecolor [darkwhite]   [x=F3F9F1]  \definecolor [darkblack]   [x=000000]
   \definecolor [deepwhite]   [x=F2ECDE]  \definecolor [deepblack]   [x=000000]
   \definecolor [blackwhite]  [x=DBD6CA]  \definecolor [blackblack]  [x=000000]
-
 \stopprotectedcolors
+
 \definepalet [serene]    [themecolor=blue,% bluetheme 1
                       softthemecolor=softblue,     lightthemecolor=lightblue,
                       darkthemecolor=darkblue,      deepthemecolor=deepblue,
@@ -724,6 +776,7 @@ local memos = thirddata.memos
                           framecolor=deepwhite,    referencecolor=blue,]
 
 \definecolor [covercolor] [softbackground]
+
 \ifcolor_palet_white   \setuppalet[innocence]  \fi
 \ifcolor_palet_red     \setuppalet[passion]    \fi
 \ifcolor_palet_blue    \setuppalet[serene]     \fi
@@ -735,6 +788,7 @@ local memos = thirddata.memos
 \ifcolor_palet_pink    \setuppalet[romance]    \fi
 \ifcolor_palet_gray    \setuppalet[reliable]   \fi
 \ifcolor_palet_cyan    \setuppalet[creativity] \fi
+
 %% 注意，一旦启用 palet ， lib dum 会失效，因为他设定了自己的 palet
 
 %D \section{layout}
@@ -753,7 +807,6 @@ local memos = thirddata.memos
 %%%%%% height      = header + textheight + footer +                        %%%%%%
 %%%%%%               headerdistance + footerdistance                       %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\definepapersize [exotic] [width=210mm, height=250mm,]
 \definepapersize [ipad]   [width=7.5in, height=10in, ]
 \definepapersize [kindle] [width=120mm, height=160mm,]
 \definelayout    [exotic] [% width=120mm,height=250mm,
@@ -791,16 +844,28 @@ local memos = thirddata.memos
 \definelayout    [sidemirror][% width=146mm,height=247mm,
                 topspace=25mm,    backspace=32mm,
                   header=25mm,       footer=25mm,
+                             headerdistance=5mm,
+                             footerdistance=5mm,
+                                topdistance=5mm,
+                             bottomdistance=5mm,
                    width=fit,        height=fit,
                   bottom=25mm,  rightmargin=32mm,]
 \definelayout    [propiorroot][%width=123mm,height=234mm,
                 topspace=21mm,    backspace=36mm,
                   header=30mm,       footer=30mm,
+                             headerdistance=5mm,
+                             footerdistance=5mm,
+                                topdistance=5mm,
+                             bottomdistance=5mm,
                    width=fit,        height=fit,
                   bottom=42mm,  rightmargin=51mm,]
-\definelayout    [propiorgplden][%width=130mm,height=250mm,
+\definelayout    [propiorgolden][%width=130mm,height=250mm,
                 topspace=34mm,    backspace=30mm,
                   header=36mm,       footer=30mm,
+                             headerdistance=5mm,
+                             footerdistance=5mm,
+                                topdistance=5mm,
+                             bottomdistance=5mm,
                     width=fit,        height=fit,
                   bottom=13mm,  rightmargin=50mm,]
 \definelayout    [narrow]
@@ -850,26 +915,6 @@ local memos = thirddata.memos
              leftmargin=49.5mm,    rightmargin=49.5mm,
                 header=70.00mm,    headerdistance=0mm,
                 footer=70.00mm,    footerdistance=0mm,
-                     width=fit,            height=fit,]
-\definelayout    [moderatecomments]
-                 [ top=12.37mm,
-              topspace=12.37mm,   bottomspace=12.37mm,
-              backspace=17.5mm,         %cutspace=15mm,
-                    bottom=0mm,    bottomdistance=0mm,
-                              rightmargindistance=5mm,
-                leftmargin=0mm,      rightmargin=50mm,
-                header=12.45mm,    headerdistance=0mm,
-                footer=12.38mm,    footerdistance=0mm,
-                     width=fit,            height=fit,]
-\definelayout    [moderatecommentsii]
-                 [ top=12.37mm,
-              topspace=12.37mm,   bottomspace=12.37mm,
-              backspace=17.5mm,         %cutspace=15mm,
-                    bottom=0mm,    bottomdistance=0mm,
-                              rightmargindistance=5mm,
-                leftmargin=0mm,      rightmargin=50mm,
-                header=12.45mm,    headerdistance=0mm,
-                footer=35.0mm,     footerdistance=0mm,
                      width=fit,            height=fit,]
 
 \setuppapersize  [\moduleparameter{memos}{papersize}]
@@ -989,9 +1034,8 @@ context.definelayout(
 %%% 此處定義了默認的頁面佈局， 可以通過 \setuplayout[default] 來設置
 % \doloopoverlist
 %   {exotic, kaolike, ipad, kindle, sidemirror,
-%    propiorroot, propiorgplden,
-%    narrow, moderate, wide, extrawide,
-%    moderatecomments, moderatecommentsii}
+%    propiorroot, propiorgolden,
+%    narrow, moderate, wide, extrawide}
 %   {\page\setuplayout[\recursestring]{\red\ssd \currentlayout}\showsetups }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                                結構相關設置                         %%%%%%
@@ -1010,10 +1054,10 @@ context.definelayout(
             before={\vskip.5\baselineskip\relax}, after={\vskip.5\baselineskip\relax},]
 \setuphead [part,chapter,title]  [color=titlecolor]
 \setuphead [title,subject]       [incrementnumber=list]
-\setuphead [part]                [style=\definedfont[Sans sa 2.488]]
+\setuphead [part]                [style=\definedfont[Sans sa 2.488],page=yes]
 \setuphead [chapter]             [style=\ssd]
 \setuphead [section]             [style=\rm\bfb]
-\setuphead [subsection]          [style=\rma]
+\setuphead [subsection]          [style=\rma\bf]
 \setuphead [subsubsection]       [style=\rm\bf]
 \setuphead [subsubsubsection]    [style=\rm\bf]
 \setuphead [subsubsubsubsection] [style=\rm\bf]
@@ -1021,7 +1065,7 @@ context.definelayout(
                                   before={\mbox{}\vskip4\baselineskip\relax},
                                    after={\vskip2\baselineskip\relax}]
 \setuphead [part,title]          [header=empty,footer=empty]
-\setuphead [chapter]             [header=empty,
+\setuphead [chapter]             [header=empty,footer=empty,
                                   frontpartlabel=preface,
                                   bodypartlabel=chapter,
                                   appendixlabel=appendix,
@@ -1042,23 +1086,16 @@ context.definelayout(
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %characters(a),romannumerals(i),numbers(1),
 %chinesenumerals(四十二) chinesecapnumerals(肆拾二) chineseallnumerals(廿二)
-%% 第 1 章    --- chapter
+%% 1          --- chapter
 %% 1 XXXX     --- section
 %% 1.1 XXXX   --- subsection
 %% (1) XXXX   --- subsubsection
 %% (1.1) XXXX --- subsubsubsection
 \startsetups memos:chap:simple
-  \definestructureconversionset[simpconversionset]
-                              [chinesenumerals,% part
-                                Numbers,         % chapter
-                                Numbers,         % section
-                                Numbers,         % subsection
-                                Numbers,         % subsubsection
-                                Numbers,Numbers, % subsubsub,subsubsubsub
-                              ][N]              % default,fallback
-  \setupheads[part,chapter,section,subsection,subsubsection,
-              subsubsubsection,subsubsubsubsection]
-            [sectionconversionset=simpconversionset]
+  \setuplabeltext [en]             [chapter={{\sc Chapter\ \tf\definedfont[SansBold sa 2.488]},}]
+  \setuplabeltext [hans]           [chapter={{\sc Chapter\ \tf\definedfont[SansBold sa 2.488]},}]
+  \setuplabeltext [hant]           [chapter={{\sc Chapter\ \tf\definedfont[SansBold sa 2.488]},}]
+  \setupheads[chapter]             [commandbefore=\blank[1ex],]
   \setupheads[subsection]          [sectionsegments=section:*]
   \setupheads[subsubsection]       [numbercommand=\paren]
   \setupheads[subsubsubsection]    [sectionsegments=subsubsection:*]
@@ -1068,19 +1105,9 @@ context.definelayout(
 %% 第 1 節 XXXX     --- section
 %% 1.1 XXXX         --- subsection
 %% 1.1.1 XXXX       --- subsubsection
-%% (1.1) XXXX       --- subsubsubsection
+%% 1.1.1.1 XXXX       --- subsubsubsection
 \startsetups memos:chap:default
     \edef\currentchapterstyle{default}
-    \definestructureconversionset[defaultconversionset][chinesenumerals,
-       Numbers,Numbers,Numbers,Numbers][n]
-    \setupheads[part,
-                chapter,
-                section,
-                subsection,
-                subsubsection,
-                subsubsubsection,
-                subsubsubsubsection]
-               [sectionconversionset=defaultconversionset]
     \setupheads[chapter]
                [align=center,
                 distance=\widthofstring{\ssd 章}]
@@ -1092,7 +1119,7 @@ context.definelayout(
     \setupheads[subsection,
                 subsubsection,
                 subsubsubsection,
-                subsubsubsubsection] [numbercommand=,margin=2em]
+                subsubsubsubsection] [numbercommand=,]
     \setuplabeltext [hans]  [part={第,部},
                              chapter={第,章},    section={第,节},
                              subsection={},      subsubsection={},
@@ -1102,51 +1129,24 @@ context.definelayout(
                              subsection={},      subsubsection={},
                              subsubsubsection={},subsubsubsubsection={}]
 \stopsetups
-%% ------------      1.1 Subsection
+%%                   1.1 Subsection
 %%  1 Chapter        (1) Subsubsection
 %% ------------      (1.1) Subsubsubsection
 %% 1 Section         (1.1.1) Subsubsubsubsection
 %%%%%%
 \startsetups memos:chap:line
-    \defineheadalternative[linecentered]
-                          [alternative=vertical,
-                           renderingsetup=linecentered]
-    \startsetups[linecentered]
-       \vbox {
-            \headsetupspacing
-            \veryraggedcenter
-            \let\\\endgraf\let\crlf\endgraf
-            \startalignment[center]\dontleavehmode
-            \ifconditional\headshownumber
-                \strut\headnumbercontent\quad%\par % <-- commented out
-            \else\fakeheadnumbercontent\fi
-            \begstrut\headtextcontent\endstrut
-            \blackrule[color=titlecolor,height=2pt,width=4em]
-            \stopalignment
-       }
-    \stopsetups
-    \definestructureconversionset[numincrease]
-        [Numbers,Numbers,Numbers,Numbers,Numbers,
-         Numbers,Numbers][n]
-    \setupheads
-        [part,chapter,section,subsection,subsubsection,
-         subsubsubsection,subsubsubsubsection]
-        [sectionconversionset=numincrease]
     \setuphead [chapter]             [before=\mbox{}\vskip2\baselineskip\relax,
-                                      after=\vskip3\baselineskip\relax,
-                                      alternative=linecentered,
+                                      after=\blank[line]\hfil\blackrule[color=titlecolor,height=2pt,width=4em]\hfil\par\vskip3\baselineskip\relax,
                                       interlinespace=medium,
-                                      style=\ss\bfd]
+                                      align=center,
+                                      style=\definedfont[Sans sa 2.488]]
     \setuphead [section,subsection]  [numbercolor=lightthemecolor,numberwidth=2em]
     \setuphead [section]             [style=\ss\bfb,   numberstyle=\ss\bid,]
     \setuphead [subsection]          [style=\ss\tfa,   numberstyle=\ss\itc]
-    \setupheads[subsection]          [numbercommand=,]
+    \setupheads[subsection]          [numbercommand=,      sectionsegments=section:*]
     \setupheads[subsubsection]       [numbercommand=\paren]
-    \setupheads[subsubsubsection]    [numbercommand=\paren,]
-    \setupheads[subsubsubsubsection] [numbercommand=\paren,]
-    \setupheads[subsection]          [sectionsegments=chapter:*]
-    \setupheads[subsubsubsection]    [sectionsegments=subsubsection:*]
-    \setupheads[subsubsubsubsection] [sectionsegments=subsubsection:*]
+    \setupheads[subsubsubsection]    [numbercommand=\paren,sectionsegments=subsubsection:*]
+    \setupheads[subsubsubsubsection] [numbercommand=\paren,sectionsegments=subsubsection:*]
 \stopsetups
 %%%%%%
 %% chapter 1 XXXX    --- chapter
@@ -1421,7 +1421,7 @@ context.definelayout(
                               ]
   % startpartmakeup \part{} \stoppartmakeup
   % ------------- only set for chapter
-
+  \setuphead[part]   [before=\startmakeup[part],after=\stopmakeup]
   \setuphead[chapter][before={\globaldisablemode[rocket:chapterpage]
                               \globaldisablemode[hexa:chapterpage]
                               \globalenablemode[colorful:chapterpage]
@@ -1436,7 +1436,6 @@ context.definelayout(
 %                     \  /
 %    Chapter Title     \/
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \startuseMPgraphic{style:chapter:rocket:number}
   fill fullsquare   xysized (75pt , 150pt)
                     shifted (0,     10pt)
@@ -1571,7 +1570,6 @@ context.definelayout(
   \defineoverlay[hexa:pagebackground][\setups{memos:chap:hexa:background}]
   \setupbackgrounds     [page][background=hexa:pagebackground]
   \defineheadalternative[hexagradient][alternative=vertical,renderingsetup=memos:chap:hexagradient]
-
   \setuphead [chapter][alternative=hexagradient,numbercolor=white,]
   \setupheads[subsection,subsubsection,
               subsubsubsection,subsubsubsubsection]
@@ -1732,6 +1730,10 @@ context.definelayout(
     date=\currentdate,
     subtitle={ニュースレターの主要な語句},
     color=white]
+
+  \setupheads[subsection,subsubsection,
+              subsubsubsection,subsubsubsubsection]
+              [sectionsegments=section:*]
 \stopsetups
 %\chapter{dddd}
 %\sideframe{\input knuth }
@@ -1757,18 +1759,19 @@ context.definelayout(
   \endgroup}
 
 \startsetups memos:chap:kaolike
-  \definelayer[chapvrule][x=\dimexpr+\textwidth+.5\rightmargindistance-2pt\relax,
-                          y=\dimexpr-\baselineskip-\topspace
-                                    -\headerheight-\headerdistance\relax,
-                          width=\paperwidth,height=\paperheight]
   \newdimen\d_temp_chapheight
-  \d_temp_chapheight=\dimexpr-\baselineskip+\topspace
+  \d_temp_chapheight=\dimexpr\topspace
                             +\headerheight+\headerdistance
-                            +64pt\relax
+                            +100pt\relax
+  \definelayer[chapvrule][x=\dimexpr+\textwidth+.5\rightmargindistance+1em\relax,
+                          y=\dimexpr-\d_temp_chapheight+50pt\relax,
+                          width=\paperwidth,height=\paperheight]
+
   \setuphead[chapter]
             [align=flushright,
             alternative=inmargin,
             location=inoutermargin,
+            numbercommand=\groupedcommand{\ }{},
             numberstyle=\definedfont[SansBold at 64pt],
             before=\setlayer[chapvrule][]{
                     \blackrule[width=2pt,
@@ -1776,11 +1779,15 @@ context.definelayout(
                               depth=.3\baselineskip,
                               color=themecolor]}
                     \placelayer[chapvrule],
-              after=\vskip2\baselineskip\relax
+            after=\vskip2\baselineskip\relax
                     \marginlist[dy=-\baselineskip],]
   \startsectionblockenvironment[appendix]
     \setuphead[chapter][numberstyle=\definedfont[SansBold at 42pt]]
   \stopsectionblockenvironment
+  \setupheads[section][sectionsegments=chapter:*]
+  \setupheads[subsection,subsubsection,
+              subsubsubsection,subsubsubsubsection]
+              [sectionsegments=section:*]
 \stopsetups
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1824,18 +1831,18 @@ context.definelayout(
   \setuplist  [part,chapter,section,
                subsection,subsubsection,subsubsection,
                subsubsubsection,subsubsubsubsection]
-              [width=3.5em,distance=.5em,alternative=c,
+              [width=3.5em,distance=.5em,alternative=c,align=flushright
                before=,after=,label=yes,numberalign=flushright]
   \setuplist  [part]
               [command=\mms_partlabel_default,alternative=interactive,before=\blank]
-  \setuplist  [title]              [margin=0.0em,style=bf]
-  \setuplist  [subject]            [margin=1.0em]
+  \setuplist  [title]              [margin=1.0em,style=bf]
+  \setuplist  [subject]            [margin=2.0em]
   \setuplist  [chapter]            [margin=0.0em,style=bf,before=\blank[quarterline]]
   \setuplist  [section]            [margin=1.0em]
-  \setuplist  [subsection]         [margin=1.0em,align=flushright]
-  \setuplist  [subsubsection]      [margin=1.0em,width=5.0em]
-  \setuplist  [subsubsubsection]   [margin=1.0em,width=6.0em]
-  \setuplist  [subsubsubsubsection][margin=1.0em,width=7.0em]
+  \setuplist  [subsection]         [margin=1.0em]
+  \setuplist  [subsubsection]      [margin=1.0em,width=4.5em]
+  \setuplist  [subsubsubsection]   [margin=1.0em,width=5.5em]
+  \setuplist  [subsubsubsubsection][margin=1.0em,width=6.5em]
 \stopsetups
 
 \startsetups memos:toc:simple
@@ -1850,24 +1857,24 @@ context.definelayout(
               [width=1.0em,margin=0.0em,distance=.5em]
   \setuplist  [section,subject,subsection,subsubsection,
                subsubsection,subsubsubsection,subsubsubsubsection]
-              [width=1.0em,distance=.5em,alternative=c]
-  \setuplist  [title]     [margin=1.5em]
-  \setuplist  [subject]   [margin=2.5em]
-  \setuplist  [part]      [width=2.0em,margin=1.0em,
-                           pagenumber=no,headnumber=no,
-                           style=ss,after=]
+              [width=1.0em,distance=.5em,alternative=c,margin=2.0em,]
+  \setuplist  [title]              [margin=1.5em]
+  \setuplist  [subject]            [margin=2.5em]
+  \setuplist  [part]               [width=2.0em,margin=1.0em,
+                                    pagenumber=no,headnumber=no,
+                                    style=ss,after=]
   \setuplist  [chapter]            [margin=0.0em,before=,]
-  \setuplist  [section]            [margin=1.0em]
-  \setuplist  [subsection]         [margin=2.0em]
-  \setuplist  [subsubsection]      [margin=3.0em]
-  \setuplist  [subsubsubsection]   [margin=4.0em]
-  \setuplist  [subsubsubsubsection][margin=5.0em,width=2.0em]
+  \setuplist  [section]            [width=1.0em]
+  \setuplist  [subsection]         [width=2.0em]
+  \setuplist  [subsubsection]      [width=3.0em]
+  \setuplist  [subsubsubsection]   [width=4.0em]
+  \setuplist  [subsubsubsubsection][width=5.0em]
 \stopsetups
 
 \let\mms_partlabel_line\undefined
 \define[1]\parenpage{\hskip-.5\emwidth\relax(#1)}
-\define[1]\mms_partlabel_line{{\sc\color[themecolor]{Part (#1)}\ }}
-\define[1]\mms_chaplabel_line{{\sc\color[themecolor]{Chap (#1)}\ }}
+\define[1]\mms_partlabel_line{{\sc\color[themecolor]{\hbox to 2.5em{Part} \ss\tfa #1}\ }}
+\define[1]\mms_chaplabel_line{{\sc\color[themecolor]{\hbox to 2.5em{Chap} \ss\tfa #1}\ }}
 \startsetups memos:toc:line
   \edef\currenttocstyle{line}
   \setupcombinedlist[content]
@@ -1880,7 +1887,7 @@ context.definelayout(
   \setuplist  [part]      [numbercommand=\mms_partlabel_line,after=]
   \setuplist  [chapter]   [numbercommand=\mms_chaplabel_line,before=]
   \setuplist  [title]     [margin=4.5em]
-  \setuplist  [subject]   [margin=4.5em]
+  \setuplist  [subject]   [margin=5.5em]
   \setuplist  [section]   [margin=3.5em]
   \setuplist  [subsection][margin=4.5em,alternative=d,pagecommand=\parenpage]
 \stopsetups
@@ -1923,7 +1930,9 @@ context.definelayout(
       fill text_back shifted(-.35width,0) withcolor \MPcolor{lightthemecolor} ;
   \stopuseMPgraphic
   \defineoverlay   [olay:toc][\useMPgraphic{MP:toc}]
-  \setuplabeltext  [cn][content=Table Of Contents]
+  \setuplabeltext  [cn]  [content=Table Of Contents]
+  \setuplabeltext  [hans][content=Table Of Contents]
+  \setuplabeltext  [hant][content=Table Of Contents]
   \setuphead       [tochead][
                     before={\setupbackgrounds[page][background=olay:toc]
                             \null\vskip5\baselineskip\relax},
@@ -1931,15 +1940,14 @@ context.definelayout(
                     align=center,
                     style=\definedfont[SansBold at 25pt],
                     ]
-  \setuphead[part][before=\startmakeup[part],after=\stopmakeup]
   \setupcombinedlist[content][list={part,title,chapter,subject,section}]
   \setuplist  [part,chapter,section,title,subject]
-                          [width=\backspace,distance=0.0em,style=\ss,
-                           numbercolor=white,numberalign=middle]
-  \setuplist  [part]      [numbercommand=,after=,color=themecolor]
-  \setuplist  [chapter]   [color=themecolor,before=]
-  \setuplist  [title]     [margin=\backspace,color=themecolor]
-  \setuplist  [subject]   [margin=\dimexpr\backspace+1em\relax]
+                          [width=\backspace,distance=0em,,style=\ss,
+                           numbercolor=white,numberalign=flushright]
+  \setuplist  [part]      [numbercommand=\groupedcommand{\sc Part\ \tf}{\hskip4em},after=,color=darkthemecolor]
+  \setuplist  [chapter]   [numbercommand=\groupedcommand{}{\hskip4em},color=themecolor,before=]
+  \setuplist  [title]     [margin=\backspace,color=themecolor,style=it]
+  \setuplist  [subject]   [margin=\dimexpr\backspace+1em\relax,style=it]
   \setuplist  [section]   [margin=\dimexpr\backspace+1em\relax,headnumber=no]
 \stopsetups
 
@@ -1999,6 +2007,32 @@ context.definelayout(
   \setuplist  [subsubsubsubsection][margin=2.5em]
 \stopsetups
 
+\startsetups memos:toc:kaolike
+  \edef\currenttocstyle{kaolike}
+  \setupcombinedlist[content][list={part,%
+               title,chapter,subject,section,
+               subsubject,subsection,
+               subsubsubject,subsubsection,
+               subsubsubsection,subsubsubsubsection
+               }]
+  \setuplist  [part,chapter,section]
+              [width=1.0em,margin=0.0em,distance=.5em]
+  \setuplist  [section,subject,subsection,subsubsection,
+               subsubsection,subsubsubsection,subsubsubsubsection]
+              [width=1.0em,distance=.5em,alternative=c,margin=2.0em,]
+  \setuplist  [title]              [margin=1.5em,style=bf]
+  \setuplist  [subject]            [margin=2.5em]
+  \setuplist  [part]               [width=2.0em,margin=1.0em,
+                                    headnumber=no,style=\feature[+][f:caps]\bf,
+                                    before=\blank[3*halfline],after=,]
+  \setuplist  [chapter]            [margin=0.0em,before=\blank[halfline],style=bf]
+  \setuplist  [section]            [width=2.0em]
+  \setuplist  [subsection]         [width=3.0em,margin=3.0em]
+  \setuplist  [subsubsection]      [width=3.0em,margin=3.0em]
+  \setuplist  [subsubsubsection]   [width=4.0em,margin=4.0em]
+  \setuplist  [subsubsubsubsection][width=4.0em,margin=4.0em]
+\stopsetups
+
 %\section{SCMD:placeTOCs}
 \tolerant\def\setupTOCs[#1]%
   {\getparameters[??TOCs][#1]}
@@ -2012,7 +2046,8 @@ context.definelayout(
 
 \tolerant\def\placeTOCs[#1]{\begingroup%
   \iffirstargument\getparameters[??TOCs][#1]\fi%
-  \setups{memos:toc:\??TOCsalternative}%
+  \edef\currenttocstyle{\ifempty\??TOCsalternative\moduleparameter{tocstyle}\else\??TOCsalternative\fi}%
+  \setups{memos:toc:\currenttocstyle}%
   \doifinsetelse{\namedheadparameter{tochead}\c!page}{no,disable}%
      {}{\startlayout[\??TOCslayout]}%
   \edef\p_title{\??TOCstitle}%
@@ -2027,7 +2062,6 @@ context.definelayout(
 \definemarginframed [outermargin] [outer]
 \setupmargindata    [outermargin] [margin=margin,width=\outermarginwidth,align=inner,]
 \setupmarginframed  [outermargin] [margin=margin,width=\outermarginwidth,align=inner,]
-
 
 %%%%%%%%%%%%%%%%%%%%
 % \section {Header and Footer Style}
@@ -2102,7 +2136,6 @@ context.definelayout(
          {\completepagenumber}
 \stopsetups
 
-
 \ifhdr_sty_book%
   \setupheadertexts  []
   \setupheadertexts  [\donetrue\setups [hdr:odd:sectionmark]][][]
@@ -2114,37 +2147,37 @@ context.definelayout(
                      [\setups [hdr:even:novelchaptermark]]
 \fi
 \ifhdr_sty_colorful%
-\setupheader     [state=stop]
-\setupheadertexts[]
-\setuptexttexts  [edge]
-               [][\setups[hdr:odd:edgesectionmark]]
-                 [\setups[hdr:odd:edgechaptermark]][]
-\setupfootertexts[edge]
-               [][\setups[ftr:framedpagenumber]]
-                 [\setups[ftr:framedpagenumber]][]
+  \setupheader     [state=stop]
+  \setupheadertexts[]
+  \setuptexttexts  [edge]
+                [][\setups[hdr:odd:edgesectionmark]]
+                  [\setups[hdr:odd:edgechaptermark]][]
+  \setupfootertexts[edge]
+                [][\setups[ftr:framedpagenumber]]
+                  [\setups[ftr:framedpagenumber]][]
 \fi
 %%%%%%%%%%%%%%%%%%%
 \ifhdr_sty_hctext% page number at center of header
-\setupheader        [state=start]
-\setupheadertexts
-                 [\setups[hdr:center:pagenumber]][][]
-                 [\setups[hdr:center:pagenumber]]
+  \setupheader        [state=start]
+  \setupheadertexts
+                  [\setups[hdr:center:pagenumber]][][]
+                  [\setups[hdr:center:pagenumber]]
 \fi
 %%%%%%%%%%%%%%%%%%%
 \ifhdr_sty_fctext% page number at center of footer
-\setupheader        [state=stop]
-\setupheadertexts   []
-\setupfootertexts
-                 [\setups[hdr:center:pagenumber]][][]
-                 [\setups[hdr:center:pagenumber]]
+  \setupheader        [state=stop]
+  \setupheadertexts   []
+  \setupfootertexts
+                  [\setups[hdr:center:pagenumber]][][]
+                  [\setups[hdr:center:pagenumber]]
 \fi
 %%%%%%%%%%%%%%%%%%%
 \ifhdr_sty_foemarginalt% doublesided page : in outermargin but closer to text area
-\setupheadertexts   []% delete middle of header
-\setupfootertexts[margin] []
-                 [\setups[hdr:left:pagenumber]]
-                 [\setups[hdr:right:pagenumber]][]
-\setuppagenumbering [alternative=doublesided,]
+  \setupheadertexts   []% delete middle of header
+  \setupfootertexts[margin] []
+                  [\setups[hdr:left:pagenumber]]
+                  [\setups[hdr:right:pagenumber]][]
+  \setuppagenumbering [alternative=doublesided,]
 \fi
 %%%%%%%%%%%%%%%%%%%
 \ifhdr_sty_foemargin% doublesided page : page number in outermargin
@@ -2192,27 +2225,15 @@ context.definelayout(
 \fi
 
 \ifhdr_sty_madsen
-\setupheader        [state=start]
-\setupheadertexts  []
-\setupheadertexts  [margin]
-               [][\donefalse\setups [hdr:odd:sectionmark]]
-                 [\donefalse\setups [hdr:even:chaptermark]][]
-\setupheadertexts[edge]
-               [][\setups[ftr:framedpagenumber]]
-                 [\setups[ftr:framedpagenumber]][]
+  \setupheader        [state=start]
+  \setupheadertexts  []
+  \setupheadertexts  [margin]
+                [][\donefalse\setups [hdr:odd:sectionmark]]
+                  [\donefalse\setups [hdr:even:chaptermark]][]
+  \setupheadertexts[edge]
+                [][\setups[ftr:framedpagenumber]]
+                  [\setups[ftr:framedpagenumber]][]
 \fi
-%%%%%%%%%%%%%%%%%%%%
-%\section{symbol}
-
-\def\rulefill{\leavevmode\strut\leaders\hrule height .5pt\hfill\kern0pt}
-\def\cdotfill{\cleaders\hbox{$\mathsurround\zeropoint\mkern1.5mu\cdot\mkern1.5mu$}\hfill\kern0pt}
-
-\def\dotbreak {\par\noindent\dotfill \par}
-\def\cdotbreak{\par\noindent\cdotfill\par}
-\def\rulebreak{\par\noindent\rulefill\par}
-
-\def\divider{\enspace \vrule height .7em depth 1pt width .8pt \enspace}
-
 %%%%%%%%%%%%%%%%%%%%
 
 \startuseMPgraphic{MPFrameXXX}%%% ---| triangle frame |----
@@ -2427,7 +2448,7 @@ context.definelayout(
 \definedescription   [excursus][
                       text={Excursus:~},headstyle=bold,width=broad,
                       alternative=top,  inbetween=,
-                      indenting=\languageparameter\c!indenting,
+                      indenting=\userlanguageparameter\c!indenting,
                       before={\vskip.5\baselineskip\relax\starttextbackground[blockbox]},
                       after={\stoptextbackground\vskip.5\baselineskip\relax},]
 
@@ -2941,10 +2962,62 @@ fill pc shifted (.15uc, -.15uc) withcolor .5white;
 fill pc withcolor \MPcolor{lightthemecolor};
 \stopuseMPgraphic
 
-\definesymbol[shadowedsquare][{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:square}}}]
-\definesymbol[shadowedcircle][{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:circle}}}]
-\definesymbol[shadowedsquares][{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:squares}}}]
-\definesymbol[shadowedcircles][{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:circles}}}]
+\startuseMPgraphic{sym:squares-random}
+  save height , depth ;
+  height := \the \bodyfontsize * \currentfontscale ;
+  depth  := \the \strutdepth ;
+  path squaresrandom;
+  squaresrandom   := fullsquare scaled .6height randomized 1pt;
+  draw squaresrandom crossingunder (fullsquare scaled height)
+                     withpen pencircle scaled 2pt
+                     withcolor \MPcolor{\itemgroupparameter{color}};
+  draw  (fullsquare scaled height)
+             withpen pencircle scaled 0pt withtransparency (1,0) ;
+\stopuseMPgraphic
+\startuniqueMPgraphic{sym:square}
+  save height , depth ;
+  height := \the \bodyfontsize * \currentfontscale ;
+  depth  := \the \strutdepth ;
+  path square;
+  square   := fullsquare scaled .6height;
+  draw square crossingunder (fullsquare scaled height)
+              withpen pencircle scaled 1pt
+              withcolor \MPcolor{\itemgroupparameter{color}};
+  draw  (fullsquare scaled height)
+             withpen pencircle scaled 0pt withtransparency (1,0) ;
+\stopuniqueMPgraphic
+\startuniqueMPgraphic{sym:circle}
+  save height , depth ;
+  height := \the \bodyfontsize * \currentfontscale ;
+  depth  := \the \strutdepth ;
+  path circle;
+  circle   := fullcircle scaled .6height;
+  draw circle crossingunder (fullsquare scaled height)
+              withpen pencircle scaled 1pt
+              withcolor \MPcolor{\itemgroupparameter{color}};
+  draw  (fullsquare scaled height)
+             withpen pencircle scaled 0pt withtransparency (1,0) ;
+\stopuniqueMPgraphic
+\startuniqueMPgraphic{sym:bullet}
+  save height , depth ;
+  height := \the \bodyfontsize * \currentfontscale ;
+  depth  := \the \strutdepth ;
+  path bullet;
+  bullet := fullcircle scaled .2height;
+  fill bullet crossingunder (fullsquare scaled height)
+              withpen pencircle scaled 1pt withcolor \MPcolor{\itemgroupparameter{color}};
+  draw  (fullsquare scaled height)
+             withpen pencircle scaled 0pt withtransparency (1,0) ;
+\stopuniqueMPgraphic
+\definesymbol [mp:squares]      [{\lower.3ex\vbox{\useMPgraphic{sym:squares-random}}}]
+\definesymbol [mp:square]       [{\lower.3ex\vbox{\uniqueMPgraphic{sym:square}}}]
+\definesymbol [mp:circle]       [{\lower.3ex\vbox{\uniqueMPgraphic{sym:circle}}}]
+\definesymbol [mp:bullet]       [{\lower.3ex\vbox{\uniqueMPgraphic{sym:bullet}}}]
+
+\definesymbol [shadowedsquare]  [{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:square}}}]
+\definesymbol [shadowedcircle]  [{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:circle}}}]
+\definesymbol [shadowedsquares] [{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:squares}}}]
+\definesymbol [shadowedcircles] [{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:circles}}}]
 
 \definesymbol[blankdiamond][{\tfx ⬥}]
 
@@ -3019,7 +3092,7 @@ fill pc withcolor \MPcolor{lightthemecolor};
   \infootnotetrue
 \stopsetups
 \def\notesep    {{\useurlstyleandcolor\c!style\c!color\strc_notes_inject_separator}}
-\setupfootnotes [setups={fn:hanzi},]
+\setupfootnotes [setups={fn:hanzi},spacebefore=halfline]
 \setupnote      [textseparator=\textcomma,
                  textcolor=footnotecolor,
                  style=\resetfontsize\hwx,
@@ -3042,8 +3115,8 @@ fill pc withcolor \MPcolor{lightthemecolor};
                ]{\setglobalscript [hanzi]%
                  \setuplocalinterlinespace[line=.9\bodyfontsize,]%
                  \placelocalnotes[marginnote][width=max]}}]
-\setupmargindata  [inoutermargin][align={inner},width=\d_temp_margin]
-\setupmarginframed[inoutermargin][align={inner},width=\d_temp_margin]
+\setupmargindata  [inoutermargin][align={inner},width=\d_temp_margin,style=\setlocalscript[hanzi]\hwx,]
+\setupmarginframed[inoutermargin][align={inner},width=\d_temp_margin,style=\setlocalscript[hanzi]\hwx,]
 \defineconversion [sidenote][%
     \hbox to 1.5em{{\tfx\hfil\ast\hfil}},
     \hbox to 1.5em{{\tfx\hfil\ast\ast\hfil}},
@@ -3300,80 +3373,6 @@ fill pc withcolor \MPcolor{lightthemecolor};
 %                   [margintab,texttab,fulltab,table,
 %                    fulltable,margintable,texttable]
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%               創建一個居中的圖片，含有位置、引用、標題              %%%%%%
-%%%%%% \placefigeasy[location][reference][option]{caption}                 %%%%%%
-%%%%%%               location = textfig,marginfig,topfig,bottomfig         %%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% fig tab
-% full => widewidth fig or tab
-\protected\def\placefigeasy{\dotripleempty\doPlacefigeasy}
-\protected\def\doPlacefigeasy[#1][#2][#3]#4{%                     #1 = location
-   \doifsomethingelse{#1}%                                        #2 = refernce
-  {\setupfloat[#1][#3]
-   \startplacefloat[#1][title={#4},reference={fig:#2},#3]%        #3 = option
-   \externalfigure[#2][#3]%                                       #4 = caption
-   \stopplacefloat}{
-   \setupfloat[textfig][#3]
-   \startplacefloat[textfig][title={#4},reference={fig:#2},#3]
-   \externalfigure[#2][#3]
-   \stopplacefloat
-}}
-\protected\def\placefullfigeasy{\dodoubleargument\doPlacefullfigeasy}
-\protected\def\doPlacefullfigeasy[#1][#2][#3]#4{%
-{\startplacefloat[fullfig][title={#4},reference={fig:#2},#3]
-      \externalfigure[#2][full][#3]
- \stopplacefloat
-}}
-\protected\def\placetabeasy{\dotripleempty\doPlacetabeasy}
-\protected\def\doPlacetabeasy[#1][#2][#3]#4{%
-   \doifsomethingelse{#1}%
-  {\setupfloat[#1][#3]
-   \startplacefloat[#1][title={#4},reference={fig:#2},#3]
-   \setupxtable[option={width,stretch},#3]
-   \getbuffer[#2]
-   \stopplacefloat}{
-   \setupfloat[texttab][#3]
-   \startplacefloat[texttab][title={#4},reference={fig:#2},#3]
-   \setupxtable[option={width,stretch},#3]
-   \getbuffer[#2]
-   \stopplacefloat}
-}
-\protected\def\placefulltabeasy{\dodoubleargument\doPlacefulltabeasy}
-\protected\def\doPlacefulltabeasy[#1][#2][#3]#4{%
-{\ifdoublesided\ifodd\realpagenumber%
-     \doifnotmode{kindle}{\setupfloat[fulltab][location=outermargin,#3]}\else
-     \setupfloat[fulltab][location=inner,#3]\fi
- \else\relax\fi
- \startplacefloat[fulltab][title={#4},reference={fig:#2},#3]
-     \setupxtable[textwidth=\spanmarginwidth,option={stretch},#3]
-     \getbuffer[#2]
- \stopplacefloat
-}}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%              創建一個邊註的圖片，含有位置、引用、標題                      %%%%%%
-%%%%%%  \placemarginfigureeasy[reference][option]{caption}                 %%%%%%
-%%%%%%                      reference 和 圖片名稱公用一個值                    %%%%%%
-%%%%%%  \adjustmarginvspace[linenumber]                                    %%%%%%
-%%%%%%  \movesidefloat[y=\baselineskip] 上下移動浮動體                          %%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\protected\def\placemarginfigeasy{\dodoubleargument\doPlacemarginfigeasy}
-\protected\def\doPlacemarginfigeasy[#1][#2]#3{%
-  {\setupfloat[marginfig][#2]%
-   \startplacefloat[marginfig][title={#3},reference={fig:#1},#2]
-     \externalfigure[#1][#2]
-   \stopplacefloat
-   \movesidefloat[y=\baselineskip]
-}}
-\protected\def\placemargintabeasy{\dodoubleargument\doPlacemargintabeasy}
-\protected\def\doPlacemargintabeasy[#1][#2]#3{%
-  {\setupfloat[margintab][#2]
-   \startplacefloat[margintab][title={#3},reference={fig:#1},#2]
-     \setupxtable[option={width,stretch},#2]
-     \getbuffer[#1]
-   \stopplacefloat
-   \movesidefloat[y=\baselineskip]
-}}
 %\startmode[kindle]
 %\definemeasure [spanmargin]  [\dimexpr\textwidth\relax]
 %\setupfloat    [topfig,bottomfig,textfig,fullfig,figure][
@@ -3409,6 +3408,15 @@ suggest=\symbol[fontawesome][star]]
 \def\EQUAL{＝}
 \def\SLASH{／}
 
+\def\rulefill{\leavevmode\strut\leaders\hrule height .5pt\hfill\kern0pt}
+\def\cdotfill{\cleaders\hbox{$\mathsurround\zeropoint\mkern1.5mu\cdot\mkern1.5mu$}\hfill\kern0pt}
+
+\def\dotbreak {\par\noindent\dotfill \par}
+\def\cdotbreak{\par\noindent\cdotfill\par}
+\def\rulebreak{\par\noindent\rulefill\par}
+
+\def\divider{\enspace \vrule height .7em depth 1pt width .8pt \enspace}
+
 \def\Mdot {\hbox to .5em{\hss\scale[s=1.5]{$\cdot$}\hss}}
 \def\mdot {\hbox to .5em{\hss\utf{00B7}\hss}}
 \def\symbol_style#1{\nobreak\high{{\switchtobodyfont[5pt]#1}}}
@@ -3432,13 +3440,9 @@ suggest=\symbol[fontawesome][star]]
  {\begingroup\ifarguments
   \or\getdummyparameters[#1]
   \or\getdummyparameters[reference={#1},#2]\fi
-  \edef\p_url_temp{\dummyparameter{url}}%
-  \edef\p_url{\ifempty\p_url_temp\dummyparameter{mail}\else\p_url_temp\fi}%
-  \edef\p_urlormail{\ifempty\p_url_temp mailto:\dummyparameter{mail}\else\p_url_temp\fi}
-  \edef\p_reference_temp{\dummyparameter\c!reference}%
-  \edef\p_reference{\ifempty\p_reference_temp\p_url\else\p_reference_temp\fi}%
-  \edef\p_text_temp{\dummyparameter\c!text}%
-  \edef\p_text{\ifempty\p_text_temp\p_reference\else\p_text_temp\fi}%
+  \edef\p_urlormail{\ifempty\dummyparameter{url} mailto:\dummyparameter{mail}\else\dummyparameter{url}\fi}
+  \edef\p_reference{\ifempty\dummyparameter\c!reference\ifempty\dummyparameter{url}\dummyparameter{mail}\else\dummyparameter{url}\fi\else\dummyparameter\c!reference\fi}%
+  \edef\p_text{\ifempty\dummyparameter\c!text\p_reference\else\dummyparameter\c!text\fi}%
   \expanded{\useURL[\p_reference][\p_urlormail][\dummyparameter\c!file][\p_text]}%
   \endgroup}
 
@@ -3463,19 +3467,19 @@ suggest=\symbol[fontawesome][star]]
 % part : chap -- sec.subsec.subsubsec.figure
 % if prefixsegments 2:2 will show
 % chap . figure
-\defineseparatorset [default][:,-,.][.]
+\defineseparatorset [defaults][:,-,.][.]
 \defineprocessor    [dostopper][left=,right=]
 \defineprocessor    [nostopper][left=,right=]
 \defineconversionset[defaultconversion][][dostopper->n]
 \defineconversionset[floatconversion][][nostopper->n]%
 \setupreferencestructureprefix
-             [figure][default]
+             [figure][defaults]
              [prefixconversionset=floatconversion,prefixsegments=2:2]
 \setupreferencestructureprefix
-              [table][default]
+              [table][defaults]
               [prefixconversionset=floatconversion,prefixsegments=2:2]
 \setupreferencestructureprefix
-              [default]
+              [defaults]
               [prefixconversionset=defaultconversion]
 \setupreferencing[left=,right=]
 %%%%
@@ -3502,11 +3506,11 @@ suggest=\symbol[fontawesome][star]]
 %%%% \refsec_level_detect[tab:xx]
 %%%% \refsec_level_detect[txt:1]
 %%%% \refsec_level_detect[eq:4]
-%%%% usage \refin[#reflevel:#reference]    => \refin[chap:anything]    => Chapter 1
-%%%% usage \refat[#reflevel:#reference]    => \refat[chap:anything]    => Page 1
+%%%% usage \refin   [#reflevel:#reference] => \refin   [chap:anything] => Chapter 1
+%%%% usage \refat   [#reflevel:#reference] => \refat   [chap:anything] => Page 1
 %%%% usage \refabout[#reflevel:#reference] => \refabout[chap:anything] => Title Contents
-%%%% usage \reftext[#reflevel:#reference]  => \reftext[chap:anything]  => Chapter 1 Title Contents
-%%%% usage \refsimp[#reflevel:#reference]  => \refsimp[chap:anything]  => Chapter 1 p.1
+%%%% usage \reftext [#reflevel:#reference] => \reftext [chap:anything] => Chapter 1 Title Contents
+%%%% usage \refsimp [#reflevel:#reference] => \refsimp [chap:anything] => Chapter 1 p.1
 \let\refin\refsec_level_detect
 \def\refat[#reflevel:#reference]%
    {\at{\leftlabeltext{page}}{\rightlabeltext{page}}[#reflevel:#reference]\refsymbol}
@@ -3518,21 +3522,8 @@ suggest=\symbol[fontawesome][star]]
 \def\refsimp[#reflevel:#reference]%
    {\refsec_level_detect[#reflevel:#reference]{\space}%\setlocationattributes
     \at{(p.}{)}[#reflevel:#reference]\refsymbol}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%            idiom command collections               %%%%%%
-%%%%%% 1. getresult[BUFFER_NAME] : get [typebuffer] and.  %%%%%%
-%%%%%%                         [gerbuffer] at same time.  %%%%%%
-%%%%%% 2. \placetabeasy[location][reference][caption]     %%%%%%
-%%%%%% 3. \placefigeasy[location][reference][caption]     %%%%%%
-%%%%%% 4. \placemarginfigureeasy[loc][ref][caption]       %%%%%%
-%%%%%% 5. \adjustmarginvspace[linenumber]                 %%%%%%
-%%%%%% notes: reference 和 圖片名稱公用一個值             %%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \section{PinYin}
+% \section{PinYin} from wolfgang
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \startluacode
   function commands.convertpinyin(text,number)
@@ -3676,6 +3667,7 @@ suggest=\symbol[fontawesome][star]]
 %
 %\stoptext
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 没有用了，我们可以直接使用 stretched 这个命令
 \newdimen\autojustify_width
 \def\addhfil#1{#1\hfill}
 \tolerant\def\autojustify[#1]#:#2{%
@@ -3683,58 +3675,6 @@ suggest=\symbol[fontawesome][star]]
 % \simplealignedbox{\autojustify_width}{flushleft}
        {\processisolatedchars{#2}\addhfil\unskip}%
 }
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\startuseMPgraphic{sym:squares-random}
-  save height , depth ;
-  height := \the \bodyfontsize * \currentfontscale ;
-  depth  := \the \strutdepth ;
-  path squaresrandom;
-  squaresrandom   := fullsquare scaled .6height randomized 1pt;
-  draw squaresrandom crossingunder (fullsquare scaled height)
-                     withpen pencircle scaled 2pt
-                     withcolor \MPcolor{\itemgroupparameter{color}};
-  draw  (fullsquare scaled height)
-             withpen pencircle scaled 0pt withtransparency (1,0) ;
-\stopuseMPgraphic
-\startuniqueMPgraphic{sym:square}
-  save height , depth ;
-  height := \the \bodyfontsize * \currentfontscale ;
-  depth  := \the \strutdepth ;
-  path square;
-  square   := fullsquare scaled .6height;
-  draw square crossingunder (fullsquare scaled height)
-              withpen pencircle scaled 1pt
-              withcolor \MPcolor{\itemgroupparameter{color}};
-  draw  (fullsquare scaled height)
-             withpen pencircle scaled 0pt withtransparency (1,0) ;
-\stopuniqueMPgraphic
-\startuniqueMPgraphic{sym:circle}
-  save height , depth ;
-  height := \the \bodyfontsize * \currentfontscale ;
-  depth  := \the \strutdepth ;
-  path circle;
-  circle   := fullcircle scaled .6height;
-  draw circle crossingunder (fullsquare scaled height)
-              withpen pencircle scaled 1pt
-              withcolor \MPcolor{\itemgroupparameter{color}};
-  draw  (fullsquare scaled height)
-             withpen pencircle scaled 0pt withtransparency (1,0) ;
-\stopuniqueMPgraphic
-\startuniqueMPgraphic{sym:bullet}
-  save height , depth ;
-  height := \the \bodyfontsize * \currentfontscale ;
-  depth  := \the \strutdepth ;
-  path bullet;
-  bullet := fullcircle scaled .2height;
-  fill bullet crossingunder (fullsquare scaled height)
-              withpen pencircle scaled 1pt withcolor \MPcolor{\itemgroupparameter{color}};
-  draw  (fullsquare scaled height)
-             withpen pencircle scaled 0pt withtransparency (1,0) ;
-\stopuniqueMPgraphic
-\definesymbol [mp:squares] [{\lower.3ex\vbox{\useMPgraphic{sym:squares-random}}}]
-\definesymbol [mp:square]  [{\lower.3ex\vbox{\uniqueMPgraphic{sym:square}}}]
-\definesymbol [mp:circle]  [{\lower.3ex\vbox{\uniqueMPgraphic{sym:circle}}}]
-\definesymbol [mp:bullet]  [{\lower.3ex\vbox{\uniqueMPgraphic{sym:bullet}}}]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                               封面相關設置                             %%%%%%
@@ -3801,28 +3741,28 @@ suggest=\symbol[fontawesome][star]]
 \stopuseMPgraphic
 
 \startuseMPgraphic{MP:golden_circle}
-numeric phi, r, delta, angle, steps, offset;
-phi    := (1 + sqrt(5)) / 2;   % 黃金比例常數 ≈1.618
-r      := 20cm;                  % 初始圓半徑
-delta  := 360 / phi;           % 黃金旋轉角 ≈137.508°
-steps  := 8;                  % 循環次數
-angle  := 60;                  % 初始角度
+  numeric phi, r, delta, angle, steps, offset;
+  phi    := (1 + sqrt(5)) / 2;  % 黃金比例常數 ≈1.618
+  r      := 20cm;               % 初始圓半徑
+  delta  := 360 / phi;          % 黃金旋轉角 ≈137.508°
+  steps  := 8;                  % 循環次數
+  angle  := 60;                 % 初始角度
 
-% 精確計算位移公式：offset += r * dir(angle)
-for i = 0 upto steps:
-  % 繪製圓（半徑r，中心位置基於累積位移）
-  fill fullcircle scaled (2r)
-    rotated angle            % 旋转角度
-    shifted (r/phi * dir(angle)) % 位移控制螺旋轨迹
-    withshademethod "circular"
-    withshadecenter (.5,.75)
-    withcolor \MPcolor{themecolor} shadedinto \MPcolor{softthemecolor}
-    withtransparency (1,.8) ;
+  % 精確計算位移公式：offset += r * dir(angle)
+  for i = 0 upto steps:
+    % 繪製圓（半徑r，中心位置基於累積位移）
+    fill fullcircle scaled (2r)
+      rotated angle                % 旋转角度
+      shifted (r/phi * dir(angle)) % 位移控制螺旋轨迹
+      withshademethod "circular"
+      withshadecenter (.5,.75)
+      withcolor \MPcolor{themecolor} shadedinto \MPcolor{softthemecolor}
+      withtransparency (1,.8) ;
 
-  % 更新参数：半径按 phi 缩放，角度增加 delta
-  r := r / phi;
-  angle := angle + delta;
-endfor;
+    % 更新参数：半径按 phi 缩放，角度增加 delta
+    r := r / phi;
+    angle := angle + delta;
+  endfor;
 \stopuseMPgraphic
 
 %\def\c!list{list}
@@ -3831,15 +3771,15 @@ endfor;
 
 \definemarking [book]
 \definemakeup  [default]
-\definemakeup  [flyleaf]          [default]
-\definemakeup  [usercover]        [default]
-\definelayer   [lay:default]      [repeat=yes,width=\paperwidth, height=\paperheight]
-\definelayer   [lay:flyleaf]      [repeat=yes,width=\paperwidth, height=\paperheight]
-\definelayer   [lay:usercover]    [repeat=yes,width=\paperwidth, height=\paperheight]
+\definemakeup  [flyleaf]        [default]
+\definemakeup  [usercover]      [default]
+\definelayer   [lay:default]    [repeat=yes,width=\paperwidth, height=\paperheight]
+\definelayer   [lay:flyleaf]    [repeat=yes,width=\paperwidth, height=\paperheight]
+\definelayer   [lay:usercover]  [repeat=yes,width=\paperwidth, height=\paperheight]
 
-\defineoverlay [olay:default]     [\useMPgraphic{MP:default}]
-\defineoverlay [olay:flyleaf]     [\useMPgraphic{MP:flyleaf}]
-\defineoverlay [olay:usercover]   [\useMPgraphic{MP:golden_circle}]
+\defineoverlay [olay:default]   [\useMPgraphic{MP:default}]
+\defineoverlay [olay:flyleaf]   [\useMPgraphic{MP:flyleaf}]
+\defineoverlay [olay:usercover] [\useMPgraphic{MP:golden_circle}]
 \defineoverlay [olay:cover]
 
 \setupmakeup [default]  [headerstate=empty,footerstate=empty,
@@ -3874,16 +3814,15 @@ endfor;
 %index 索引            reference 參考資料
 %prologue 序幕、開場   epilogue 尾聲、後記
 
-
 \setupcover [
-                list={series,book,author,introduction,publisher},
-               makeup=default,%flyleaf
-          % background=,
-         seriesvspace=\null\vskip3\baselineskip\relax,
-        bookvspace=\vskip2\baselineskip\relax,
+               list={series,book,author,introduction,publisher},
+             makeup=default,%flyleaf
+       % background=,
+       seriesvspace=\null\vskip3\baselineskip\relax,
+         bookvspace=\vskip2\baselineskip\relax,
        authorvspace=\vskip3\baselineskip\relax,
-        introductionvspace=\vskip\baselineskip\relax,
-         publishervspace=\vfill,
+ introductionvspace=\vskip\baselineskip\relax,
+    publishervspace=\vfill,
              series={\CONTEXT\ 模板系列示例},
                book={这是书名\vskip\baselineskip\relax{\restoreglobalbodyfont
                       \rm Here\ \ is\ \ Subtitle}},
@@ -3902,8 +3841,8 @@ endfor;
         authoralign=center,
      publisheralign=center,
   introductionalign=center,
-%         beforeintroduction=\tophrule,
-%          afterintroduction=\bottomhrule,
+%beforeintroduction=\tophrule,
+% afterintroduction=\bottomhrule,
           lastvspace=\null\vskip\baselineskip\relax,]
 
 \protected\def\definecovervariable#1{\begingroup% #1=element name
@@ -4141,7 +4080,6 @@ endfor;
 \definefontfeature[f:tnum][mode=node,pnum=no,tnum=yes]
 \definefontfeature[f:caps][always][smcp=yes]
 
-
 \def\fakesc{\begingroup%
     \let\par=\space\obeylines\obeyspaces%
     \let\myspace=\space\dosmallcaps}
@@ -4196,7 +4134,6 @@ endfor;
     \doif{#1}{style}{\csname \currentfontstyle\endcsname}
     \doif{#1}{alternative}{\csname \currentfontalternative\endcsname}
 }
-
 
 %https://tex.stackexchange.com/questions/159118/how-to-iterate-over-a-comma-separated-list?noredirect=1
 \def\applys#1#2{\applyA#1#2,\applyA,}
