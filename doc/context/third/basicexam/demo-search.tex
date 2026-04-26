@@ -8,16 +8,16 @@
 The {\tt t-basicexam} module provides a question database system for ConTeXt LMTX with SQLite integration. It supports multiple question types: material, choice, question, and writing.
 
 \subject{Database Setup}
-\startitemize
+\startitemize[packed]
 \item {\bf \textbackslash initdatabase[path=filename.db]} --- Initialize and create a new database file
 \item {\bf \textbackslash opendatabase[path=filename.db]} --- Open an existing database file
 \item {\bf \textbackslash closedatabase} --- Close the current database connection
 \stopitemize
 
 \subject{Adding Questions}
-\startitemize
+\startitemize[packed]
 \item {\bf \textbackslash addquestion[options]\{content\}} --- Add a question to the database
-\startitemize
+\startitemize[packed]
 \item {\tt type} --- Question type: material, choice, question, writing (default: question)
 \item {\tt point} --- Point value (default: 1)
 \item {\tt answer} --- The correct answer
@@ -31,13 +31,13 @@ The {\tt t-basicexam} module provides a question database system for ConTeXt LMT
 \stopitemize
 
 \subject{Searching Questions}
-\startitemize
+\startitemize[packed]
 \item {\bf \textbackslash searchquestions[options]} --- Search and render questions
-\startitemize
+\startitemize[packed]
 \item {\tt id} --- Search by question ID
 \item {\tt qitemid} --- Search by sub-question item ID
 \item {\tt tag} --- Search by tag(s)
-\startitemize
+\startitemize[packed]
 \item {\tt tag=value} --- Single tag
 \item {\tt tag=\{A+B\}} --- Tags AND (must have both A and B)
 \item {\tt tag=\{A,B\}} --- Tags OR (must have A or B)

@@ -1,0 +1,104 @@
+\usemodule[memos]
+
+\starttext
+
+\title{拼音注音测试}
+
+\section{自动注音环境测试}
+
+\startpinyinscope
+汉语拼音自动注音测试。
+
+\color[red]{汉语拼音自动注音测试。}
+
+{\switchtobodyfont[ss]汉语拼音自动注音测试。}
+
+Lorem Ipsum，也称乱数假文或者哑元文本，是印
+刷及排版领域所常用的虚拟文字。由于曾经一台匿名的打印机刻意打乱了一盒印刷
+字体从而造出一本字体样品书，Lorem Ipsum 从西元 15 世纪起就被作为此领域的
+标准文本使用。它不仅延续了五个世纪，还通过了电子排版的挑战，其雏形却依然
+保存至今。在 1960 年代，『Leatraset』公司发布了印刷着 Lorem Ipsum 段落的纸
+张，从而广泛普及了它的使用。最近，计算机桌面出版软件『Aldus PageMaker』
+也通过同样的方式使 Lorem Ipsum 落入大众的视野。
+恰恰与流行观念相反，Lorem Ipsum 并不是简简单单的随机文本。它追溯于
+一篇公元前 45 年的经典拉丁著作，从而使它有着两千多年的岁数。弗吉尼亚州
+Hampden­Sydney 大学拉丁系教授 Richard McClintock 曾在 Lorem Ipsum 段落中
+注意到一个涵义十分隐晦的拉丁词语， 『consectetur』，通过这个单词详细查
+阅跟其有关的经典文学著作原文 ，McClintock教授发掘了这个不容置疑的出
+处。Lorem Ipsum 始于西塞罗(Cicero)在公元前 45 年作的『de Finibus Bonorum et
+Malorum』(善恶之尽) 里 1.10.32 和 1.10.33 章节。这本书是一本关于道德理论的论
+述，曾在文艺复兴时期非常流行。Lorem Ipsum 的第一行『Lorem ipsum dolor sit
+amet..』节选于 1.10.32 章节。
+\stoppinyinscope
+
+\section{手动注音测试}
+
+汉字：\xpinyin{手动注音测试}
+
+\section{拼音输出测试}
+
+手动注音：\xpinyin[hàn]{\bf \color[red]{汉}}
+
+\pinyin{han4yu3pin1yin1}
+
+\pinyin{zhong1guo2ren2min2}
+
+\section{参数测试}
+
+\subsection{ratio 参数（拼音字号比例）}
+
+默认 (0.4): \xpinyin{汉}
+
+ratio=6 (0.6): \xpinyin[ratio=6]{汉}
+
+ratio=3 (0.3): \xpinyin[ratio=3]{汉}
+
+ratio=8 (0.8): \xpinyin[ratio=8]{汉}
+
+\subsection{vsep 参数（拼音汉字垂直间距）}
+
+默认 (1em): \xpinyin{汉}
+
+vsep=0.5em: \xpinyin[vsep=0.5em]{汉}
+
+vsep=2em: \xpinyin[vsep=2em]{汉}
+
+\subsection{hsep 参数（水平间距）}
+
+hsep=10pt: \xpinyin[hsep=10pt]{汉字}
+
+hsep=0pt: \xpinyin[hsep=0pt]{汉字}
+
+\section{多音字测试}
+
+\startpinyinscope
+\xpinyin[chong2]{重}庆是一座美丽的城市。
+\stoppinyinscope
+
+\xpinyin{重}要
+
+\xpinyin[chong2]{重}庆
+
+手动设置多音字：\xpinyin[zhòng]{重}要
+
+\subsection{multiple=yes}
+
+\xpinyin{重庆是一座美丽的城市}
+
+\xpinyin[multiple=yes,pysep=2pt]{重庆是一座美丽的城市}
+
+\xpinyin[multiple=yes,pysep=8pt]{行长乐成长安}
+
+
+\section{标记多音字模式}
+
+\startpinyinscope[markpolyphone=yes]
+汉语拼音自动注音测试。重庆是一座美丽的城市。
+\stoppinyinscope
+
+\xpinyin[markpolyphone=yes]{汉语拼音测试}
+
+\setuppinyin[markpolyphone=yes]
+\xpinyin{汉语拼音测试。重庆是一座美丽的城市。}
+
+\stoptext

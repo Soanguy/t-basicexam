@@ -1055,8 +1055,15 @@
             \iftok{#1}{solution}
               \currentprevsolutionanswer
             \else
-              \ifempty\currentanswer\p_totalanswer
-                \else\UnlimitedCurrentAnswer\fi
+              \ifempty\p_totalanswer
+                \ifempty\currentanswer
+                  \UnlimitedCurrentAnswer
+                \else
+                  \currentanswer
+                \fi
+              \else
+                \p_totalanswer
+              \fi
             \fi
           \fi
         \right_assignedlabel

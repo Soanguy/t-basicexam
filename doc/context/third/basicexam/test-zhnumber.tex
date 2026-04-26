@@ -1,0 +1,104 @@
+\usemodule[memos]
+
+\starttext
+
+\title{ConTeXt 中文数字扩展功能测试}
+
+\section{整数转换}
+
+\startitemize[n,horizontal,columns][n=3]
+\item 0: \zhnumber{0}
+\item 1: \zhnumber{1}
+\item 10: \zhnumber{10}
+\item 11: \zhnumber{11}
+\item 20: \zhnumber{20}
+\item 21: \zhnumber{21}
+\item 100: \zhnumber{100}
+\item 101: \zhnumber{101}
+\item 110: \zhnumber{110}
+\item 111: \zhnumber{111}
+\item 1000: \zhnumber{1000}
+\item 10000: \zhnumber{10000}
+\item 100000000: \zhnumber{100000000}
+\item 12345: \zhnumber{12345}
+\item 10203: \zhnumber{10203}
+\item 10020304: \zhnumber{10020304}
+\item -123: \zhnumber{-123}
+\stopitemize
+
+\section{小数转换}
+
+\startitemize[n,horizontal,columns][n=2]
+\item 0.123: \zhnumber{0.123}
+\item 123.45: \zhnumber{123.45}
+\item 3.14159: \zhnumber{3.14159}
+\stopitemize
+
+\section{分数转换}
+
+\startitemize[n,horizontal,columns][n=2]
+\item 1/2: \zhnumber{1/2}
+\item 1/3: \zhnumber{1/3}
+\item 3/4: \zhnumber{3/4}
+\item 123/45: \zhnumber{123/45}
+\stopitemize
+
+\section{日期时间}
+
+\startitemize[n,horizontal,columns][n=2]
+\item \zhdate{2024/1/1}
+\item \zhdate{2024/12/31}
+\item \zhtime{0:00}
+\item \zhtime{14:30}
+\item \zhweekday{2024/1/1}
+\item \zhtoday
+\item \zhcurrtime
+\stopitemize
+
+\section{天干地支}
+
+\startitemize[n,horizontal,columns][n=2]
+\item 天干: \dorecurse{10}{\convertnumber{tiangan}{#1},}
+\item 地支: \dorecurse{12}{\convertnumber{dizhi}{#1},}
+\item 干支: \dorecurse{60}{\convertnumber{ganzhi}{#1},}
+\item 天干: \dorecurse{10}{\zhtiangan{#1},}
+\item 地支: \dorecurse{12}{\zhdizhi{#1},}
+\item 干支: \dorecurse{60}{\zhganzhi{#1},}
+\item 2024: \zhganzhinian{2024}
+\stopitemize
+
+\section{样式}
+
+\startitemize[n,horizontal,columns][n=2]
+\item normal: \zhnumber[normal]{12345}
+\item cap: \zhnumber[cap]{12345}
+\item all: \zhnumber[all]{23}
+\stopitemize
+
+\section{零的设置}
+
+默认使用〇：
+\startitemize[n,horizontal,columns][n=2]
+\item 101: \zhnumber{101}
+\item 2024年: \zhdate{2024/1/1}
+\stopitemize
+
+\setupzhnumber[zero=零]
+
+切换为零：
+\startitemize[n,horizontal,columns][n=2]
+\item 101: \zhnumber{101}
+\item 2024年: \zhdate{2024/1/1}
+\stopitemize
+
+\setupzhnumber[zero=〇]
+
+切换回〇：
+\startitemize[n,horizontal,columns][n=2]
+\item 101: \zhnumber{101}
+\item 2024年: \zhdate{2024/1/1}
+\stopitemize
+
+
+
+\stoptext

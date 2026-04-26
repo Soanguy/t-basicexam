@@ -1,0 +1,1430 @@
+\usemodule[memos]
+\usemodule[basicexam]
+\usemodule[setups]
+
+\enablemode[no-setup-main]
+\loadsetups[i-basicexam.xml]
+
+\setupinteraction[state=start]
+\setuptextrules[style=\tf\ss,before=,after=,rulethickness=.5pt]
+
+\setuptyping[style=\ttxx\setuplocalinterlinespace[line=2ex],
+             option={context},
+             before={\vbox{\hrule height .5pt\par
+                     \textrule{Code Example}%
+                     \hrule height .5pt\vrule width0pt depth 4pt}\par},
+              after={\vbox{\hrule height .5pt\strut}},
+             ]
+
+\starttext
+
+\title{basicexam Module User Manual}
+
+\blank[big]
+
+\placecontent
+
+\chapter{Module Overview}
+
+\section{Introduction}
+
+basicexam is an exam paper production module designed for ConTeXt LMTX, providing a complete exam typesetting solution.
+The module supports various question types, including multiple choice, fill-in-the-blank, short answer, cloze, etc., and has features like answer management and score statistics.
+
+\section{Main Features}
+
+\startitemize[packed]
+\item Multiple question types: multiple choice, fill-in-the-blank, short answer, cloze, etc.
+\item Teacher/Student mode switching to control answer display
+\item Unlimited nested question support
+\item Automatic score statistics and answer collection
+\item Flexible style customization options
+\item Built-in various symbol markers
+\item Composition grids and writing areas
+\item Reading material and reference system
+\stopitemize
+
+\section{System Requirements}
+
+This module requires {\bf ConTeXt LMTX (LuaMetaTeX)} environment and does not support MkIV version.
+If running in an incompatible environment, the module will display an error and terminate compilation.
+
+\chapter{Module Loading and Parameters}
+
+\section{Loading the Module}
+
+\starttyping
+\usemodule[basicexam]
+\stoptyping
+
+\section{Module Parameters}
+
+The following parameters can be set when loading the module:
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Options \NC Description \NC\NR
+\HL
+\NC mode \NC \NC Running mode: \NC\NR
+\NC      \NC student  \NC Student mode, hide answers \NC\NR
+\NC      \NC teacher  \NC Teacher mode, show answers \NC\NR
+\NC      \NC check    \NC Check mode, show answers and output debug info \NC\NR
+\HL
+\NC layout \NC \NC Layout settings: \NC\NR
+\NC        \NC twoup   \NC Two-up layout (two pages per sheet) \NC\NR
+\NC        \NC none    \NC Default single page layout \NC\NR
+\HL
+\NC footer \NC \NC Footer settings: \NC\NR
+\NC        \NC default \NC Show subject and page number \NC\NR
+\NC        \NC none    \NC No footer \NC\NR
+\HL
+\NC libpath \NC path \NC SQLite library file path (for data storage) \NC\NR
+\HL
+\NC showanswer \NC showanswer \NC Show answers \NC\NR
+\NC showpoint  \NC showpoint  \NC Show scores \NC\NR
+\NC showscript \NC showscript \NC Show answer area \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Examples}
+
+\starttyping
+% Teacher mode, show answers
+\usemodule[basicexam][mode=teacher]
+
+% Student mode, hide answers
+\usemodule[basicexam][mode=student]
+
+% Check mode, debug output
+\usemodule[basicexam][mode={teacher,check}]
+
+% Two-up layout
+\usemodule[basicexam][layout=twoup]
+\stoptyping
+
+\section{Mode Control}
+
+\subsection{Global Mode}
+
+Set global mode through module parameters:
+
+\starttyping
+\usemodule[basicexam][mode=teacher]  % Teacher mode
+\usemodule[basicexam][mode=student]  % Student mode
+\stoptyping
+
+\subsection{Local Control}
+
+Dynamically switch in the document:
+
+\starttyping
+\showanswer   % Show answers
+\hideanswer   % Hide answers
+\showpoint    % Show scores
+\hidepoint    % Hide scores
+\stoptyping
+
+\subsection{Individual Question Control}
+
+Control display at question level:
+
+\starttyping
+\startquestion[showanswer=true,showpoint=true]
+  This question will show answers and scores.
+\stopquestion
+
+\startquestion[showanswer=false,showpoint=false]
+  This question will hide answers and scores.
+\stopquestion
+\stoptyping
+
+\section{Style Customization}
+
+\subsection{Global Settings}
+
+Use \type{\setupquestion} for global settings:
+
+\startbuffer
+\setupquestion[
+  answer={default answer},
+  point=1,
+  showanswer=true,
+  showpoint=true,
+  style=\ss,
+  color=black,
+]
+\stopbuffer
+
+\typebuffer
+
+\subsection{Multiple Choice Style}
+
+\startbuffer
+\setupchoice[
+  answerstyle=\ss,
+  answercolor=red,
+  numberconversion=A,
+  option={A,packed,joinedup,nowhite},
+]
+\stopbuffer
+
+\typebuffer
+
+\subsection{Answer Style}
+
+\startbuffer
+\setupanswer[
+  style=\ss\it,
+  color=darkblue,
+  answerlabel={{Answer}},
+  pointlabel={, points},
+  before=\blank[halfline]\startnarrower,
+  after=\blank[halfline]\stopnarrower,
+]
+\stopbuffer
+
+\typebuffer
+
+\chapter{Paper Title}
+
+\section{papertitle Command}
+
+The paper title is an important part of an exam paper, usually containing exam name, subject, grade, exam time, etc.
+The module provides \type{\definepapertitle} and \type{\makepapertitle} commands to create standardized paper titles.
+
+\subsection{Basic Usage}
+
+First use \type{\definepapertitle} to define title style, then use \type{\setuppapertitle} to set content, finally use \type{\makepapertitle} to output:
+
+\startbuffer
+\definepapertitle[myexam][list={secret,title,subject,information}]
+\setuppapertitle[myexam][
+  secret={CONFIDENTIAL $\star$ DO NOT OPEN},
+  title={2024 National College Entrance Examination},
+  subject={Mathematics},
+  information={Total: 150 points, Time: 120 minutes}]
+\makepapertitle[myexam]
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\subsection{Title Elements}
+
+The \type{list} parameter controls which elements are displayed in the title and their order. Default list: \type{secret,title,subject,information,signinformation,notice}.
+
+\starttabulate[|l|p|]
+\HL
+\NC Element \NC Description \NC\NR
+\HL
+\NC secret \NC Confidentiality mark (e.g., "CONFIDENTIAL $\star$ DO NOT OPEN") \NC\NR
+\NC title \NC Main title \NC\NR
+\NC subject \NC Subject name (automatically adds subjectsuffix) \NC\NR
+\NC information \NC Exam information (e.g., total points, time) \NC\NR
+\NC signinformation \NC Signature information area \NC\NR
+\NC notice \NC Notice \NC\NR
+\HL
+\stoptabulate
+
+Each element can be styled individually with style, color, and alignment, e.g.:
+\type{secretstyle}, \type{secretcolor}, \type{secretalign}, etc.
+
+\subsection{Other Parameters}
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC alternative \NC default \NC Title template \NC\NR
+\NC list \NC \NC Display element list \NC\NR
+\NC subjectsuffix \NC Exam Paper \NC Subject suffix \NC\NR
+\NC style \NC \NC Global font style \NC\NR
+\NC color \NC \NC Global font color \NC\NR
+\NC align \NC center \NC Global alignment \NC\NR
+\HL
+\stoptabulate
+
+\section{Custom Title Style}
+
+You can create new title styles by inheriting existing ones:
+
+\startbuffer
+\definepapertitle[mytitle][myexam]
+\setuppapertitle[mytitle][title={My Exam Paper},style=\ssa\bf]
+\makepapertitle[mytitle]
+\stopbuffer
+
+\typebuffer
+
+\start\getbuffer\stop
+
+\chapter{Multiple Choice}
+
+\section{Basic Usage}
+
+Multiple choice questions have two syntax formats: {\bf environment format} and {\bf shortcut format}.
+
+\subsection{Environment Format}
+
+Use \type{\startquestion}...\type{\stopquestion} and \type{\startchoice}...\type{\stopchoice} environments:
+
+\startbuffer
+\startquestion
+  This is the question stem.
+  \startchoice
+    \startcitem Option A \stopcitem
+    \startcitem Option B \stopcitem
+    \startcitem Option C \stopcitem
+    \startcitem Option D \stopcitem
+  \stopchoice
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{Shortcut Format}
+
+Use \type{\question} and \type{\choice} commands:
+
+\startbuffer
+\question{This is the question stem.
+  \choice{Option A,Option B,Option C,Option D}
+}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{Parameter Description}
+
+\showsetup[setupchoice]
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC inlinechoice \NC false \NC Whether it is an inline multiple choice \NC\NR
+\NC inlineleft \NC \NC Content on the left of inline options \NC\NR
+\NC inlineright \NC \NC Content on the right of inline options \NC\NR
+\NC correctsymbol \NC \NC Correct answer marker symbol \NC\NR
+\NC separator \NC \NC Option separator \NC\NR
+\NC textstyle \NC \NC Option text style \NC\NR
+\NC textcolor \NC \NC Option text color \NC\NR
+\NC showanswer \NC \NC Whether to show answer \NC\NR
+\NC showpoint \NC \NC Whether to show score \NC\NR
+\NC answer \NC \NC Answer content \NC\NR
+\NC answerstyle \NC \NC Answer style \NC\NR
+\NC answercolor \NC \NC Answer color \NC\NR
+\NC answerlabel \NC \NC Answer label \NC\NR
+\NC point \NC \NC Question score \NC\NR
+\NC pointstyle \NC \NC Score style \NC\NR
+\NC pointcolor \NC \NC Score color \NC\NR
+\NC pointlabel \NC \NC Score label \NC\NR
+\HL
+\stoptabulate
+
+\section{Advanced Usage}
+
+\subsection{Marking Correct Answers}
+
+Use \type{[*]} to mark correct answers:
+
+\startbuffer
+\startquestion[showanswer=true]
+  This is the question stem.
+  \startchoice
+    \startcitem    Option A \stopcitem
+    \startcitem    Option B \stopcitem
+    \startcitem[*] Option C \stopcitem
+    \startcitem    Option D \stopcitem
+  \stopchoice
+\stopquestion
+
+\question[showanswer=true]{This is the question stem.
+  \choice{Option A,Option B,{[*]Option C},Option D}
+}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{Multiple Correct Answers}
+
+Support for marking multiple correct answers:
+
+\startbuffer
+\startquestion[showanswer=true]
+  Select all correct options.
+  \startchoice
+    \startcitem[*] Option A \stopcitem
+    \startcitem    Option B \stopcitem
+    \startcitem[*] Option C \stopcitem
+    \startcitem    Option D \stopcitem
+  \stopchoice
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{Column Control}
+
+Control the number of display columns through optional parameters:
+
+\startbuffer
+\startquestion
+  Options displayed in 8 columns.
+  \startchoice[8]
+    \startcitem A \stopcitem
+    \startcitem B \stopcitem
+    \startcitem C \stopcitem
+    \startcitem D \stopcitem
+    \startcitem E \stopcitem
+    \startcitem F \stopcitem
+    \startcitem G \stopcitem
+    \startcitem H \stopcitem
+  \stopchoice
+\stopquestion
+
+\question{Options displayed in 8 columns.
+  \choice[8]{A,B,C,D,E,F,G,H}
+}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{Inline Multiple Choice}
+
+Inline multiple choice displays options within the question stem line, suitable for short questions:
+
+\startbuffer
+\startquestion
+  This is an inline multiple choice.\relax
+  \startinlinechoice
+    \startcitem Option A \stopcitem
+    \startcitem Option B \stopcitem
+    \startcitem Option C \stopcitem
+    \startcitem Option D \stopcitem
+  \stopinlinechoice
+\stopquestion
+
+\question{This is an inline multiple choice.\relax
+  \inlinechoice{Option A,Option B,Option C,Option D}
+}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{Custom Styles}
+
+Use \type{\definechoice} to create custom multiple choice styles:
+
+\startbuffer
+\definechoice[mychoice][
+  option={text,6,packed,joinedup,nowhite},
+  inlinechoice=true,
+  correctsymbol={\symbol{markcirclecheck}},
+  inlineleft={【\nobreak},
+  inlineright={\nobreak 】},
+  answerstyle=\ss,
+  separator={\removeunwantedspaces,\space},
+]
+
+\startquestion[showanswer=true]
+  Using custom multiple choice style.
+  \startmychoice
+    \startcitem[*] Option A \stopcitem
+    \startcitem    Option B \stopcitem
+    \startcitem    Option C \stopcitem
+    \startcitem    Option D \stopcitem
+  \stopmychoice
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\chapter{Questions and Problems}
+
+\section{question Environment}
+
+\type{question} environment is used to create independent questions:
+
+\startbuffer
+\startquestion[option={n,packed,joinedup,nowhite}]
+This is the main content of the question.
+\stopquestion
+
+\question{This is the main content of the question.}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{problem Environment}
+
+\type{problem} environment is used to create sub-problem lists:
+
+\startbuffer
+\startquestion
+This is the stem of a major question.
+  \startproblem
+  \startpitem This is the first sub-question.\stoppitem
+  \startpitem This is the second sub-question.\stoppitem
+  \stopproblem
+\stopquestion
+
+\question{This is the stem of a major question.
+  \problem[textstyle=ss]
+    {\pitem{This is the first sub-question.}
+     \pitem{This is the second sub-question.}
+  }
+}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{Question Nesting}
+
+Support for unlimited levels of question nesting:
+
+\startbuffer
+\startquestion
+This is the first level question.
+  \startquestion
+  This is the second level question.
+    \startquestion
+    This is the third level question.
+    \stopquestion
+  \stopquestion
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{question Parameters}
+
+\showsetup[setupquestion]
+
+\chapter{Answers and Analysis}
+
+\section{Basic Usage}
+
+\type{answer} environment is used to add answers and analysis:
+
+\startbuffer
+\startquestion[point=4,showpoint=true,answer=A]
+This is the question stem.
+  \startchoice
+    \startcitem[*] Option A \stopcitem
+    \startcitem    Option B \stopcitem
+    \startcitem    Option C \stopcitem
+    \startcitem    Option D \stopcitem
+  \stopchoice
+  \startanswer
+    This is a detailed explanation of the question.
+    The reason for choosing A is...
+  \stopanswer
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{Parameter Description}
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC showanswer \NC \NC Whether to show answer \NC\NR
+\NC showpoint \NC \NC Whether to show score \NC\NR
+\NC showscript \NC \NC Whether to show answer area \NC\NR
+\NC scriptcontent \NC \NC Answer area prompt content \NC\NR
+\NC style \NC \ss\it \NC Answer font style \NC\NR
+\NC color \NC \NC Answer color \NC\NR
+\NC answerlabel \NC Answer \NC Answer label \NC\NR
+\NC pointlabel \NC , points \NC Score label \NC\NR
+\HL
+\stoptabulate
+
+\section{Advanced Usage}
+
+\subsection{Answer Area}
+
+Use \type{showscript=true} to add answer writing area:
+
+\startbuffer
+\startquestion[point=4,showpoint=true]
+This is a question that requires a written answer.
+\startanswer[showscript=true,frame=off,
+             scriptcontent={\centerline{\lightgray\ss Please write your answer here}\par
+                            \null\vskip3\baselineskip\relax}]
+\stopanswer
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{Score Settings}
+
+Set scores in questions:
+
+\startbuffer
+\question[point=5,showpoint=true]{This question is worth 5 points.\choice{A,B,C,D}}
+
+\startquestion[point=10,showpoint=true]
+This major question is worth 10 points total.
+\startproblem
+  \startpitem[point=3,showpoint=true] First sub-question is 3 points.\stoppitem
+  \startpitem[point=4,showpoint=true] Second sub-question is 4 points.\stoppitem
+  \startpitem[point=3,showpoint=true] Third sub-question is 3 points.\stoppitem
+\stopproblem
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{score Command}
+
+\type{\score} command is used to mark the score for each point in the answer, helping graders understand score distribution.
+This command is usually used with \type{\resetscore}, which resets the cumulative score.
+
+Use \type{\score{points}} in answers to mark scoring points:
+
+\startbuffer
+\startanswer
+  Answer point one \score{3}
+  Answer point two \score{4}
+  Answer point three \score{3}
+  \resetscore
+  Total \score[type=dotfills]{10}
+\stopanswer
+\stopbuffer
+
+\typebuffer \getbuffer
+
+score command parameters:
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC type \NC \NC Display type: dotfills, normal \NC\NR
+\NC style \NC \NC Number style \NC\NR
+\NC color \NC \NC Number color \NC\NR
+\NC before \NC \NC Content before score \NC\NR
+\NC after \NC \NC Content after score \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Answer Output}
+
+Answer output function is used to generate answer summary tables at the end of the paper or at specified locations.
+Use \type{\typeanswer} command to output answers in different formats.
+
+\startbuffer
+% List format (default)
+\typeanswer[start=1,total=10]
+
+% Table format
+\typeanswer[alternative=table,start=1,total=30,rows=6,columns=5]
+
+% Grid format
+\typeanswer[alternative=grid,start=1,total=10,rows=5,columns=2]
+
+% Direct access to individual answer
+\typeanswer[alternative=direct]{Q-5}
+\stopbuffer
+
+\typebuffer
+
+typeanswer command parameters:
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC alternative \NC list \NC Output format: list, table, grid, direct \NC\NR
+\NC start \NC 1 \NC Starting question number \NC\NR
+\NC stop \NC \NC Ending question number \NC\NR
+\NC total \NC \NC Total number of questions (alternative to stop) \NC\NR
+\NC chapter \NC \NC Chapter number \NC\NR
+\NC rows \NC \NC Number of table rows \NC\NR
+\NC columns \NC \NC Number of table columns \NC\NR
+\NC separator \NC \NC Separator (text format) \NC\NR
+\NC left \NC \NC Content to the left of answer \NC\NR
+\NC right \NC \NC Content to the right of answer \NC\NR
+\HL
+\stoptabulate
+
+\chapter{Fill-in-the-Blank}
+
+\section{Basic Usage}
+
+\type{\fillin} command is used to create fill-in-the-blank items in questions:
+
+\startbuffer
+\startquestion[showanswer=true,point=2,showpoint=true]
+  Lorem ipsum dolor sit amet,
+  \fillin{fill-in answer}
+  consectetur adipiscing elit.
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{Parameter Description}
+
+\showsetup[setupfillin]
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC style \NC \NC Fill-in content style \NC\NR
+\NC color \NC \NC Fill-in content color \NC\NR
+\NC before \NC \NC Content before fill-in \NC\NR
+\NC after \NC \NC Content after fill-in \NC\NR
+\NC left \NC \NC Left boundary \NC\NR
+\NC right \NC \NC Right boundary \NC\NR
+\NC empty \NC yes \NC Blank display mode: yes, number, none \NC\NR
+\NC alternative \NC default \NC Fill-in style: default, frame, simple \NC\NR
+\NC n \NC \NC Underline length (number of characters) \NC\NR
+\NC width \NC \NC Fill-in width \NC\NR
+\HL
+\stoptabulate
+
+\section{Advanced Usage}
+
+\subsection{Fill-in Styles}
+
+Control fill-in display through \type{empty} parameter:
+
+\startbuffer
+\setupquestion[showanswer=false,point=2,showpoint=false]
+
+\startquestion[showanswer=false]
+  Different fill-in style examples:
+  \startproblem
+    {\setupfillin[empty=number,n=5]
+     Numbered style: Lorem ipsum \fillin{answer}}
+    
+    {\setupfillin[empty=yes,n=5]
+     Hidden style: Lorem ipsum \fillin{answer}}
+    
+    {\setupfillin[empty=none,n=5]
+     Display style: Lorem ipsum \fillin{answer}}
+  \stopproblem
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{True/False Questions}
+
+Fill-in-the-blank can also be used for true/false questions:
+
+\startbuffer
+\setupfillin[empty=none,style=\tta]
+\startquestion
+Determine whether the following statements are correct.
+  \startproblem
+  \startpitem \fillin{T} This is a correct statement.\stoppitem
+  \startpitem \fillin{F} This is an incorrect statement.\stoppitem
+  \startpitem This is a correct statement.\hfill\fillin{\symbol{markcheck}}\stoppitem
+  \startpitem This is an incorrect statement.\hfill\fillin{\symbol{markcross}}\stoppitem
+  \stopproblem
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\chapter{Reading Material}
+
+\section{Basic Usage}
+
+Reading comprehension is a common question type in exams, usually containing a reading passage and several related questions.
+\type{material} environment is used to place reading material, supporting title, author, source, and other information.
+
+\startbuffer
+\setupmaterial[title][style=\ssa]
+\setupmaterial[author][style=\tta]
+\setupmaterial[source][style=ss]
+
+\startmaterial[title={Material Title},author={Author Name},source={Source}]
+  This is the content of the reading material.
+  It can contain multiple paragraphs.
+  \indicator{content to be questioned one}
+  \indicator{content to be questioned two}
+\stopmaterial
+
+\startquestion
+  \indicator{content to be questioned one}
+  \choice{Option A,Option B,Option C,Option D}
+\stopquestion
+
+\startquestion
+  \indicator{content to be questioned two}
+  \choice{Option A,Option B,Option C,Option D}
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{Parameter Description}
+
+\showsetup[setupmaterial]
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC title \NC \NC Material title \NC\NR
+\NC author \NC \NC Author \NC\NR
+\NC source \NC \NC Source \NC\NR
+\NC style \NC \NC Body font style \NC\NR
+\NC color \NC \NC Body font color \NC\NR
+\NC before \NC \NC Content before material \NC\NR
+\NC after \NC \NC Content after material \NC\NR
+\HL
+\stoptabulate
+
+\section{Advanced Usage}
+
+\subsection{indicator Command}
+
+\type{\indicator} command is used to mark question points in the material, establishing the relationship between material and questions.
+Marked content is displayed with a special style in the material and referenced in the questions.
+
+\startitemize[packed]
+\item Use \type{\indicator{marker name}} in material to mark key content
+\item Use \type{\indicator{marker name}} in questions to reference that content
+\item Association is automatically established during compilation
+\stopitemize
+
+\startbuffer
+\startmaterial[title={Example Material}]
+  Article content, where \indicator{key content one} needs to be questioned,
+  and \indicator{key content two} also needs to be questioned.
+\stopmaterial
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\chapter{Verse Typesetting}
+
+\section{Basic Usage}
+
+\type{verse} environment is used to typeset poetry, lyrics, and other verse content:
+
+\startbuffer
+\startverse[title=Linjiang Xian $\cdot$ Rolling Yangtze River Eastward,author=Ming $\cdot$ Yang Shen,sample={White-haired fisherman on the river isle}]
+滾滾長江東逝水浪花淘盡英雄\\
+是非成敗轉頭空\\
+青山依舊在 幾度夕陽紅\\
+白髮漁樵江渚上 慣看秋月春風\\
+一壺濁酒喜相逢\\
+古今多少事 都付笑談中
+\stopverse
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{Parameter Description}
+
+\showsetup[setupverse]
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC title \NC \NC Poem title \NC\NR
+\NC author \NC \NC Author information \NC\NR
+\NC source \NC \NC Source information \NC\NR
+\NC sample \NC \NC Sample text for calculating indentation \NC\NR
+\NC skip \NC both \NC Indentation mode: left, right, both, none \NC\NR
+\NC align \NC \NC Alignment \NC\NR
+\NC style \NC \NC Font style \NC\NR
+\NC color \NC \NC Text color \NC\NR
+\NC before \NC \NC Content before environment \NC\NR
+\NC after \NC \NC Content after environment \NC\NR
+\HL
+\stoptabulate
+
+\section{Advanced Usage}
+
+Styles for title, author, and source can be set separately:
+
+\startbuffer
+\setupverse[sample={滾滾長江東逝水浪花淘盡英雄},skip=left,before=\blank,after=\blank]
+\setupverse[title][align=center,style=bf,skip=both]
+\setupverse[author][align=flushright,style=it,skip=both]
+\setupverse[source][align=flushright,style=it,skip=both]
+\stopbuffer
+
+\typebuffer
+
+\chapter{Cloze Test}
+
+\section{Basic Usage}
+
+\type{close} environment is used to create cloze tests, embedding options in text for students to select.
+Each option is marked using \type{\closechoice} command, correct answers are marked with \type{[*]}.
+
+\startbuffer
+\startclose[showanswer=true,showpoint=true,point=1.5,answer=nil]
+On Oct. 11, hundreds of runners competed in a cross-country race.
+Melanie Bailey should have \closechoice[designed,followed,changed,finished] the
+course earlier than she did. Her \closechoice[delay,chance,trouble,excuse] came
+because she was carrying a \closechoice[judge,volunteer,classmate,competitor]
+across the finish line.
+\stopclose
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{Parameter Description}
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC reset \NC false \NC Whether to reset question number \NC\NR
+\NC n \NC 8 \NC Underline length \NC\NR
+\NC width \NC 1.5em \NC Question number width \NC\NR
+\NC answerwidth \NC 4em \NC Answer area width \NC\NR
+\NC point \NC \NC Points per question \NC\NR
+\NC answer \NC \NC Default answer \NC\NR
+\NC showanswer \NC \NC Whether to show answer \NC\NR
+\NC showpoint \NC \NC Whether to show score \NC\NR
+\NC style \NC \NC Text style \NC\NR
+\NC color \NC \NC Text color \NC\NR
+\NC barstyle \NC \NC Underline style \NC\NR
+\NC barcolor \NC \NC Underline color \NC\NR
+\NC frame \NC \NC Whether to show frame \NC\NR
+\NC stopper \NC \NC Question number suffix \NC\NR
+\NC distance \NC \NC Option spacing \NC\NR
+\NC before \NC \NC Content before environment \NC\NR
+\NC after \NC \NC Content after environment \NC\NR
+\HL
+\stoptabulate
+
+\section{Advanced Usage}
+
+\subsection{closechoice Command}
+
+\type{\closechoice} command is used to insert options in cloze tests, syntax:
+\type{\closechoice[option1,option2,option3,...]}.
+
+Correct answers are marked with \type{[*]}: \type{\closechoice[option1,{[*]correct option},option3]}.
+
+\subsection{optclose Environment}
+
+\type{optclose} environment is a variant of \type{close}, used for option-based fill-in:
+
+\startbuffer
+\startoptclose[point=2,showanswer=true]
+The latest \ocitem[answer=engineering]{engineer} techniques are applied to create
+this protective \ocitem[answer=functional]{function} structure.
+\stopoptclose
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\chapter{Writing Area}
+
+\section{Basic Usage}
+
+\subsection{Composition Grid}
+
+Use \type{\writingbox} to create composition grids:
+
+\startbuffer
+\writingbox
+  [column=6,
+   row=6,
+   evencolor=blue,
+   oddcolor=darkgray,
+   evenheight=1cm,
+   oddheight=.5cm,
+   height=10cm,
+   width=\textwidth]{}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{Grid Paper}
+
+Use \type{\writinggrid} to create grid paper:
+
+\startbuffer
+\writinggrid
+  [cellwidth=1cm,
+   column=12,
+   row=8,
+   cellcolor=darkgray,
+   height=8cm,
+   width=\textwidth]{}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{Parameter Description}
+
+\subsection{writingbox Parameters}
+
+\showsetup[setupwritingbox]
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC column \NC \NC Number of columns \NC\NR
+\NC row \NC \NC Number of rows \NC\NR
+\NC evencolor \NC \NC Even row color \NC\NR
+\NC oddcolor \NC \NC Odd row color \NC\NR
+\NC evenheight \NC \NC Even row height \NC\NR
+\NC oddheight \NC \NC Odd row height \NC\NR
+\NC height \NC \NC Total height \NC\NR
+\NC width \NC \NC Total width \NC\NR
+\NC align \NC \NC Alignment \NC\NR
+\NC rulethickness \NC \NC Line thickness \NC\NR
+\HL
+\stoptabulate
+
+\subsection{writinggrid Parameters}
+
+\showsetup[setupwritinggrid]
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC column \NC \NC Number of columns \NC\NR
+\NC row \NC \NC Number of rows \NC\NR
+\NC cellwidth \NC \NC Cell width \NC\NR
+\NC cellcolor \NC \NC Cell color \NC\NR
+\NC height \NC \NC Total height \NC\NR
+\NC width \NC \NC Total width \NC\NR
+\HL
+\stoptabulate
+
+\section{Advanced Usage}
+
+\subsection{writing Environment}
+
+\type{writing} environment is used to create composition questions, supporting score and answer settings:
+
+\startbuffer
+\startwriting[point=45,showpoint=true]
+  Composition prompt
+  
+  Please write according to the following requirements:
+  \startitemize
+  \item Requirement one
+  \item Requirement two
+  \stopitemize
+  
+  \startanswer
+  Sample essay content...
+  \stopanswer
+\stopwriting
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{subwriting Environment}
+
+\type{subwriting} environment is used to create sub-composition questions:
+
+\startbuffer
+\startwriting[point=100]
+  Composition prompt
+  
+  \startsubwriting[point=50]
+    Sub-composition one
+    \startanswer
+    Sample essay one...
+    \stopanswer
+  \stopsubwriting
+  
+  \startsubwriting[point=50]
+    Sub-composition two
+    \startanswer
+    Sample essay two...
+    \stopanswer
+  \stopsubwriting
+\stopwriting
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{writing Parameters}
+
+\type{writing} environment inherits from \type{question} environment, parameters are set through \type{\setupwriting}:
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC point \NC \NC Composition score \NC\NR
+\NC answer \NC See sample essay \NC Reference answer \NC\NR
+\NC totalanswer \NC \NC Total reference answer \NC\NR
+\NC showanswer \NC \NC Whether to show answer \NC\NR
+\NC showpoint \NC \NC Whether to show score \NC\NR
+\NC style \NC \NC Question font style \NC\NR
+\NC color \NC \NC Question color \NC\NR
+\NC option \NC n,packed \NC List options \NC\NR
+\NC before \NC \NC Content before environment \NC\NR
+\NC after \NC \NC Content after environment \NC\NR
+\HL
+\stoptabulate
+
+\chapter{Symbol Definitions}
+
+The module has built-in various marker symbols (requires NotoSansSymbols2 font):
+
+\starttabulate[|l|r|l|r|]
+\HL
+\NC Command \NC Symbol \NC Command \NC Symbol \NC\NR
+\HL
+\NC \type{\symbol{marksquare}} \NC \symbol{marksquare}
+\NC \type{\symbol{markcircle}} \NC \symbol{markcircle} \NC\NR
+\NC \type{\symbol{markcheck}} \NC \symbol{markcheck}
+\NC \type{\symbol{markcross}} \NC \symbol{markcross} \NC\NR
+\NC \type{\symbol{markheavycheck}} \NC \symbol{markheavycheck}
+\NC \type{\symbol{markheavycross}} \NC \symbol{markheavycross} \NC\NR
+\NC \type{\symbol{marksquarecheck}} \NC \symbol{marksquarecheck}
+\NC \type{\symbol{marksquarecross}} \NC \symbol{marksquarecross} \NC\NR
+\NC \type{\symbol{markcirclecheck}} \NC \symbol{markcirclecheck}
+\NC \type{\symbol{markcirclecross}} \NC \symbol{markcirclecross} \NC\NR
+\HL
+\stoptabulate
+
+\section{Circled Text}
+
+\type{\circledtext} command is used to create text with circles or boxes:
+
+\startbuffer
+\circledtext{1}\quad
+\circledtext[radius=0.5]{A}\quad
+\circledtext[radius=0,fillcolor=black,color=white]{B}\quad
+\circledtext[radius=0.2]{C}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{circledtext Parameters}
+
+\showsetup[setupcircledtext]
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC frametype \NC circle \NC Frame type: circle, square \NC\NR
+\NC framecolor \NC \NC Frame color \NC\NR
+\NC fillcolor \NC \NC Fill color \NC\NR
+\NC dashcolor \NC \NC Dashed line color \NC\NR
+\NC dashlinewidth \NC \NC Dashed line width \NC\NR
+\NC color \NC \NC Text color \NC\NR
+\NC radius \NC \NC Corner radius \NC\NR
+\NC effect \NC normal \NC Effect \NC\NR
+\NC scaled \NC \NC Scale ratio \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Circled Number Conversion}
+
+The module provides various circled number conversion formats for list numbering:
+
+\startbuffer
+\startitemize[Co:num,packed]
+  \item First item
+  \item Second item
+  \item Third item
+\stopitemize
+
+\startitemize[CO:num,packed]
+  \item First item
+  \item Second item
+  \item Third item
+\stopitemize
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\starttabulate[|l|l|]
+\HL
+\NC Conversion Format \NC Description \NC\NR
+\HL
+\NC Co:num \NC White background black text circled number \NC\NR
+\NC CO:num \NC Black background white text circled number \NC\NR
+\NC Cr:num \NC White background black text rounded box number \NC\NR
+\NC CR:num \NC Black background white text rounded box number \NC\NR
+\NC Cs:num \NC White background black text square box number \NC\NR
+\NC CS:num \NC Black background white text square box number \NC\NR
+\NC Co:Alph \NC Uppercase circled letter \NC\NR
+\NC Co:alph \NC Lowercase circled letter \NC\NR
+\NC Co:cn \NC Circled Chinese number \NC\NR
+\NC Co:hira \NC Circled hiragana \NC\NR
+\NC Co:kata \NC Circled katakana \NC\NR
+\HL
+\stoptabulate
+
+\chapter{Dictionary Entries}
+
+\section{Basic Usage}
+
+\type{lexicalentry} environment is used to create dictionary-style entries, suitable for making vocabulary lists, glossaries, or language learning materials.
+Each entry can contain part of speech tags, accent marks, definitions, example sentences, etc.
+
+\startbuffer
+\startlexicalentry[class=n.,accent=1]{太陽}
+  \startlexicallists
+    \item 太陽系の中心をなし、地球にもっとも近い恒星。お日さま。\antonym{太陰}。
+    \item 光明・希望の象徴。「心の\alias」
+  \stoplexicallists
+\stoplexicalentry
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{Parameter Description}
+
+\showsetup[setuplexicalentry]
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC class \NC \NC Part of speech tag (e.g., "n.", "v.") \NC\NR
+\NC accent \NC \NC Accent mark (number) \NC\NR
+\NC number \NC \NC Number \NC\NR
+\NC style \NC \NC Entry style \NC\NR
+\NC color \NC \NC Entry color \NC\NR
+\NC before \NC \NC Content before entry \NC\NR
+\NC after \NC \NC Content after entry \NC\NR
+\HL
+\stoptabulate
+
+\section{Advanced Usage}
+
+\subsection{Dictionary Lists}
+
+\type{lexicallists} is a supporting list environment, supporting four levels of nesting, each using different numbering styles:
+
+\startbuffer
+\startlexicalentry[class=v.]{走る}
+  \startlexicallists
+    \item 足を動かして進む。\antonym{止まる}。
+    \item 逃げる。
+      \startlexicallists
+        \item 時間が経過する。
+        \item 機械が動く。
+      \stoplexicallists
+  \stoplexicallists
+\stoplexicalentry
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{Dictionary Enumerations}
+
+The module provides various dictionary enumeration environments for structured display of entry information:
+
+\starttabulate[|l|l|]
+\HL
+\NC Environment \NC Description \NC\NR
+\HL
+\NC lexicalgrammar \NC Grammar explanation \NC\NR
+\NC lexicalmeaning \NC Definition explanation \NC\NR
+\NC lexicaljunction \NC Conjunction explanation \NC\NR
+\NC lexicalexample \NC Example explanation \NC\NR
+\NC lexicalcomparing \NC Comparison explanation \NC\NR
+\NC lexicalsummary \NC Summary explanation \NC\NR
+\HL
+\stoptabulate
+
+\startbuffer
+\startlexicalentry[class=adj.]{美しい}
+  \startlexicalmeaning
+    見た目や心がすばらしい。きれいだ。
+  \stoplexicalmeaning
+  
+  \startlexicalexample
+    美しい景色を眺める。\\
+    美しい心を持つ。
+  \stoplexicalexample
+  
+  \startlexicalcomparing
+    「美しい」は芸術的な美しさ、「きれい」は清潔さを強調。
+  \stoplexicalcomparing
+\stoplexicalentry
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{Association Commands}
+
+Dictionary entries support various association commands for marking relationships between entries:
+
+\starttabulate[|l|p|]
+\HL
+\NC Command \NC Description \NC\NR
+\HL
+\NC \type{\antonym{word}} \NC Antonym \NC\NR
+\NC \type{\synonym{word}} \NC Synonym \NC\NR
+\NC \type{\alias} \NC Entry alias reference \NC\NR
+\NC \type{\refer{word}} \NC See also reference \NC\NR
+\NC \type{\example{example}} \NC Example mark \NC\NR
+\NC \type{\junction{junction}} \NC Junction mark \NC\NR
+\HL
+\stoptabulate
+
+\chapter{Advanced Features}
+
+\section{Unlimited Nesting Support}
+
+The module supports unlimited levels of question nesting with automatic answer tree management:
+
+\startbuffer
+\startquestion[point=20]
+First level major question
+  \startquestion[point=10]
+  Second level sub-question
+    \startquestion[point=5]
+    Third level sub-question
+    \stopquestion
+  \stopquestion
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{Data Persistence}
+
+Answer data is automatically saved to .tuc file and can be accessed during second compilation:
+
+\starttyping
+% Access saved answer data
+\datasetvariable{UnlimitedDataset}{question ID}{answer}
+\datasetvariable{UnlimitedDataset}{question ID}{point}
+\stoptyping
+
+\section{Answer Tree Structure}
+
+The basicexam module uses an answer tree structure to manage all question answers and score information.
+Each question node contains the following attributes:
+
+\starttabulate[|l|p|]
+\HL
+\NC Attribute \NC Description \NC\NR
+\HL
+\NC id \NC Node unique identifier (e.g., \type{jobname-1-Q-1}) \NC\NR
+\NC order \NC Level order (e.g., \type{1}, \type{2-1}, \type{2-2-1}) \NC\NR
+\NC answer \NC Answer content \NC\NR
+\NC point \NC Current node score (valid for leaf nodes) \NC\NR
+\NC totalpoint \NC Total score of this node and child nodes \NC\NR
+\NC totalnumber \NC Total count of this node and child nodes \NC\NR
+\NC is_leaf \NC Whether it is a leaf node \NC\NR
+\NC depth \NC Node depth (0=root node) \NC\NR
+\HL
+\stoptabulate
+
+\section{Node Information Retrieval}
+
+\subsection{Current Node Information}
+
+\starttabulate[|l|p|]
+\HL
+\NC Command \NC Description \NC\NR
+\HL
+\NC \type{\UnlimitedCurrentID} \NC Get current node ID \NC\NR
+\NC \type{\UnlimitedGetDepth} \NC Get current node depth \NC\NR
+\NC \type{\UnlimitedCurrentAnswer} \NC Get current node answer \NC\NR
+\NC \type{\UnlimitedCurrentPoint} \NC Get current node total score \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Specified Node Information}
+
+Use \type{\UnlimitedGetAnswer} to get attributes of specified nodes:
+
+\startbuffer
+% Get score of question 1
+\UnlimitedGetAnswer{jobname-1-Q-1}{point}
+
+% Get answer of question 1
+\UnlimitedGetAnswer{jobname-1-Q-1}{answer}
+
+% Get total score of question 1 (including sub-questions)
+\UnlimitedGetAnswer{jobname-1-Q-1}{totalpoint}
+
+% Get total count of question 1 (including sub-questions)
+\UnlimitedGetAnswer{jobname-1-Q-1}{totalnumber}
+\stopbuffer
+
+\typebuffer
+
+\section{Debug Features}
+
+In check mode, the module automatically outputs debug information:
+
+\starttyping
+\usemodule[basicexam][mode={teacher,check}]
+\stoptyping
+
+You can also manually call debug commands:
+
+\starttyping
+% Output answer tree structure
+\UnlimitedDebug
+
+% Export answers to TSV file
+\UnlimitedExport{answers.tsv}
+\stoptyping
+
+\chapter{Contributing and Modifying}
+
+\section{Submitting Requests}
+
+If you find bugs or have new feature requests during use, you can submit them through:
+
+\startitemize[packed]
+\item Submit an Issue on GitHub repository
+\item Send email to author
+\item Post on relevant forums for discussion
+\stopitemize
+
+When submitting requests, please try to provide the following information:
+
+\startitemize[packed]
+\item ConTeXt version information (run \type{context --version})
+\item Minimal reproduction example
+\item Expected behavior and actual behavior
+\stopitemize
+
+\section{Modifying This Module}
+
+This module is written in LuaMetaTeX, source code is located in \type{t-basicexam.mklx} file.
+
+\subsection{Module Structure}
+
+\starttabulate[|l|p|]
+\HL
+\NC File \NC Description \NC\NR
+\HL
+\NC t-basicexam.mklx \NC Main module file, contains all command definitions \NC\NR
+\NC i-basicexam.xml \NC Interface definition file, for command documentation generation \NC\NR
+\NC doc/basicexam-manual.tex \NC User manual \NC\NR
+\NC doc/test-exam.tex \NC Test file \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Modification Suggestions}
+
+\startitemize[packed]
+\item Please backup original files before modifying
+\item Recommended to read source code comments first
+\item Please run test files for verification after modification
+\item For major improvements, Pull Requests are welcome
+\stopitemize
+
+\stoptext

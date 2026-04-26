@@ -92,6 +92,7 @@
 
 \processaction[\currentmoduleparameter{hdrstyle}]%
    [       book=>\hdr_sty_booktrue,
+           line=>\hdr_sty_booktrue,
           novel=>\hdr_sty_noveltrue,
        colorful=>\hdr_sty_colorfultrue,
          madsen=>\hdr_sty_madsentrue,
@@ -370,8 +371,6 @@
 %% 因为修改了 language 的 setups，导致会修改全局的字体设置，因此 basicexam 应该放在 最开始加载
 %% 这样后续如果使用 修改字体的 模块的话，才会生效
 
-
-
 \def\lang_set_if_provided#1#2#3{%
   \ifcsname lang:#1#2\endcsname
     \expandafter#3\expandafter[\lastnamedcs]%
@@ -392,16 +391,6 @@
    \setuplanguage[#1][setups=lang:#1:setup,#2]}
 
 \let\setupuserlanguage\defineuserlanguage
-
-\setupuserlanguage[en][
-  bodyfont=modern,
-  fallbackfont=none,
-  script=latin,
-  patterns=en,
-  align={bottom,width},
-  interlinespace=2.8ex,
-  whitespace=big,
-  indenting=none,]
 
 \setupuserlanguage[cn][
   bodyfont=adobehans,
@@ -525,6 +514,7 @@
           or (c >= 0x02E80 and c <= 0x02EFF) --CJK Radicals Supplement;
           or (c >= 0x02F00 and c <= 0x02FDF) --Kangxi Radicals
           or (c >= 0x02FF0 and c <= 0x02FFF) --Ideographic Description Characters
+          or c == 0x03007 -- 〇
           -- or (c >= 0x03000 and c <= 0x0303F) --CJK Symbols and Punctuation
           or (c >= 0x03100 and c <= 0x0312F) --Bopomofo
           or (c >= 0x03190 and c <= 0x0319F) --Kanbun
@@ -1029,8 +1019,10 @@ context.definelayout(
 \stopluacode
 
 %%%%% \section{layout}
+\definelayout        [madsen]  [exotic]
 \setuplayout         [\moduleparameter{memos}{layout}]
 \definelayout        [default][\moduleparameter{memos}{layout}]
+
 %%% 此處定義了默認的頁面佈局， 可以通過 \setuplayout[default] 來設置
 % \doloopoverlist
 %   {exotic, kaolike, ipad, kindle, sidemirror,
@@ -1044,6 +1036,7 @@ context.definelayout(
 \defineconversionset  [bodypart:pagenumber]  [] [n]
 \setupsectionblock    [frontpart] [\c!number=\v!yes,before=\setcounter [userpage] [1]]
 \setupsectionblock    [bodypart]  [\c!number=\v!yes,before=\setcounter [userpage] [1]]
+\setupsectionblock    [appendix]  [before=\setuphead[part][number=no,numbercommand=]]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                            標題相關設置                             %%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1054,16 +1047,18 @@ context.definelayout(
             before={\vskip.5\baselineskip\relax}, after={\vskip.5\baselineskip\relax},]
 \setuphead [part,chapter,title]  [color=titlecolor]
 \setuphead [title,subject]       [incrementnumber=list]
-\setuphead [part]                [style=\definedfont[Sans sa 2.488],page=yes]
+\setuphead [part]                [style=\definedfont[Sans sa 2.488]]
 \setuphead [chapter]             [style=\ssd]
 \setuphead [section]             [style=\rm\bfb]
 \setuphead [subsection]          [style=\rma\bf]
 \setuphead [subsubsection]       [style=\rm\bf]
 \setuphead [subsubsubsection]    [style=\rm\bf]
 \setuphead [subsubsubsubsection] [style=\rm\bf]
-\setuphead [part]                [placehead=yes,alternative=middle,
-                                  before={\mbox{}\vskip4\baselineskip\relax},
-                                   after={\vskip2\baselineskip\relax}]
+\setuphead [part]                [placehead=yes,
+                                  numbercommand=\groupedcommand{\feature[+][f:caps] Part\ }{},
+                                  commandbefore=\blank,
+                                  before={\null\vfill},
+                                  after={\vfill}]
 \setuphead [part,title]          [header=empty,footer=empty]
 \setuphead [chapter]             [header=empty,footer=empty,
                                   frontpartlabel=preface,
@@ -1073,7 +1068,6 @@ context.definelayout(
                                   interlinespace=3\bodyfontsize,
                                   before={\null\vskip3\baselineskip\relax},
                                   after={\vskip\baselineskip\relax}]
-\setuphead [part]                [sectionsegments=part]
 \setuphead [chapter]             [sectionsegments=chapter]
 \setuphead [section]             [sectionsegments=section]
 \setuphead [subsection]          [sectionsegments=subsection]
@@ -1759,6 +1753,7 @@ context.definelayout(
   \endgroup}
 
 \startsetups memos:chap:kaolike
+  \setuplabeltext[hans][appendix={附录~}]
   \newdimen\d_temp_chapheight
   \d_temp_chapheight=\dimexpr\topspace
                             +\headerheight+\headerdistance
@@ -2038,7 +2033,7 @@ context.definelayout(
   {\getparameters[??TOCs][#1]}
 
 \setupTOCs[%#1 to set lists,#2 to set tochead
-  alternative=default,% dont know why dont work
+  alternative=,%
   interlinespace=\baselineskip,
   title=\labeltext{content},
   content=yes,
@@ -2046,7 +2041,7 @@ context.definelayout(
 
 \tolerant\def\placeTOCs[#1]{\begingroup%
   \iffirstargument\getparameters[??TOCs][#1]\fi%
-  \edef\currenttocstyle{\ifempty\??TOCsalternative\moduleparameter{tocstyle}\else\??TOCsalternative\fi}%
+  \edef\currenttocstyle{\ifempty\??TOCsalternative\currenttocstyle\else\??TOCsalternative\fi}%
   \setups{memos:toc:\currenttocstyle}%
   \doifinsetelse{\namedheadparameter{tochead}\c!page}{no,disable}%
      {}{\startlayout[\??TOCslayout]}%
@@ -2225,14 +2220,10 @@ context.definelayout(
 \fi
 
 \ifhdr_sty_madsen
-  \setupheader        [state=start]
+  \setuppagenumbering [alternative=doublesided]
   \setupheadertexts  []
-  \setupheadertexts  [margin]
-                [][\donefalse\setups [hdr:odd:sectionmark]]
-                  [\donefalse\setups [hdr:even:chaptermark]][]
-  \setupheadertexts[edge]
-                [][\setups[ftr:framedpagenumber]]
-                  [\setups[ftr:framedpagenumber]][]
+  \setupheadertexts  [\donetrue\setups [hdr:even:chaptermark]][][]
+                     [\donetrue\setups [hdr:odd:sectionmark]]
 \fi
 %%%%%%%%%%%%%%%%%%%%
 
@@ -3522,150 +3513,6 @@ suggest=\symbol[fontawesome][star]]
 \def\refsimp[#reflevel:#reference]%
    {\refsec_level_detect[#reflevel:#reference]{\space}%\setlocationattributes
     \at{(p.}{)}[#reflevel:#reference]\refsymbol}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \section{PinYin} from wolfgang
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\startluacode
-  function commands.convertpinyin(text,number)
-      local replaced
-      local number = tonumber(number)
-      if string.find(text,"a") or string.find(text,"e") then
-          if number==1 then
-              text = string.gsub(text,"a","ā")
-              text = string.gsub(text,"e","ē")
-          elseif number==2 then
-              text = string.gsub(text,"a","á")
-              text = string.gsub(text,"e","é")
-          elseif number==3 then
-              text = string.gsub(text,"a","ǎ")
-              text = string.gsub(text,"e","ě")
-          elseif number==4 then
-              text = string.gsub(text,"a","à")
-              text = string.gsub(text,"e","è")
-          end
-          replaced = false
-      else
-          replaced = true
-      end
-      while replaced do
-          if number==1 then
-              text = string.gsub(text,"i","ī")
-              text = string.gsub(text,"o","ō")
-              if string.find(text,"o") then else text =
-  string.gsub(text,"u","ū") end
-              text = string.gsub(text,"v","ǖ")
-          elseif number==2 then
-              text = string.gsub(text,"i","í")
-              text = string.gsub(text,"o","ó")
-              if string.find(text,"o") then else text =
-  string.gsub(text,"u","ú") end
-              text = string.gsub(text,"v","ǘ")
-          elseif number==3 then
-              text = string.gsub(text,"o","ǒ")
-              text = string.gsub(text,"i","ǐ")
-              if string.find(text,"o") then else text =
-  string.gsub(text,"u","ǔ") end
-              text = string.gsub(text,"u","ǔ")
-              text = string.gsub(text,"v","ǚ")
-          elseif number==4 then
-              text = string.gsub(text,"o","ò")
-              text = string.gsub(text,"i","ì")
-              if string.find(text,"o") then else text =
-  string.gsub(text,"u","ù") end
-              text = string.gsub(text,"v","ǜ")
-          end
-          replaced = false
-      end
-      tex.sprint(tex.ctxcatcodes,text)
-  end
-
-  local letter = lpeg.R("az")
-  local number = lpeg.R("09")
-
-  local pinyin = lpeg.C(letter^1) * lpeg.C(number^0) /
-  commands.convertpinyin
-
-  local parser = (pinyin)^0
-
-  function commands.pinyin(str)
-      str = string.gsub(str,"r1","1r")
-      str = string.gsub(str,"r2","2r")
-      str = string.gsub(str,"r3","3r")
-      str = string.gsub(str,"r4","4r")
-      str = string.gsub(str,"r5","5r")
-      str = string.gsub(str,"ng1","1ng")
-      str = string.gsub(str,"ng2","2ng")
-      str = string.gsub(str,"ng3","3ng")
-      str = string.gsub(str,"ng4","4ng")
-      str = string.gsub(str,"ng5","5ng")
-      str = string.gsub(str,"n1","1n")
-      str = string.gsub(str,"n2","2n")
-      str = string.gsub(str,"n3","3n")
-      str = string.gsub(str,"n4","4n")
-      str = string.gsub(str,"n1","5n")
-      str = string.gsub(str,"ai1","a1i")
-      str = string.gsub(str,"ai2","a2i")
-      str = string.gsub(str,"ai3","a3i")
-      str = string.gsub(str,"ai4","a4i")
-      str = string.gsub(str,"ai5","a5i")
-      str = string.gsub(str,"ei1","e1i")
-      str = string.gsub(str,"ei2","e2i")
-      str = string.gsub(str,"ei3","e3i")
-      str = string.gsub(str,"ei4","e4i")
-      str = string.gsub(str,"ei5","e5i")
-      str = string.gsub(str,"ao1","a1o")
-      str = string.gsub(str,"ao2","a2o")
-      str = string.gsub(str,"ao3","a3o")
-      str = string.gsub(str,"ao4","a4o")
-      str = string.gsub(str,"ao5","a5o")
-      str = string.gsub(str,"ou1","o1u")
-      str = string.gsub(str,"ou2","o2u")
-      str = string.gsub(str,"ou3","o3u")
-      str = string.gsub(str,"ou4","o4u")
-      str = string.gsub(str,"ou5","o5u")
-      str = string.gsub(str,"uu1","v1")
-      str = string.gsub(str,"uu2","v2")
-      str = string.gsub(str,"uu3","v3")
-      str = string.gsub(str,"uu4","v4")
-      str = string.gsub(str,"uu","ü")
-      str = string.gsub(str,"o1","ō")
-      str = string.gsub(str,"o2","ó")
-      str = string.gsub(str,"o3","ǒ")
-      str = string.gsub(str,"o4","ò")
-      str = string.gsub(str,"e1","ē")
-      str = string.gsub(str,"e2","é")
-      str = string.gsub(str,"e3","ě")
-      str = string.gsub(str,"e4","è")
-      str = string.gsub(str,"i1","ī")
-      str = string.gsub(str,"i2","í")
-      str = string.gsub(str,"i3","ǐ")
-      str = string.gsub(str,"i4","ì")
-      str = string.gsub(str,"u1","ū")
-      str = string.gsub(str,"u2","ú")
-      str = string.gsub(str,"u3","ǔ")
-      str = string.gsub(str,"u4","ù")
-      str = string.gsub(str,"v1","ǖ")
-      str = string.gsub(str,"v2","ǘ")
-      str = string.gsub(str,"v3","ǚ")
-      str = string.gsub(str,"v4","ǜ")
-      str = string.gsub(str,"a1","ā")
-      str = string.gsub(str,"a2","á")
-      str = string.gsub(str,"a3","ǎ")
-      str = string.gsub(str,"a4","à")
-      tex.sprint(tex.ctxcatcodes,str)
-  end
-\stopluacode
-
-\defineruby[pinyin]  [style=\txx]
-\def\directpinyin#1{\ctxlua{commands.pinyin([[#1]])}}
-\def\pinyin#1#2{\ruby[pinyin]{#1}{\directpinyin{#2}}}
-%\starttext
-%
-%\pinyin{XXXX}{ni2hao3}
-%\pinyin{RRRR}{huai4}
-%\pinyin{XXXXXX}{heng1yu2mou3tau4ne3}
-%
-%\stoptext
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 没有用了，我们可以直接使用 stretched 这个命令
 \newdimen\autojustify_width
@@ -3677,7 +3524,7 @@ suggest=\symbol[fontawesome][star]]
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%                               封面相關設置                             %%%%%%
+%%%%%%                               封面相關設置                          %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \installnamespace          {cover}
 \installcommandhandler \????cover  {cover}  \????cover
@@ -3707,19 +3554,19 @@ suggest=\symbol[fontawesome][star]]
 
 \startuseMPgraphic{MP:flyleaf}
     numeric width , height ;
-    numeric CoverWidth , CoverHeight , WhiteWidth;
+    numeric memosCoverWidth , memosCoverHeight , WhiteWidth;
     WhiteWidth  := LeftEdgeWidth   + LeftEdgeDistance +
                    LeftMarginWidth + LeftMarginDistance;
-    CoverWidth  := WhiteWidth      + TextWidth ;
-    CoverHeight := TextHeight      + HeaderDistance   + FooterDistance;
+    memosCoverWidth  := WhiteWidth      + TextWidth ;
+    memosCoverHeight := TextHeight      + HeaderDistance   + FooterDistance;
     width  = PaperWidth + WhiteWidth;
     height = \overlayheight ;
     path paper_back ;%%% i
     paper_back  := fullsquare xscaled width yscaled height ;
     fill paper_back withcolor \MPcolor{softthemecolor} ;
     path text_back ;%%% ii
-    text_back := fullsquare xscaled CoverWidth
-                            yscaled CoverHeight
+    text_back := fullsquare xscaled memosCoverWidth
+                            yscaled memosCoverHeight
                             shifted (-.25WhiteWidth,0)
                             cornered .5cm;
     fill text_back withcolor white;
@@ -3741,19 +3588,19 @@ suggest=\symbol[fontawesome][star]]
 \stopuseMPgraphic
 
 \startuseMPgraphic{MP:golden_circle}
-  numeric phi, r, delta, angle, steps, offset;
+  numeric phi, r, delta, Angle, steps, offset;
   phi    := (1 + sqrt(5)) / 2;  % 黃金比例常數 ≈1.618
   r      := 20cm;               % 初始圓半徑
   delta  := 360 / phi;          % 黃金旋轉角 ≈137.508°
   steps  := 8;                  % 循環次數
-  angle  := 60;                 % 初始角度
+  Angle  := 60;                 % 初始角度
 
-  % 精確計算位移公式：offset += r * dir(angle)
+  % 精確計算位移公式：offset += r * dir(Angle)
   for i = 0 upto steps:
     % 繪製圓（半徑r，中心位置基於累積位移）
     fill fullcircle scaled (2r)
-      rotated angle                % 旋转角度
-      shifted (r/phi * dir(angle)) % 位移控制螺旋轨迹
+      rotated Angle                % 旋转角度
+      shifted (r/phi * dir(Angle)) % 位移控制螺旋轨迹
       withshademethod "circular"
       withshadecenter (.5,.75)
       withcolor \MPcolor{themecolor} shadedinto \MPcolor{softthemecolor}
@@ -3761,7 +3608,7 @@ suggest=\symbol[fontawesome][star]]
 
     % 更新参数：半径按 phi 缩放，角度增加 delta
     r := r / phi;
-    angle := angle + delta;
+    Angle := Angle + delta;
   endfor;
 \stopuseMPgraphic
 
@@ -3770,7 +3617,7 @@ suggest=\symbol[fontawesome][star]]
 \def\c!makeup{makeup}
 
 \definemarking [book]
-\definemakeup  [default]
+\definemakeup  [preset]
 \definemakeup  [flyleaf]        [default]
 \definemakeup  [usercover]      [default]
 \definelayer   [lay:default]    [repeat=yes,width=\paperwidth, height=\paperheight]
@@ -3782,11 +3629,11 @@ suggest=\symbol[fontawesome][star]]
 \defineoverlay [olay:usercover] [\useMPgraphic{MP:golden_circle}]
 \defineoverlay [olay:cover]
 
-\setupmakeup [default]  [headerstate=empty,footerstate=empty,
+\setupmakeup [preset]   [headerstate=empty,footerstate=empty,
                          top=,before=\setups{setup:defaultmakeup},]
 \setupmakeup [flyleaf]  [before=\setups{setup:flyleafmakeup},]
 \setupmakeup [usercover][before=\setups{setup:usercovermakeup}]
-\definelayout[default]  [backspace=15mm,rightmargin=10mm,rightedge=0mm,
+\definelayout[preset]   [backspace=15mm,rightmargin=10mm,rightedge=0mm,
                          topspace=5mm,bottomspace=5mm,% header=5mm,footer=5mm,
                          width=fit,height=fit,]
 \definelayout[flyleaf]  [backspace=10mm,rightmargin=10mm,rightedge=0mm,
@@ -3816,7 +3663,7 @@ suggest=\symbol[fontawesome][star]]
 
 \setupcover [
                list={series,book,author,introduction,publisher},
-             makeup=default,%flyleaf
+             makeup=preset,%flyleaf
        % background=,
        seriesvspace=\null\vskip3\baselineskip\relax,
          bookvspace=\vskip2\baselineskip\relax,
@@ -4160,6 +4007,168 @@ suggest=\symbol[fontawesome][star]]
   \number\cnt_floor\relax\fi%
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                               zhnumber                              %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\registerctxluafile{m-zhnumber}{}
+
+\installnamespace {zhnumber}
+
+\installcommandhandler \????zhnumber {zhnumber} \????zhnumber
+
+\setupzhnumber[zero=〇]
+
+\permanent\def\zhnumber{\dosingleempty\dozhnumber}
+\def\dozhnumber[#1]#2{\clf_zhnumber{#2}{#1}}
+
+\permanent\def\zhdate#1{\clf_zhdate{#1}}
+
+\permanent\def\zhtime#1{\clf_zhtime{#1}}
+
+\permanent\def\zhweekday#1{\clf_zhweekday{#1}}
+
+\permanent\def\zhtoday{\expanded{\clf_zhdate{\the\normalyear/\the\normalmonth/\the\normalday}}}
+
+\permanent\def\zhcurrtime{\calculatecurrenttime\clf_zhtime{\currenthour:\currentminute}}
+
+\permanent\def\zhtiangan#1{\clf_zhtiangan{#1}}
+
+\permanent\def\zhdizhi#1{\clf_zhdizhi{#1}}
+
+\permanent\def\zhganzhi#1{\clf_zhganzhi{#1}}
+
+\permanent\def\zhganzhinian#1{\clf_zhganzhinian{#1}}
+
+\appendtoks
+    \clf_zhsetzero{\zhnumberparameter{zero}}%
+\to \everysetupzhnumber
+
+\clf_zhsetzero{\zhnumberparameter{zero}}%
+
+\defineconversion[tiangan][甲, 乙, 丙, 丁, 戊, 己, 庚, 辛, 壬, 癸]
+
+\defineconversion[dizhi][子, 丑, 寅, 卯, 辰, 巳, 午, 未, 申, 酉, 戌, 亥]
+
+\defineconversion[ganzhi]
+                 [甲子,乙丑,丙寅,丁卯,戊辰,己巳,庚午,辛未,壬申,癸酉,
+                  甲戌,乙亥,丙子,丁丑,戊寅,己卯,庚辰,辛巳,壬午,癸未,
+                  甲申,乙酉,丙戌,丁亥,戊子,己丑,庚寅,辛卯,壬辰,癸巳,
+                  甲午,乙未,丙申,丁酉,戊戌,己亥,庚子,辛丑,壬寅,癸卯,
+                  甲辰,乙巳,丙午,丁未,戊申,己酉,庚戌,辛亥,壬子,癸丑,
+                  甲寅,乙卯,丙辰,丁巳,戊午,己未,庚申,辛酉,壬戌,癸亥]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                               zhpinyin                              %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\registerctxluafile{m-pinyin}{}
+
+\newdimen\pinyinvsep
+\newskip\pinyinhsep
+\newskip\pinyinpysep
+\newcount\pinyinratio
+
+\pinyinvsep=1em
+\pinyinhsep=0pt
+\pinyinpysep=\spaceskip
+\pinyinratio=4
+
+\def\pinyinpysepstr{\hskip\pinyinpysep}
+
+\installnamespace{pinyin}
+
+\tolerant\def\setuppinyin#*[#S#1]{%
+   \getparameters[\????pinyin][#1]%
+   \pinyinvsep   =\csname\????pinyin vsep\endcsname
+   \pinyinhsep   =\csname\????pinyin hsep\endcsname
+   \pinyinpysep  =\csname\????pinyin pysep\endcsname
+   \pinyinratio  =\csname\????pinyin ratio\endcsname
+   \ctxlua{thirddata.pinyin.setup{%
+     multiple=[[\csname\????pinyin multiple\endcsname]],%
+     markpolyphone=[[\csname\????pinyin markpolyphone\endcsname]]%
+   }}%
+ }
+
+\setuppinyin[vsep=0pt,hsep=2pt plus 1pt minus 2pt,pysep=\spaceskip,ratio=6,multiple=no,markpolyphone=no]
+
+\tolerant\def\startpinyinscope#*[#1]%
+  {\begingroup
+   \doifnotempty{#1}{\setuppinyin[#1]}%
+   \grabbufferdata[pinyinscope][pinyinscope][startpinyinscope][stoppinyinscope]}
+
+\def\stoppinyinscope
+  {\ctxlua{thirddata.pinyin.process_buffer()}%
+   \endgroup}
+
+\tolerant\def\pinyin#*[#S#1]#:#2%
+  {\begingroup
+   \ifparameters\or\setuppinyin[#1]\fi
+   \ctxlua{thirddata.pinyin.format_pinyin_string([==[#2]==])}%
+   \endgroup}
+
+\tolerant\def\xpinyin#*[#S#1]#*[#S#2]#:#3%
+  {\begingroup
+   \ifparameters
+     \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])}%
+     \ctxlua{thirddata.pinyin.process_buffer("xpinyinbuf")}%
+   \or
+     \ifhastok={#1}%
+       \setuppinyin[#1]%
+       \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])}%
+       \ctxlua{thirddata.pinyin.process_buffer("xpinyinbuf")}%
+     \else
+       \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])}%
+       \ctxlua{thirddata.pinyin.process_buffer("xpinyinbuf",[==[#1]==])}%
+     \fi
+   \or
+     \setuppinyin[#2]%
+     \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])}%
+     \ctxlua{thirddata.pinyin.process_buffer("xpinyinbuf",[==[#1]==])}%
+   \fi
+   \endgroup}
+
+\def\setpinyin#1#2%
+  {\ctxlua{thirddata.pinyin.set(utf.byte([==[#1]==]), [==[#2]==])}}
+
+\newbox\pinyinbox
+\newbox\hanzibox
+
+\def\pinyinannotate#1#2#3%
+  {\dontleavehmode
+   \begingroup
+   \setbox\hanzibox\hbox{#1}%
+   \setbox\pinyinbox\hbox{%
+     \tf
+     \doif{#3}{true}{}%
+     #2%
+   }%
+   \dimen1=\wd\pinyinbox
+   \multiply\dimen1 by \pinyinratio
+   \divide\dimen1 by 10
+   \setbox\pinyinbox\hbox{%
+     \scale[width=\dimen1]{\box\pinyinbox}%
+   }%
+   \dp\pinyinbox\z@
+   \dimen0=\wd\hanzibox
+   \ifdim\wd\pinyinbox>\dimen0
+     \dimen0=\wd\pinyinbox
+   \fi
+   \vbox{%
+     \lineskip\z@
+     \hbox to \dimen0{\hss\vrule width0pt height0pt depth\pinyinvsep\box\pinyinbox\hss}%
+     \nointerlineskip
+     \hbox to \dimen0{\hss\strut\box\hanzibox\hss}%
+   }%
+   \hskip\pinyinhsep\relax
+   \endgroup}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                               zhindex                               %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\registerctxluafile{m-zhindex}{}
+
 %%%%% \processaction 执行顺序，需要先定义这些参数
 
 \processaction[\currentmoduleparameter{chapterstyle}]%
@@ -4187,6 +4196,7 @@ suggest=\symbol[fontawesome][star]]
         simple=>\setups{memos:toc:simple},
       classics=>\setups{memos:toc:classics},
   classicnovel=>\setups{memos:toc:classicnovel},
+       kaolike=>\setups{memos:toc:kaolike},
           none=>\relax,
     \v!default=>\setups{memos:toc:default},
     \v!unknown=>\errorparameter{tocstyle},]

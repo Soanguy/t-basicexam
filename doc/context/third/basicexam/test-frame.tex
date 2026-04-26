@@ -1,0 +1,506 @@
+\usemodule[memos][fontsize=16pt,fontstyle=ss]
+\usemodule[poriginal]
+
+\starttext
+
+\TitlePage[title=这是文章标题,subtitle=这是副标题,author=\moduleparameter{poriginal}{color},]{}
+
+\Topics{这是篇章目录页}
+
+\Topic{双栏标题框组件测试}
+
+\Subject{基础功能测试}
+
+\subsection{完整双栏标题框（默认）}
+
+\startDualHeaderText[number={No.001},title={这是标题}]
+这是一个完整的双栏标题框示例。左侧显示编号，右侧显示标题。
+\stopDualHeaderText
+
+\subsection{仅显示编号}
+
+\startDualHeaderText[number={A-123},showtitle=0]
+这个框只显示编号，不显示标题。
+\stopDualHeaderText
+
+\subsection{仅显示标题}
+
+\startDualHeaderText[title={仅标题示例},shownumber=0]
+这个框只显示标题，不显示编号。
+\stopDualHeaderText
+
+\subsection{无编号和标题}
+
+\startDualHeaderText[number=,title=,shownumber=0,showtitle=0,toffset=0.5\bodyfontsize]
+当编号和标题都为空时，不显示标题栏。需要手动调整 toffset 参数。
+\stopDualHeaderText
+
+\Subject{背景样式测试}
+
+\subsection{simple 样式（默认）}
+
+\startDualHeaderText[
+  number=, title=, shownumber=0, showtitle=0,
+  toffset=0.5\bodyfontsize,
+  bodybackground=simple
+]
+这是默认的简单样式，带完整边框。
+\stopDualHeaderText
+
+\startDualHeaderText[
+  number=, title=, shownumber=0, showtitle=0,
+  toffset=0.5\bodyfontsize,
+  bodybackground=simple,
+  bodybgcolor=softthemecolor,
+]
+自定义背景色的简单样式。
+\stopDualHeaderText
+
+\subsection{symbolbox 样式}
+
+\startDualHeaderText[
+  number={Symbol},
+  title={符号框样式},
+  bodybackground=symbolbox,
+  symbol=\usersymbolparameter{Frame}
+]
+symbolbox 样式会在右下角显示一个符号。
+\stopDualHeaderText
+
+\subsection{charbox 样式}
+
+\startDualHeaderText[
+  number={Char},
+  title={字符图案样式},
+  bodybackground=charbox,
+  character={$\star$}
+]
+charbox 样式会在背景显示旋转45度的字符图案。
+\stopDualHeaderText
+
+\subsection{framebox 样式}
+
+\startDualHeaderText[
+  number={Frame},
+  title={棋盘格样式},
+  bodybackground=framebox,
+]
+framebox 样式会在背景显示棋盘格图案。
+\stopDualHeaderText
+
+\subsection{shadowbox 样式}
+
+\startDualHeaderText[
+  number={Shadow},
+  title={阴影框样式},
+  bodybackground=shadowbox,
+  shadowcolor=lightthemecolor,
+]
+shadowbox 样式会在右下角显示阴影效果。
+\stopDualHeaderText
+
+\subsection{barbox 样式}
+
+\startDualHeaderText[
+  number={Bar},
+  title={条形样式},
+  bodybackground=barbox,
+  leftframe=1,
+]
+barbox 样式会在左侧显示一个色条。
+\stopDualHeaderText
+
+\Subject{边框控制测试}
+
+\subsection{仅左边框}
+
+\startDualHeaderText[
+  shownumber=0, showtitle=0,
+  leftframe=1, rightframe=0, topframe=0, bottomframe=0,
+  toffset=0.5\bodyfontsize,
+]
+只显示左边框。
+\stopDualHeaderText
+
+\subsection{仅左右边框}
+
+\startDualHeaderText[
+  shownumber=0, showtitle=0,
+  leftframe=1, rightframe=1, topframe=0, bottomframe=0,
+  toffset=0.5\bodyfontsize,
+]
+只显示左右边框。
+\stopDualHeaderText
+
+\subsection{仅上边框}
+
+\startDualHeaderText[
+  shownumber=0, showtitle=0,
+  leftframe=0, rightframe=0, topframe=1, bottomframe=0,
+  toffset=0.5\bodyfontsize,
+]
+只显示上边框。
+\stopDualHeaderText
+
+\subsection{无边框}
+
+\startDualHeaderText[
+  shownumber=0, showtitle=0,
+  leftframe=0, rightframe=0, topframe=0, bottomframe=0,
+  toffset=0.5\bodyfontsize,
+  bodybgcolor=softthemecolor,
+]
+不显示任何边框。
+\stopDualHeaderText
+
+\Subject{宽度比例测试}
+
+\subsection{1:2 比例}
+
+\startDualHeaderText[
+  number={No.},
+  title={标题宽度是编号的两倍},
+  numberratio=1, titleratio=2
+]
+标题的宽度是编号的两倍。
+\stopDualHeaderText
+
+\subsection{1:3 比例}
+
+\startDualHeaderText[
+  number={A},
+  title={标题宽度是编号的三倍},
+  numberratio=1, titleratio=3
+]
+标题的宽度是编号的三倍。
+\stopDualHeaderText
+
+\Subject{圆角测试}
+
+\subsection{圆角效果}
+
+\startDualHeaderText[
+  number={圆角},
+  title={圆角效果演示},
+  radius=10pt
+]
+使用 radius 参数设置圆角半径。
+\stopDualHeaderText
+
+\subsection{大圆角}
+
+\startDualHeaderText[
+  number={大圆角},
+  title={大圆角效果},
+  radius=15pt
+]
+更大的圆角半径。
+\stopDualHeaderText
+
+\Subject{标题栏边框控制测试}
+
+\subsection{隐藏 number 边框}
+
+\startDualHeaderText[
+  number={No.001},
+  title={隐藏 number 边框},
+  numberframe=0,
+  titleframe=1,
+]
+只隐藏 number 区域的边框。
+\stopDualHeaderText
+
+\subsection{隐藏 title 边框}
+
+\startDualHeaderText[
+  number={No.002},
+  title={隐藏 title 边框},
+  numberframe=1,
+  titleframe=0,
+]
+只隐藏 title 区域的边框。
+\stopDualHeaderText
+
+\subsection{隐藏所有标题栏边框}
+
+\startDualHeaderText[
+  number={No.003},
+  title={隐藏所有边框},
+  numberframe=0,
+  titleframe=0,
+]
+隐藏 number 和 title 的边框。
+\stopDualHeaderText
+
+\subsection{自定义边框颜色}
+
+\startDualHeaderText[
+  number={No.004},
+  title={自定义边框颜色},
+  numberframecolor=red,
+  titleframecolor=blue,
+  numberframe=1,
+  titleframe=1,
+]
+number 边框红色，title 边框蓝色。
+\stopDualHeaderText
+
+\Subject{分隔线控制测试}
+
+\subsection{隐藏分隔线}
+
+\startDualHeaderText[
+  number={No.001},
+  title={隐藏分隔线},
+  headerdivider=0,
+]
+隐藏 number 和 title 之间的竖线分隔线。
+\stopDualHeaderText
+
+\subsection{显示分隔线（默认）}
+
+\startDualHeaderText[
+  number={No.002},
+  title={显示分隔线},
+  headerdivider=1,
+]
+显示 number 和 title 之间的竖线分隔线。
+\stopDualHeaderText
+
+\subsection{圆角时分隔线自动隐藏}
+
+\startDualHeaderText[
+  number={No.003},
+  title={圆角时分隔线自动隐藏},
+  radius=10pt,
+  headerdivider=1,
+]
+当有圆角时，分隔线会自动隐藏（避免视觉冲突）。
+\stopDualHeaderText
+
+\Subject{titlepos=1 对齐控制测试}
+
+\subsection{number 左对齐，title 右对齐}
+
+\startDualHeaderText[
+  number=01,
+  title=标题右对齐,
+  titlepos=1,
+  numberalign=1,
+  titlealign=3,
+  numberframe=0, titleframe=0, headerdivider=0,
+  leftframe=0, rightframe=0, bottomframe=0, topframe=1,
+]
+number 左对齐，title 右对齐。
+\stopDualHeaderText
+
+\subsection{number 右对齐，title 左对齐}
+
+\startDualHeaderText[
+  number=02,
+  title=标题左对齐,
+  titlepos=1,
+  numberalign=3,
+  titlealign=1,
+  numberframe=0, titleframe=0, headerdivider=0,
+  leftframe=0, rightframe=0, bottomframe=0, topframe=1,
+]
+number 右对齐，title 左对齐。
+\stopDualHeaderText
+
+\subsection{两者都居中}
+
+\startDualHeaderText[
+  number=03,
+  title=标题居中,
+  titlepos=1,
+  numberalign=2,
+  titlealign=2,
+  numberframe=0, titleframe=0, headerdivider=0,
+  leftframe=0, rightframe=0, bottomframe=0, topframe=1,
+]
+number 和 title 都居中。
+\stopDualHeaderText
+
+\subsection{只有 number 时对齐}
+
+\startDualHeaderText[
+  number=04,
+  showtitle=0,
+  titlepos=1,
+  numberalign=3,
+  numberframe=0, titleframe=0, headerdivider=0,
+  leftframe=0, rightframe=0, bottomframe=0, topframe=1,
+]
+只有 number 时，number 右对齐。
+\stopDualHeaderText
+
+\subsection{只有 title 时对齐}
+
+\startDualHeaderText[
+  title=只有标题左对齐,
+  shownumber=0,
+  titlepos=1,
+  titlealign=1,
+  numberframe=0, titleframe=0, headerdivider=0,
+  leftframe=0, rightframe=0, bottomframe=0, topframe=1,
+]
+只有 title 时，title 左对齐。
+\stopDualHeaderText
+
+\Subject{titlepos=0（顶部标题）测试}
+
+\subsection{完整双栏标题框}
+
+\startDualHeaderText[
+  number={No.1},
+  title={顶部标题},
+  titlepos=0,
+]
+这是 titlepos=0 的效果，标题显示在顶部，占用正文空间。
+\stopDualHeaderText
+
+\subsection{仅标题}
+
+\startDualHeaderText[
+  shownumber=0,
+  title={仅标题},
+  titlepos=0,
+]
+只显示标题，不显示编号。
+\stopDualHeaderText
+
+\subsection{仅编号}
+
+\startDualHeaderText[
+  shownumber=1,
+  showtitle=0,
+  number={No.2},
+  titlepos=0,
+]
+只显示编号，不显示标题。
+\stopDualHeaderText
+
+\subsection{标题和编号（左对齐）}
+
+\startDualHeaderText[
+  number={No.3},
+  title={左对齐标题},
+  titlepos=0,
+  titlealign=1,
+]
+标题左对齐，编号右对齐。
+\stopDualHeaderText
+
+\subsection{标题和编号（右对齐）}
+
+\startDualHeaderText[
+  number={No.4},
+  title={右对齐标题},
+  titlepos=0,
+  titlealign=3,
+]
+标题右对齐，编号左对齐。
+\stopDualHeaderText
+
+\subsection{titlepos=0 + 圆角}
+
+\startDualHeaderText[
+  number={No.5},
+  title={圆角顶部标题},
+  titlepos=0,
+  radius=5pt,
+]
+titlepos=0 与圆角效果的组合。
+\stopDualHeaderText
+
+\subsection{titlepos=0 + 阴影}
+
+\startDualHeaderText[
+  number={No.6},
+  title={阴影顶部标题},
+  titlepos=0,
+  bodybackground=shadowbox,
+]
+titlepos=0 与阴影效果的组合。
+\stopDualHeaderText
+
+\subsection{titlepos=0 + 隐藏分隔线}
+
+\startDualHeaderText[
+  number={No.7},
+  title={隐藏分隔线},
+  titlepos=0,
+  headerdivider=0,
+]
+titlepos=0 时隐藏分隔线。
+\stopDualHeaderText
+
+\Subject{组合效果测试}
+
+\subsection{阴影 + 圆角}
+
+\startDualHeaderText[
+  number={组合},
+  title={阴影+圆角},
+  bodybackground=shadowbox,
+  radius=8pt,
+  shadowcolor=lightthemecolor,
+]
+阴影和圆角的组合效果。
+\stopDualHeaderText
+
+\subsection{左侧条 + 无标题}
+
+\startDualHeaderText[
+  number={组合},
+  bodybackground=barbox,
+  leftframe=1,
+  showtitle=0,
+]
+左侧色条 + 无标题的组合效果。
+\stopDualHeaderText
+
+\subsection{字符图案 + 圆角}
+
+\startDualHeaderText[
+  number={组合},
+  title={字符图案+圆角},
+  bodybackground=charbox,
+  character={$\heartsuit$},
+  radius=10pt,
+]
+字符图案和圆角的组合效果。
+\stopDualHeaderText
+
+\subsection{仅左边框模拟 blockbox}
+
+\startDualHeaderText[
+  number={模拟},
+  title={模拟 blockbox},
+  leftframe=1,
+  rightframe=0, topframe=0, bottomframe=0,
+  rulethickness=2pt
+]
+通过设置仅显示左边框，可以模拟 blockbox 的效果。
+\stopDualHeaderText
+
+\subsection{自定义样式示例}
+
+\startDualHeaderText[
+  number={? 问题探究},
+  title={自定义一个新的样式},
+  numberbgcolor=orange,
+  numbercolor=white,
+  titlecolor=red,
+  titlebgcolor=transparentcolor,
+  headerbgcolor=transparentcolor,
+  bodybgcolor=lightorange,
+  numberframe=0, titleframe=0,
+  leftframe=0, rightframe=0, topframe=1, bottomframe=0,
+  numberratio=1, titleratio=3,
+]
+自定义一个新的样式
+\stopDualHeaderText
+
+\stoptext

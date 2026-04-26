@@ -1,6 +1,6 @@
 if not modules then modules = { } end modules ['basicexam-sql'] = {
     version   = 1.001,
-    comment   = "basicexam SQLite database module",
+    comment   = "basicexam SQLite database module(beta version)",
 }
 
 local sqlitelib = resolvers.libraries.validoptional("sqlite")

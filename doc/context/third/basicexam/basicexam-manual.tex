@@ -1,0 +1,1430 @@
+\usemodule[memos]
+\usemodule[basicexam]
+\usemodule[setups]
+
+\enablemode[no-setup-main]
+\loadsetups[i-basicexam.xml]
+
+\setupinteraction[state=start]
+\setuptextrules[style=\tf\ss,before=,after=,rulethickness=.5pt]
+
+\setuptyping[style=\ttxx\setuplocalinterlinespace[line=2ex],
+             option={context},
+             before={\vbox{\hrule height .5pt\par
+                     \textrule{代码示例}%
+                     \hrule height .5pt\vrule width0pt depth 4pt}\par},
+              after={\vbox{\hrule height .5pt\strut}},
+             ]
+
+\starttext
+
+\title{basicexam 模块使用说明书}
+
+\blank[big]
+
+\placecontent
+
+\chapter{模块概述}
+
+\section{简介}
+
+basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完整的试卷排版解决方案。
+该模块支持多种题型，包括选择题、填空题、简答题、完形填空等，并具有答案管理、分数统计等功能。
+
+\section{主要特性}
+
+\startitemize[packed]
+\item 多种题型支持：选择题、填空题、简答题、完形填空等
+\item 教师/学生模式切换，控制答案显示
+\item 无限层级嵌套题目支持
+\item 自动分数统计与答案收集
+\item 灵活的样式定制选项
+\item 内置多种符号标记
+\item 作文格与写作区域
+\item 材料阅读与引用系统
+\stopitemize
+
+\section{系统要求}
+
+该模块需要 {\bf ConTeXt LMTX (LuaMetaTeX)} 环境，不支持 MkIV 版本。
+如果在不兼容的环境下运行，模块会提示错误并终止编译。
+
+\chapter{模块加载与参数}
+
+\section{加载模块}
+
+\starttyping
+\usemodule[basicexam]
+\stoptyping
+
+\section{模块参数}
+
+模块加载时可设置以下参数：
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 参数 \NC 可选值 \NC 说明 \NC\NR
+\HL
+\NC mode \NC \NC 运行模式：\NC\NR
+\NC      \NC student  \NC 学生模式，隐藏答案 \NC\NR
+\NC      \NC teacher  \NC 教师模式，显示答案 \NC\NR
+\NC      \NC check    \NC 检查模式，显示答案并输出调试信息 \NC\NR
+\HL
+\NC layout \NC \NC 布局设置：\NC\NR
+\NC        \NC twoup   \NC 双页排版（每页两版）\NC\NR
+\NC        \NC none    \NC 默认单页布局 \NC\NR
+\HL
+\NC footer \NC \NC 页脚设置：\NC\NR
+\NC        \NC default \NC 显示科目和页码 \NC\NR
+\NC        \NC none    \NC 无页脚 \NC\NR
+\HL
+\NC libpath \NC 路径 \NC SQLite 库文件路径（用于数据存储）\NC\NR
+\HL
+\NC showanswer \NC showanswer \NC 显示答案 \NC\NR
+\NC showpoint  \NC showpoint  \NC 显示分数 \NC\NR
+\NC showscript \NC showscript \NC 显示答题区域 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{示例}
+
+\starttyping
+% 教师模式，显示答案
+\usemodule[basicexam][mode=teacher]
+
+% 学生模式，隐藏答案
+\usemodule[basicexam][mode=student]
+
+% 检查模式，调试输出
+\usemodule[basicexam][mode={teacher,check}]
+
+% 双页排版
+\usemodule[basicexam][layout=twoup]
+\stoptyping
+
+\section{模式控制}
+
+\subsection{全局模式}
+
+通过模块参数设置全局模式：
+
+\starttyping
+\usemodule[basicexam][mode=teacher]  % 教师模式
+\usemodule[basicexam][mode=student]  % 学生模式
+\stoptyping
+
+\subsection{局部控制}
+
+在文档中动态切换：
+
+\starttyping
+\showanswer   % 显示答案
+\hideanswer   % 隐藏答案
+\showpoint    % 显示分数
+\hidepoint    % 隐藏分数
+\stoptyping
+
+\subsection{单个题目控制}
+
+在题目级别控制显示：
+
+\starttyping
+\startquestion[showanswer=true,showpoint=true]
+  这道题会显示答案和分数。
+\stopquestion
+
+\startquestion[showanswer=false,showpoint=false]
+  这道题会隐藏答案和分数。
+\stopquestion
+\stoptyping
+
+\section{样式定制}
+
+\subsection{全局设置}
+
+使用 \type{\setupquestion} 进行全局设置：
+
+\startbuffer
+\setupquestion[
+  answer={默认答案},
+  point=1,
+  showanswer=true,
+  showpoint=true,
+  style=\ss,
+  color=black,
+]
+\stopbuffer
+
+\typebuffer
+
+\subsection{选择题样式}
+
+\startbuffer
+\setupchoice[
+  answerstyle=\ss,
+  answercolor=red,
+  numberconversion=A,
+  option={A,packed,joinedup,nowhite},
+]
+\stopbuffer
+
+\typebuffer
+
+\subsection{答案样式}
+
+\startbuffer
+\setupanswer[
+  style=\ss\it,
+  color=darkblue,
+  answerlabel={{答案}},
+  pointlabel={，分},
+  before=\blank[halfline]\startnarrower,
+  after=\blank[halfline]\stopnarrower,
+]
+\stopbuffer
+
+\typebuffer
+
+\chapter{试卷标题}
+
+\section{papertitle 命令}
+
+试卷标题是试卷的重要组成部分，通常包含考试名称、科目、年级、考试时间等信息。
+模块提供 \type{\definepapertitle} 和 \type{\makepapertitle} 命令来创建标准化的试卷标题。
+
+\subsection{基本用法}
+
+首先使用 \type{\definepapertitle} 定义标题样式，然后使用 \type{\setuppapertitle} 设置内容，最后用 \type{\makepapertitle} 输出：
+
+\startbuffer
+\definepapertitle[myexam][list={secret,title,subject,information}]
+\setuppapertitle[myexam][
+  secret={绝密 ★ 启用前},
+  title={2024 年普通高等学校招生全国统一考试},
+  subject={数学},
+  information={总分:150 分，考试时间:120 分钟}]
+\makepapertitle[myexam]
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\subsection{标题元素}
+
+\type{list} 参数控制标题中显示哪些元素及其顺序。默认列表为：\type{secret,title,subject,information,signinformation,notice}。
+
+\starttabulate[|l|p|]
+\HL
+\NC 元素 \NC 说明 \NC\NR
+\HL
+\NC secret \NC 密级标识（如"绝密 ★ 启用前"） \NC\NR
+\NC title \NC 主标题 \NC\NR
+\NC subject \NC 科目名称（自动添加 subjectsuffix 后缀） \NC\NR
+\NC information \NC 考试信息（如总分、时间） \NC\NR
+\NC signinformation \NC 签名信息区域 \NC\NR
+\NC notice \NC 注意事项 \NC\NR
+\HL
+\stoptabulate
+
+每个元素都可以单独设置样式、颜色和对齐方式，例如：
+\type{secretstyle}、\type{secretcolor}、\type{secretalign} 等。
+
+\subsection{其他参数}
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC alternative \NC default \NC 标题模板 \NC\NR
+\NC list \NC \NC 显示元素列表 \NC\NR
+\NC subjectsuffix \NC 学科试卷 \NC 科目后缀 \NC\NR
+\NC style \NC \NC 全局字体样式 \NC\NR
+\NC color \NC \NC 全局字体颜色 \NC\NR
+\NC align \NC center \NC 全局对齐方式 \NC\NR
+\HL
+\stoptabulate
+
+\section{自定义标题样式}
+
+可以通过继承已有样式创建新的标题样式：
+
+\startbuffer
+\definepapertitle[mytitle][myexam]
+\setuppapertitle[mytitle][title={我的试卷},style=\ssa\bf]
+\makepapertitle[mytitle]
+\stopbuffer
+
+\typebuffer
+
+\start\getbuffer\stop
+
+\chapter{选择题}
+
+\section{基本用法}
+
+选择题有两种语法格式：{\bf 环境格式}和{\bf 快捷格式}。
+
+\subsection{环境格式}
+
+使用 \type{\startquestion}...\type{\stopquestion} 和 \type{\startchoice}...\type{\stopchoice} 环境：
+
+\startbuffer
+\startquestion
+  这是选择题的题干内容。
+  \startchoice
+    \startcitem 选项一 \stopcitem
+    \startcitem 选项二 \stopcitem
+    \startcitem 选项三 \stopcitem
+    \startcitem 选项四 \stopcitem
+  \stopchoice
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{快捷格式}
+
+使用 \type{\question} 和 \type{\choice} 命令：
+
+\startbuffer
+\question{这是选择题的题干内容。
+  \choice{选项一,选项二,选项三,选项四}
+}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{参数说明}
+
+\showsetup[setupchoice]
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC inlinechoice \NC false \NC 是否为内联选择题 \NC\NR
+\NC inlineleft \NC \NC 内联选项左侧内容 \NC\NR
+\NC inlineright \NC \NC 内联选项右侧内容 \NC\NR
+\NC correctsymbol \NC \NC 正确答案标记符号 \NC\NR
+\NC separator \NC \NC 选项分隔符 \NC\NR
+\NC textstyle \NC \NC 选项文本样式 \NC\NR
+\NC textcolor \NC \NC 选项文本颜色 \NC\NR
+\NC showanswer \NC \NC 是否显示答案 \NC\NR
+\NC showpoint \NC \NC 是否显示分数 \NC\NR
+\NC answer \NC \NC 答案内容 \NC\NR
+\NC answerstyle \NC \NC 答案样式 \NC\NR
+\NC answercolor \NC \NC 答案颜色 \NC\NR
+\NC answerlabel \NC \NC 答案标签 \NC\NR
+\NC point \NC \NC 题目分数 \NC\NR
+\NC pointstyle \NC \NC 分数样式 \NC\NR
+\NC pointcolor \NC \NC 分数颜色 \NC\NR
+\NC pointlabel \NC \NC 分数标签 \NC\NR
+\HL
+\stoptabulate
+
+\section{进阶用法}
+
+\subsection{标记正确答案}
+
+使用 \type{[*]} 标记正确答案：
+
+\startbuffer
+\startquestion[showanswer=true]
+  这是选择题的题干内容。
+  \startchoice
+    \startcitem    选项一 \stopcitem
+    \startcitem    选项二 \stopcitem
+    \startcitem[*] 选项三 \stopcitem
+    \startcitem    选项四 \stopcitem
+  \stopchoice
+\stopquestion
+
+\question[showanswer=true]{这是选择题的题干内容。
+  \choice{选项一,选项二,{[*]选项三},选项四}
+}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{多选题}
+
+支持标记多个正确答案：
+
+\startbuffer
+\startquestion[showanswer=true]
+  请选择所有正确的选项。
+  \startchoice
+    \startcitem[*] 选项一 \stopcitem
+    \startcitem    选项二 \stopcitem
+    \startcitem[*] 选项三 \stopcitem
+    \startcitem    选项四 \stopcitem
+  \stopchoice
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{选项列数控制}
+
+通过可选参数控制选项的显示列数：
+
+\startbuffer
+\startquestion
+  选项以8列显示。
+  \startchoice[8]
+    \startcitem A \stopcitem
+    \startcitem B \stopcitem
+    \startcitem C \stopcitem
+    \startcitem D \stopcitem
+    \startcitem E \stopcitem
+    \startcitem F \stopcitem
+    \startcitem G \stopcitem
+    \startcitem H \stopcitem
+  \stopchoice
+\stopquestion
+
+\question{选项以8列显示。
+  \choice[8]{A,B,C,D,E,F,G,H}
+}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{内联选择题}
+
+内联选择题将选项显示在题干行内，适合简短的选择题：
+
+\startbuffer
+\startquestion
+  这是内联选择题。\relax
+  \startinlinechoice
+    \startcitem 选项一 \stopcitem
+    \startcitem 选项二 \stopcitem
+    \startcitem 选项三 \stopcitem
+    \startcitem 选项四 \stopcitem
+  \stopinlinechoice
+\stopquestion
+
+\question{这是内联选择题。\relax
+  \inlinechoice{选项一,选项二,选项三,选项四}
+}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{自定义样式}
+
+使用 \type{\definechoice} 创建自定义选择题样式：
+
+\startbuffer
+\definechoice[mychoice][
+  option={text,6,packed,joinedup,nowhite},
+  inlinechoice=true,
+  correctsymbol={\symbol{markcirclecheck}},
+  inlineleft={【\nobreak},
+  inlineright={\nobreak 】},
+  answerstyle=\ss,
+  separator={\removeunwantedspaces,\space},
+]
+
+\startquestion[showanswer=true]
+  使用自定义选择题样式。
+  \startmychoice
+    \startcitem[*] 选项一 \stopcitem
+    \startcitem    选项二 \stopcitem
+    \startcitem    选项三 \stopcitem
+    \startcitem    选项四 \stopcitem
+  \stopmychoice
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\chapter{题目与问题}
+
+\section{question 环境}
+
+\type{question} 环境用于创建独立题目：
+
+\startbuffer
+\startquestion[option={n,packed,joinedup,nowhite}]
+这是题目的主要内容。
+\stopquestion
+
+\question{这是题目的主要内容。}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{problem 环境}
+
+\type{problem} 环境用于创建子问题列表：
+
+\startbuffer
+\startquestion
+这是大题的题干。
+  \startproblem
+  \startpitem 这是第一个小题。\stoppitem
+  \startpitem 这是第二个小题。\stoppitem
+  \stopproblem
+\stopquestion
+
+\question{这是大题的题干。
+  \problem[textstyle=ss]
+    {\pitem{这是第一个小题。}
+     \pitem{这是第二个小题。}
+  }
+}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{题目嵌套}
+
+支持无限层级的题目嵌套：
+
+\startbuffer
+\startquestion
+这是第一层题目。
+  \startquestion
+  这是第二层题目。
+    \startquestion
+    这是第三层题目。
+    \stopquestion
+  \stopquestion
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{question 参数}
+
+\showsetup[setupquestion]
+
+\chapter{答案与解析}
+
+\section{基本用法}
+
+\type{answer} 环境用于添加答案和解析：
+
+\startbuffer
+\startquestion[point=4,showpoint=true,answer=A]
+这是选择题的题干。
+  \startchoice
+    \startcitem[*] 选项A \stopcitem
+    \startcitem    选项B \stopcitem
+    \startcitem    选项C \stopcitem
+    \startcitem    选项D \stopcitem
+  \stopchoice
+  \startanswer
+    这是对该题目的详细解析说明。
+    答案选择A的原因是……
+  \stopanswer
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{参数说明}
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC showanswer \NC \NC 是否显示答案 \NC\NR
+\NC showpoint \NC \NC 是否显示分数 \NC\NR
+\NC showscript \NC \NC 是否显示答题区域 \NC\NR
+\NC scriptcontent \NC \NC 答题区域提示内容 \NC\NR
+\NC style \NC \ss\it \NC 答案字体样式 \NC\NR
+\NC color \NC \NC 答案颜色 \NC\NR
+\NC answerlabel \NC 答案 \NC 答案标签 \NC\NR
+\NC pointlabel \NC ,分 \NC 分数标签 \NC\NR
+\HL
+\stoptabulate
+
+\section{进阶用法}
+
+\subsection{答题区域}
+
+使用 \type{showscript=true} 添加答题书写区域：
+
+\startbuffer
+\startquestion[point=4,showpoint=true]
+这是需要书写答案的题目。
+\startanswer[showscript=true,frame=off,
+             scriptcontent={\centerline{\lightgray\ss 请在此处书写答案}\par
+                            \null\vskip3\baselineskip\relax}]
+\stopanswer
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{分数设置}
+
+在题目中设置分数：
+
+\startbuffer
+\question[point=5,showpoint=true]{这道题5分。\choice{A,B,C,D}}
+
+\startquestion[point=10,showpoint=true]
+这道大题共10分。
+\startproblem
+  \startpitem[point=3,showpoint=true] 第一小题3分。\stoppitem
+  \startpitem[point=4,showpoint=true] 第二小题4分。\stoppitem
+  \startpitem[point=3,showpoint=true] 第三小题3分。\stoppitem
+\stopproblem
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{score 命令}
+
+\type{\score} 命令用于在答案中标注各要点的得分，方便评分者了解分值分布。
+该命令通常与 \type{\resetscore} 配合使用，后者用于重置累计分数。
+
+在答案中使用 \type{\score{分数}} 标注得分点：
+
+\startbuffer
+\startanswer
+  答案要点一 \score{3}
+  答案要点二 \score{4}
+  答案要点三 \score{3}
+  \resetscore
+  总分 \score[type=dotfills]{10}
+\stopanswer
+\stopbuffer
+
+\typebuffer \getbuffer
+
+score 命令参数：
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC type \NC \NC 显示类型：dotfills、normal \NC\NR
+\NC style \NC \NC 数字样式 \NC\NR
+\NC color \NC \NC 数字颜色 \NC\NR
+\NC before \NC \NC 分数前内容 \NC\NR
+\NC after \NC \NC 分数后内容 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{答案输出}
+
+答案输出功能用于在试卷末尾或指定位置生成答案汇总表。
+使用 \type{\typeanswer} 命令可以按不同格式输出答案。
+
+\startbuffer
+% 列表格式（默认）
+\typeanswer[start=1,total=10]
+
+% 表格格式
+\typeanswer[alternative=table,start=1,total=30,rows=6,columns=5]
+
+% 网格格式
+\typeanswer[alternative=grid,start=1,total=10,rows=5,columns=2]
+
+% 直接访问单个答案
+\typeanswer[alternative=direct]{Q-5}
+\stopbuffer
+
+\typebuffer
+
+typeanswer 命令参数：
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC alternative \NC list \NC 输出格式：list、table、grid、direct \NC\NR
+\NC start \NC 1 \NC 起始题号 \NC\NR
+\NC stop \NC \NC 结束题号 \NC\NR
+\NC total \NC \NC 题目总数（替代 stop） \NC\NR
+\NC chapter \NC \NC 章节编号 \NC\NR
+\NC rows \NC \NC 表格行数 \NC\NR
+\NC columns \NC \NC 表格列数 \NC\NR
+\NC separator \NC \NC 分隔符（文本格式） \NC\NR
+\NC left \NC \NC 答案左侧内容 \NC\NR
+\NC right \NC \NC 答案右侧内容 \NC\NR
+\HL
+\stoptabulate
+
+\chapter{填空题}
+
+\section{基本用法}
+
+\type{\fillin} 命令用于在题目中创建填空项：
+
+\startbuffer
+\startquestion[showanswer=true,point=2,showpoint=true]
+  Lorem ipsum dolor sit amet,
+  \fillin{填空答案}
+  consectetur adipiscing elit.
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{参数说明}
+
+\showsetup[setupfillin]
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC style \NC \NC 填空内容样式 \NC\NR
+\NC color \NC \NC 填空内容颜色 \NC\NR
+\NC before \NC \NC 填空前内容 \NC\NR
+\NC after \NC \NC 填空后内容 \NC\NR
+\NC left \NC \NC 左侧边界 \NC\NR
+\NC right \NC \NC 右侧边界 \NC\NR
+\NC empty \NC yes \NC 空白显示方式：yes、number、none \NC\NR
+\NC alternative \NC default \NC 填空样式：default、frame、simple \NC\NR
+\NC n \NC \NC 下划线长度（字符数） \NC\NR
+\NC width \NC \NC 填空宽度 \NC\NR
+\HL
+\stoptabulate
+
+\section{进阶用法}
+
+\subsection{填空样式}
+
+通过 \type{empty} 参数控制填空显示方式：
+
+\startbuffer
+\setupquestion[showanswer=false,point=2,showpoint=false]
+
+\startquestion[showanswer=false]
+  不同填空样式示例：
+  \startproblem
+    {\setupfillin[empty=number,n=5]
+     编号样式：Lorem ipsum \fillin{答案}}
+    
+    {\setupfillin[empty=yes,n=5]
+     隐藏样式：Lorem ipsum \fillin{答案}}
+    
+    {\setupfillin[empty=none,n=5]
+     显示样式：Lorem ipsum \fillin{答案}}
+  \stopproblem
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{判断题}
+
+填空题也可用于判断题：
+
+\startbuffer
+\setupfillin[empty=none,style=\tta]
+\startquestion
+判断下列说法是否正确。
+  \startproblem
+  \startpitem \fillin{T} 这是正确的说法。\stoppitem
+  \startpitem \fillin{F} 这是错误的说法。\stoppitem
+  \startpitem 这是正确的说法。\hfill\fillin{\symbol{markcheck}}\stoppitem
+  \startpitem 这是错误的说法。\hfill\fillin{\symbol{markcross}}\stoppitem
+  \stopproblem
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\chapter{材料阅读}
+
+\section{基本用法}
+
+材料阅读题是试卷中常见的题型，通常包含一篇阅读材料和若干相关问题。
+\type{material} 环境用于放置阅读材料，支持设置标题、作者、来源等信息。
+
+\startbuffer
+\setupmaterial[title][style=\ssa]
+\setupmaterial[author][style=\tta]
+\setupmaterial[source][style=ss]
+
+\startmaterial[title={材料标题},author={作者名},source={来源}]
+  这是阅读材料的内容。
+  可以包含多段文字。
+  \indicator{需要提问的内容一}
+  \indicator{需要提问的内容二}
+\stopmaterial
+
+\startquestion
+  \indicator{需要提问的内容一}
+  \choice{选项A,选项B,选项C,选项D}
+\stopquestion
+
+\startquestion
+  \indicator{需要提问的内容二}
+  \choice{选项A,选项B,选项C,选项D}
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{参数说明}
+
+\showsetup[setupmaterial]
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC title \NC \NC 材料标题 \NC\NR
+\NC author \NC \NC 作者 \NC\NR
+\NC source \NC \NC 来源 \NC\NR
+\NC style \NC \NC 正文字体样式 \NC\NR
+\NC color \NC \NC 正文字体颜色 \NC\NR
+\NC before \NC \NC 材料前内容 \NC\NR
+\NC after \NC \NC 材料后内容 \NC\NR
+\HL
+\stoptabulate
+
+\section{进阶用法}
+
+\subsection{indicator 命令}
+
+\type{\indicator} 命令用于标记材料中的提问点，实现材料与题目的关联。
+标记后的内容会在材料中以特殊样式显示，同时在题目中引用。
+
+\startitemize[packed]
+\item 在材料中使用 \type{\indicator{标记名}} 标记关键内容
+\item 在题目中使用 \type{\indicator{标记名}} 引用该内容
+\item 编译时自动建立关联关系
+\stopitemize
+
+\startbuffer
+\startmaterial[title={示例材料}]
+  文章内容，其中\indicator{重点内容一}需要提问，
+  还有\indicator{重点内容二}也需要提问。
+\stopmaterial
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\chapter{诗词排版}
+
+\section{基本用法}
+
+\type{verse} 环境用于排版诗词、歌词等韵文内容：
+
+\startbuffer
+\startverse[title=临江仙 $\cdot$ 滚滚长江东逝水,author=明 $\cdot$ 杨慎,sample={白髮漁樵江渚上 慣看秋月春風}]
+滾滾長江東逝水浪花淘盡英雄\\
+是非成敗轉頭空\\
+青山依舊在 幾度夕陽紅\\
+白髮漁樵江渚上 慣看秋月春風\\
+一壺濁酒喜相逢\\
+古今多少事 都付笑談中
+\stopverse
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{参数说明}
+
+\showsetup[setupverse]
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC title \NC \NC 诗词标题 \NC\NR
+\NC author \NC \NC 作者信息 \NC\NR
+\NC source \NC \NC 来源信息 \NC\NR
+\NC sample \NC \NC 用于计算缩进的样本文本 \NC\NR
+\NC skip \NC both \NC 缩进方式：left、right、both、none \NC\NR
+\NC align \NC \NC 对齐方式 \NC\NR
+\NC style \NC \NC 字体样式 \NC\NR
+\NC color \NC \NC 文字颜色 \NC\NR
+\NC before \NC \NC 环境前内容 \NC\NR
+\NC after \NC \NC 环境后内容 \NC\NR
+\HL
+\stoptabulate
+
+\section{进阶用法}
+
+可以分别设置标题、作者、来源的样式：
+
+\startbuffer
+\setupverse[sample={滾滾長江東逝水浪花淘盡英雄},skip=left,before=\blank,after=\blank]
+\setupverse[title][align=center,style=bf,skip=both]
+\setupverse[author][align=flushright,style=it,skip=both]
+\setupverse[source][align=flushright,style=it,skip=both]
+\stopbuffer
+
+\typebuffer
+
+\chapter{完形填空}
+
+\section{基本用法}
+
+\type{close} 环境用于创建完形填空题，在文章中嵌入选项供学生选择。
+每个选项使用 \type{\closechoice} 命令标记，正确答案用 \type{[*]} 标识。
+
+\startbuffer
+\startclose[showanswer=true,showpoint=true,point=1.5,answer=nil]
+On Oct. 11, hundreds of runners competed in a cross-country race.
+Melanie Bailey should have \closechoice[designed,followed,changed,finished] the
+course earlier than she did. Her \closechoice[delay,chance,trouble,excuse] came
+because she was carrying a \closechoice[judge,volunteer,classmate,competitor]
+across the finish line.
+\stopclose
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{参数说明}
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC reset \NC false \NC 是否重置题号 \NC\NR
+\NC n \NC 8 \NC 下划线长度 \NC\NR
+\NC width \NC 1.5em \NC 题号宽度 \NC\NR
+\NC answerwidth \NC 4em \NC 答案区域宽度 \NC\NR
+\NC point \NC \NC 每题分数 \NC\NR
+\NC answer \NC \NC 默认答案 \NC\NR
+\NC showanswer \NC \NC 是否显示答案 \NC\NR
+\NC showpoint \NC \NC 是否显示分数 \NC\NR
+\NC style \NC \NC 文本样式 \NC\NR
+\NC color \NC \NC 文本颜色 \NC\NR
+\NC barstyle \NC \NC 下划线样式 \NC\NR
+\NC barcolor \NC \NC 下划线颜色 \NC\NR
+\NC frame \NC \NC 是否显示边框 \NC\NR
+\NC stopper \NC \NC 题号后缀 \NC\NR
+\NC distance \NC \NC 选项间距 \NC\NR
+\NC before \NC \NC 环境前内容 \NC\NR
+\NC after \NC \NC 环境后内容 \NC\NR
+\HL
+\stoptabulate
+
+\section{进阶用法}
+
+\subsection{closechoice 命令}
+
+\type{\closechoice} 命令用于在完形填空中插入选项，语法为：
+\type{\closechoice[选项1,选项2,选项3,...]}。
+
+正确答案使用 \type{[*]} 标记：\type{\closechoice[选项1,{[*]正确选项},选项3]}。
+
+\subsection{optclose 环境}
+
+\type{optclose} 环境是 \type{close} 的变体，用于选项式填空：
+
+\startbuffer
+\startoptclose[point=2,showanswer=true]
+The latest \ocitem[answer=engineering]{engineer} techniques are applied to create
+this protective \ocitem[answer=functional]{function} structure.
+\stopoptclose
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\chapter{写作区域}
+
+\section{基本用法}
+
+\subsection{作文格}
+
+使用 \type{\writingbox} 创建作文格：
+
+\startbuffer
+\writingbox
+  [column=6,
+   row=6,
+   evencolor=blue,
+   oddcolor=darkgray,
+   evenheight=1cm,
+   oddheight=.5cm,
+   height=10cm,
+   width=\textwidth]{}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{方格纸}
+
+使用 \type{\writinggrid} 创建方格纸：
+
+\startbuffer
+\writinggrid
+  [cellwidth=1cm,
+   column=12,
+   row=8,
+   cellcolor=darkgray,
+   height=8cm,
+   width=\textwidth]{}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{参数说明}
+
+\subsection{writingbox 参数}
+
+\showsetup[setupwritingbox]
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC column \NC \NC 列数 \NC\NR
+\NC row \NC \NC 行数 \NC\NR
+\NC evencolor \NC \NC 偶数行颜色 \NC\NR
+\NC oddcolor \NC \NC 奇数行颜色 \NC\NR
+\NC evenheight \NC \NC 偶数行高度 \NC\NR
+\NC oddheight \NC \NC 奇数行高度 \NC\NR
+\NC height \NC \NC 总高度 \NC\NR
+\NC width \NC \NC 总宽度 \NC\NR
+\NC align \NC \NC 对齐方式 \NC\NR
+\NC rulethickness \NC \NC 线条粗细 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{writinggrid 参数}
+
+\showsetup[setupwritinggrid]
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC column \NC \NC 列数 \NC\NR
+\NC row \NC \NC 行数 \NC\NR
+\NC cellwidth \NC \NC 单元格宽度 \NC\NR
+\NC cellcolor \NC \NC 单元格颜色 \NC\NR
+\NC height \NC \NC 总高度 \NC\NR
+\NC width \NC \NC 总宽度 \NC\NR
+\HL
+\stoptabulate
+
+\section{进阶用法}
+
+\subsection{writing 环境}
+
+\type{writing} 环境用于创建作文题目，支持设置分数和答案：
+
+\startbuffer
+\startwriting[point=45,showpoint=true]
+  作文题目说明
+  
+  请根据以下要求写作：
+  \startitemize
+  \item 要求一
+  \item 要求二
+  \stopitemize
+  
+  \startanswer
+  范文内容...
+  \stopanswer
+\stopwriting
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{subwriting 环境}
+
+\type{subwriting} 环境用于创建子作文题目：
+
+\startbuffer
+\startwriting[point=100]
+  作文题目说明
+  
+  \startsubwriting[point=50]
+    子作文题目一
+    \startanswer
+    范文一...
+    \stopanswer
+  \stopsubwriting
+  
+  \startsubwriting[point=50]
+    子作文题目二
+    \startanswer
+    范文二...
+    \stopanswer
+  \stopsubwriting
+\stopwriting
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{writing 参数}
+
+\type{writing} 环境继承自 \type{question} 环境，参数通过 \type{\setupwriting} 设置：
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC point \NC \NC 作文分数 \NC\NR
+\NC answer \NC 参见参考作文 \NC 参考答案 \NC\NR
+\NC totalanswer \NC \NC 总参考答案 \NC\NR
+\NC showanswer \NC \NC 是否显示答案 \NC\NR
+\NC showpoint \NC \NC 是否显示分数 \NC\NR
+\NC style \NC \NC 题目字体样式 \NC\NR
+\NC color \NC \NC 题目颜色 \NC\NR
+\NC option \NC n,packed \NC 列表选项 \NC\NR
+\NC before \NC \NC 环境前内容 \NC\NR
+\NC after \NC \NC 环境后内容 \NC\NR
+\HL
+\stoptabulate
+
+\chapter{符号定义}
+
+模块内置了多种标记符号（需要安装 NotoSansSymbols2 字体）：
+
+\starttabulate[|l|r|l|r|]
+\HL
+\NC 命令 \NC 符号 \NC 命令 \NC 符号 \NC\NR
+\HL
+\NC \type{\symbol{marksquare}} \NC \symbol{marksquare}
+\NC \type{\symbol{markcircle}} \NC \symbol{markcircle} \NC\NR
+\NC \type{\symbol{markcheck}} \NC \symbol{markcheck}
+\NC \type{\symbol{markcross}} \NC \symbol{markcross} \NC\NR
+\NC \type{\symbol{markheavycheck}} \NC \symbol{markheavycheck}
+\NC \type{\symbol{markheavycross}} \NC \symbol{markheavycross} \NC\NR
+\NC \type{\symbol{marksquarecheck}} \NC \symbol{marksquarecheck}
+\NC \type{\symbol{marksquarecross}} \NC \symbol{marksquarecross} \NC\NR
+\NC \type{\symbol{markcirclecheck}} \NC \symbol{markcirclecheck}
+\NC \type{\symbol{markcirclecross}} \NC \symbol{markcirclecross} \NC\NR
+\HL
+\stoptabulate
+
+\section{圆圈文本}
+
+\type{\circledtext} 命令用于创建带圆圈或方框的文本：
+
+\startbuffer
+\circledtext{1}\quad
+\circledtext[radius=0.5]{A}\quad
+\circledtext[radius=0,fillcolor=black,color=white]{B}\quad
+\circledtext[radius=0.2]{C}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{circledtext 参数}
+
+\showsetup[setupcircledtext]
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC frametype \NC circle \NC 边框类型：circle、square \NC\NR
+\NC framecolor \NC \NC 边框颜色 \NC\NR
+\NC fillcolor \NC \NC 填充颜色 \NC\NR
+\NC dashcolor \NC \NC 虚线颜色 \NC\NR
+\NC dashlinewidth \NC \NC 虚线宽度 \NC\NR
+\NC color \NC \NC 文本颜色 \NC\NR
+\NC radius \NC \NC 圆角半径 \NC\NR
+\NC effect \NC normal \NC 特效 \NC\NR
+\NC scaled \NC \NC 缩放比例 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{圆圈编号转换}
+
+模块提供多种圆圈编号转换格式，可用于列表编号：
+
+\startbuffer
+\startitemize[Co:num,packed]
+  \item 第一项
+  \item 第二项
+  \item 第三项
+\stopitemize
+
+\startitemize[CO:num,packed]
+  \item 第一项
+  \item 第二项
+  \item 第三项
+\stopitemize
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\starttabulate[|l|l|]
+\HL
+\NC 转换格式 \NC 说明 \NC\NR
+\HL
+\NC Co:num \NC 白底黑字圆圈数字 \NC\NR
+\NC CO:num \NC 黑底白字圆圈数字 \NC\NR
+\NC Cr:num \NC 白底黑字圆角方框数字 \NC\NR
+\NC CR:num \NC 黑底白字圆角方框数字 \NC\NR
+\NC Cs:num \NC 白底黑字方框数字 \NC\NR
+\NC CS:num \NC 黑底白字方框数字 \NC\NR
+\NC Co:Alph \NC 大写圆圈字母 \NC\NR
+\NC Co:alph \NC 小写圆圈字母 \NC\NR
+\NC Co:cn \NC 圆圈中文数字 \NC\NR
+\NC Co:hira \NC 圆圈平假名 \NC\NR
+\NC Co:kata \NC 圆圈片假名 \NC\NR
+\HL
+\stoptabulate
+
+\chapter{词典条目}
+
+\section{基本用法}
+
+\type{lexicalentry} 环境用于创建词典风格的条目，适合制作词汇表、术语表或语言学习材料。
+每个条目可以包含词性标签、重音标记、释义、例句等信息。
+
+\startbuffer
+\startlexicalentry[class=名,accent=1]{太陽}
+  \startlexicallists
+    \item 太陽系の中心をなし、地球にもっとも近い恒星。お日さま。\antonym{太陰}。
+    \item 光明・希望の象徴。「心の\alias」
+  \stoplexicallists
+\stoplexicalentry
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{参数说明}
+
+\showsetup[setuplexicalentry]
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC class \NC \NC 词性标签（如"名"、"动"） \NC\NR
+\NC accent \NC \NC 重音标记（数字） \NC\NR
+\NC number \NC \NC 编号 \NC\NR
+\NC style \NC \NC 词条样式 \NC\NR
+\NC color \NC \NC 词条颜色 \NC\NR
+\NC before \NC \NC 条目前内容 \NC\NR
+\NC after \NC \NC 条目后内容 \NC\NR
+\HL
+\stoptabulate
+
+\section{进阶用法}
+
+\subsection{词典列表}
+
+\type{lexicallists} 是配套的列表环境，支持四级嵌套，每级使用不同的编号样式：
+
+\startbuffer
+\startlexicalentry[class=動]{走る}
+  \startlexicallists
+    \item 足を動かして進む。\antonym{止まる}。
+    \item 逃げる。
+      \startlexicallists
+        \item 時間が経過する。
+        \item 機械が動く。
+      \stoplexicallists
+  \stoplexicallists
+\stoplexicalentry
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{词典枚举}
+
+模块提供多种词典枚举环境，用于结构化展示词条信息：
+
+\starttabulate[|l|l|]
+\HL
+\NC 环境 \NC 说明 \NC\NR
+\HL
+\NC lexicalgrammar \NC 语法说明 \NC\NR
+\NC lexicalmeaning \NC 释义说明 \NC\NR
+\NC lexicaljunction \NC 接续说明 \NC\NR
+\NC lexicalexample \NC 例句说明 \NC\NR
+\NC lexicalcomparing \NC 对比说明 \NC\NR
+\NC lexicalsummary \NC 总结说明 \NC\NR
+\HL
+\stoptabulate
+
+\startbuffer
+\startlexicalentry[class=形]{美しい}
+  \startlexicalmeaning
+    見た目や心がすばらしい。きれいだ。
+  \stoplexicalmeaning
+  
+  \startlexicalexample
+    美しい景色を眺める。\\
+    美しい心を持つ。
+  \stoplexicalexample
+  
+  \startlexicalcomparing
+    「美しい」は芸術的な美しさ、「きれい」は清潔さを強調。
+  \stoplexicalcomparing
+\stoplexicalentry
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\subsection{关联命令}
+
+词典条目支持多种关联命令，用于标记词条间的关系：
+
+\starttabulate[|l|p|]
+\HL
+\NC 命令 \NC 说明 \NC\NR
+\HL
+\NC \type{\antonym{词}} \NC 反义词 \NC\NR
+\NC \type{\synonym{词}} \NC 同义词 \NC\NR
+\NC \type{\alias} \NC 词条别名引用 \NC\NR
+\NC \type{\refer{词}} \NC 参见引用 \NC\NR
+\NC \type{\example{例}} \NC 例句标记 \NC\NR
+\NC \type{\junction{接}} \NC 接续标记 \NC\NR
+\HL
+\stoptabulate
+
+\chapter{高级功能}
+
+\section{无限层级支持}
+
+模块支持无限层级的题目嵌套，自动管理答案树：
+
+\startbuffer
+\startquestion[point=20]
+第一层大题
+  \startquestion[point=10]
+  第二层子题
+    \startquestion[point=5]
+    第三层小题
+    \stopquestion
+  \stopquestion
+\stopquestion
+\stopbuffer
+
+\typebuffer \getbuffer
+
+\section{数据持久化}
+
+答案数据自动保存到 .tuc 文件，可在第二次编译时访问：
+
+\starttyping
+% 访问保存的答案数据
+\datasetvariable{UnlimitedDataset}{题目ID}{answer}
+\datasetvariable{UnlimitedDataset}{题目ID}{point}
+\stoptyping
+
+\section{答案树结构}
+
+basicexam 模块使用答案树结构来管理所有题目的答案和分数信息。
+每个题目节点包含以下属性：
+
+\starttabulate[|l|p|]
+\HL
+\NC 属性 \NC 说明 \NC\NR
+\HL
+\NC id \NC 节点唯一标识（如 \type{jobname-1-Q-1}） \NC\NR
+\NC order \NC 层级顺序（如 \type{1}, \type{2-1}, \type{2-2-1}） \NC\NR
+\NC answer \NC 答案内容 \NC\NR
+\NC point \NC 当前节点分数（叶子节点有效） \NC\NR
+\NC totalpoint \NC 该节点及子节点总分 \NC\NR
+\NC totalnumber \NC 该节点及子节点总数 \NC\NR
+\NC is_leaf \NC 是否为叶子节点 \NC\NR
+\NC depth \NC 节点深度（0=根节点） \NC\NR
+\HL
+\stoptabulate
+
+\section{节点信息获取}
+
+\subsection{当前节点信息}
+
+\starttabulate[|l|p|]
+\HL
+\NC 命令 \NC 说明 \NC\NR
+\HL
+\NC \type{\UnlimitedCurrentID} \NC 获取当前节点 ID \NC\NR
+\NC \type{\UnlimitedGetDepth} \NC 获取当前节点深度 \NC\NR
+\NC \type{\UnlimitedCurrentAnswer} \NC 获取当前节点答案 \NC\NR
+\NC \type{\UnlimitedCurrentPoint} \NC 获取当前节点总分 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{指定节点信息}
+
+使用 \type{\UnlimitedGetAnswer} 获取指定节点的属性：
+
+\startbuffer
+% 获取题目1的分数
+\UnlimitedGetAnswer{jobname-1-Q-1}{point}
+
+% 获取题目1的答案
+\UnlimitedGetAnswer{jobname-1-Q-1}{answer}
+
+% 获取题目1的总分（包含子题）
+\UnlimitedGetAnswer{jobname-1-Q-1}{totalpoint}
+
+% 获取题目1的总数（包含子题）
+\UnlimitedGetAnswer{jobname-1-Q-1}{totalnumber}
+\stopbuffer
+
+\typebuffer
+
+\section{调试功能}
+
+在 check 模式下，模块会自动输出调试信息：
+
+\starttyping
+\usemodule[basicexam][mode={teacher,check}]
+\stoptyping
+
+也可以手动调用调试命令：
+
+\starttyping
+% 输出答案树结构
+\UnlimitedDebug
+
+% 导出答案到 TSV 文件
+\UnlimitedExport{answers.tsv}
+\stoptyping
+
+\chapter{贡献与修改}
+
+\section{提交需求}
+
+如果您在使用过程中发现 bug 或有新功能需求，可以通过以下方式提交：
+
+\startitemize[packed]
+\item 在 GitHub 仓库提交 Issue
+\item 发送邮件至作者邮箱
+\item 在相关论坛发帖讨论
+\stopitemize
+
+提交需求时，请尽量提供以下信息：
+
+\startitemize[packed]
+\item ConTeXt 版本信息（运行 \type{context --version}）
+\item 最小复现示例
+\item 期望的行为和实际的行为
+\stopitemize
+
+\section{修改本模块}
+
+本模块采用 LuaMetaTeX 编写，源代码位于 \type{t-basicexam.mklx} 文件中。
+
+\subsection{模块结构}
+
+\starttabulate[|l|p|]
+\HL
+\NC 文件 \NC 说明 \NC\NR
+\HL
+\NC t-basicexam.mklx \NC 主模块文件，包含所有命令定义 \NC\NR
+\NC i-basicexam.xml \NC 接口定义文件，用于命令文档生成 \NC\NR
+\NC doc/basicexam-manual.tex \NC 使用手册 \NC\NR
+\NC doc/test-exam.tex \NC 测试文件 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{修改建议}
+
+\startitemize[packed]
+\item 修改前请备份原文件
+\item 建议先阅读源代码注释
+\item 修改后请运行测试文件验证
+\item 如有重大改进，欢迎提交 Pull Request
+\stopitemize
+
+\stoptext
