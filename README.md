@@ -1,229 +1,181 @@
+# t-basicexam Project
 
-# basicexam 模塊
+A ConTeXt Chinese typesetting toolkit featuring three core modules: exam generation, document layout, and style customization.
 
-## 介紹
+---
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Soanguy/t-basicexam)
+## Modules Overview
 
-[![zread](https://img.shields.io/badge/Ask_Zread-_.svg?style=flat&color=00b0aa&labelColor=000000&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQuOTYxNTYgMS42MDAxSDIuMjQxNTZDMS44ODgxIDEuNjAwMSAxLjYwMTU2IDEuODg2NjQgMS42MDE1NiAyLjI0MDFWNC45NjAxQzEuNjAxNTYgNS4zMTM1NiAxLjg4ODEgNS42MDAxIDIuMjQxNTYgNS42MDAxSDQuOTYxNTZDNS4zMTUwMiA1LjYwMDEgNS42MDE1NiA1LjMxMzU2IDUuNjAxNTYgNC45NjAxVjIuMjQwMUM1LjYwMTU2IDEuODg2NjQgNS4zMTUwMiAxLjYwMDEgNC45NjE1NiAxLjYwMDFaIiBmaWxsPSIjZmZmIi8%2BCjxwYXRoIGQ9Ik00Ljk2MTU2IDEwLjM5OTlIMi4yNDE1NkMxLjg4ODEgMTAuMzk5OSAxLjYwMTU2IDEwLjY4NjQgMS42MDE1NiAxMS4wMzk5VjEzLjc1OTlDMS42MDE1NiAxNC4xMTM0IDEuODg4MSAxNC4zOTk5IDIuMjQxNTYgMTQuMzk5OUg0Ljk2MTU2QzUuMzE1MDIgMTQuMzk5OSA1LjYwMTU2IDE0LjExMzQgNS42MDE1NiAxMy43NTk5VjExLjAzOTlDNS42MDE1NiAxMC42ODY0IDUuMzE1MDIgMTAuMzk5OSA0Ljk2MTU2IDEwLjM5OTlaIiBmaWxsPSIjZmZmIi8%2BCjxwYXRoIGQ9Ik0xMy43NTg0IDEuNjAwMUgxMS4wMzg0QzEwLjY4NSAxLjYwMDEgMTAuMzk4NCAxLjg4NjY0IDEwLjM5ODQgMi4yNDAxVjQuOTYwMUMxMC4zOTg0IDUuMzEzNTYgMTAuNjg1IDUuNjAwMSAxMS4wMzg0IDUuNjAwMUgxMy43NTg0QzE0LjExMTkgNS42MDAxIDE0LjM5ODQgNS4zMTM1NiAxNC4zOTg0IDQuOTYwMVYyLjI0MDFDMTQuMzk4NCAxLjg4NjY0IDE0LjExMTkgMS42MDAxIDEzLjc1ODQgMS42MDAxWiIgZmlsbD0iI2ZmZiIvPgo8cGF0aCBkPSJNNCAxMkwxMiA0TDQgMTJaIiBmaWxsPSIjZmZmIi8%2BCjxwYXRoIGQ9Ik00IDEyTDEyIDQiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L3N2Zz4K&logoColor=ffffff)](https://zread.ai/Soanguy/t-basicexam)
+| Module | Type | Description |
+|--------|------|-------------|
+| **t-basicexam** | Exam Generation | Multiple choice, fill-in-the-blank, reading comprehension, essay questions, cloze tests, etc. |
+| **t-memos** | Document Layout | Multi-theme, multi-style document formatting solution with zhnumber and zhindex |
+| **s-poriginal** | Style Module | Custom chapter styles requiring visualcounter module |
 
-一個簡單地試卷生成模塊，專用於 ConTeXt。目前具有的功能有：
+---
 
-- 選擇題
-- 填空題
-- 材料題
-- 問答題
-- 完形填空題
-- 答案控制
-- 分數控制
-- 題頭控制
+## t-basicexam - Exam Generation Module
 
-## 預覽
+### Features
 
-參見 `MANUAL and EXAMPLE` 文件夾下具體文件。
+- **Multiple Choice Questions** - Support for single and multiple selections with automatic grading
+- **Fill-in-the-Blank** - Flexible answer formats
+- **Reading Comprehension** - Support for long text material references
+- **Essay Questions** - Free response spaces
+- **Cloze Tests** - Text gap-filling with answer matching
+- **Answer Control** - Centralized answer management
+- **Score Control** - Flexible point configuration
+- **Question Header Control** - Custom question numbering and formatting
 
-![](doc/context/third/basicexam/assets/soanguy-103113.png)
+### Usage Examples
 
-![](doc/context/third/basicexam/assets/soanguy-1048579.png)
+#### Full Command Syntax
 
-![](doc/context/third/basicexam/assets/soanguy-105577.png)
+```tex
+\usemodule[basicexam][mode=teacher]
 
-![](doc/context/third/basicexam/assets/soanguy-1020859.png)
+\startquestion[point=4,showanswer=true,answer=B]
+  This is the question stem.
+  \startchoice
+    \startcitem Option A \stopcitem
+    \startcitem[*] Option B (Correct Answer) \stopcitem
+    \startcitem Option C \stopcitem
+    \startcitem Option D \stopcitem
+  \stopchoice
+  \startanswer
+    This is the explanation.
+  \stopanswer
+\stopquestion
+```
 
-## 安裝
+#### Quick Command Syntax
 
-### 1. 安裝 basicexam 模塊
+```tex
+\question[point=4,showanswer=true]{Question stem.\choice{Option A,{[*]Option B},Option C,Option D}}
+```
 
-下載後，放置在 context 安裝路徑下（context-osx-arm64/tex/texmf-local/）。（context-osx-arm64 文件名可能根据不同的操作系統而不同）
+#### Fill-in-the-Blank
 
-在終端中使用：`mtxrun --generate` 刷新文件索引。
+```tex
+\startquestion
+  The capital of China is \fillin{Beijing}.
+\stopquestion
+```
 
-在文件中使用 `\usemodule[basicexam]` 即可使用。
+#### Cloze Test
 
-### 2. 安裝 visualcounter 模塊
+```tex
+\startclose[showanswer=true,point=10]
+In spring, the season of \closechoice[flowers,leaves,birds,rain],
+we \closechoice[walk,run,jump,fly] in the park.
+\stopclose
+```
 
-本項目使用了 visualcounter 模塊，需要自行安裝：
+#### Essay Writing
 
-1. 從 GitHub 下載：[https://github.com/adityam/visualcounter](https://github.com/adityam/visualcounter)
-2. 將 `t-visualcounter.mkvi` 文件複製到 context 安裝路徑下的 `tex/texmf-local/context/third/` 目錄
-3. 運行 `mtxrun --generate` 刷新文件索引
+```tex
+\startwriting[point=20]
+  Write an essay about environmental protection (at least 300 words).
+  \startanswer
+    Reference essay...
+  \stopanswer
+\stopwriting
+```
 
-或者使用 ConTeXt 的模塊管理器安裝：
+---
+
+## t-memos - Document Layout Module
+
+Includes `zhnumber` (Chinese numerals) and `zhindex` (Chinese index) functionality.
+
+### Features
+
+- **Multiple Modes**: print, kindle, draft, moresize
+- **Color Themes**: red, blue, yellow, green, black, cyan, orange, purple, pink, gray, white
+- **Chapter Styles**: default, simple, classics, classicnovel, colorful, line, rocket, hexa, madsen, kaolike, publish, artical
+- **TOC Styles**: default, simple, classics, classicnovel, colorful, line, rocket, hexa, madsen
+- **Header Styles**: book, novel, colorful, hctext, fctext, foemargin, foemarginalt, hoemargin
+- **Font Size System**: Complete font sizes from 42pt to 3pt
+- **Multi-language Support**: Chinese Simplified (hans), Traditional (hant), Japanese, English
+
+### zhnumber - Chinese Numeral Conversion
+
+**Purpose**: Converts Arabic numerals to Chinese numeral expressions, supporting integers, decimals, fractions, dates, and Ganzhi (sexagenary cycle).
+
+**Main Commands**:
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `\zhnumber{num}` | Integer conversion | `\zhnumber{12345}` → 一万二千三百四十五 |
+| `\zhnumber{decimal}` | Decimal conversion | `\zhnumber{3.14}` → 三点一四 |
+| `\zhnumber{fraction}` | Fraction conversion | `\zhnumber{1/2}` → 二分之一 |
+| `\zhdate{date}` | Date conversion | `\zhdate{2024/1/1}` → 二〇二四年一月一日 |
+| `\zhtime{time}` | Time conversion | `\zhtime{14:30}` → 十四点三十分 |
+| `\zhtiangan{n}` | Heavenly Stems | `\zhtiangan{1}` → 甲 |
+| `\zhdizhi{n}` | Earthly Branches | `\zhdizhi{1}` → 子 |
+| `\zhganzhinian{year}` | Ganzhi Year | `\zhganzhinian{2024}` → 甲辰年 |
+
+### zhindex - Chinese Index Sorting
+
+**Purpose**: Provides intelligent Chinese index sorting with three sorting methods.
+
+**Sorting Methods**:
+- **zh-pinyin**: Sort by Pinyin pronunciation
+- **zh-alpha**: Sort by alphabetical order
+- **zh-stroke**: Sort by stroke count
+
+**Usage**:
+```tex
+\usemodule[memos]
+\usemodule[zhindex]
+
+\index{Peking University}
+\index{Tsinghua University}
+
+\setupregister[index][language=zh-pinyin]
+\placeindex
+```
+
+---
+
+## s-poriginal - Style Module
+
+Provides custom chapter styles. Requires the `visualcounter` module.
+
+### Install visualcounter Dependency
+
 ```bash
 mtxrun --script install-modules --install visualcounter
 ```
 
-## 示例
+---
 
-```
-\definepapertitle[list={key},key=value]
-\setuppapertitle[keycolor=red]
-```
+## Installation
 
-```
-\startquestion
-  \startchoice
-    \startcitem   choice 1 \stopcitem
-    \startcitem[*]choice 2 \stopcitem
-    \startcitem   choice 3 \stopcitem
-    \startcitem   choice 4 \stopcitem
-  \stopchoice
-\stopquestion
+1. Download the project files
+2. Place files in `tex/texmf-local/` under your ConTeXt installation
+3. Run `mtxrun --generate` to refresh file index
+4. Use modules in your TeX files:
+   - `\usemodule[basicexam]`
+   - `\usemodule[memos]`
+   - `\usemodule[poriginal]`
 
---->
-\question{
-  \choice{choice 1,\correct{choice 2},{[*]choice 3},choice 4}}
-```
+---
 
-```
-\startquestion
-  \startproblem
-    \startpitem[answer=answer 1] problem 1 \stoppitem
-    \startpitem[answer=answer 2] problem 1 \stoppitem
-    \startpitem[answer=answer 3] problem 1 \stoppitem
-  \stopproblem
-\stopquestion
+## Documentation & Examples
 
---->
-\question{
-  \problem{
-    \pitem[answer=answer 1]{problem 1}
-    \pitem[answer=answer 2]{problem 1}
-    \pitem[answer=answer 3]{problem 1}
-  }
-}
-```
+- **[Chinese README](doc/context/third/basicexam/README_CN.md)** - Complete documentation in Chinese
+- **[basicexam Manual](doc/context/third/basicexam/basicexam-manual.tex)** - Detailed usage guide
+- **[memos Manual](doc/context/third/basicexam/memos-manual-en.tex)** - Document layout documentation (English)
+- **[Test Files](doc/context/third/basicexam/)**:
+  - **[test-exam.tex](doc/context/third/basicexam/test-exam.tex)** - Exam generation tests
+  - **[test-frame.tex](doc/context/third/basicexam/test-frame.tex)** - Frame tests
+  - **[test-poriginal.tex](doc/context/third/basicexam/test-poriginal.tex)** - Style module tests
+  - **[test-zhnumber.tex](doc/context/third/basicexam/test-zhnumber.tex)** - Chinese numeral tests
+  - **[test-zhindex.tex](doc/context/third/basicexam/test-zhindex.tex)** - Chinese index tests
 
-```
-\startmaterial[title={Knuth},author={Mos},source={Yelu}]
-   some text here \indicator{underline text}
-\stopmaterial
-```
+---
 
+## License
 
-> 现在可以通过下面的几个命令快速的定制自己想要的环境：
-> ```
-> \UnlimitedPushLevel{\currentexamenvironment}% 开始一个新的环境
-> \showpointoranswer[\currentexamenvironment][point]% 显示问题的分数
-> \showpointoranswer[\currentexamenvironment][answer]% 显示问题的答案
-> \UnlimitedAddScoredAnswer{\currentanswer}{\currentpoint}% 添加问题的答案和分数
-> \UnlimitedPopLevel % 退出当前环境
-> ```
-
-> 更多的示例和使用方法可以参考 doc/context/third/basicexam/basicexam-test.pdf
-
-> 具体的命令及其变体、参数可以参考  doc/context/third/basicexam/i-basicexam.pdf 。但是该文本可能不是最新的。
-
-> 源代码相关的说明可以参考 doc/context/third/basicexam/t-basicexam.pdf 。但是该文本可能不是最新的。
-
-# memos 模塊
-
-文檔排版模塊，提供豐富的樣式和主題選項。
-
-主要功能：
-- **多種模式支持**：print（打印）、kindle（電子書）、draft（草稿）、moresize（更多尺寸）
-- **多種顏色主題**：red、blue、yellow、green、black、cyan、orange、purple、pink、gray、white
-- **多種章節樣式**：default、simple、classics、classicnovel、colorful、line、rocket、hexa、madsen、kaolike、publish、artical
-- **多種目錄樣式**：default、simple、classics、classicnovel、colorful、line、rocket、hexa、madsen
-- **多種頁眉樣式**：book、novel、colorful、hctext、fctext、foemargin、foemarginalt、hoemargin
-- **靈活的頁面設置**：支持自定義紙張大小、行高、字體等
-- **豐富的字號系統**：moresize 模式下提供從初號（42pt）到小九號（3pt）的完整字號體系
-- **多語言支持**：原生支持中文簡體（hans）、繁體（hant）、日文和英文
-
-使用方法：
-```tex
-\usemodule[memos][
-  papersize=A4,
-  layout=moderate,
-  mainlanguage=hans,
-  fontsize=11pt,
-  themecolor=blue,
-  chapterstyle=simple,
-  hdrstyle=book,
-]
-```
-
-> 💡 **字體配置**：memos 模塊支持豐富的字體選擇，包括 Adobe、Source、macOS、DynaFont 等多種字體集。詳細的字體配置說明請參閱 [字體 README](tex/context/third/basicexam/fonts/README.md)。
-
-# zhindex 模塊
-
-中文排序模塊，為 ConTeXt 提供中文索引排序功能。
-
-主要功能：
-- **拼音排序**（zh-pinyin）：按漢字拼音排序，同音字按拼音字母順序排列
-- **字母排序**（zh-alpha）：中西文混排，按首字母分組，大小寫字母合併顯示
-- **筆畫排序**（zh-stroke）：按漢字筆畫數分組，同筆畫數內按筆順代碼排序
-
-使用方法：
-```tex
-\usemodule[zhindex]
-
-% 設置索引排序方式
-\setupregister[index][
-  n=1,
-  alternative=A,
-  language=zh-pinyin,  % 或 zh-alpha, zh-stroke
-]
-
-% 在文檔中使用索引
-\index{測試}
-\index{排序}
-
-\placeindex
-```
-
-排序規則：
-- 數字歸類到 "number" 類別
-- 西文字母歸類到 "alpha" 類別
-- 中文根據選擇的排序方式進行相應排序
-
-## 項目結構
-
-```
-t-basicexam/
-├── doc/                                    # 文檔目錄
-│   └── context/
-│       └── third/
-│           └── basicexam/
-│               ├── assets/                       # 預覽圖片
-│               │   ├── soanguy-103113.png
-│               │   ├── soanguy-1048579.png
-│               │   ├── soanguy-105577.png
-│               │   └── soanguy-1020859.png
-│               ├── EXAMPLE-student.pdf           # 學生版示例 PDF
-│               ├── EXAMPLE-teacher.pdf           # 教師版示例 PDF
-│               ├── EXAMPLE.tex                 # 示例源文件
-│               ├── basicexam-test.pdf          # 測試文件 PDF
-│               ├── basicexam-test.tex          # 測試源文件
-│               ├── demo-search.tex             # 演示搜索功能
-│               ├── i-basicexam.pdf            # 接口文檔 PDF
-│               ├── i-basicexam.xml            # 接口文檔 XML
-│               ├── present-original.tex       # 原始演示文件
-│               ├── test-comprehensive.tex     # 綜合測試文件
-│               └── t-basicexam.pdf           # 源代碼文檔 PDF
-├── tex/                                     # 源代碼目錄
-│   └── context/
-│       └── third/
-│           └── basicexam/
-│               ├── data/                        # 數據文件目錄
-│               │   ├── README.md              # 數據文件說明
-│               │   ├── basicexam-sql.lua      # SQL 數據庫文件
-│               │   ├── bg_img.png             # 背景圖片
-│               │   ├── pinyin.txt             # 拼音數據文件
-│               │   ├── sort-imp-zh.lua        # 中文排序實現（Lua）
-│               │   └── sunwb_strokeorder.txt # 筆順數據文件
-│               ├── fonts/                       # 字體配置目錄
-│               │   ├── README.md              # 字體配置詳細說明
-│               │   ├── symb-imp-notosymb.mkiv # 符號定義
-│               │   ├── type-bak-fallbacks.mkiv # 回退字體定義
-│               │   ├── type-imp-adobe.mkiv   # Adobe 字體集
-│               │   ├── type-imp-macos.mkiv   # macOS 系統字體集
-│               │   └── type-imp-source.mkiv  # Source Han 字體集
-│               ├── s-memos.mklx              # memos 模塊源代碼
-│               ├── s-poriginal.mkiv          # 原始演示模塊
-│               ├── t-basicexam.mklx           # basicexam 模塊源代碼
-│               └── t-zhindex.mklx            # zhindex 模塊源代碼
-├── .gitignore                               # Git 忽略文件配置
-├── LICENSE                                  # 許可證文件
-└── README.md                                # 項目說明文件
-```
+This project is licensed under the MIT License. See LICENSE file for details.

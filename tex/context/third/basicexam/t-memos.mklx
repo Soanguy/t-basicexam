@@ -20,9 +20,10 @@
               layout=moderate,
               mainlanguage=hans,
               language=hans,
-              lineheight=\userlanguageparameter{interlinespace},
+              lineheight=\ifcsname lang:\currentlanguage interlinespace\endcsname\lastnamedcs\else 2.8ex\fi,
               fallbackfont=\userlanguageparameter{fallbackfont},
-              bodyfont=\userlanguageparameter{bodyfont},
+              bodyfont=\ifcsname lang:\currentlanguage bodyfont\endcsname\lastnamedcs\else modern\fi,
+              script=hanzi,
               fontstyle=rm,
               fontsize=11pt,
               textcount=40, heightcount=40, margincount=0,
@@ -436,7 +437,7 @@
 \mainlanguage        [\moduleparameter{memos}{mainlanguage}]
 \language            [\moduleparameter{memos}{language}]
 \setups{fallback:\moduleparameter{memos}{fallbackfont}}
-\setglobalscript     [\userlanguageparameter{script}]
+\setglobalscript     [\moduleparameter{memos}{script}]
 % 确保用户指定的 fontsize 已定义
 % 如果 fontsize 未定义，则从 default 环境继承创建
 \edef\m_memos_fontsize{\moduleparameter{memos}{fontsize}}%
@@ -449,10 +450,7 @@
 \setupbodyfont       [\moduleparameter{memos}{bodyfont},
                       \moduleparameter{memos}{fontstyle},
                       \moduleparameter{memos}{fontsize}]
-\setupalign          [\userlanguageparameter\c!align]%
-\setupwhitespace     [\userlanguageparameter{whitespace}]%
-\setupindenting      [\userlanguageparameter\c!indenting]%
-\setupinterlinespace [line=\userlanguageparameter{interlinespace}]% 必须先于 layout 进行定义。否则 hermes 无法获取 baselineskip
+\setupinterlinespace [line=\moduleparameter{memos}{lineheight}]% 必须先于 layout 进行定义。否则 hermes 无法获取 baselineskip
 
 \definedelimitedtext [paren]       [location=text]
 \setupdelimitedtext  [paren:1]     [left={\,(\nobreak}, right={\nobreak)\,}]

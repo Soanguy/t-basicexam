@@ -1,0 +1,2233 @@
+\usemodule[memos]
+\usemodule[setups]
+
+\enablemode[no-setup-main]
+
+\setupinteraction[state=start]
+\setuptextrules[style=\tf\ss,before=,after=,rulethickness=.5pt]
+
+\setuptyping[style=\ttxx\setuplocalinterlinespace[line=2ex],
+             option={context},
+             before={\vbox{\hrule height .5pt\par
+                     \textrule{代码示例}%
+                     \hrule height .5pt\vrule width0pt depth 4pt}\par},
+              after={\vbox{\hrule height .5pt\strut}},
+             ]
+
+\protected\def\colorshowtemp#1{%
+  \framed[foregroundcolor=#1,width=6em,frame=off]{#1}}
+
+\protected\def\bgcolorshowtemp#1{%
+  \framed[foregroundcolor=white,background=color,backgroundcolor=#1,
+           width=6em,frame=off]{#1}}
+
+\def\showcolorrow#1{%
+  \startxrow
+    \startxcell {#1}                    \stopxcell
+    \startxcell \colorshowtemp{soft#1}  \stopxcell
+    \startxcell \colorshowtemp{light#1} \stopxcell
+    \startxcell \colorshowtemp{#1}      \stopxcell
+    \startxcell \colorshowtemp{dark#1}  \stopxcell
+    \startxcell \colorshowtemp{deep#1}  \stopxcell
+  \stopxrow}
+
+\def\showbgcolorrow#1{%
+  \startxrow
+    \startxcell {#1}                      \stopxcell
+    \startxcell \bgcolorshowtemp{soft#1}  \stopxcell
+    \startxcell \bgcolorshowtemp{light#1} \stopxcell
+    \startxcell \bgcolorshowtemp{#1}      \stopxcell
+    \startxcell \bgcolorshowtemp{dark#1}  \stopxcell
+    \startxcell \bgcolorshowtemp{deep#1}  \stopxcell
+  \stopxrow}
+
+\def\showpaletcolors{%
+  \starttabulate[|c|c|c|c|c|]
+  \NC \colorshowtemp{themecolor} \NC
+      \colorshowtemp{softthemecolor} \NC
+      \colorshowtemp{lightthemecolor} \NC
+      \colorshowtemp{darkthemecolor} \NC
+      \colorshowtemp{deepthemecolor} \NC\NR
+  \NC \bgcolorshowtemp{themecolor} \NC
+      \bgcolorshowtemp{softthemecolor} \NC
+      \bgcolorshowtemp{lightthemecolor} \NC
+      \bgcolorshowtemp{darkthemecolor} \NC
+      \bgcolorshowtemp{deepthemecolor} \NC\NR
+  \stoptabulate}
+
+\starttext
+
+\startfrontmatter
+\title{memos 模块使用说明书}
+
+\blank[big]
+
+\placecontent
+
+\stopfrontmatter
+
+\startbodymatter
+\chapter{模块概述}
+
+\section{简介}
+
+memos 是一个为 ConTeXt LMTX 设计的综合排版模块，提供了完整的书籍、文档排版解决方案。
+该模块专注于中文排版，同时支持多语言混排，提供了丰富的页面布局、字体配置、颜色主题等功能。
+
+\section{主要特性}
+
+\startitemize[packed]
+\item 多语言支持：简体中文、繁体中文、日语等
+\item 丰富的字体集：Adobe、Source、macOS 等字体方案
+\item 多种页面布局：moderate、kindle、ipad、kaolike 等布局样式
+\item 主题颜色系统：11 种预设主题颜色调色板
+\item 灵活的页眉页脚样式：book、novel、colorful 等多种风格
+\item 完善的目录系统：支持多种目录样式
+\item 图表浮动系统：支持文本区、边注区、全页宽等多种浮动体
+\item 代码排版：支持语法高亮和行号
+\item 边注系统：脚注、边注、侧注等
+\item 卡片样式：Metro、Fluent、macOS、Modern、DualHeader 风格
+\item 封面系统：5 种预设封面样式
+\stopitemize
+
+\section{系统要求}
+
+该模块需要 {\bf ConTeXt LMTX (LuaMetaTeX)} 环境，不支持 MkIV 版本。
+建议使用最新版本的 ConTeXt LMTX 以获得最佳体验。
+
+\chapter{模块加载与参数}
+
+\section{加载模块}
+
+\starttyping
+\usemodule[memos]
+\stoptyping
+
+\section{模块参数}
+
+模块加载时可设置以下参数：
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC papersize \NC A4 \NC 纸张大小（A4/A5/kindle/ipad/B5/letter/legal） \NC\NR
+\NC layout \NC moderate \NC 页面布局样式 \NC\NR
+\NC mainlanguage \NC hans \NC 主语言 \NC\NR
+\NC language \NC hans \NC 当前语言 \NC\NR
+\NC lineheight \NC 1.5em \NC 行高 \NC\NR
+\NC fallbackfont \NC \NC 回退字体 \NC\NR
+\NC bodyfont \NC \NC 正文字体 \NC\NR
+\NC fontstyle \NC rm \NC 字体风格 \NC\NR
+\NC fontsize \NC 11pt \NC 字号 \NC\NR
+\NC textcount \NC 40 \NC 文本区字符数 \NC\NR
+\NC heightcount \NC 40 \NC 文本区行数 \NC\NR
+\NC margincount \NC 0 \NC 边注区字符数 \NC\NR
+\NC mode \NC \NC 运行模式 \NC\NR
+\NC ratio \NC 1.414 \NC 版心比例 \NC\NR
+\NC themecolor \NC cyan \NC 主题颜色 \NC\NR
+\NC chapterstyle \NC default \NC 章节标题样式 \NC\NR
+\NC hdrstyle \NC fctext \NC 页眉页脚样式 \NC\NR
+\NC tocstyle \NC \NC 目录样式 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{纸张大小（papersize）}
+
+\starttabulate[|l|p|]
+\HL
+\NC 选项 \NC 说明 \NC\NR
+\HL
+\NC A4 \NC A4 纸张（默认） \NC\NR
+\NC A5 \NC A5 纸张 \NC\NR
+\NC B5 \NC B5 纸张 \NC\NR
+\NC letter \NC 信纸 \NC\NR
+\NC legal \NC 法律用纸 \NC\NR
+\NC kindle \NC Kindle 电子书尺寸 \NC\NR
+\NC ipad \NC iPad 平板尺寸 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{页面布局（layout）}
+
+\starttabulate[|l|p|]
+\HL
+\NC 选项 \NC 说明 \NC\NR
+\HL
+\NC moderate \NC 适中布局（默认） \NC\NR
+\NC narrow \NC 窄边距布局 \NC\NR
+\NC wide \NC 宽边距布局 \NC\NR
+\NC extrawide \NC 超宽边距布局 \NC\NR
+\NC kindle \NC Kindle 电子书布局 \NC\NR
+\NC ipad \NC iPad 平板布局 \NC\NR
+\NC kaolike \NC 考理科布局 \NC\NR
+\NC exotic \NC 异域风格布局 \NC\NR
+\NC sidemirror \NC 侧边镜像布局 \NC\NR
+\NC propiorroot \NC Propiorroot 布局 \NC\NR
+\NC propiorgolden \NC 黄金比例布局 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{语言设置（mainlanguage）}
+
+\starttabulate[|l|p|]
+\HL
+\NC 选项 \NC 说明 \NC\NR
+\HL
+\NC hans \NC 简体中文（默认） \NC\NR
+\NC hant \NC 繁体中文 \NC\NR
+\NC ja \NC 日语 \NC\NR
+\NC en \NC 英语 \NC\NR
+\NC cn \NC 中文（简体中文别名） \NC\NR
+\HL
+\stoptabulate
+
+\subsection{字体风格（fontstyle）}
+
+\starttabulate[|l|p|]
+\HL
+\NC 选项 \NC 说明 \NC\NR
+\HL
+\NC rm \NC 罗马体（默认），适合正文 \NC\NR
+\NC ss \NC 无衬线体，适合标题 \NC\NR
+\NC tt \NC 等宽体，适合代码 \NC\NR
+\NC hw \NC 手写体风格 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{运行模式（mode）}
+
+\starttabulate[|l|p|]
+\HL
+\NC 选项 \NC 说明 \NC\NR
+\HL
+\NC print \NC 打印模式，优化输出用于打印 \NC\NR
+\NC kindle \NC 电子书模式，针对电子阅读器优化 \NC\NR
+\NC draft \NC 草稿模式，快速预览 \NC\NR
+\NC moresize \NC 扩展字号模式，启用更多字号选项 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{主题颜色（themecolor）}
+
+\starttabulate[|l|p|]
+\HL
+\NC 选项 \NC 说明 \NC\NR
+\HL
+\NC cyan \NC 青色（默认） \NC\NR
+\NC red \NC 红色 \NC\NR
+\NC blue \NC 蓝色 \NC\NR
+\NC green \NC 绿色 \NC\NR
+\NC yellow \NC 黄色 \NC\NR
+\NC orange \NC 橙色 \NC\NR
+\NC purple \NC 紫色 \NC\NR
+\NC pink \NC 粉色 \NC\NR
+\NC gray \NC 灰色 \NC\NR
+\NC black \NC 黑色 \NC\NR
+\NC white \NC 白色 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{页眉页脚样式（hdrstyle）}
+
+\starttabulate[|l|p|]
+\HL
+\NC 选项 \NC 说明 \NC\NR
+\HL
+\NC fctext \NC 页脚居中页码（默认） \NC\NR
+\NC book \NC 书籍样式 \NC\NR
+\NC line \NC 书籍样式（book 别名） \NC\NR
+\NC novel \NC 小说样式 \NC\NR
+\NC colorful \NC 彩色样式 \NC\NR
+\NC madsen \NC Madsen 样式 \NC\NR
+\NC hctext \NC 页眉居中页码 \NC\NR
+\NC foemargin \NC 页脚外边距页码 \NC\NR
+\NC foemarginalt \NC 页脚外边距页码（靠近文本区） \NC\NR
+\NC hoemargin \NC 页眉外边距样式 \NC\NR
+\NC kaolike \NC 考理科风格 \NC\NR
+\NC none \NC 无页眉页脚 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{示例}
+
+\starttyping
+% 基本用法
+\usemodule[memos]
+
+% 自定义参数
+\usemodule[memos][
+  papersize=A5,
+  layout=moderate,
+  mainlanguage=hans,
+  fontsize=12pt,
+  themecolor=blue,
+  hdrstyle=book,
+]
+
+% 电子书模式
+\usemodule[memos][mode=kindle,papersize=kindle]
+
+% 打印模式
+\usemodule[memos][mode=print]
+
+% 草稿模式
+\usemodule[memos][mode=draft]
+
+% 更多字号选项
+\usemodule[memos][mode=moresize]
+\stoptyping
+
+\chapter{多语言支持}
+
+\section{语言设置}
+
+memos 模块提供了完善的多语言支持，特别是对中文排版的优化。
+
+\subsection{预设语言}
+
+模块预设了以下语言环境：
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 语言代码 \NC 语言名称 \NC 说明 \NC\NR
+\HL
+\NC hans \NC 简体中文 \NC 使用 Adobe 简体中文字体 \NC\NR
+\NC hant \NC 繁体中文 \NC 使用 Adobe 繁体中文字体 \NC\NR
+\NC ja \NC 日语 \NC 使用日语字体 \NC\NR
+\NC cn \NC 中文 \NC 简体中文别名 \NC\NR
+\NC en \NC 英语 \NC 英语环境 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{切换语言}
+
+使用 \type{\language} 命令切换语言：
+
+\starttyping
+\language[hans]  % 切换到简体中文
+\language[hant]  % 切换到繁体中文
+\language[ja]    % 切换到日语
+\language[en]    % 切换到英语
+\stoptyping
+
+\section{自定义语言环境}
+
+使用 \type{\defineuserlanguage} 或 \type{\setupuserlanguage} 定义新的语言环境：
+
+\starttyping
+\defineuserlanguage[mylang][
+  bodyfont=adobehans,
+  fallbackfont=fallback:cormorant,
+  patterns={zh,en},
+  script=hanzi,
+  interlinespace=1.5em,
+  whitespace=none,
+  align={height,hanging,justified},
+  indenting={first,always,2em},
+]
+\stoptyping
+
+\subsection{语言参数}
+
+\starttabulate[|l|p|]
+\HL
+\NC 参数 \NC 说明 \NC\NR
+\HL
+\NC bodyfont \NC 正文字体 \NC\NR
+\NC fallbackfont \NC 回退字体 \NC\NR
+\NC patterns \NC 断字模式 \NC\NR
+\NC script \NC 脚本（hanzi/latin等） \NC\NR
+\NC interlinespace \NC 行距 \NC\NR
+\NC whitespace \NC 空白处理 \NC\NR
+\NC align \NC 对齐方式 \NC\NR
+\NC indenting \NC 缩进设置 \NC\NR
+\HL
+\stoptabulate
+
+\chapter{字体系统}
+
+\section{字体集}
+
+memos 模块预定义了多种字体集，方便用户快速切换。
+
+\subsection{Adobe 字体系列}
+
+\starttyping
+\switchtobodyfont[adobehans]   % Adobe 简体中文
+\switchtobodyfont[adobehant]   % Adobe 繁体中文
+\switchtobodyfont[adobenihon]  % Adobe 日语
+\stoptyping
+
+\subsection{Source 字体系列}
+
+\starttyping
+\switchtobodyfont[sourcehans]      % Source Han Sans 简体中文
+\switchtobodyfont[sourcehant]      % Source Han Sans 繁体中文
+\switchtobodyfont[sourcenihon]     % Source Han Sans 日语
+\switchtobodyfont[sourcehanslight] % Source Han Sans Light
+\stoptyping
+
+\subsection{macOS 字体系列}
+
+\starttyping
+\switchtobodyfont[sinohans]  % PingFang SC
+\switchtobodyfont[sinohant]  % PingFang TC
+\switchtobodyfont[hiragino]  % Hiragino Sans
+\stoptyping
+
+\subsection{其他字体集}
+
+\starttyping
+\switchtobodyfont[genyotw]    % GenYo Gothic TW
+\switchtobodyfont[genyotc]    % GenYo Gothic TC
+\switchtobodyfont[shanggu]    % Shanggu
+\switchtobodyfont[ipaexhans]  % IPAex 简体中文
+\switchtobodyfont[ibmplexsc]  % IBM Plex SC
+\stoptyping
+
+\section{字体风格}
+
+模块支持四种字体风格：
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 风格代码 \NC 风格名称 \NC 说明 \NC\NR
+\HL
+\NC rm \NC Roman \NC 衬线字体（默认） \NC\NR
+\NC ss \NC Sans Serif \NC 无衬线字体 \NC\NR
+\NC tt \NC Typewriter \NC 等宽字体 \NC\NR
+\NC hw \NC Handwriting \NC 手写字体 \NC\NR
+\HL
+\stoptabulate
+
+使用方法：
+
+\starttyping
+{\rm 衬线字体}
+{\ss 无衬线字体}
+{\tt 等宽字体}
+{\hw 手写字体}
+\stoptyping
+
+\section{字号系统}
+
+\subsection{标准字号}
+
+\starttyping
+{\tf 正常大小}
+{\tfa 稍大}
+{\tfb 更大}
+{\tfc 很大}
+{\tfd 最大}
+{\tfx 稍小}
+{\tfxx 更小}
+\stoptyping
+
+\subsection{扩展字号}
+
+启用 \type{moresize} 模式后，可以使用更多字号选项：
+
+\starttyping
+\usemodule[memos][mode=moresize]
+
+% 中文传统字号
+{\o  初号}
+{\i  一号}
+{\ii 二号}
+{\iii 三号}
+{\iv 四号}
+{\v  五号}
+
+% 带小字号
+{\os 小初号}
+{\is 小一号}
+{\iis 小二号}
+{\iiis 小三号}
+{\ivs 小四号}
+{\vs 小五号}
+\stoptyping
+
+\chapter{页面布局}
+
+\section{布局样式}
+
+模块提供了多种预定义的页面布局样式：
+
+\starttabulate[|l|p|]
+\HL
+\NC 布局名称 \NC 说明 \NC\NR
+\HL
+\NC moderate \NC 适中布局（默认），适合大多数文档 \NC\NR
+\NC narrow \NC 窄边距布局，适合内容密集的文档 \NC\NR
+\NC wide \NC 宽边距布局，适合边注较多的文档 \NC\NR
+\NC extrawide \NC 超宽边距布局，适合大量边注 \NC\NR
+\NC kindle \NC Kindle 电子书布局，适合电子阅读器 \NC\NR
+\NC ipad \NC iPad 平板布局，适合平板设备 \NC\NR
+\NC kaolike \NC 考理科布局，适合试卷和教材 \NC\NR
+\NC exotic \NC 异域风格布局 \NC\NR
+\NC sidemirror \NC 侧边镜像布局 \NC\NR
+\NC propiorroot \NC Propiorroot 布局 \NC\NR
+\NC propiorgolden \NC 黄金比例布局 \NC\NR
+\HL
+\stoptabulate
+
+\section{布局详细参数}
+
+每种布局都可以通过参数自定义：
+
+\starttabulate[|l|p|]
+\HL
+\NC 参数 \NC 说明 \NC\NR
+\HL
+\NC width \NC 文本区宽度 \NC\NR
+\NC height \NC 文本区高度 \NC\NR
+\NC backspace \NC 左边距 \NC\NR
+\NC topspace \NC 上边距 \NC\NR
+\NC leftmargin \NC 左边注宽度 \NC\NR
+\NC rightmargin \NC 右边注宽度 \NC\NR
+\NC leftmargindistance \NC 左边注距离 \NC\NR
+\NC rightmargindistance \NC 右边注距离 \NC\NR
+\NC header \NC 页眉高度 \NC\NR
+\NC footer \NC 页脚高度 \NC\NR
+\NC headerdistance \NC 页眉距离 \NC\NR
+\NC footerdistance \NC 页脚距离 \NC\NR
+\NC leftedge \NC 左边缘宽度 \NC\NR
+\NC rightedge \NC 右边缘宽度 \NC\NR
+\NC leftedgedistance \NC 左边缘距离 \NC\NR
+\NC rightedgedistance \NC 右边缘距离 \NC\NR
+\NC bottom \NC 底部距离 \NC\NR
+\NC bottomdistance \NC 底部距离 \NC\NR
+\HL
+\stoptabulate
+
+\section{布局展示}
+
+以下展示各布局的具体参数设置：
+
+\doloopoverlist
+  {exotic, kaolike, ipad, kindle, sidemirror,
+   propiorroot, propiorgolden,
+   narrow, moderate, wide, extrawide}
+  {{\page\showframe\setuplayout[\recursestring]{\red\ssd \currentlayout}\showsetups\page}}
+
+\setuplayout[default]
+
+\section{使用方法}
+
+\starttyping
+% 使用预设布局
+\usemodule[memos][layout=moderate]
+
+% 使用 Kindle 布局
+\usemodule[memos][layout=kindle,papersize=kindle]
+
+% 使用 iPad 布局
+\usemodule[memos][layout=ipad,papersize=ipad]
+
+% 使用考理科布局
+\usemodule[memos][layout=kaolike]
+
+% 自定义布局参数
+\usemodule[memos][
+  textcount=42,    % 文本区宽度（字符数）
+  heightcount=45,  % 文本区高度（行数）
+  margincount=10,  % 边注区宽度（字符数）
+  ratio=1.414,     % 版心比例（黄金比例）
+]
+\stoptyping
+
+\chapter{颜色系统}
+
+\section{基础颜色集合}
+
+模块预定义了 11 种基础颜色，每种颜色都有 5 个层次（soft/light/normal/dark/deep）：
+
+\subsection{文字颜色展示}
+
+\start
+\startxtable[split=yes]
+\startxrow
+  \startxcell 颜色 \stopxcell
+  \startxcell soft \stopxcell
+  \startxcell light \stopxcell
+  \startxcell normal \stopxcell
+  \startxcell dark \stopxcell
+  \startxcell deep \stopxcell
+\stopxrow
+\showcolorrow{red}
+\showcolorrow{blue}
+\showcolorrow{yellow}
+\showcolorrow{green}
+\showcolorrow{cyan}
+\showcolorrow{orange}
+\showcolorrow{purple}
+\showcolorrow{pink}
+\showcolorrow{gray}
+\showcolorrow{black}
+\showcolorrow{white}
+\stopxtable
+\stop
+
+\subsection{背景颜色展示}
+
+\start
+\startxtable[split=yes]
+\startxrow
+  \startxcell 颜色 \stopxcell
+  \startxcell soft \stopxcell
+  \startxcell light \stopxcell
+  \startxcell normal \stopxcell
+  \startxcell dark \stopxcell
+  \startxcell deep \stopxcell
+\stopxrow
+\showbgcolorrow{red}
+\showbgcolorrow{blue}
+\showbgcolorrow{yellow}
+\showbgcolorrow{green}
+\showbgcolorrow{cyan}
+\showbgcolorrow{orange}
+\showbgcolorrow{purple}
+\showbgcolorrow{pink}
+\showbgcolorrow{gray}
+\stopxtable
+\stop
+
+\section{主题颜色调色板}
+
+模块预设了 11 种主题颜色调色板，每种调色板都包含完整的颜色体系：
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 调色板名称 \NC 主题色 \NC 说明 \NC\NR
+\HL
+\NC serene \NC blue \NC 宁静蓝 - 适合科技文档 \NC\NR
+\NC harmony \NC green \NC 和谐绿 - 适合教育材料 \NC\NR
+\NC passion \NC red \NC 热情红 - 适合重点强调 \NC\NR
+\NC adventure \NC orange \NC 冒险橙 - 适合创意设计 \NC\NR
+\NC optimism \NC yellow \NC 乐观黄 - 适合活泼主题 \NC\NR
+\NC creativity \NC cyan \NC 创意青 - 适合现代风格（默认） \NC\NR
+\NC magic \NC purple \NC 魔法紫 - 适合神秘主题 \NC\NR
+\NC romance \NC pink \NC 浪漫粉 - 适合文艺作品 \NC\NR
+\NC reliable \NC gray \NC 可靠灰 - 适合商务文档 \NC\NR
+\NC formality \NC black \NC 正式黑 - 适合正式文档 \NC\NR
+\NC innocence \NC white \NC 纯真白 - 适合简洁风格 \NC\NR
+\HL
+\stoptabulate
+
+\section{调色板颜色展示}
+
+\start
+\doloopoverlist
+  {serene, harmony, passion, adventure, optimism, creativity, magic, romance, reliable, formality, innocence}
+  {{\red\ssd\recursestring}\par
+    \setuppalet[\recursestring]\showpaletcolors}
+\stop
+
+\section{使用调色板}
+
+\starttyping
+% 方法一：通过 themecolor 参数
+\usemodule[memos][themecolor=blue]
+
+% 方法二：在文档中切换调色板
+\setuppalet[serene]     % 蓝色主题
+\setuppalet[harmony]    % 绿色主题
+\setuppalet[passion]    % 红色主题
+\setuppalet[creativity] % 青色主题
+\stoptyping
+
+\section{颜色变体}
+
+每种主题颜色都有多个变体，形成完整的颜色体系：
+
+\starttabulate[|l|p|]
+\HL
+\NC 颜色变体 \NC 说明 \NC\NR
+\HL
+\NC themecolor \NC 主题色 \NC\NR
+\NC softthemecolor \NC 柔和主题色 \NC\NR
+\NC lightthemecolor \NC 浅色主题色 \NC\NR
+\NC darkthemecolor \NC 深色主题色 \NC\NR
+\NC deepthemecolor \NC 极深主题色 \NC\NR
+\NC softthemecolorv \NC 柔和垂直渐变色 \NC\NR
+\NC optcolor \NC 选项色 \NC\NR
+\NC lightoptcolor \NC 浅色选项色 \NC\NR
+\HL
+\stoptabulate
+
+\section{语义颜色}
+
+模块定义了多种语义颜色，用于不同的文档元素：
+
+\starttabulate[|l|p|]
+\HL
+\NC 颜色名称 \NC 说明 \NC\NR
+\HL
+\NC textcolor \NC 文本颜色 \NC\NR
+\NC codecolor \NC 代码颜色 \NC\NR
+\NC captioncolor \NC 标题颜色 \NC\NR
+\NC sidenotecolor \NC 边注颜色 \NC\NR
+\NC footnotecolor \NC 脚注颜色 \NC\NR
+\NC linkcolor \NC 链接颜色 \NC\NR
+\NC toclinkcolor \NC 目录链接颜色 \NC\NR
+\NC framecolor \NC 边框颜色 \NC\NR
+\NC referencecolor \NC 引用颜色 \NC\NR
+\NC titlecolor \NC 标题颜色 \NC\NR
+\NC softbackground \NC 柔和背景色 \NC\NR
+\NC darkbackground \NC 深色背景色 \NC\NR
+\HL
+\stoptabulate
+
+\chapter{页眉页脚}
+
+\section{页眉页脚样式}
+
+模块提供了多种页眉页脚样式：
+
+\starttabulate[|l|p|]
+\HL
+\NC 样式名称 \NC 说明 \NC\NR
+\HL
+\NC book \NC 书籍样式：奇数页显示章节号和标题，偶数页显示页码和章节 \NC\NR
+\NC novel \NC 小说样式：页码和章节标题 \NC\NR
+\NC colorful \NC 彩色样式：页码在页边彩色框中 \NC\NR
+\NC madsen \NC Madsen 样式：类似书籍样式 \NC\NR
+\NC hctext \NC 页眉居中页码 \NC\NR
+\NC fctext \NC 页脚居中页码（默认） \NC\NR
+\NC foemargin \NC 页脚外边距页码（双面打印） \NC\NR
+\NC foemarginalt \NC 页脚外边距页码（靠近文本区） \NC\NR
+\NC hoemargin \NC 页眉外边距样式（考理科风格） \NC\NR
+\NC none \NC 无页眉页脚 \NC\NR
+\HL
+\stoptabulate
+
+\section{使用方法}
+
+\starttyping
+% 书籍样式
+\usemodule[memos][hdrstyle=book]
+
+% 小说样式
+\usemodule[memos][hdrstyle=novel]
+
+% 彩色样式
+\usemodule[memos][hdrstyle=colorful,themecolor=blue]
+
+% 页脚居中页码
+\usemodule[memos][hdrstyle=fctext]
+
+% 无页眉页脚
+\usemodule[memos][hdrstyle=none]
+\stoptyping
+
+\chapter{目录系统}
+
+\section{目录样式}
+
+\starttabulate[|l|p|]
+\HL
+\NC 样式名称 \NC 说明 \NC\NR
+\HL
+\NC default \NC 默认样式 \NC\NR
+\NC kaolike \NC 考理科样式 \NC\NR
+\NC none \NC 不显示目录 \NC\NR
+\HL
+\stoptabulate
+
+\section{放置目录}
+
+使用 \type{\placeTOCs} 命令放置目录：
+
+\starttyping
+% 默认目录
+\placeTOCs
+
+% 自定义目录
+\placeTOCs[
+  alternative=kaolike,
+  title=目录,
+  interlinespace=\baselineskip,
+  content=yes,
+  layout=moderate,
+]
+\stoptyping
+
+\section{目录标题}
+
+使用 \type{\tochead} 创建目录标题：
+
+\starttyping
+\tochead{目录}
+\placecontent
+
+\tochead{插图目录}
+\placelistoffigures
+
+\tochead{表格目录}
+\placelistoftables
+\stoptyping
+
+\chapter{图表浮动}
+
+\section{浮动体类型}
+
+模块定义了多种浮动体类型，适应不同的排版需求：
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 浮动体类型 \NC 位置 \NC 说明 \NC\NR
+\HL
+\NC figure \NC 文本区 \NC 标准图片 \NC\NR
+\NC textfig \NC 文本区 \NC 文本区图片 \NC\NR
+\NC marginfig \NC 边注区 \NC 边注区图片 \NC\NR
+\NC fullfig \NC 全页宽 \NC 全页宽图片 \NC\NR
+\NC table \NC 文本区 \NC 标准表格 \NC\NR
+\NC texttab \NC 文本区 \NC 文本区表格 \NC\NR
+\NC margintab \NC 边注区 \NC 边注区表格 \NC\NR
+\NC fulltab \NC 全页宽 \NC 全页宽表格 \NC\NR
+\HL
+\stoptabulate
+
+\section{图片示例}
+
+\subsection{文本区图片}
+
+\startbuffer[textfig-demo]
+\startplacetextfig[title=示例图片]
+  \externalfigure[][height=4\baselineskip,width=0.6\textwidth]
+\stopplacetextfig
+\stopbuffer
+
+\typebuffer[textfig-demo]
+
+\getbuffer[textfig-demo]
+
+\subsection{边注区图片}
+
+\startbuffer[marginfig-demo]
+\startplacemarginfig[title=边注图片]
+  \externalfigure[][width=\rightmarginwidth,height=5\baselineskip]
+\stopplacemarginfig
+\stopbuffer
+
+\typebuffer[marginfig-demo]
+
+\getbuffer[marginfig-demo]
+
+\section{表格示例}
+
+\subsection{浮动表格}
+
+\startbuffer[table-demo]
+\startplacetable[title=示例表格]
+\startxtable
+  \startxrow[header]
+    \startxcell 列一 \stopxcell
+    \startxcell 列二 \stopxcell
+    \startxcell 列三 \stopxcell
+  \stopxrow
+  \startxrow[body]
+    \startxcell 数据 A \stopxcell
+    \startxcell 数据 B \stopxcell
+    \startxcell 数据 C \stopxcell
+  \stopxrow
+  \startxrow[lastrow]
+    \startxcell 数据 D \stopxcell
+    \startxcell 数据 E \stopxcell
+    \startxcell 数据 F \stopxcell
+  \stopxrow
+\stopxtable
+\stopplacetable
+\stopbuffer
+
+\typebuffer[table-demo]
+
+\getbuffer[table-demo]
+
+\section{图片尺寸预设}
+
+\starttabulate[|l|p|]
+\HL
+\NC 预设名称 \NC 说明 \NC\NR
+\HL
+\NC automeasure \NC 自动尺寸 \NC\NR
+\NC textmeasure \NC 文本区宽度 \NC\NR
+\NC marginmeasure \NC 边注区宽度 \NC\NR
+\NC fullmeasure \NC 全页宽度 \NC\NR
+\HL
+\stoptabulate
+
+\chapter{代码排版}
+
+\section{代码环境}
+
+\subsection{基本用法}
+
+\startbuffer[verbatim-demo]
+\startverbatim
+function hello() {
+  print("Hello, World!")
+}
+\stopverbatim
+\stopbuffer
+
+\typebuffer[verbatim-demo]
+
+\getbuffer[verbatim-demo]
+
+\subsection{带行号的代码}
+
+\startbuffer[lmverbatim-demo]
+\startlmverbatim
+function hello() {
+  print("Hello, World!")
+}
+\stoplmverbatim
+\stopbuffer
+
+\typebuffer[lmverbatim-demo]
+
+\getbuffer[lmverbatim-demo]
+
+\subsection{全页宽代码}
+
+\startbuffer[wideverbatim-demo]
+\startwideverbatim
+function hello() {
+  print("Hello, World!")
+}
+\stopwideverbatim
+\stopbuffer
+
+\typebuffer[wideverbatim-demo]
+
+\getbuffer[wideverbatim-demo]
+
+\section{行内代码}
+
+\startbuffer[inline-demo]
+使用 \type{verbatim} 环境排版代码。
+使用 \type{\textbackslash type\{...\}} 命令排版行内代码。
+\stopbuffer
+
+\typebuffer[inline-demo]
+
+\getbuffer[inline-demo]
+
+\chapter{注释系统}
+
+\section{脚注}
+
+\starttyping
+这是正文内容\footnote{这是脚注内容。}
+\stoptyping
+
+\section{边注}
+
+\starttyping
+这是正文内容\sidenote{这是边注内容。}
+\stoptyping
+
+\subsection{调整边注位置}
+
+\starttyping
+\movesidenote[2\baselineskip]
+这是正文内容\sidenote{这个边注会向下移动。}
+\movesidenote[0em]
+\stoptyping
+
+\section{页边注}
+
+\starttyping
+这是正文内容\inoutermargin{这是页边注。}
+\stoptyping
+
+\chapter{卡片样式}
+
+\section{基础卡片类型}
+
+模块提供了四种基础风格的卡片：
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 卡片类型 \NC 风格 \NC 说明 \NC\NR
+\HL
+\NC MetroCard \NC Metro 风格 \NC 简洁现代，纯色背景 \NC\NR
+\NC FluentCard \NC Fluent 风格 \NC 柔和渐变，强调线条 \NC\NR
+\NC macOSCard \NC macOS 风格 \NC 毛玻璃效果 \NC\NR
+\NC ModernCard \NC Modern 风格 \NC 渐变背景 \NC\NR
+\HL
+\stoptabulate
+
+\section{基础卡片展示}
+
+\startbuffer[metrocard-demo]
+\starttextbackground[MetroCard]
+  这是 Metro 风格的卡片内容。
+\stoptextbackground
+\stopbuffer
+
+\startbuffer[fluentcard-demo]
+\starttextbackground[FluentCard]
+  这是 Fluent 风格的卡片内容。
+\stoptextbackground
+\stopbuffer
+
+\startbuffer[macoscard-demo]
+\starttextbackground[macOSCard]
+  这是 macOS 风格的卡片内容。
+\stoptextbackground
+\stopbuffer
+
+\startbuffer[moderncard-demo]
+\starttextbackground[ModernCard]
+  这是 Modern 风格的卡片内容。
+\stoptextbackground
+\stopbuffer
+
+\subsection{Metro 风格卡片}
+
+\getbuffer[metrocard-demo]
+
+\subsection{Fluent 风格卡片}
+
+\getbuffer[fluentcard-demo]
+
+\subsection{macOS 风格卡片}
+
+\getbuffer[macoscard-demo]
+
+\subsection{Modern 风格卡片}
+
+\getbuffer[moderncard-demo]
+
+\section{DualHeader 卡片}
+
+DualHeader 卡片是一种特殊的卡片样式，具有双栏标题框，适合展示带编号和标题的内容块。
+
+\subsection{基本用法展示}
+
+\startbuffer[dualheader-basic]
+\startDualHeaderText[number=1,title=示例标题]
+  这是 DualHeader 卡片的内容部分。
+  可以包含多段文字和其他元素。
+\stopDualHeaderText
+\stopbuffer
+
+\getbuffer[dualheader-basic]
+
+\subsection{完整参数说明}
+
+\starttabulate[|l|l|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC number \NC \NC 编号内容 \NC\NR
+\NC title \NC \NC 标题内容 \NC\NR
+\NC shownumber \NC 1 \NC 是否显示编号（0/1） \NC\NR
+\NC showtitle \NC 1 \NC 是否显示标题（0/1） \NC\NR
+\NC titlepos \NC 1 \NC 标题位置（0=顶部，1=左侧） \NC\NR
+\NC titlealign \NC 2 \NC 标题对齐（1=左，2=中，3=右） \NC\NR
+\NC numberalign \NC 2 \NC 编号对齐（1=左，2=中，3=右） \NC\NR
+\NC numberbgcolor \NC lightthemecolor \NC 编号背景色 \NC\NR
+\NC titlebgcolor \NC white \NC 标题背景色 \NC\NR
+\NC bodybgcolor \NC white \NC 内容背景色 \NC\NR
+\NC headerbgcolor \NC transparentcolor \NC 标题栏背景色 \NC\NR
+\NC numbercolor \NC white \NC 编号文字颜色 \NC\NR
+\NC titlecolor \NC lightthemecolor \NC 标题文字颜色 \NC\NR
+\NC framecolor \NC lightthemecolor \NC 边框颜色 \NC\NR
+\NC numberframecolor \NC lightthemecolor \NC 编号框边框颜色 \NC\NR
+\NC titleframecolor \NC lightthemecolor \NC 标题框边框颜色 \NC\NR
+\NC numberframe \NC 1 \NC 是否显示编号框边框（0/1） \NC\NR
+\NC titleframe \NC 1 \NC 是否显示标题框边框（0/1） \NC\NR
+\NC leftframe \NC 1 \NC 是否显示左边框（0/1） \NC\NR
+\NC rightframe \NC 1 \NC 是否显示右边框（0/1） \NC\NR
+\NC topframe \NC 1 \NC 是否显示上边框（0/1） \NC\NR
+\NC bottomframe \NC 1 \NC 是否显示下边框（0/1） \NC\NR
+\NC numberratio \NC 1 \NC 编号栏宽度比例 \NC\NR
+\NC titleratio \NC 1 \NC 标题栏宽度比例 \NC\NR
+\NC rulethickness \NC 1.5pt \NC 边框粗细 \NC\NR
+\NC radius \NC 0pt \NC 圆角半径 \NC\NR
+\NC bodybackground \NC simple \NC 内容背景类型（simple/charbox/framebox/barbox/shadowbox） \NC\NR
+\NC shadowcolor \NC softgray \NC 阴影颜色（shadowbox 模式） \NC\NR
+\NC symbol \NC \NC 符号 \NC\NR
+\NC character \NC \NC 字符（charbox 模式） \NC\NR
+\NC headerdivider \NC 0 \NC 是否显示标题分隔线（0/1） \NC\NR
+\NC width \NC \type{\textwidth} \NC 卡片宽度 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{bodybackground 背景类型}
+
+DualHeader 卡片支持多种内容背景类型：
+
+\starttabulate[|l|p|]
+\HL
+\NC 类型 \NC 说明 \NC\NR
+\HL
+\NC simple \NC 简单背景，纯色填充 \NC\NR
+\NC charbox \NC 字符图案背景，使用 character 参数指定的字符作为水印 \NC\NR
+\NC framebox \NC 框线图案背景，点状图案 \NC\NR
+\NC barbox \NC 条形背景，左侧有彩色条 \NC\NR
+\NC shadowbox \NC 阴影背景，带有投影效果 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{进阶用法展示}
+
+\startbuffer[dualheader-custom]
+\startDualHeaderText[
+  number=提示,
+  title=重要说明,
+  numberbgcolor=red,
+  numbercolor=white,
+  titlebgcolor=softred,
+  titlecolor=black,
+  framecolor=red,
+  radius=5pt,
+]
+  这是一个自定义样式的 DualHeader 卡片。
+  编号栏使用红色背景，标题栏使用浅红色背景。
+\stopDualHeaderText
+\stopbuffer
+
+\startbuffer[dualheader-notitle]
+\startDualHeaderText[shownumber=0,title=仅标题]
+  这个卡片只显示标题，不显示编号。
+\stopDualHeaderText
+\stopbuffer
+
+\startbuffer[dualheader-nonumber]
+\startDualHeaderText[number=1,showtitle=0]
+  这个卡片只显示编号，不显示标题。
+\stopDualHeaderText
+\stopbuffer
+
+\startbuffer[dualheader-top]
+\startDualHeaderText[titlepos=0,number=§1,title=章节说明]
+  标题显示在顶部，而不是左侧。
+\stopDualHeaderText
+\stopbuffer
+
+\startbuffer[dualheader-charbox]
+\startDualHeaderText[
+  number=★,
+  title=重点内容,
+  bodybackground=charbox,
+  character=※,
+]
+  使用字符图案作为背景装饰。
+\stopDualHeaderText
+\stopbuffer
+
+\startbuffer[dualheader-shadow]
+\startDualHeaderText[
+  number=提示,
+  title=阴影效果,
+  bodybackground=shadowbox,
+  shadowcolor=softgray,
+]
+  带有阴影效果的卡片样式。
+\stopDualHeaderText
+\stopbuffer
+
+\startbuffer[dualheader-barbox]
+\startDualHeaderText[
+  number=01,
+  title=条形背景,
+  bodybackground=barbox,
+  leftframe=1,
+]
+  左侧带有彩色条的背景样式。
+\stopDualHeaderText
+\stopbuffer
+
+\startbuffer[dualheader-noframe]
+\startDualHeaderText[
+  number=无边框,
+  title=简洁样式,
+  leftframe=0,
+  rightframe=0,
+  topframe=0,
+  bottomframe=0,
+]
+  移除所有边框的简洁样式。
+\stopDualHeaderText
+\stopbuffer
+
+\startbuffer[dualheader-radius]
+\startDualHeaderText[
+  number=圆角,
+  title=圆角卡片,
+  radius=8pt,
+  numberbgcolor=blue,
+  titlebgcolor=lightblue,
+]
+  带有圆角的卡片样式。
+\stopDualHeaderText
+\stopbuffer
+
+\subsubsection{自定义颜色样式}
+
+\getbuffer[dualheader-custom]
+
+\subsubsection{仅标题样式}
+
+\getbuffer[dualheader-notitle]
+
+\subsubsection{仅编号样式}
+
+\getbuffer[dualheader-nonumber]
+
+\subsubsection{顶部标题样式}
+
+\getbuffer[dualheader-top]
+
+\subsubsection{字符图案背景}
+
+\getbuffer[dualheader-charbox]
+
+\subsubsection{阴影效果}
+
+\getbuffer[dualheader-shadow]
+
+\subsubsection{条形背景}
+
+\getbuffer[dualheader-barbox]
+
+\subsubsection{无边框样式}
+
+\getbuffer[dualheader-noframe]
+
+\subsubsection{圆角卡片}
+
+\getbuffer[dualheader-radius]
+
+\chapter{封面系统}
+
+\section{封面类型}
+
+模块提供了 5 种预设封面类型：
+
+\starttabulate[|l|p|]
+\HL
+\NC 封面类型 \NC 说明 \NC\NR
+\HL
+\NC newbook \NC 新书封面 - 简洁现代风格 \NC\NR
+\NC flyleaf \NC 扉页 - 适合书籍扉页 \NC\NR
+\NC usercover \NC 用户自定义封面 - 完全可定制 \NC\NR
+\NC cover \NC 标准封面 - 传统书籍封面 \NC\NR
+\NC ORLY \NC O'Reilly 风格封面 - 动物图案风格 \NC\NR
+\HL
+\stoptabulate
+
+\section{基本用法}
+
+\startbuffer[cover-demo]
+% 新书封面
+\makecover[newbook][publisher={出版社名称}]
+
+% 扉页
+\makecover[flyleaf][publisher={出版社名称}]
+
+% 用户自定义封面
+\makecover[usercover][publisher={出版社名称}]
+
+% 标准封面
+\makecover[cover][publisher={出版社名称}]
+
+% O'Reilly 风格封面
+\makecover[ORLY][publisher={O'Reilly Media}]
+\stopbuffer
+
+\typebuffer[cover-demo]
+
+\getbuffer[cover-demo]
+
+\section{封面参数}
+
+\starttabulate[|l|p|]
+\HL
+\NC 参数 \NC 说明 \NC\NR
+\HL
+\NC book \NC 书名 \NC\NR
+\NC author \NC 作者 \NC\NR
+\NC publisher \NC 出版社 \NC\NR
+\NC series \NC 系列 \NC\NR
+\NC subtitle \NC 副标题 \NC\NR
+\NC version \NC 版本信息 \NC\NR
+\NC animal \NC 动物图案（ORLY 封面专用） \NC\NR
+\NC bookcolor \NC 书名颜色 \NC\NR
+\NC authorcolor \NC 作者颜色 \NC\NR
+\NC publishercolor \NC 出版社颜色 \NC\NR
+\NC seriescolor \NC 系列颜色 \NC\NR
+\NC bookstyle \NC 书名字体 \NC\NR
+\NC authorstyle \NC 作者字体 \NC\NR
+\NC publisherstyle \NC 出版社字体 \NC\NR
+\NC bookalign \NC 书名对齐 \NC\NR
+\NC authoralign \NC 作者对齐 \NC\NR
+\NC publisheralign \NC 出版社对齐 \NC\NR
+\NC seriesalign \NC 系列对齐 \NC\NR
+\NC bookvspace \NC 书名垂直间距 \NC\NR
+\NC authorvspace \NC 作者垂直间距 \NC\NR
+\NC publishervspace \NC 出版社垂直间距 \NC\NR
+\NC seriesvspace \NC 系列垂直间距 \NC\NR
+\NC bookleft \NC 书名左侧装饰 \NC\NR
+\NC bookright \NC 书名右侧装饰 \NC\NR
+\NC afterbook \NC 书名后内容 \NC\NR
+\NC lastvspace \NC 最后垂直间距 \NC\NR
+\NC list \NC 内容元素列表 \NC\NR
+\NC makeup \NC 页面 makeup 类型 \NC\NR
+\HL
+\stoptabulate
+
+\section{各封面类型详细配置}
+
+\subsection{newbook 封面}
+
+新书封面是默认的封面类型，简洁现代：
+
+\starttyping
+\setupcover[newbook][
+  book={书籍标题},
+  author={作者姓名},
+  publisher={出版社名称},
+  bookcolor=themecolor,
+  authorcolor=softgray,
+  publishercolor=gray,
+]
+\makecover[newbook]
+\stoptyping
+
+\subsection{flyleaf 扉页}
+
+扉页使用特殊的 makeup 类型，适合书籍扉页：
+
+\starttyping
+\setupcover[flyleaf][
+  book={书籍标题},
+  author={作者姓名},
+  publisher={出版社名称},
+]
+\makecover[flyleaf]
+\stoptyping
+
+\subsection{usercover 用户自定义封面}
+
+用户自定义封面提供了完整的示例配置：
+
+\starttyping
+\setupcover[usercover][
+  makeup=usercover,
+  list={series,subtitle,book,author,publisher},
+  series={\CONTEXT\ 書籍封面示例},
+  seriescolor=softgray,
+  seriesvspace=,
+  seriesalign=flushleft,
+  subtitle={Digital Processing of Synthetic Aperture Radar Data\par
+            Algorithms and Implementation},
+  subtitlecolor=softgray,
+  subtitlevspace=\vfill,
+  subtitlealign=flushright,
+  book={\hfill
+        \framed[frame=on,width=8em,align=flushright,rulethickness=1pt,
+                framecolor=lightoptcolor,bottomframe=off,rightframe=off,]
+                {合成孔径雷达\par 成像算法与实现}},
+  bookcolor=lightoptcolor,
+  bookvspace=\vskip\baselineskip\relax,
+  bookalign=flushright,
+  author={\vbox{[加] Ian G. Cumming Frank H.Wong\quad\quad 著\par
+        洪 \quad 文 \quad 胡东辉 \quad 韩 \quad 冰 \quad 等译\par
+                                   吴一戎          \quad 审校\par
+                                   Jyun S.Wang     \quad 排注}},
+  authorcolor=softgray,
+  authorvspace=\vskip2\baselineskip\relax,
+  authoralign=flushright,
+  publisher={这是出版社},
+  publisheralign=flushright,
+  publisherstyle=tt,
+  publishercolor=softgray,
+  publishervspace=\vskip2\baselineskip\relax,
+  lastvspace=\null\vskip\baselineskip\relax,
+]
+\makecover[usercover]
+\stoptyping
+
+\subsection{cover 标准封面}
+
+标准封面使用 MP 图形作为背景：
+
+\starttyping
+\setupcover[cover][
+  makeup=cover,
+  list={book,author,publisher,version},
+  book={合成孔径雷达 \par 成像算法与实现},
+  bookalign=flushleft,
+  bookcolor=lightoptcolor,
+  bookvspace=\vfill,
+  afterbook={\blackrule[width=.5tw,height=1pt,depth=0pt,color=lightoptcolor]},
+  author={Author: Soanguy},
+  authorstyle=\tta,
+  authorcolor=lightgray,
+  authoralign=flushleft,
+  authorvspace=\vskip\baselineskip\relax,
+  publisher={这是出版社},
+  publisherstyle=tt,
+  publishercolor=lightgray,
+  publishervspace=\vskip6\baselineskip\relax,
+  version={version: \currentdate},
+  versionstyle=tt,
+  versioncolor=lightgray,
+  versionalign=center,
+  versionvspace=\vskip1\baselineskip\relax,
+  lastvspace=,
+]
+\makecover[cover]
+\stoptyping
+
+\subsection{ORLY 封面}
+
+O'Reilly 风格封面，带有动物图案：
+
+\starttyping
+\setupcover[ORLY][
+  makeup=ORLY,
+  list={series,animal,book,author,publisher},
+  series={从入门到放弃系列权威指南},
+  seriesvspace=\vskip4pt\relax,
+  animal={\hfill\externalfigure[butterfly.png]},
+  animalvspace=\vfil,
+  bookleft={\hfill
+           \startframed[background=color,backgroundcolor=themecolor,
+                        frame=off,align=flushright,width=max]},
+  bookright={\stopframed},
+  book={合成孔径雷达 \par 成像算法与实现},
+  bookalign=flushleft,
+  bookcolor=white,
+  bookvspace=,
+  afterbook={\hfill \ttb Up and Running\par\vskip4\baselineskip\relax},
+  author={{\bf O'RLY Cover} \hfill Robin Nixon},
+  authorstyle=\ttb,
+  authorcolor=darkgray,
+  authoralign=flushleft,
+  authorvspace=\vskip\baselineskip\relax,
+  publisher={这是出版社},
+  publisheralign=flushright,
+  publisherstyle=tt,
+  publishercolor=darkgray,
+  publishervspace=,
+  lastvspace=,
+]
+\makecover[ORLY]
+\stoptyping
+
+\section{封面布局}
+
+每种封面类型都有对应的布局定义：
+
+\starttyping
+% preset 布局
+\definelayout[preset]
+  [backspace=15mm,rightmargin=10mm,rightedge=0mm,]
+
+% flyleaf 布局
+\definelayout[flyleaf]
+  [backspace=10mm,rightmargin=10mm,rightedge=0mm,]
+
+% usercover 布局
+\definelayout[usercover][default]
+
+% cover 布局
+\definelayout[cover][default]
+
+% ORLY 布局
+\definelayout[ORLY][default][header=5mm,]
+\stoptyping
+
+\section{自定义封面}
+
+\starttyping
+% 自定义新书封面
+\setupcover[newbook][
+  book={我的书籍标题},
+  author={作者姓名},
+  publisher={出版社名称},
+  bookcolor=themecolor,
+  authorcolor=softgray,
+  publishercolor=gray,
+  bookstyle=\ssa\bf,
+  authorstyle=\ss,
+  publisherstyle=\tt,
+  bookalign=center,
+  authoralign=center,
+  publisheralign=center,
+]
+\makecover[newbook]
+
+% 自定义 O'Reilly 风格封面
+\setupcover[ORLY][
+  series={从入门到精通系列},
+  book={ConTeXt 排版指南},
+  author={Soanguy},
+  publisher={示例出版社},
+]
+\makecover[ORLY]
+\stoptyping
+
+\section{封面使用建议}
+
+\startitemize[packed]
+\item 新书推荐使用 \type{newbook} 或 \type{cover} 封面
+\item 技术书籍推荐使用 \type{ORLY} 封面
+\item 需要完全自定义时使用 \type{usercover}
+\item 扉页使用 \type{flyleaf}
+\item 可以通过 \type{list} 参数控制封面元素的显示顺序
+\stopitemize
+
+
+
+\chapter{列表与枚举}
+
+\section{有序列表}
+
+\startbuffer[ordinals-demo]
+\startordinals
+  \startitem 第一项 \stopitem
+  \startitem 第二项 \stopitem
+  \startitem 第三项 \stopitem
+\stopordinals
+\stopbuffer
+
+\typebuffer[ordinals-demo]
+
+\getbuffer[ordinals-demo]
+
+\section{无序列表}
+
+\startbuffer[points-demo]
+\startpoints
+  \startitem 第一项 \stopitem
+  \startitem 第二项 \stopitem
+  \startitem 第三项 \stopitem
+\stoppoints
+\stopbuffer
+
+\typebuffer[points-demo]
+
+\getbuffer[points-demo]
+
+\section{描述列表}
+
+\startbuffer[description-demo]
+\startdescription
+  \description{术语一} 这是术语一的解释。
+  \description{术语二} 这是术语二的解释。
+\stopdescription
+\stopbuffer
+
+\typebuffer[description-demo]
+
+\getbuffer[description-demo]
+
+\section{嵌套列表}
+
+\startbuffer[nested-demo]
+\startpoints
+  \startitem 第一项 \stopitem
+  \startitem 
+    第二项包含子列表：
+    \startordinals
+      \startitem 子项一 \stopitem
+      \startitem 子项二 \stopitem
+    \stopordinals
+  \stopitem
+  \startitem 第三项 \stopitem
+\stoppoints
+\stopbuffer
+
+\typebuffer[nested-demo]
+
+\getbuffer[nested-demo]
+
+\chapter{引用与链接}
+
+\section{引用}
+
+\startbuffer[quote-demo]
+\quote{这是引用内容。}
+\stopbuffer
+
+\startbuffer[quotation-demo]
+\startquotation
+  这是长引用内容。
+  可以包含多段文字。
+\stopquotation
+\stopbuffer
+
+\subsection{短引用}
+
+\typebuffer[quote-demo]
+
+\getbuffer[quote-demo]
+
+\subsection{长引用}
+
+\typebuffer[quotation-demo]
+
+\getbuffer[quotation-demo]
+
+\section{链接}
+
+\subsection{URL 链接}
+
+\startbuffer[url-demo]
+\from[http://example.com]
+
+\useURL[myurl][http://example.com][][示例网站]
+\from[myurl]
+\stopbuffer
+
+\typebuffer[url-demo]
+
+\getbuffer[url-demo]
+
+\subsection{邮件链接}
+
+\startbuffer[mail-demo]
+\mailto{user@example.com}
+
+\Mailto{user@example.com}{联系作者}
+\stopbuffer
+
+\typebuffer[mail-demo]
+
+\getbuffer[mail-demo]
+
+\chapter{表格样式}
+
+\section{TABLE 表格样式}
+
+TABLE 表格使用 \type{\startTABLE} 环境，支持以下预设样式：
+
+\starttabulate[|l|p|]
+\HL
+\NC 样式名称 \NC 说明 \NC\NR
+\HL
+\NC trilines \NC 三线表 \NC\NR
+\NC fullines \NC 全框线表格 \NC\NR
+\NC alternatecolor \NC 交替行颜色 \NC\NR
+\NC nonlines \NC 无框线表格 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{三线表（TABLE）}
+
+\startbuffer[trilines-demo]
+\startTABLE[setups=trilines]
+\NC 表头一 \NC 表头二 \NC 表头三 \NC\NR
+\NC 内容 A \NC 内容 B \NC 内容 C \NC\NR
+\NC 内容 D \NC 内容 E \NC 内容 F \NC\NR
+\stopTABLE
+\stopbuffer
+
+\getbuffer[trilines-demo]
+
+\subsection{交替行颜色表格（TABLE）}
+
+\startbuffer[alternate-demo]
+\startTABLE[setups=alternatecolor]
+\NC 表头一 \NC 表头二 \NC 表头三 \NC\NR
+\NC 内容 A \NC 内容 B \NC 内容 C \NC\NR
+\NC 内容 D \NC 内容 E \NC 内容 F \NC\NR
+\stopTABLE
+\stopbuffer
+
+\getbuffer[alternate-demo]
+
+\section{xtable 表格样式}
+
+xtable 使用 \type{\startxtable} 环境，模块预设了以下行类型：
+
+\starttabulate[|l|p|]
+\HL
+\NC 行类型 \NC 说明 \NC\NR
+\HL
+\NC header \NC 表头行，底部无框线 \NC\NR
+\NC head \NC 表头行，底部无框线 \NC\NR
+\NC body \NC 内容行 \NC\NR
+\NC foot \NC 表尾行，顶部无框线 \NC\NR
+\NC footer \NC 表尾行，顶部无框线 \NC\NR
+\NC lastrow \NC 最后一行，顶部无框线 \NC\NR
+\HL
+\stoptabulate
+
+\subsection{xtable 基本表格}
+
+\startbuffer[xtable-demo]
+\startxtable
+  \startxrow[header]
+    \startxcell 表头一 \stopxcell
+    \startxcell 表头二 \stopxcell
+    \startxcell 表头三 \stopxcell
+  \stopxrow
+  \startxrow[body]
+    \startxcell 内容 A \stopxcell
+    \startxcell 内容 B \stopxcell
+    \startxcell 内容 C \stopxcell
+  \stopxrow
+  \startxrow[lastrow]
+    \startxcell 内容 D \stopxcell
+    \startxcell 内容 E \stopxcell
+    \startxcell 内容 F \stopxcell
+  \stopxrow
+\stopxtable
+\stopbuffer
+
+\getbuffer[xtable-demo]
+
+\chapter{章节样式}
+
+\section{可用章节样式}
+
+模块提供了多种章节标题样式，可通过 \type{chapterstyle} 参数设置：
+
+\starttabulate[|l|p|]
+\HL
+\NC 样式名称 \NC 说明 \NC\NR
+\HL
+\NC default \NC 默认样式（默认） \NC\NR
+\NC line \NC 线条样式 \NC\NR
+\NC colorful \NC 彩色样式 \NC\NR
+\NC madsen \NC Madsen 风格 \NC\NR
+\NC rocket \NC 火箭样式 \NC\NR
+\NC hexa \NC 六边形渐变样式 \NC\NR
+\NC simple \NC 简洁样式 \NC\NR
+\NC classics \NC 古典样式（XX 第一） \NC\NR
+\NC classicnovel \NC 古典小说样式（第 X 回） \NC\NR
+\NC kaolike \NC 考理科风格 \NC\NR
+\NC article \NC 文章样式 \NC\NR
+\NC publish \NC 出版样式 \NC\NR
+\NC none \NC 无章节样式 \NC\NR
+\HL
+\stoptabulate
+
+\section{使用方法}
+
+\starttyping
+\usemodule[memos][chapterstyle=madsen]
+\stoptyping
+
+\chapter{高级功能}
+
+\section{模式控制}
+
+\subsection{打印模式}
+
+\starttyping
+\usemodule[memos][mode=print]
+\stoptyping
+
+打印模式会优化输出用于打印，可能调整颜色和布局。
+
+\subsection{电子书模式}
+
+\starttyping
+\usemodule[memos][mode=kindle]
+\stoptyping
+
+电子书模式针对电子阅读器优化，调整页面尺寸和布局。
+
+\subsection{草稿模式}
+
+\starttyping
+\usemodule[memos][mode=draft]
+\stoptyping
+
+草稿模式用于快速预览，可能跳过某些耗时的排版处理。
+
+\subsection{扩展字号模式}
+
+\starttyping
+\usemodule[memos][mode=moresize]
+\stoptyping
+
+启用更多字号选项，特别是中文传统字号。
+
+\section{章节标题样式}
+
+\starttyping
+\usemodule[memos][chapterstyle=default]
+\stoptyping
+
+\section{组合使用}
+
+可以组合多个模式：
+
+\starttyping
+\usemodule[memos][mode={print,moresize}]
+\stoptyping
+
+\chapter{中文数字扩展}
+
+\section{简介}
+
+zhnumber 模块提供了完整的中文数字转换功能，支持整数、小数、分数的中文表示，
+以及日期时间、天干地支等传统中文数字应用。
+
+\section{加载模块}
+
+\starttyping
+\usemodule[memos]
+% zhnumber 功能已集成在 memos 模块中
+\stoptyping
+
+\section{整数转换}
+
+使用 \type{\zhnumber} 命令将阿拉伯数字转换为中文数字：
+
+\starttabulate[|l|l|]
+\HL
+\NC 输入 \NC 输出 \NC\NR
+\HL
+\NC \type{\zhnumber{0}} \NC \zhnumber{0} \NC\NR
+\NC \type{\zhnumber{1}} \NC \zhnumber{1} \NC\NR
+\NC \type{\zhnumber{10}} \NC \zhnumber{10} \NC\NR
+\NC \type{\zhnumber{21}} \NC \zhnumber{21} \NC\NR
+\NC \type{\zhnumber{100}} \NC \zhnumber{100} \NC\NR
+\NC \type{\zhnumber{101}} \NC \zhnumber{101} \NC\NR
+\NC \type{\zhnumber{12345}} \NC \zhnumber{12345} \NC\NR
+\NC \type{\zhnumber{100000000}} \NC \zhnumber{100000000} \NC\NR
+\NC \type{\zhnumber{-123}} \NC \zhnumber{-123} \NC\NR
+\HL
+\stoptabulate
+
+\section{小数转换}
+
+\starttabulate[|l|l|]
+\HL
+\NC 输入 \NC 输出 \NC\NR
+\HL
+\NC \type{\zhnumber{0.123}} \NC \zhnumber{0.123} \NC\NR
+\NC \type{\zhnumber{123.45}} \NC \zhnumber{123.45} \NC\NR
+\NC \type{\zhnumber{3.14159}} \NC \zhnumber{3.14159} \NC\NR
+\HL
+\stoptabulate
+
+\section{分数转换}
+
+\starttabulate[|l|l|]
+\HL
+\NC 输入 \NC 输出 \NC\NR
+\HL
+\NC \type{\zhnumber{1/2}} \NC \zhnumber{1/2} \NC\NR
+\NC \type{\zhnumber{1/3}} \NC \zhnumber{1/3} \NC\NR
+\NC \type{\zhnumber{3/4}} \NC \zhnumber{3/4} \NC\NR
+\HL
+\stoptabulate
+
+\section{日期时间}
+
+\subsection{日期转换}
+
+\starttabulate[|l|l|]
+\HL
+\NC 命令 \NC 输出 \NC\NR
+\HL
+\NC \type{\zhdate{2024/1/1}} \NC \zhdate{2024/1/1} \NC\NR
+\NC \type{\zhdate{2024/12/31}} \NC \zhdate{2024/12/31} \NC\NR
+\NC \type{\zhtoday} \NC \zhtoday \NC\NR
+\HL
+\stoptabulate
+
+\subsection{时间转换}
+
+\starttabulate[|l|l|]
+\HL
+\NC 命令 \NC 输出 \NC\NR
+\HL
+\NC \type{\zhtime{0:00}} \NC \zhtime{0:00} \NC\NR
+\NC \type{\zhtime{14:30}} \NC \zhtime{14:30} \NC\NR
+\NC \type{\zhcurrtime} \NC \zhcurrtime \NC\NR
+\HL
+\stoptabulate
+
+\subsection{星期转换}
+
+\starttabulate[|l|l|]
+\HL
+\NC 命令 \NC 输出 \NC\NR
+\HL
+\NC \type{\zhweekday{2024/1/1}} \NC \zhweekday{2024/1/1} \NC\NR
+\HL
+\stoptabulate
+
+\section{天干地支}
+
+\subsection{天干}
+
+\starttabulate[|l|l|]
+\HL
+\NC 命令 \NC 输出 \NC\NR
+\HL
+\NC \type{\zhtiangan{1}} \NC \zhtiangan{1} \NC\NR
+\NC \type{\zhtiangan{2}} \NC \zhtiangan{2} \NC\NR
+\NC \type{\zhtiangan{10}} \NC \zhtiangan{10} \NC\NR
+\HL
+\stoptabulate
+
+完整天干：\dorecurse{10}{\zhtiangan{#1}\ifnum#1<10，\fi}
+
+\subsection{地支}
+
+\starttabulate[|l|l|]
+\HL
+\NC 命令 \NC 输出 \NC\NR
+\HL
+\NC \type{\zhdizhi{1}} \NC \zhdizhi{1} \NC\NR
+\NC \type{\zhdizhi{2}} \NC \zhdizhi{2} \NC\NR
+\NC \type{\zhdizhi{12}} \NC \zhdizhi{12} \NC\NR
+\HL
+\stoptabulate
+
+完整地支：\dorecurse{12}{\zhdizhi{#1}\ifnum#1<12，\fi}
+
+\subsection{干支}
+
+\starttabulate[|l|l|]
+\HL
+\NC 命令 \NC 输出 \NC\NR
+\HL
+\NC \type{\zhganzhi{1}} \NC \zhganzhi{1} \NC\NR
+\NC \type{\zhganzhi{60}} \NC \zhganzhi{60} \NC\NR
+\NC \type{\zhganzhinian{2024}} \NC \zhganzhinian{2024} \NC\NR
+\HL
+\stoptabulate
+
+\section{数字样式}
+
+支持三种数字样式：
+
+\starttabulate[|l|l|l|]
+\HL
+\NC 样式 \NC 说明 \NC 示例 \NC\NR
+\HL
+\NC normal \NC 普通中文数字（默认） \NC \zhnumber[normal]{12345} \NC\NR
+\NC cap \NC 大写中文数字（财务用） \NC \zhnumber[cap]{12345} \NC\NR
+\NC all \NC 扩展中文数字（含廿、卅、卌） \NC \zhnumber[all]{23} \NC\NR
+\HL
+\stoptabulate
+
+\starttyping
+\zhnumber[normal]{12345}  % 一万二千三百四十五
+\zhnumber[cap]{12345}     % 壹万贰仟叁佰肆拾伍
+\zhnumber[all]{23}        % 廿三
+\stoptyping
+
+\section{零的设置}
+
+默认使用「〇」表示零，可以切换为「零」：
+
+\starttyping
+% 使用〇（默认）
+\setupzhnumber[zero=〇]
+\zhnumber{101}  % 一百〇一
+
+% 使用零
+\setupzhnumber[zero=零]
+\zhnumber{101}  % 一百零一
+\stoptyping
+
+\section{转换器}
+
+zhnumber 注册了以下转换器，可在 \type{\convertnumber} 中使用：
+
+\starttabulate[|l|l|]
+\HL
+\NC 转换器 \NC 说明 \NC\NR
+\HL
+\NC tiangan \NC 天干（1-10） \NC\NR
+\NC dizhi \NC 地支（1-12） \NC\NR
+\NC ganzhi \NC 干支（1-60） \NC\NR
+\HL
+\stoptabulate
+
+\starttyping
+\convertnumber{tiangan}{1}  % 甲
+\convertnumber{dizhi}{1}    % 子
+\convertnumber{ganzhi}{1}   % 甲子
+\stoptyping
+
+\chapter{中文索引排序}
+
+\section{简介}
+
+zhindex 模块提供了中文索引排序功能，支持拼音排序、字母排序和笔画排序三种方式。
+
+\section{加载模块}
+
+\starttyping
+\usemodule[memos]
+\usemodule[zhindex]
+\stoptyping
+
+\section{排序方法}
+
+\starttabulate[|l|p|]
+\HL
+\NC 排序方法 \NC 说明 \NC\NR
+\HL
+\NC zh-pinyin \NC 按拼音排序，同音字按拼音字母顺序排列 \NC\NR
+\NC zh-alpha \NC 按字母顺序排序，汉字按拼音首字母分组 \NC\NR
+\NC zh-stroke \NC 按笔画数排序，同笔画数按笔顺代码排列 \NC\NR
+\HL
+\stoptabulate
+
+\section{使用方法}
+
+\subsection{拼音排序}
+
+\starttyping
+\setupregister[index][
+  n=3,
+  alternative=A,
+  language=zh-pinyin,
+]
+
+\placeindex
+\stoptyping
+
+\subsection{字母排序}
+
+\starttyping
+\setupregister[index][
+  n=3,
+  alternative=A,
+  language=zh-alpha,
+]
+
+\placeindex
+\stoptyping
+
+\subsection{笔画排序}
+
+\starttyping
+\setupregister[index][
+  n=3,
+  alternative=A,
+  language=zh-stroke,
+]
+
+\placeindex
+\stoptyping
+
+\section{添加索引条目}
+
+使用 \type{\index} 命令添加索引条目：
+
+\starttyping
+\index{北京}
+\index{上海}
+\index{广州}
+
+% 带子条目
+\index{水果+苹果}
+\index{水果+香蕉}
+\stoptyping
+
+\section{数据文件}
+
+zhindex 模块需要以下数据文件：
+
+\starttabulate[|l|p|]
+\HL
+\NC 文件 \NC 说明 \NC\NR
+\HL
+\NC pinyin.txt \NC 汉字拼音数据 \NC\NR
+\NC sunwb_strokeorder.txt \NC 汉字笔画数据 \NC\NR
+\HL
+\stoptabulate
+
+\section{排序特点}
+
+\startitemize[packed]
+\item 支持中西文混合排序
+\item 数字排在最前，字母排在最后
+\item 同类内按各自规则排序
+\item 笔画排序支持按笔顺细分
+\stopitemize
+
+\chapter{最佳实践}
+
+\section{文档结构}
+
+推荐的文档结构：
+
+\starttyping
+\usemodule[memos][
+  papersize=A4,
+  layout=moderate,
+  mainlanguage=hans,
+  fontsize=11pt,
+  themecolor=cyan,
+  hdrstyle=fctext,
+]
+
+\starttext
+
+\startfrontmatter
+  \makecover[cover][publisher={出版社}]
+  \placeTOCs
+  \title{前言}
+  前言内容...
+\stopfrontmatter
+
+\startbodymatter
+  \part{第一部分}
+  \chapter{第一章}
+  章节内容...
+\stopbodymatter
+
+\startbackmatter
+  \chapter{附录}
+  附录内容...
+\stopbackmatter
+
+\stoptext
+\stoptyping
+
+\section{字体选择建议}
+
+\startitemize[packed]
+\item 正式文档：使用 Adobe 字体系列（adobehans/adobehant）
+\item 开源项目：使用 Source 字体系列（sourcehans/sourcehant）
+\item macOS 用户：可以使用系统字体（sinohans/sinohant）
+\item 需要轻量字体：使用 Source Han Sans Light（sourcehanslight）
+\stopitemize
+
+\section{颜色搭配建议}
+
+\startitemize[packed]
+\item 科技文档：serene（蓝色）、creativity（青色）
+\item 文学作品：formality（黑色）、innocence（白色）
+\item 教育材料：harmony（绿色）、optimism（黄色）
+\item 商务文档：reliable（灰色）、formality（黑色）
+\item 创意设计：adventure（橙色）、magic（紫色）、romance（粉色）
+\item 重点强调：passion（红色）
+\stopitemize
+
+\section{布局选择建议}
+
+\startitemize[packed]
+\item 一般文档：moderate（适中布局）
+\item 电子书：kindle（Kindle 布局）
+\item 平板阅读：ipad（iPad 布局）
+\item 试卷教材：kaolike（考理科布局）
+\stopitemize
+
+\chapter{故障排除}
+
+\section{常见问题}
+
+\subsection{字体未找到}
+
+确保已安装相应的字体，或切换到已安装的字体集。
+
+\subsection{页面布局异常}
+
+检查 \type{textcount}、\type{heightcount}、\type{margincount} 参数是否合理。
+
+\subsection{颜色显示不正确}
+
+确保 \type{themecolor} 参数值在预设颜色列表中，或使用 \type{\setuppalet} 切换调色板。
+
+\subsection{目录不显示}
+
+检查是否使用了 \type{\placeTOCs} 或 \type{\placecontent} 命令。
+
+\subsection{封面显示异常}
+
+检查封面参数是否正确设置，特别是 \type{book}、\type{author}、\type{publisher} 等必需参数。
+
+\section{调试技巧}
+
+\starttyping
+% 启用调试模式
+\usemodule[memos][mode=draft]
+
+% 显示页面布局
+\showframe
+
+% 显示网格
+\showgrid
+\stoptyping
+\stopbodymatter
+
+\startappendices
+
+\chapter{完整示例}
+
+\startbuffer[complete-example]
+\usemodule[memos][
+  papersize=A4,
+  layout=moderate,
+  mainlanguage=hans,
+  fontsize=11pt,
+  themecolor=blue,
+  hdrstyle=book,
+  mode=moresize,
+]
+
+\starttext
+
+\startfrontmatter
+  \makecover[cover][publisher={示例出版社}]
+  \placeTOCs
+\stopfrontmatter
+
+\startbodymatter
+  \part{第一部分：基础篇}
+  
+  \chapter{简介}
+  
+  \section{背景}
+  这是背景介绍\footnote{这是一个脚注}。
+  
+  \section{目的}
+  这是目的说明\sidenote{这是一个边注}。
+  
+  \startplacefigure[title=示例图片]
+    \externalfigure[][width=\textwidth,height=3\baselineskip]
+  \stopplacefigure
+  
+  \startDualHeaderText[number=1,title=重要提示]
+    这是一个 DualHeader 卡片示例。
+    可以用于突出显示重要内容。
+  \stopDualHeaderText
+  
+  \starttextbackground[MetroCard]
+    这是一个 Metro 风格的卡片。
+  \stoptextbackground
+  
+  \startverbatim
+  function example() {
+    return "Hello, World!";
+  }
+  \stopverbatim
+  
+\stopbodymatter
+
+\startbackmatter
+  \chapter{附录}
+  附录内容。
+\stopbackmatter
+
+\stoptext
+\stopbuffer
+
+\typebuffer[complete-example]
+
+\stopappendices
+
+
+\stoptext

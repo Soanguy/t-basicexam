@@ -1,0 +1,1893 @@
+\usemodule[memos][mainlanguage=en,language=en]
+\usemodule[setups]
+
+\enablemode[no-setup-main]
+
+\setupinteraction[state=start]
+\setuptextrules[style=\tf\ss,before=,after=,rulethickness=.5pt]
+
+\setuptyping[style=\ttxx\setuplocalinterlinespace[line=2ex],
+             option={context},
+             before={\vbox{\hrule height .5pt\par
+                     \textrule{CODE EXAMPLE}%
+                     \hrule height .5pt\vrule width0pt depth 4pt}\par},
+              after={\vbox{\hrule height .5pt\strut}},
+             ]
+
+\protected\def\colorshowtemp#1{%
+  \framed[foregroundcolor=#1,width=6em,frame=off]{#1}}
+
+\protected\def\bgcolorshowtemp#1{%
+  \framed[foregroundcolor=white,background=color,backgroundcolor=#1,
+           width=6em,frame=off]{#1}}
+
+\def\showcolorrow#1{%
+  \startxrow
+    \startxcell {#1}                    \stopxcell
+    \startxcell \colorshowtemp{soft#1}  \stopxcell
+    \startxcell \colorshowtemp{light#1} \stopxcell
+    \startxcell \colorshowtemp{#1}      \stopxcell
+    \startxcell \colorshowtemp{dark#1}  \stopxcell
+    \startxcell \colorshowtemp{deep#1}  \stopxcell
+  \stopxrow}
+
+\def\showbgcolorrow#1{%
+  \startxrow
+    \startxcell {#1}                      \stopxcell
+    \startxcell \bgcolorshowtemp{soft#1}  \stopxcell
+    \startxcell \bgcolorshowtemp{light#1} \stopxcell
+    \startxcell \bgcolorshowtemp{#1}      \stopxcell
+    \startxcell \bgcolorshowtemp{dark#1}  \stopxcell
+    \startxcell \bgcolorshowtemp{deep#1}  \stopxcell
+  \stopxrow}
+
+\def\showpaletcolors{%
+  \starttabulate[|c|c|c|c|c|]
+  \NC \colorshowtemp{themecolor} \NC
+      \colorshowtemp{softthemecolor} \NC
+      \colorshowtemp{lightthemecolor} \NC
+      \colorshowtemp{darkthemecolor} \NC
+      \colorshowtemp{deepthemecolor} \NC\NR
+  \NC \bgcolorshowtemp{themecolor} \NC
+      \bgcolorshowtemp{softthemecolor} \NC
+      \bgcolorshowtemp{lightthemecolor} \NC
+      \bgcolorshowtemp{darkthemecolor} \NC
+      \bgcolorshowtemp{deepthemecolor} \NC\NR
+  \stoptabulate}
+
+\starttext
+
+\startfrontmatter
+\title{memos Module User Manual}
+
+\blank[big]
+
+\placecontent
+
+\stopfrontmatter
+
+\startbodymatter
+\chapter{Module Overview}
+
+\section{Introduction}
+
+memos is a comprehensive typesetting module designed for ConTeXt LMTX, providing complete book and document layout solutions. The module focuses on Chinese typesetting while supporting multilingual composition, offering rich page layout, font configuration, color themes, and other features.
+
+\section{Main Features}
+
+\startitemize[packed]
+\item Multilingual support: Simplified Chinese, Traditional Chinese, Japanese, etc.
+\item Rich font sets: Adobe, Source, macOS, and other font schemes
+\item Multiple page layouts: moderate, kindle, ipad, kaolike, etc.
+\item Theme color system: 11 preset theme color palettes
+\item Flexible header/footer styles: book, novel, colorful, etc.
+\item Comprehensive table of contents system: supports multiple TOC styles
+\item Floating figure/table system: supports text area, margin area, full page width
+\item Code typesetting: supports syntax highlighting and line numbers
+\item Side note system: footnotes, sidenotes, margin notes
+\item Card styles: Metro, Fluent, macOS, Modern, DualHeader styles
+\item Cover system: 5 preset cover styles
+\stopitemize
+
+\section{System Requirements}
+
+This module requires {\bf ConTeXt LMTX (LuaMetaTeX)} environment, MkIV version is not supported. It is recommended to use the latest version of ConTeXt LMTX for best experience.
+
+\chapter{Module Loading and Parameters}
+
+\section{Loading the Module}
+
+\starttyping
+\usemodule[memos]
+\stoptyping
+
+\section{Module Parameters}
+
+The following parameters can be set when loading the module:
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC papersize \NC A4 \NC Paper size (A4/A5/kindle/ipad/B5/letter/legal) \NC\NR
+\NC layout \NC moderate \NC Page layout style \NC\NR
+\NC mainlanguage \NC hans \NC Main language \NC\NR
+\NC language \NC hans \NC Current language \NC\NR
+\NC lineheight \NC 1.5em \NC Line height \NC\NR
+\NC fallbackfont \NC \NC Fallback font \NC\NR
+\NC bodyfont \NC \NC Body font \NC\NR
+\NC fontstyle \NC rm \NC Font style \NC\NR
+\NC fontsize \NC 11pt \NC Font size \NC\NR
+\NC textcount \NC 40 \NC Text area character count \NC\NR
+\NC heightcount \NC 40 \NC Text area line count \NC\NR
+\NC margincount \NC 0 \NC Margin area character count \NC\NR
+\NC mode \NC \NC Running mode \NC\NR
+\NC ratio \NC 1.414 \NC Text area ratio \NC\NR
+\NC themecolor \NC cyan \NC Theme color \NC\NR
+\NC chapterstyle \NC default \NC Chapter title style \NC\NR
+\NC hdrstyle \NC fctext \NC Header/footer style \NC\NR
+\NC tocstyle \NC \NC TOC style \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Paper Size (papersize)}
+
+\starttabulate[|l|p|]
+\HL
+\NC Option \NC Description \NC\NR
+\HL
+\NC A4 \NC A4 paper (default) \NC\NR
+\NC A5 \NC A5 paper \NC\NR
+\NC B5 \NC B5 paper \NC\NR
+\NC letter \NC Letter paper \NC\NR
+\NC legal \NC Legal paper \NC\NR
+\NC kindle \NC Kindle e-book size \NC\NR
+\NC ipad \NC iPad tablet size \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Page Layout (layout)}
+
+\starttabulate[|l|p|]
+\HL
+\NC Option \NC Description \NC\NR
+\HL
+\NC moderate \NC Moderate layout (default) \NC\NR
+\NC narrow \NC Narrow margin layout \NC\NR
+\NC wide \NC Wide margin layout \NC\NR
+\NC extrawide \NC Extra wide margin layout \NC\NR
+\NC kindle \NC Kindle e-book layout \NC\NR
+\NC ipad \NC iPad tablet layout \NC\NR
+\NC kaolike \NC Kaolike exam layout \NC\NR
+\NC exotic \NC Exotic style layout \NC\NR
+\NC sidemirror \NC Side mirror layout \NC\NR
+\NC propiorroot \NC Propiorroot layout \NC\NR
+\NC propiorgolden \NC Golden ratio layout \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Language Settings (mainlanguage)}
+
+\starttabulate[|l|p|]
+\HL
+\NC Option \NC Description \NC\NR
+\HL
+\NC hans \NC Simplified Chinese (default) \NC\NR
+\NC hant \NC Traditional Chinese \NC\NR
+\NC ja \NC Japanese \NC\NR
+\NC en \NC English \NC\NR
+\NC cn \NC Chinese (alias for Simplified Chinese) \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Font Style (fontstyle)}
+
+\starttabulate[|l|p|]
+\HL
+\NC Option \NC Description \NC\NR
+\HL
+\NC rm \NC Roman (default), suitable for body text \NC\NR
+\NC ss \NC Sans serif, suitable for headings \NC\NR
+\NC tt \NC Typewriter, suitable for code \NC\NR
+\NC hw \NC Handwriting style \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Running Mode (mode)}
+
+\starttabulate[|l|p|]
+\HL
+\NC Option \NC Description \NC\NR
+\HL
+\NC print \NC Print mode, optimized for printing \NC\NR
+\NC kindle \NC E-book mode, optimized for e-readers \NC\NR
+\NC draft \NC Draft mode, quick preview \NC\NR
+\NC moresize \NC Extended font size mode \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Theme Color (themecolor)}
+
+\starttabulate[|l|p|]
+\HL
+\NC Option \NC Description \NC\NR
+\HL
+\NC cyan \NC Cyan (default) \NC\NR
+\NC red \NC Red \NC\NR
+\NC blue \NC Blue \NC\NR
+\NC green \NC Green \NC\NR
+\NC yellow \NC Yellow \NC\NR
+\NC orange \NC Orange \NC\NR
+\NC purple \NC Purple \NC\NR
+\NC pink \NC Pink \NC\NR
+\NC gray \NC Gray \NC\NR
+\NC black \NC Black \NC\NR
+\NC white \NC White \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Header/Footer Style (hdrstyle)}
+
+\starttabulate[|l|p|]
+\HL
+\NC Option \NC Description \NC\NR
+\HL
+\NC fctext \NC Footer centered page number (default) \NC\NR
+\NC book \NC Book style \NC\NR
+\NC line \NC Book style (alias) \NC\NR
+\NC novel \NC Novel style \NC\NR
+\NC colorful \NC Colorful style \NC\NR
+\NC madsen \NC Madsen style \NC\NR
+\NC hctext \NC Header centered page number \NC\NR
+\NC foemargin \NC Footer outer margin page number \NC\NR
+\NC foemarginalt \NC Footer outer margin page number (near text) \NC\NR
+\NC hoemargin \NC Header outer margin style \NC\NR
+\NC kaolike \NC Kaolike style \NC\NR
+\NC none \NC No header/footer \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Examples}
+
+\starttyping
+% Basic usage
+\usemodule[memos]
+
+% Custom parameters
+\usemodule[memos][
+  papersize=A5,
+  layout=moderate,
+  mainlanguage=hans,
+  fontsize=12pt,
+  themecolor=blue,
+  hdrstyle=book,
+]
+
+% E-book mode
+\usemodule[memos][mode=kindle,papersize=kindle]
+
+% Print mode
+\usemodule[memos][mode=print]
+
+% Draft mode
+\usemodule[memos][mode=draft]
+
+% More font size options
+\usemodule[memos][mode=moresize]
+\stoptyping
+
+\chapter{Multilingual Support}
+
+\section{Language Settings}
+
+The memos module provides comprehensive multilingual support, with special optimization for Chinese typesetting.
+
+\subsection{Preset Languages}
+
+The module presets the following language environments:
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Language Code \NC Language Name \NC Description \NC\NR
+\HL
+\NC hans \NC Simplified Chinese \NC Uses Adobe Simplified Chinese fonts \NC\NR
+\NC hant \NC Traditional Chinese \NC Uses Adobe Traditional Chinese fonts \NC\NR
+\NC ja \NC Japanese \NC Uses Japanese fonts \NC\NR
+\NC cn \NC Chinese \NC Simplified Chinese alias \NC\NR
+\NC en \NC English \NC English environment \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Switching Languages}
+
+Use the \type{\language} command to switch languages:
+
+\starttyping
+\language[hans]  % Switch to Simplified Chinese
+\language[hant]  % Switch to Traditional Chinese
+\language[ja]    % Switch to Japanese
+\language[en]    % Switch to English
+\stoptyping
+
+\section{Custom Language Environment}
+
+Use \type{\defineuserlanguage} or \type{\setupuserlanguage} to define new language environments:
+
+\starttyping
+\defineuserlanguage[mylang][
+  bodyfont=adobehans,
+  fallbackfont=fallback:cormorant,
+  patterns={zh,en},
+  script=hanzi,
+  interlinespace=1.5em,
+  whitespace=none,
+  align={height,hanging,justified},
+  indenting={first,always,2em},
+]
+\stoptyping
+
+\subsection{Language Parameters}
+
+\starttabulate[|l|p|]
+\HL
+\NC Parameter \NC Description \NC\NR
+\HL
+\NC bodyfont \NC Body font \NC\NR
+\NC fallbackfont \NC Fallback font \NC\NR
+\NC patterns \NC Hyphenation patterns \NC\NR
+\NC script \NC Script (hanzi/latin, etc.) \NC\NR
+\NC interlinespace \NC Line spacing \NC\NR
+\NC whitespace \NC Whitespace handling \NC\NR
+\NC align \NC Alignment \NC\NR
+\NC indenting \NC Indentation settings \NC\NR
+\HL
+\stoptabulate
+
+\chapter{Font System}
+
+\section{Font Sets}
+
+The memos module predefines multiple font sets for quick switching.
+
+\subsection{Adobe Font Family}
+
+\starttyping
+\switchtobodyfont[adobehans]   % Adobe Simplified Chinese
+\switchtobodyfont[adobehant]   % Adobe Traditional Chinese
+\switchtobodyfont[adobenihon]  % Adobe Japanese
+\stoptyping
+
+\subsection{Source Font Family}
+
+\starttyping
+\switchtobodyfont[sourcehans]      % Source Han Sans Simplified Chinese
+\switchtobodyfont[sourcehant]      % Source Han Sans Traditional Chinese
+\switchtobodyfont[sourcenihon]     % Source Han Sans Japanese
+\switchtobodyfont[sourcehanslight] % Source Han Sans Light
+\stoptyping
+
+\subsection{macOS Font Family}
+
+\starttyping
+\switchtobodyfont[sinohans]  % PingFang SC
+\switchtobodyfont[sinohant]  % PingFang TC
+\switchtobodyfont[hiragino]  % Hiragino Sans
+\stoptyping
+
+\subsection{Other Font Sets}
+
+\starttyping
+\switchtobodyfont[genyotw]    % GenYo Gothic TW
+\switchtobodyfont[genyotc]    % GenYo Gothic TC
+\switchtobodyfont[shanggu]    % Shanggu
+\switchtobodyfont[ipaexhans]  % IPAex Simplified Chinese
+\switchtobodyfont[ibmplexsc]  % IBM Plex SC
+\stoptyping
+
+\section{Font Styles}
+
+The module supports four font styles:
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Style Code \NC Style Name \NC Description \NC\NR
+\HL
+\NC rm \NC Roman \NC Serif font (default) \NC\NR
+\NC ss \NC Sans Serif \NC Sans serif font \NC\NR
+\NC tt \NC Typewriter \NC Monospace font \NC\NR
+\NC hw \NC Handwriting \NC Handwriting font \NC\NR
+\HL
+\stoptabulate
+
+Usage:
+
+\starttyping
+{\rm Serif font}
+{\ss Sans serif font}
+{\tt Monospace font}
+{\hw Handwriting font}
+\stoptyping
+
+\section{Font Size System}
+
+\subsection{Standard Font Sizes}
+
+\starttyping
+{\tf Normal size}
+{\tfa Larger}
+{\tfb Even larger}
+{\tfc Very large}
+{\tfd Largest}
+{\tfx Smaller}
+{\tfxx Even smaller}
+\stoptyping
+
+\subsection{Extended Font Sizes}
+
+After enabling \type{moresize} mode, more font size options are available:
+
+\starttyping
+\usemodule[memos][mode=moresize]
+
+% Chinese traditional font sizes
+{\o  Huge (42pt)}
+{\i  Large (26pt)}
+{\ii Medium large (22pt)}
+{\iii Medium (16pt)}
+{\iv Small medium (14pt)}
+{\v  Small (10.5pt)}
+
+% Small variants
+{\os Small huge}
+{\is Small large}
+{\iis Small medium large}
+{\iiis Small medium}
+{\ivs Small medium small}
+{\vs Small small}
+\stoptyping
+
+\chapter{Page Layout}
+
+\section{Layout Styles}
+
+The module provides multiple predefined page layout styles:
+
+\starttabulate[|l|p|]
+\HL
+\NC Layout Name \NC Description \NC\NR
+\HL
+\NC moderate \NC Moderate layout (default), suitable for most documents \NC\NR
+\NC narrow \NC Narrow margin layout, suitable for dense content \NC\NR
+\NC wide \NC Wide margin layout, suitable for documents with many sidenotes \NC\NR
+\NC extrawide \NC Extra wide margin layout, suitable for extensive sidenotes \NC\NR
+\NC kindle \NC Kindle e-book layout, suitable for e-readers \NC\NR
+\NC ipad \NC iPad tablet layout, suitable for tablets \NC\NR
+\NC kaolike \NC Kaolike layout, suitable for exams and textbooks \NC\NR
+\NC exotic \NC Exotic style layout \NC\NR
+\NC sidemirror \NC Side mirror layout \NC\NR
+\NC propiorroot \NC Propiorroot layout \NC\NR
+\NC propiorgolden \NC Golden ratio layout \NC\NR
+\HL
+\stoptabulate
+
+\section{Layout Parameters}
+
+Each layout can be customized through parameters:
+
+\starttabulate[|l|p|]
+\HL
+\NC Parameter \NC Description \NC\NR
+\HL
+\NC width \NC Text area width \NC\NR
+\NC height \NC Text area height \NC\NR
+\NC backspace \NC Left margin \NC\NR
+\NC topspace \NC Top margin \NC\NR
+\NC leftmargin \NC Left margin width \NC\NR
+\NC rightmargin \NC Right margin width \NC\NR
+\NC leftmargindistance \NC Left margin distance \NC\NR
+\NC rightmargindistance \NC Right margin distance \NC\NR
+\NC header \NC Header height \NC\NR
+\NC footer \NC Footer height \NC\NR
+\NC headerdistance \NC Header distance \NC\NR
+\NC footerdistance \NC Footer distance \NC\NR
+\NC leftedge \NC Left edge width \NC\NR
+\NC rightedge \NC Right edge width \NC\NR
+\NC leftedgedistance \NC Left edge distance \NC\NR
+\NC rightedgedistance \NC Right edge distance \NC\NR
+\NC bottom \NC Bottom distance \NC\NR
+\NC bottomdistance \NC Bottom distance \NC\NR
+\HL
+\stoptabulate
+
+\section{Usage}
+
+\starttyping
+% Use preset layout
+\usemodule[memos][layout=moderate]
+
+% Use Kindle layout
+\usemodule[memos][layout=kindle,papersize=kindle]
+
+% Use iPad layout
+\usemodule[memos][layout=ipad,papersize=ipad]
+
+% Use Kaolike layout
+\usemodule[memos][layout=kaolike]
+
+% Custom layout parameters
+\usemodule[memos][
+  textcount=42,    % Text area width (character count)
+  heightcount=45,  % Text area height (line count)
+  margincount=10,  % Margin area width (character count)
+  ratio=1.414,     % Text area ratio (golden ratio)
+]
+\stoptyping
+
+\chapter{Color System}
+
+\section{Base Color Set}
+
+The module predefines 11 base colors, each with 5 levels (soft/light/normal/dark/deep):
+
+\subsection{Text Color Display}
+
+\start
+\startxtable[split=yes]
+\startxrow
+  \startxcell Color \stopxcell
+  \startxcell soft \stopxcell
+  \startxcell light \stopxcell
+  \startxcell normal \stopxcell
+  \startxcell dark \stopxcell
+  \startxcell deep \stopxcell
+\stopxrow
+\showcolorrow{red}
+\showcolorrow{blue}
+\showcolorrow{yellow}
+\showcolorrow{green}
+\showcolorrow{cyan}
+\showcolorrow{orange}
+\showcolorrow{purple}
+\showcolorrow{pink}
+\showcolorrow{gray}
+\showcolorrow{black}
+\showcolorrow{white}
+\stopxtable
+\stop
+
+\subsection{Background Color Display}
+
+\start
+\startxtable[split=yes]
+\startxrow
+  \startxcell Color \stopxcell
+  \startxcell soft \stopxcell
+  \startxcell light \stopxcell
+  \startxcell normal \stopxcell
+  \startxcell dark \stopxcell
+  \startxcell deep \stopxcell
+\stopxrow
+\showbgcolorrow{red}
+\showbgcolorrow{blue}
+\showbgcolorrow{yellow}
+\showbgcolorrow{green}
+\showbgcolorrow{cyan}
+\showbgcolorrow{orange}
+\showbgcolorrow{purple}
+\showbgcolorrow{pink}
+\showbgcolorrow{gray}
+\stopxtable
+\stop
+
+\section{Theme Color Palettes}
+
+The module presets 11 theme color palettes, each containing a complete color system:
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Palette Name \NC Theme Color \NC Description \NC\NR
+\HL
+\NC serene \NC blue \NC Serene Blue - suitable for technical documents \NC\NR
+\NC harmony \NC green \NC Harmony Green - suitable for educational materials \NC\NR
+\NC passion \NC red \NC Passion Red - suitable for emphasis \NC\NR
+\NC adventure \NC orange \NC Adventure Orange - suitable for creative design \NC\NR
+\NC optimism \NC yellow \NC Optimism Yellow - suitable for lively themes \NC\NR
+\NC creativity \NC cyan \NC Creativity Cyan - suitable for modern style (default) \NC\NR
+\NC magic \NC purple \NC Magic Purple - suitable for mysterious themes \NC\NR
+\NC romance \NC pink \NC Romance Pink - suitable for literary works \NC\NR
+\NC reliable \NC gray \NC Reliable Gray - suitable for business documents \NC\NR
+\NC formality \NC black \NC Formality Black - suitable for formal documents \NC\NR
+\NC innocence \NC white \NC Innocence White - suitable for minimalist style \NC\NR
+\HL
+\stoptabulate
+
+\section{Palette Color Display}
+
+\start
+\doloopoverlist
+  {serene, harmony, passion, adventure, optimism, creativity, magic, romance, reliable, formality, innocence}
+  {{\red\ssd\recursestring}\par
+    \setuppalet[\recursestring]\showpaletcolors}
+\stop
+
+\section{Using Palettes}
+
+\starttyping
+% Method 1: Through themecolor parameter
+\usemodule[memos][themecolor=blue]
+
+% Method 2: Switch palette in document
+\setuppalet[serene]     % Blue theme
+\setuppalet[harmony]    % Green theme
+\setuppalet[passion]    % Red theme
+\setuppalet[creativity] % Cyan theme
+\stoptyping
+
+\section{Color Variants}
+
+Each theme color has multiple variants forming a complete color system:
+
+\starttabulate[|l|p|]
+\HL
+\NC Color Variant \NC Description \NC\NR
+\HL
+\NC themecolor \NC Theme color \NC\NR
+\NC softthemecolor \NC Soft theme color \NC\NR
+\NC lightthemecolor \NC Light theme color \NC\NR
+\NC darkthemecolor \NC Dark theme color \NC\NR
+\NC deepthemecolor \NC Deep theme color \NC\NR
+\NC softthemecolorv \NC Soft vertical gradient \NC\NR
+\NC optcolor \NC Option color \NC\NR
+\NC lightoptcolor \NC Light option color \NC\NR
+\HL
+\stoptabulate
+
+\section{Semantic Colors}
+
+The module defines multiple semantic colors for different document elements:
+
+\starttabulate[|l|p|]
+\HL
+\NC Color Name \NC Description \NC\NR
+\HL
+\NC textcolor \NC Text color \NC\NR
+\NC codecolor \NC Code color \NC\NR
+\NC captioncolor \NC Caption color \NC\NR
+\NC sidenotecolor \NC Sidenote color \NC\NR
+\NC footnotecolor \NC Footnote color \NC\NR
+\NC linkcolor \NC Link color \NC\NR
+\NC toclinkcolor \NC TOC link color \NC\NR
+\NC framecolor \NC Frame color \NC\NR
+\NC referencecolor \NC Reference color \NC\NR
+\NC titlecolor \NC Title color \NC\NR
+\NC softbackground \NC Soft background color \NC\NR
+\NC darkbackground \NC Dark background color \NC\NR
+\HL
+\stoptabulate
+
+\chapter{Header/Footer}
+
+\section{Header/Footer Styles}
+
+The module provides multiple header/footer styles:
+
+\starttabulate[|l|p|]
+\HL
+\NC Style Name \NC Description \NC\NR
+\HL
+\NC book \NC Book style: chapter number and title on odd pages, page number and chapter on even pages \NC\NR
+\NC novel \NC Novel style: page number and chapter title \NC\NR
+\NC colorful \NC Colorful style: page number in colored margin box \NC\NR
+\NC madsen \NC Madsen style: similar to book style \NC\NR
+\NC hctext \NC Header centered page number \NC\NR
+\NC fctext \NC Footer centered page number (default) \NC\NR
+\NC foemargin \NC Footer outer margin page number (double-sided printing) \NC\NR
+\NC foemarginalt \NC Footer outer margin page number (near text area) \NC\NR
+\NC hoemargin \NC Header outer margin style (kaolike style) \NC\NR
+\NC none \NC No header/footer \NC\NR
+\HL
+\stoptabulate
+
+\section{Usage}
+
+\starttyping
+% Book style
+\usemodule[memos][hdrstyle=book]
+
+% Novel style
+\usemodule[memos][hdrstyle=novel]
+
+% Colorful style
+\usemodule[memos][hdrstyle=colorful,themecolor=blue]
+
+% Footer centered page number
+\usemodule[memos][hdrstyle=fctext]
+
+% No header/footer
+\usemodule[memos][hdrstyle=none]
+\stoptyping
+
+\chapter{Table of Contents}
+
+\section{TOC Styles}
+
+\starttabulate[|l|p|]
+\HL
+\NC Style Name \NC Description \NC\NR
+\HL
+\NC default \NC Default style \NC\NR
+\NC kaolike \NC Kaolike style \NC\NR
+\NC none \NC No TOC \NC\NR
+\HL
+\stoptabulate
+
+\section{Placing TOC}
+
+Use the \type{\placeTOCs} command to place the table of contents:
+
+\starttyping
+% Default TOC
+\placeTOCs
+
+% Custom TOC
+\placeTOCs[
+  alternative=kaolike,
+  title=Contents,
+  interlinespace=\baselineskip,
+  content=yes,
+  layout=moderate,
+]
+\stoptyping
+
+\section{TOC Headings}
+
+Use \type{\tochead} to create TOC headings:
+
+\starttyping
+\tochead{Contents}
+\placecontent
+
+\tochead{List of Figures}
+\placelistoffigures
+
+\tochead{List of Tables}
+\placelistoftables
+\stoptyping
+
+\chapter{Floating Figures and Tables}
+
+\section{Floating Object Types}
+
+The module defines multiple floating object types to meet different typesetting needs:
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Float Type \NC Position \NC Description \NC\NR
+\HL
+\NC figure \NC Text area \NC Standard figure \NC\NR
+\NC textfig \NC Text area \NC Text area figure \NC\NR
+\NC marginfig \NC Margin area \NC Margin figure \NC\NR
+\NC fullfig \NC Full page width \NC Full page width figure \NC\NR
+\NC table \NC Text area \NC Standard table \NC\NR
+\NC texttab \NC Text area \NC Text area table \NC\NR
+\NC margintab \NC Margin area \NC Margin table \NC\NR
+\NC fulltab \NC Full page width \NC Full page width table \NC\NR
+\HL
+\stoptabulate
+
+\section{Figure Examples}
+
+\subsection{Text Area Figure}
+
+\startbuffer[textfig-demo]
+\startplacetextfig[title=Sample Figure]
+  \externalfigure[][height=4\baselineskip,width=0.6\textwidth]
+\stopplacetextfig
+\stopbuffer
+
+\typebuffer[textfig-demo]
+
+\getbuffer[textfig-demo]
+
+\subsection{Margin Figure}
+
+\startbuffer[marginfig-demo]
+\startplacemarginfig[title=Margin Figure]
+  \externalfigure[][width=\rightmarginwidth,height=5\baselineskip]
+\stopplacemarginfig
+\stopbuffer
+
+\typebuffer[marginfig-demo]
+
+\getbuffer[marginfig-demo]
+
+\section{Table Examples}
+
+\subsection{Floating Table}
+
+\startbuffer[table-demo]
+\startplacetable[title=Sample Table]
+\startxtable
+  \startxrow[header]
+    \startxcell Column 1 \stopxcell
+    \startxcell Column 2 \stopxcell
+    \startxcell Column 3 \stopxcell
+  \stopxrow
+  \startxrow[body]
+    \startxcell Data A \stopxcell
+    \startxcell Data B \stopxcell
+    \startxcell Data C \stopxcell
+  \stopxrow
+  \startxrow[lastrow]
+    \startxcell Data D \stopxcell
+    \startxcell Data E \stopxcell
+    \startxcell Data F \stopxcell
+  \stopxrow
+\stopxtable
+\stopplacetable
+\stopbuffer
+
+\typebuffer[table-demo]
+
+\getbuffer[table-demo]
+
+\section{Figure Size Presets}
+
+\starttabulate[|l|p|]
+\HL
+\NC Preset Name \NC Description \NC\NR
+\HL
+\NC automeasure \NC Automatic size \NC\NR
+\NC textmeasure \NC Text area width \NC\NR
+\NC marginmeasure \NC Margin area width \NC\NR
+\NC fullmeasure \NC Full page width \NC\NR
+\HL
+\stoptabulate
+
+\chapter{Code Typesetting}
+
+\section{Code Environments}
+
+\subsection{Basic Usage}
+
+\startbuffer[verbatim-demo]
+\startverbatim
+function hello() {
+  print("Hello, World!")
+}
+\stopverbatim
+\stopbuffer
+
+\typebuffer[verbatim-demo]
+
+\getbuffer[verbatim-demo]
+
+\subsection{Code with Line Numbers}
+
+\startbuffer[lmverbatim-demo]
+\startlmverbatim
+function hello() {
+  print("Hello, World!")
+}
+\stoplmverbatim
+\stopbuffer
+
+\typebuffer[lmverbatim-demo]
+
+\getbuffer[lmverbatim-demo]
+
+\subsection{Full Page Width Code}
+
+\startbuffer[wideverbatim-demo]
+\startwideverbatim
+function hello() {
+  print("Hello, World!")
+}
+\stopwideverbatim
+\stopbuffer
+
+\typebuffer[wideverbatim-demo]
+
+\getbuffer[wideverbatim-demo]
+
+\section{Inline Code}
+
+\startbuffer[inline-demo]
+Use \type{verbatim} environment for code typesetting.
+Use \type{\textbackslash type\{...\}} command for inline code.
+\stopbuffer
+
+\typebuffer[inline-demo]
+
+\getbuffer[inline-demo]
+
+\chapter{Note System}
+
+\section{Footnotes}
+
+\starttyping
+This is body text\footnote{This is a footnote.}
+\stoptyping
+
+\section{Sidenotes}
+
+\starttyping
+This is body text\sidenote{This is a sidenote.}
+\stoptyping
+
+\subsection{Adjusting Sidenote Position}
+
+\starttyping
+\movesidenote[2\baselineskip]
+This is body text\sidenote{This sidenote will be moved down.}
+\movesidenote[0em]
+\stoptyping
+
+\section{Margin Notes}
+
+\starttyping
+This is body text\inoutermargin{This is a margin note.}
+\stoptyping
+
+\chapter{Card Styles}
+
+\section{Basic Card Types}
+
+The module provides four basic card styles:
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Card Type \NC Style \NC Description \NC\NR
+\HL
+\NC MetroCard \NC Metro style \NC Clean modern, solid color background \NC\NR
+\NC FluentCard \NC Fluent style \NC Soft gradient, emphasizes lines \NC\NR
+\NC macOSCard \NC macOS style \NC Glass effect \NC\NR
+\NC ModernCard \NC Modern style \NC Gradient background \NC\NR
+\HL
+\stoptabulate
+
+\section{Basic Card Display}
+
+\startbuffer[metrocard-demo]
+\starttextbackground[MetroCard]
+  This is Metro style card content.
+\stoptextbackground
+\stopbuffer
+
+\startbuffer[fluentcard-demo]
+\starttextbackground[FluentCard]
+  This is Fluent style card content.
+\stoptextbackground
+\stopbuffer
+
+\startbuffer[macoscard-demo]
+\starttextbackground[macOSCard]
+  This is macOS style card content.
+\stoptextbackground
+\stopbuffer
+
+\startbuffer[moderncard-demo]
+\starttextbackground[ModernCard]
+  This is Modern style card content.
+\stoptextbackground
+\stopbuffer
+
+\subsection{Metro Style Card}
+
+\getbuffer[metrocard-demo]
+
+\subsection{Fluent Style Card}
+
+\getbuffer[fluentcard-demo]
+
+\subsection{macOS Style Card}
+
+\getbuffer[macoscard-demo]
+
+\subsection{Modern Style Card}
+
+\getbuffer[moderncard-demo]
+
+\section{DualHeader Card}
+
+DualHeader card is a special card style with dual-column header boxes, suitable for displaying numbered and titled content blocks.
+
+\subsection{Basic Usage}
+
+\startbuffer[dualheader-basic]
+\startDualHeaderText[number=1,title=Sample Title]
+  This is the content section of DualHeader card.
+  It can contain multiple paragraphs and other elements.
+\stopDualHeaderText
+\stopbuffer
+
+\getbuffer[dualheader-basic]
+
+\subsection{Complete Parameter Description}
+
+\starttabulate[|l|l|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC number \NC \NC Number content \NC\NR
+\NC title \NC \NC Title content \NC\NR
+\NC shownumber \NC 1 \NC Show number (0/1) \NC\NR
+\NC showtitle \NC 1 \NC Show title (0/1) \NC\NR
+\NC titlepos \NC 1 \NC Title position (0=top, 1=left) \NC\NR
+\NC titlealign \NC 2 \NC Title alignment (1=left, 2=center, 3=right) \NC\NR
+\NC numberalign \NC 2 \NC Number alignment (1=left, 2=center, 3=right) \NC\NR
+\NC numberbgcolor \NC lightthemecolor \NC Number background color \NC\NR
+\NC titlebgcolor \NC white \NC Title background color \NC\NR
+\NC bodybgcolor \NC white \NC Content background color \NC\NR
+\NC headerbgcolor \NC transparentcolor \NC Header background color \NC\NR
+\NC numbercolor \NC white \NC Number text color \NC\NR
+\NC titlecolor \NC lightthemecolor \NC Title text color \NC\NR
+\NC framecolor \NC lightthemecolor \NC Frame color \NC\NR
+\NC numberframecolor \NC lightthemecolor \NC Number frame color \NC\NR
+\NC titleframecolor \NC lightthemecolor \NC Title frame color \NC\NR
+\NC numberframe \NC 1 \NC Show number frame (0/1) \NC\NR
+\NC titleframe \NC 1 \NC Show title frame (0/1) \NC\NR
+\NC leftframe \NC 1 \NC Show left frame (0/1) \NC\NR
+\NC rightframe \NC 1 \NC Show right frame (0/1) \NC\NR
+\NC topframe \NC 1 \NC Show top frame (0/1) \NC\NR
+\NC bottomframe \NC 1 \NC Show bottom frame (0/1) \NC\NR
+\NC numberratio \NC 1 \NC Number column width ratio \NC\NR
+\NC titleratio \NC 1 \NC Title column width ratio \NC\NR
+\NC rulethickness \NC 1.5pt \NC Frame thickness \NC\NR
+\NC radius \NC 0pt \NC Border radius \NC\NR
+\NC bodybackground \NC simple \NC Content background type (simple/charbox/framebox/barbox/shadowbox) \NC\NR
+\NC shadowcolor \NC softgray \NC Shadow color (shadowbox mode) \NC\NR
+\NC symbol \NC \NC Symbol \NC\NR
+\NC character \NC \NC Character (charbox mode) \NC\NR
+\NC headerdivider \NC 0 \NC Show header divider (0/1) \NC\NR
+\NC width \NC \type{\textwidth} \NC Card width \NC\NR
+\HL
+\stoptabulate
+
+\subsection{bodybackground Types}
+
+DualHeader card supports multiple content background types:
+
+\starttabulate[|l|p|]
+\HL
+\NC Type \NC Description \NC\NR
+\HL
+\NC simple \NC Simple background, solid color fill \NC\NR
+\NC charbox \NC Character pattern background, uses character parameter as watermark \NC\NR
+\NC framebox \NC Frame pattern background, dotted pattern \NC\NR
+\NC barbox \NC Bar background, colored bar on left \NC\NR
+\NC shadowbox \NC Shadow background, with shadow effect \NC\NR
+\HL
+\stoptabulate
+
+\chapter{Cover System}
+
+\section{Cover Types}
+
+The module provides 5 preset cover types:
+
+\starttabulate[|l|p|]
+\HL
+\NC Cover Type \NC Description \NC\NR
+\HL
+\NC newbook \NC New book cover - clean modern style \NC\NR
+\NC flyleaf \NC Flyleaf - suitable for book flyleaf \NC\NR
+\NC usercover \NC User custom cover - fully customizable \NC\NR
+\NC cover \NC Standard cover - traditional book cover \NC\NR
+\NC ORLY \NC O'Reilly style cover - animal pattern style \NC\NR
+\HL
+\stoptabulate
+
+\section{Basic Usage}
+
+\startbuffer[cover-demo]
+% New book cover
+\makecover[newbook][publisher={Publisher Name}]
+
+% Flyleaf
+\makecover[flyleaf][publisher={Publisher Name}]
+
+% User custom cover
+\makecover[usercover][publisher={Publisher Name}]
+
+% Standard cover
+\makecover[cover][publisher={Publisher Name}]
+
+% O'Reilly style cover
+\makecover[ORLY][publisher={O'Reilly Media}]
+\stopbuffer
+
+\typebuffer[cover-demo]
+
+\getbuffer[cover-demo]
+
+\section{Cover Parameters}
+
+\starttabulate[|l|p|]
+\HL
+\NC Parameter \NC Description \NC\NR
+\HL
+\NC book \NC Book title \NC\NR
+\NC author \NC Author \NC\NR
+\NC publisher \NC Publisher \NC\NR
+\NC series \NC Series \NC\NR
+\NC subtitle \NC Subtitle \NC\NR
+\NC version \NC Version information \NC\NR
+\NC animal \NC Animal pattern (ORLY cover only) \NC\NR
+\NC bookcolor \NC Book title color \NC\NR
+\NC authorcolor \NC Author color \NC\NR
+\NC publishercolor \NC Publisher color \NC\NR
+\NC seriescolor \NC Series color \NC\NR
+\NC bookstyle \NC Book title font \NC\NR
+\NC authorstyle \NC Author font \NC\NR
+\NC publisherstyle \NC Publisher font \NC\NR
+\NC bookalign \NC Book title alignment \NC\NR
+\NC authoralign \NC Author alignment \NC\NR
+\NC publisheralign \NC Publisher alignment \NC\NR
+\NC seriesalign \NC Series alignment \NC\NR
+\NC bookvspace \NC Book title vertical spacing \NC\NR
+\NC authorvspace \NC Author vertical spacing \NC\NR
+\NC publishervspace \NC Publisher vertical spacing \NC\NR
+\NC seriesvspace \NC Series vertical spacing \NC\NR
+\NC bookleft \NC Book title left decoration \NC\NR
+\NC bookright \NC Book title right decoration \NC\NR
+\NC afterbook \NC Content after book title \NC\NR
+\NC lastvspace \NC Last vertical spacing \NC\NR
+\NC list \NC Content element list \NC\NR
+\NC makeup \NC Page makeup type \NC\NR
+\HL
+\stoptabulate
+
+\section{Cover Usage Recommendations}
+
+\startitemize[packed]
+\item New books recommend using \type{newbook} or \type{cover}
+\item Technical books recommend using \type{ORLY}
+\item Use \type{usercover} for full customization
+\item Use \type{flyleaf} for flyleaf pages
+\item Control cover element order via \type{list} parameter
+\stopitemize
+
+\chapter{Lists and Enumerations}
+
+\section{Ordered Lists}
+
+\startbuffer[ordinals-demo]
+\startordinals
+  \startitem First item \stopitem
+  \startitem Second item \stopitem
+  \startitem Third item \stopitem
+\stopordinals
+\stopbuffer
+
+\typebuffer[ordinals-demo]
+
+\getbuffer[ordinals-demo]
+
+\section{Unordered Lists}
+
+\startbuffer[points-demo]
+\startpoints
+  \startitem First item \stopitem
+  \startitem Second item \stopitem
+  \startitem Third item \stopitem
+\stoppoints
+\stopbuffer
+
+\typebuffer[points-demo]
+
+\getbuffer[points-demo]
+
+\section{Description Lists}
+
+\startbuffer[description-demo]
+\startdescription
+  \description{Term 1} This is the explanation for term 1.
+  \description{Term 2} This is the explanation for term 2.
+\stopdescription
+\stopbuffer
+
+\typebuffer[description-demo]
+
+\getbuffer[description-demo]
+
+\section{Nested Lists}
+
+\startbuffer[nested-demo]
+\startpoints
+  \startitem First item \stopitem
+  \startitem 
+    Second item contains sublist:
+    \startordinals
+      \startitem Subitem 1 \stopitem
+      \startitem Subitem 2 \stopitem
+    \stopordinals
+  \stopitem
+  \startitem Third item \stopitem
+\stoppoints
+\stopbuffer
+
+\typebuffer[nested-demo]
+
+\getbuffer[nested-demo]
+
+\chapter{Quotes and Links}
+
+\section{Quotes}
+
+\startbuffer[quote-demo]
+\quote{This is quoted content.}
+\stopbuffer
+
+\startbuffer[quotation-demo]
+\startquotation
+  This is longer quoted content.
+  It can contain multiple paragraphs.
+\stopquotation
+\stopbuffer
+
+\subsection{Short Quote}
+
+\typebuffer[quote-demo]
+
+\getbuffer[quote-demo]
+
+\subsection{Long Quote}
+
+\typebuffer[quotation-demo]
+
+\getbuffer[quotation-demo]
+
+\section{Links}
+
+\subsection{URL Links}
+
+\startbuffer[url-demo]
+\from[http://example.com]
+
+\useURL[myurl][http://example.com][][Example Website]
+\from[myurl]
+\stopbuffer
+
+\typebuffer[url-demo]
+
+\getbuffer[url-demo]
+
+\subsection{Email Links}
+
+\startbuffer[mail-demo]
+\mailto{user@example.com}
+
+\Mailto{user@example.com}{Contact Author}
+\stopbuffer
+
+\typebuffer[mail-demo]
+
+\getbuffer[mail-demo]
+
+\chapter{Table Styles}
+
+\section{TABLE Style}
+
+TABLE uses \type{\startTABLE} environment with the following preset styles:
+
+\starttabulate[|l|p|]
+\HL
+\NC Style Name \NC Description \NC\NR
+\HL
+\NC trilines \NC Three-line table \NC\NR
+\NC fullines \NC Full border table \NC\NR
+\NC alternatecolor \NC Alternating row colors \NC\NR
+\NC nonlines \NC No border table \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Three-line Table (TABLE)}
+
+\startbuffer[trilines-demo]
+\startTABLE[setups=trilines]
+\NC Header 1 \NC Header 2 \NC Header 3 \NC\NR
+\NC Content A \NC Content B \NC Content C \NC\NR
+\NC Content D \NC Content E \NC Content F \NC\NR
+\stopTABLE
+\stopbuffer
+
+\getbuffer[trilines-demo]
+
+\subsection{Alternating Row Color Table (TABLE)}
+
+\startbuffer[alternate-demo]
+\startTABLE[setups=alternatecolor]
+\NC Header 1 \NC Header 2 \NC Header 3 \NC\NR
+\NC Content A \NC Content B \NC Content C \NC\NR
+\NC Content D \NC Content E \NC Content F \NC\NR
+\stopTABLE
+\stopbuffer
+
+\getbuffer[alternate-demo]
+
+\section{xtable Style}
+
+xtable uses \type{\startxtable} environment with the following preset row types:
+
+\starttabulate[|l|p|]
+\HL
+\NC Row Type \NC Description \NC\NR
+\HL
+\NC header \NC Header row, no bottom border \NC\NR
+\NC head \NC Header row, no bottom border \NC\NR
+\NC body \NC Content row \NC\NR
+\NC foot \NC Footer row, no top border \NC\NR
+\NC footer \NC Footer row, no top border \NC\NR
+\NC lastrow \NC Last row, no top border \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Basic xtable}
+
+\startbuffer[xtable-demo]
+\startxtable
+  \startxrow[header]
+    \startxcell Header 1 \stopxcell
+    \startxcell Header 2 \stopxcell
+    \startxcell Header 3 \stopxcell
+  \stopxrow
+  \startxrow[body]
+    \startxcell Content A \stopxcell
+    \startxcell Content B \stopxcell
+    \startxcell Content C \stopxcell
+  \stopxrow
+  \startxrow[lastrow]
+    \startxcell Content D \stopxcell
+    \startxcell Content E \stopxcell
+    \startxcell Content F \stopxcell
+  \stopxrow
+\stopxtable
+\stopbuffer
+
+\getbuffer[xtable-demo]
+
+\chapter{Chapter Styles}
+
+\section{Available Chapter Styles}
+
+The module provides multiple chapter heading styles, set via the \type{chapterstyle} parameter:
+
+\starttabulate[|l|p|]
+\HL
+\NC Style Name \NC Description \NC\NR
+\HL
+\NC default \NC Default style \NC\NR
+\NC line \NC Line style \NC\NR
+\NC colorful \NC Colorful style \NC\NR
+\NC madsen \NC Madsen style \NC\NR
+\NC rocket \NC Rocket style \NC\NR
+\NC hexa \NC Hexagonal gradient style \NC\NR
+\NC simple \NC Simple style \NC\NR
+\NC classics \NC Classic style (Chapter I, II...) \NC\NR
+\NC classicnovel \NC Classic novel style (Chapter 1, 2...) \NC\NR
+\NC kaolike \NC Kaolike exam style \NC\NR
+\NC article \NC Article style \NC\NR
+\NC publish \NC Publishing style \NC\NR
+\NC none \NC No chapter style \NC\NR
+\HL
+\stoptabulate
+
+\section{Usage}
+
+\starttyping
+\usemodule[memos][chapterstyle=madsen]
+\stoptyping
+
+\chapter{Advanced Features}
+
+\section{Mode Control}
+
+\subsection{Print Mode}
+
+\starttyping
+\usemodule[memos][mode=print]
+\stoptyping
+
+Print mode optimizes output for printing, with adjusted colors and layout.
+
+\subsection{E-book Mode}
+
+\starttyping
+\usemodule[memos][mode=kindle]
+\stoptyping
+
+E-book mode is optimized for e-readers, with adjusted page dimensions and layout.
+
+\subsection{Draft Mode}
+
+\starttyping
+\usemodule[memos][mode=draft]
+\stoptyping
+
+Draft mode is for quick preview, potentially skipping time-consuming typesetting processes.
+
+\subsection{Extended Font Size Mode}
+
+\starttyping
+\usemodule[memos][mode=moresize]
+\stoptyping
+
+Enables additional font size options, especially traditional Chinese font sizes.
+
+\section{Chapter Style}
+
+\starttyping
+\usemodule[memos][chapterstyle=default]
+\stoptyping
+
+\section{Combined Usage}
+
+Multiple modes can be combined:
+
+\starttyping
+\usemodule[memos][mode={print,moresize}]
+\stoptyping
+
+\chapter{Chinese Numeral Extension (zhnumber)}
+
+\section{Introduction}
+
+The zhnumber module provides comprehensive Chinese numeral conversion functionality, supporting integer, decimal, and fraction conversions, as well as date/time and Ganzhi (sexagenary cycle) representations.
+
+\section{Loading the Module}
+
+\starttyping
+\usemodule[memos]
+% zhnumber functionality is integrated in memos module
+\stoptyping
+
+\section{Integer Conversion}
+
+Use the \type{\zhnumber} command to convert Arabic numerals to Chinese numerals:
+
+\starttabulate[|l|l|]
+\HL
+\NC Input \NC Output \NC\NR
+\HL
+\NC \type{\zhnumber{0}} \NC \zhnumber{0} \NC\NR
+\NC \type{\zhnumber{1}} \NC \zhnumber{1} \NC\NR
+\NC \type{\zhnumber{10}} \NC \zhnumber{10} \NC\NR
+\NC \type{\zhnumber{21}} \NC \zhnumber{21} \NC\NR
+\NC \type{\zhnumber{100}} \NC \zhnumber{100} \NC\NR
+\NC \type{\zhnumber{101}} \NC \zhnumber{101} \NC\NR
+\NC \type{\zhnumber{12345}} \NC \zhnumber{12345} \NC\NR
+\NC \type{\zhnumber{100000000}} \NC \zhnumber{100000000} \NC\NR
+\NC \type{\zhnumber{-123}} \NC \zhnumber{-123} \NC\NR
+\HL
+\stoptabulate
+
+\section{Decimal Conversion}
+
+\starttabulate[|l|l|]
+\HL
+\NC Input \NC Output \NC\NR
+\HL
+\NC \type{\zhnumber{0.123}} \NC \zhnumber{0.123} \NC\NR
+\NC \type{\zhnumber{123.45}} \NC \zhnumber{123.45} \NC\NR
+\NC \type{\zhnumber{3.14159}} \NC \zhnumber{3.14159} \NC\NR
+\HL
+\stoptabulate
+
+\section{Fraction Conversion}
+
+\starttabulate[|l|l|]
+\HL
+\NC Input \NC Output \NC\NR
+\HL
+\NC \type{\zhnumber{1/2}} \NC \zhnumber{1/2} \NC\NR
+\NC \type{\zhnumber{1/3}} \NC \zhnumber{1/3} \NC\NR
+\NC \type{\zhnumber{3/4}} \NC \zhnumber{3/4} \NC\NR
+\HL
+\stoptabulate
+
+\section{Date and Time}
+
+\subsection{Date Conversion}
+
+\starttabulate[|l|l|]
+\HL
+\NC Command \NC Output \NC\NR
+\HL
+\NC \type{\zhdate{2024/1/1}} \NC \zhdate{2024/1/1} \NC\NR
+\NC \type{\zhdate{2024/12/31}} \NC \zhdate{2024/12/31} \NC\NR
+\NC \type{\zhtoday} \NC \zhtoday \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Time Conversion}
+
+\starttabulate[|l|l|]
+\HL
+\NC Command \NC Output \NC\NR
+\HL
+\NC \type{\zhtime{0:00}} \NC \zhtime{0:00} \NC\NR
+\NC \type{\zhtime{14:30}} \NC \zhtime{14:30} \NC\NR
+\NC \type{\zhcurrtime} \NC \zhcurrtime \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Weekday Conversion}
+
+\starttabulate[|l|l|]
+\HL
+\NC Command \NC Output \NC\NR
+\HL
+\NC \type{\zhweekday{2024/1/1}} \NC \zhweekday{2024/1/1} \NC\NR
+\HL
+\stoptabulate
+
+\section{Heavenly Stems and Earthly Branches}
+
+\subsection{Heavenly Stems}
+
+\starttabulate[|l|l|]
+\HL
+\NC Command \NC Output \NC\NR
+\HL
+\NC \type{\zhtiangan{1}} \NC \zhtiangan{1} \NC\NR
+\NC \type{\zhtiangan{2}} \NC \zhtiangan{2} \NC\NR
+\NC \type{\zhtiangan{10}} \NC \zhtiangan{10} \NC\NR
+\HL
+\stoptabulate
+
+Complete Heavenly Stems: \dorecurse{10}{\zhtiangan{#1}\ifnum#1<10, \fi}
+
+\subsection{Earthly Branches}
+
+\starttabulate[|l|l|]
+\HL
+\NC Command \NC Output \NC\NR
+\HL
+\NC \type{\zhdizhi{1}} \NC \zhdizhi{1} \NC\NR
+\NC \type{\zhdizhi{2}} \NC \zhdizhi{2} \NC\NR
+\NC \type{\zhdizhi{12}} \NC \zhdizhi{12} \NC\NR
+\HL
+\stoptabulate
+
+Complete Earthly Branches: \dorecurse{12}{\zhdizhi{#1}\ifnum#1<12, \fi}
+
+\subsection{Ganzhi Combination}
+
+\starttabulate[|l|l|]
+\HL
+\NC Command \NC Output \NC\NR
+\HL
+\NC \type{\zhganzhi{1}} \NC \zhganzhi{1} \NC\NR
+\NC \type{\zhganzhi{60}} \NC \zhganzhi{60} \NC\NR
+\NC \type{\zhganzhinian{2024}} \NC \zhganzhinian{2024} \NC\NR
+\HL
+\stoptabulate
+
+\section{Number Styles}
+
+Three number styles are supported:
+
+\starttabulate[|l|l|l|]
+\HL
+\NC Style \NC Description \NC Example \NC\NR
+\HL
+\NC normal \NC Standard Chinese numerals (default) \NC \zhnumber[normal]{12345} \NC\NR
+\NC cap \NC Capital Chinese numerals (for finance) \NC \zhnumber[cap]{12345} \NC\NR
+\NC all \NC Extended Chinese numerals (including special forms) \NC \zhnumber[all]{23} \NC\NR
+\HL
+\stoptabulate
+
+\starttyping
+\zhnumber[normal]{12345}  % 一万二千三百四十五
+\zhnumber[cap]{12345}     % 壹万贰仟叁佰肆拾伍
+\zhnumber[all]{23}        % 廿三
+\stoptyping
+
+\section{Zero Character Setting}
+
+By default, 〇 is used for zero. Can switch to 零:
+
+\starttyping
+% Use 〇 (default)
+\setupzhnumber[zero=〇]
+\zhnumber{101}  % 一百〇一
+
+% Use 零
+\setupzhnumber[zero=零]
+\zhnumber{101}  % 一百零一
+\stoptyping
+
+\section{Converters}
+
+zhnumber registers the following converters for use in \type{\convertnumber}:
+
+\starttabulate[|l|l|]
+\HL
+\NC Converter \NC Description \NC\NR
+\HL
+\NC tiangan \NC Heavenly Stems (1-10) \NC\NR
+\NC dizhi \NC Earthly Branches (1-12) \NC\NR
+\NC ganzhi \NC Ganzhi (1-60) \NC\NR
+\HL
+\stoptabulate
+
+\starttyping
+\convertnumber{tiangan}{1}  % 甲
+\convertnumber{dizhi}{1}    % 子
+\convertnumber{ganzhi}{1}   % 甲子
+\stoptyping
+
+\chapter{Chinese Index Sorting (zhindex)}
+
+\section{Introduction}
+
+The zhindex module provides Chinese index sorting functionality with three sorting methods: Pinyin, alphabetical, and stroke count.
+
+\section{Loading the Module}
+
+\starttyping
+\usemodule[memos]
+\usemodule[zhindex]
+\stoptyping
+
+\section{Sorting Methods}
+
+\starttabulate[|l|p|]
+\HL
+\NC Method \NC Description \NC\NR
+\HL
+\NC zh-pinyin \NC Sort by Pinyin pronunciation, homophones ordered by Pinyin letters \NC\NR
+\NC zh-alpha \NC Sort alphabetically, Chinese characters grouped by Pinyin initials \NC\NR
+\NC zh-stroke \NC Sort by stroke count, same strokes ordered by stroke order code \NC\NR
+\HL
+\stoptabulate
+
+\section{Usage}
+
+\subsection{Pinyin Sorting}
+
+\starttyping
+\setupregister[index][
+  n=3,
+  alternative=A,
+  language=zh-pinyin,
+]
+
+\placeindex
+\stoptyping
+
+\subsection{Alphabetical Sorting}
+
+\starttyping
+\setupregister[index][
+  n=3,
+  alternative=A,
+  language=zh-alpha,
+]
+
+\placeindex
+\stoptyping
+
+\subsection{Stroke Sorting}
+
+\starttyping
+\setupregister[index][
+  n=3,
+  alternative=A,
+  language=zh-stroke,
+]
+
+\placeindex
+\stoptyping
+
+\section{Adding Index Entries}
+
+Use \type{\index} command to add index entries:
+
+\starttyping
+\index{Beijing}
+\index{Shanghai}
+\index{Guangzhou}
+
+% With subentries
+\index{Fruits+Apple}
+\index{Fruits+Banana}
+\stoptyping
+
+\section{Data Files}
+
+The zhindex module requires the following data files:
+
+\starttabulate[|l|p|]
+\HL
+\NC File \NC Description \NC\NR
+\HL
+\NC pinyin.txt \NC Chinese character Pinyin data \NC\NR
+\NC sunwb_strokeorder.txt \NC Chinese character stroke data \NC\NR
+\HL
+\stoptabulate
+
+\section{Sorting Features}
+
+\startitemize[packed]
+\item Supports mixed Chinese-Western text sorting
+\item Numbers sorted first, letters sorted last
+\item Each category sorted by its own rules
+\item Stroke sorting supports stroke order subdivision
+\stopitemize
+
+\chapter{Best Practices}
+
+\section{Document Structure}
+
+Recommended document structure:
+
+\starttyping
+\usemodule[memos][
+  papersize=A4,
+  layout=moderate,
+  mainlanguage=hans,
+  fontsize=11pt,
+  themecolor=cyan,
+  hdrstyle=fctext,
+]
+
+\starttext
+
+\startfrontmatter
+  \makecover[cover][publisher={Publisher}]
+  \placeTOCs
+  \title{Preface}
+  Preface content...
+\stopfrontmatter
+
+\startbodymatter
+  \part{Part One}
+  \chapter{Chapter One}
+  Chapter content...
+\stopbodymatter
+
+\startbackmatter
+  \chapter{Appendix}
+  Appendix content...
+\stopbackmatter
+
+\stoptext
+\stoptyping
+
+\section{Font Selection Recommendations}
+
+\startitemize[packed]
+\item Formal documents: Use Adobe font series (adobehans/adobehant)
+\item Open source projects: Use Source font series (sourcehans/sourcehant)
+\item macOS users: Can use system fonts (sinohans/sinohant)
+\item Lightweight fonts needed: Use Source Han Sans Light (sourcehanslight)
+\stopitemize
+
+\section{Color Matching Recommendations}
+
+\startitemize[packed]
+\item Technical documents: serene (blue), creativity (cyan)
+\item Literary works: formality (black), innocence (white)
+\item Educational materials: harmony (green), optimism (yellow)
+\item Business documents: reliable (gray), formality (black)
+\item Creative design: adventure (orange), magic (purple), romance (pink)
+\item Emphasis: passion (red)
+\stopitemize
+
+\section{Layout Selection Recommendations}
+
+\startitemize[packed]
+\item General documents: moderate
+\item E-books: kindle
+\item Tablet reading: ipad
+\item Exam papers and textbooks: kaolike
+\stopitemize
+
+\chapter{Troubleshooting}
+
+\section{Common Issues}
+
+\subsection{Font Not Found}
+
+Ensure the corresponding font is installed, or switch to an installed font set.
+
+\subsection{Page Layout Abnormal}
+
+Check if \type{textcount}, \type{heightcount}, \type{margincount} parameters are reasonable.
+
+\subsection{Color Display Incorrect}
+
+Ensure \type{themecolor} parameter value is in the preset color list, or use \type{\setuppalet} to switch palettes.
+
+\subsection{Table of Contents Not Displayed}
+
+Check if \type{\placeTOCs} or \type{\placecontent} command is used.
+
+\subsection{Cover Display Abnormal}
+
+Check if cover parameters are set correctly, especially required parameters like \type{book}, \type{author}, \type{publisher}.
+
+\section{Debugging Tips}
+
+\starttyping
+% Enable draft mode
+\usemodule[memos][mode=draft]
+
+% Show page frame
+\showframe
+
+% Show grid
+\showgrid
+\stoptyping
+
+\stopbodymatter
+
+\startappendices
+
+\chapter{Complete Example}
+
+\startbuffer[complete-example]
+\usemodule[memos][
+  papersize=A4,
+  layout=moderate,
+  mainlanguage=hans,
+  fontsize=11pt,
+  themecolor=blue,
+  hdrstyle=book,
+  mode=moresize,
+]
+
+\starttext
+
+\startfrontmatter
+  \makecover[cover][publisher={Sample Publisher}]
+  \placeTOCs
+\stopfrontmatter
+
+\startbodymatter
+  \part{Part One: Basics}
+  
+  \chapter{Introduction}
+  
+  \section{Background}
+  This is background introduction\footnote{This is a footnote}.
+  
+  \section{Objective}
+  This is objective explanation\sidenote{This is a sidenote}.
+  
+  \startplacefigure[title=Sample Image]
+    \externalfigure[][width=\textwidth,height=3\baselineskip]
+  \stopplacefigure
+  
+  \startDualHeaderText[number=1,title=Important Note]
+    This is a DualHeader card example.
+    Can be used to highlight important content.
+  \stopDualHeaderText
+  
+  \starttextbackground[MetroCard]
+    This is a Metro style card.
+  \stoptextbackground
+  
+  \startverbatim
+  function example() {
+    return "Hello, World!";
+  }
+  \stopverbatim
+  
+\stopbodymatter
+
+\startbackmatter
+  \chapter{Appendix}
+  Appendix content.
+\stopbackmatter
+
+\stoptext
+\stopbuffer
+
+\typebuffer[complete-example]
+
+\stopappendices
+
+\stoptext
