@@ -4,6 +4,8 @@ ConTeXt 中文排版工具集，包含试卷生成、文档排版和样式定制
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Soanguy/t-basicexam)
 
+[![zread](https://img.shields.io/badge/Ask_Zread-_.svg)](https://zread.ai/Soanguy/t-basicexam)
+
 > **English Version**: [README.md](../../README.md)
 
 ---
@@ -14,7 +16,7 @@ ConTeXt 中文排版工具集，包含试卷生成、文档排版和样式定制
 |------|------|------|
 | **t-basicexam** | 试卷生成 | 选择题、填空题、材料题、问答题、完形填空等 |
 | **t-memos** | 文档排版 | 多主题、多样式的文档排版解决方案，含 zhnumber 和 zhindex |
-| **s-poriginal** | 样式模块 | 自定义章节样式，需配合 visualcounter 使用 |
+| **s-poriginal** | 样式模块 | 类似 PowerPoint 的演示文稿样式，需配合 visualcounter 使用 |
 
 ---
 
@@ -237,7 +239,7 @@ ConTeXt 中文排版工具集，包含试卷生成、文档排版和样式定制
 
 ## s-poriginal - 样式模块
 
-提供自定义章节样式支持，需要配合 `visualcounter` 模块使用。
+提供类似 PowerPoint 的演示文稿样式支持，需要配合 `visualcounter` 模块使用。
 
 ### 安装 visualcounter 依赖
 

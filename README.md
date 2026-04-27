@@ -2,6 +2,12 @@
 
 A ConTeXt Chinese typesetting toolkit featuring three core modules: exam generation, document layout, and style customization.
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Soanguy/t-basicexam)
+
+[![zread](https://img.shields.io/badge/Ask_Zread-_.svg)](https://zread.ai/Soanguy/t-basicexam)
+
+> **Chinese Version**: [README_CN.md](doc/context/third/basicexam/README_CN.md)
+
 ---
 
 ## Modules Overview
@@ -10,7 +16,7 @@ A ConTeXt Chinese typesetting toolkit featuring three core modules: exam generat
 |--------|------|-------------|
 | **t-basicexam** | Exam Generation | Multiple choice, fill-in-the-blank, reading comprehension, essay questions, cloze tests, etc. |
 | **t-memos** | Document Layout | Multi-theme, multi-style document formatting solution with zhnumber and zhindex |
-| **s-poriginal** | Style Module | Custom chapter styles requiring visualcounter module |
+| **s-poriginal** | Style Module | Custom slide-like presentation styles similar to PowerPoint requiring visualcounter module |
 
 ---
 
@@ -140,7 +146,7 @@ Includes `zhnumber` (Chinese numerals) and `zhindex` (Chinese index) functionali
 
 ## s-poriginal - Style Module
 
-Provides custom chapter styles. Requires the `visualcounter` module.
+Provides custom slide-like presentation styles similar to PowerPoint. Requires the `visualcounter` module.
 
 ### Install visualcounter Dependency
 
