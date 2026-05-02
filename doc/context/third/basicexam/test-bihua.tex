@@ -1,0 +1,403 @@
+\usemodule[memos][extra=all]
+
+\starttext
+
+\title{参数说明}
+
+\subject{命令格式}
+
+\starttyping
+\bihuashow[样式名][参数]{字符}{笔画序号}
+\bihuashowall[样式名][参数]{字符}
+\definebihua[样式名][参数]
+\definebihua[新样式名][已有样式名]
+\setupbihua[样式名][参数]
+\stoptyping
+
+\subject{边框参数}
+
+\starttabulate[|l|l|l|]
+\HL
+\NC \bf 参数 \NC \bf 说明 \NC \bf 默认值 \NC\NR
+\HL
+\NC frame \NC 边框类型 \NC outer \NC\NR
+\NC \NC \bf 可选值: outer, tian, outertian, mi, outermi, x, outerx, none \NC \NC\NR
+\HL
+\NC framestroke \NC 边框线条颜色 \NC black \NC\NR
+\NC framefill \NC 边框填充颜色 \NC (无) \NC\NR
+\NC framelinewidth \NC 边框线条宽度 \NC 0.5pt \NC\NR
+\NC framedashpattern \NC 边框虚线样式 \NC solid \NC\NR
+\NC \NC \bf 可选值: solid, dashed, dotted \NC \NC\NR
+\HL
+\NC iframestroke \NC 内部边框线条颜色 \NC 0.5white \NC\NR
+\NC iframelinewidth \NC 内部边框线条宽度 \NC 0.3pt \NC\NR
+\NC iframedashpattern \NC 内部边框虚线样式 \NC dashed \NC\NR
+\HL
+\stoptabulate
+
+\subject{字符参数}
+
+\starttabulate[|l|l|l|]
+\HL
+\NC \bf 参数 \NC \bf 说明 \NC \bf 默认值 \NC\NR
+\HL
+\NC charstroke \NC 字符线条颜色 \NC black \NC\NR
+\NC charfill \NC 字符填充颜色 \NC black \NC\NR
+\NC charlinewidth \NC 字符线条宽度 \NC 0.3pt \NC\NR
+\NC chardashpattern \NC 字符虚线样式 \NC solid \NC\NR
+\HL
+\NC laststroke \NC 最后一笔线条颜色 \NC red \NC\NR
+\NC lastfill \NC 最后一笔填充颜色 \NC red \NC\NR
+\NC lastlinewidth \NC 最后一笔线条宽度 \NC 0.3pt \NC\NR
+\NC lastdashpattern \NC 最后一笔虚线样式 \NC solid \NC\NR
+\HL
+\stoptabulate
+
+\subject{布局参数}
+
+\starttabulate[|l|l|l|]
+\HL
+\NC \bf 参数 \NC \bf 说明 \NC \bf 默认值 \NC\NR
+\HL
+\NC width \NC 绘图宽度 \NC 1cm \NC\NR
+\NC natural \NC 自然模式（无边框） \NC no \NC\NR
+\NC \NC \bf 可选值: yes, no \NC \NC\NR
+\HL
+\NC inner \NC 内边距（四边相同） \NC 0pt \NC\NR
+\NC innert \NC 上内边距 \NC 0pt \NC\NR
+\NC innerb \NC 下内边距 \NC 0pt \NC\NR
+\NC innerl \NC 左内边距 \NC 0pt \NC\NR
+\NC innerr \NC 右内边距 \NC 0pt \NC\NR
+\HL
+\NC spacing \NC 字符间距（仅 \type{\bihuashowall}） \NC 0em \NC\NR
+\HL
+\stoptabulate
+
+\subject{边框类型说明}
+
+\starttabulate[|l|l|]
+\HL
+\NC \bf 类型 \NC \bf 说明 \NC\NR
+\HL
+\NC outer \NC 只有外框 \NC\NR
+\NC tian \NC 只有田字格（十字线） \NC\NR
+\NC outertian \NC 外框 + 田字格 \NC\NR
+\NC mi \NC 只有米字格（十字+对角线） \NC\NR
+\NC outermi \NC 外框 + 米字格 \NC\NR
+\NC x \NC 只有对角线 \NC\NR
+\NC outerx \NC 外框 + 对角线 \NC\NR
+\NC none \NC 无边框 \NC\NR
+\HL
+\stoptabulate
+
+\page
+
+\title{功能测试}
+
+\bihuaload{好学习}
+
+\subject{1. 边框类型测试}
+
+\subsubject{1.1 基本边框类型}
+\startcolumns[n=4]
+\midaligned{outer}
+\midaligned{\bihuashow[width=1.5cm,frame=outer]{好}{3}}
+
+\midaligned{tian}
+\midaligned{\bihuashow[width=1.5cm,frame=tian]{好}{3}}
+
+\midaligned{mi}
+\midaligned{\bihuashow[width=1.5cm,frame=mi]{好}{3}}
+
+\midaligned{x}
+\midaligned{\bihuashow[width=1.5cm,frame=x]{好}{3}}
+\stopcolumns
+
+\subsubject{1.2 组合边框类型}
+\startcolumns[n=3]
+\midaligned{outertian}
+\midaligned{\bihuashow[width=1.5cm,frame=outertian]{好}{3}}
+
+\midaligned{outermi}
+\midaligned{\bihuashow[width=1.5cm,frame=outermi]{好}{3}}
+
+\midaligned{outerx}
+\midaligned{\bihuashow[width=1.5cm,frame=outerx]{好}{3}}
+\stopcolumns
+
+\subsubject{1.3 无边框模式}
+\startcolumns[n=3]
+\midaligned{frame=none}
+\midaligned{\bihuashow[width=1.5cm,frame=none]{好}{3}}
+
+\midaligned{natural=yes}
+\midaligned{\bihuashow[width=1.5cm,natural=yes]{好}{3}}
+
+\midaligned{对比}
+\midaligned{\bihuashow[width=1.5cm,frame=outer]{好}{3}}
+\stopcolumns
+
+\subject{2. 边框样式测试}
+
+\subsubject{2.1 边框线宽}
+\startcolumns[n=3]
+\midaligned{细 (0.1pt)}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,framelinewidth=0.1pt]{好}{3}}
+
+\midaligned{默认 (0.5pt)}
+\midaligned{\bihuashow[width=1.5cm,frame=outer]{好}{3}}
+
+\midaligned{粗 (3pt)}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,framelinewidth=3pt]{好}{3}}
+\stopcolumns
+
+\subsubject{2.2 边框颜色}
+\startcolumns[n=3]
+\midaligned{黑色 (默认)}
+\midaligned{\bihuashow[width=1.5cm,frame=outer]{好}{3}}
+
+\midaligned{红色}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,framestroke=red]{好}{3}}
+
+\midaligned{蓝色}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,framestroke=blue]{好}{3}}
+\stopcolumns
+
+\subsubject{2.3 边框填充}
+\startcolumns[n=3]
+\midaligned{无填充}
+\midaligned{\bihuashow[width=1.5cm,frame=outer]{好}{3}}
+
+\midaligned{黄色}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,framefill=yellow]{好}{3}}
+
+\midaligned{浅灰}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,framefill=0.9white]{好}{3}}
+\stopcolumns
+
+\subsubject{2.4 边框虚线}
+\startcolumns[n=3]
+\midaligned{实线}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,framedashpattern=solid]{好}{3}}
+
+\midaligned{虚线}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,framedashpattern=dashed]{好}{3}}
+
+\midaligned{点线}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,framedashpattern=dotted]{好}{3}}
+\stopcolumns
+
+\subject{3. 内部边框样式测试}
+
+\subsubject{3.1 内部边框线宽}
+\startcolumns[n=3]
+\midaligned{细 (0.1pt)}
+\midaligned{\bihuashow[width=1.5cm,frame=tian,iframelinewidth=0.1pt]{好}{3}}
+
+\midaligned{默认 (0.3pt)}
+\midaligned{\bihuashow[width=1.5cm,frame=tian]{好}{3}}
+
+\midaligned{粗 (1pt)}
+\midaligned{\bihuashow[width=1.5cm,frame=tian,iframelinewidth=1pt]{好}{3}}
+\stopcolumns
+
+\subsubject{3.2 内部边框颜色}
+\startcolumns[n=3]
+\midaligned{默认}
+\midaligned{\bihuashow[width=1.5cm,frame=tian]{好}{3}}
+
+\midaligned{红色}
+\midaligned{\bihuashow[width=1.5cm,frame=tian,iframestroke=red]{好}{3}}
+
+\midaligned{蓝色}
+\midaligned{\bihuashow[width=1.5cm,frame=tian,iframestroke=blue]{好}{3}}
+\stopcolumns
+
+\subsubject{3.3 内部边框虚线}
+\startcolumns[n=3]
+\midaligned{实线}
+\midaligned{\bihuashow[width=1.5cm,frame=tian,iframedashpattern=solid]{好}{3}}
+
+\midaligned{虚线}
+\midaligned{\bihuashow[width=1.5cm,frame=tian,iframedashpattern=dashed]{好}{3}}
+
+\midaligned{点线}
+\midaligned{\bihuashow[width=1.5cm,frame=tian,iframedashpattern=dotted]{好}{3}}
+\stopcolumns
+
+\subject{4. 字符样式测试}
+
+\subsubject{4.1 字符线宽}
+\startcolumns[n=3]
+\midaligned{细 (0.05pt)}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,charlinewidth=0.05pt]{好}{3}}
+
+\midaligned{默认 (0.3pt)}
+\midaligned{\bihuashow[width=1.5cm,frame=outer]{好}{3}}
+
+\midaligned{粗 (2pt)}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,charlinewidth=2pt]{好}{3}}
+\stopcolumns
+
+\subsubject{4.2 字符颜色}
+\startcolumns[n=3]
+\midaligned{黑色 (默认)}
+\midaligned{\bihuashow[width=1.5cm,frame=outer]{好}{3}}
+
+\midaligned{红色填充}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,charfill=red]{好}{3}}
+
+\midaligned{蓝色线条}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,charstroke=blue,charfill=0.3white]{好}{3}}
+\stopcolumns
+
+\subsubject{4.3 字符虚线}
+\startcolumns[n=3]
+\midaligned{实线}
+\midaligned{\bihuashow[width=1.5cm,frame=none,chardashpattern=solid]{好}{3}}
+
+\midaligned{虚线}
+\midaligned{\bihuashow[width=1.5cm,frame=none,chardashpattern=dashed]{好}{3}}
+
+\midaligned{点线}
+\midaligned{\bihuashow[width=1.5cm,frame=none,chardashpattern=dotted]{好}{3}}
+\stopcolumns
+
+\subject{5. 最后一笔样式测试}
+
+\subsubject{5.1 最后一笔线宽}
+\startcolumns[n=3]
+\midaligned{细 (0.05pt)}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,lastlinewidth=0.05pt]{好}{3}}
+
+\midaligned{默认 (0.3pt)}
+\midaligned{\bihuashow[width=1.5cm,frame=outer]{好}{3}}
+
+\midaligned{粗 (3pt)}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,lastlinewidth=3pt]{好}{3}}
+\stopcolumns
+
+\subsubject{5.2 最后一笔颜色}
+\startcolumns[n=3]
+\midaligned{红色 (默认)}
+\midaligned{\bihuashow[width=1.5cm,frame=outer]{好}{3}}
+
+\midaligned{蓝色}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,laststroke=blue,lastfill=blue]{好}{3}}
+
+\midaligned{绿色}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,laststroke=green,lastfill=green]{好}{3}}
+\stopcolumns
+
+\subsubject{5.3 最后一笔虚线}
+\startcolumns[n=3]
+\midaligned{实线}
+\midaligned{\bihuashow[width=1.5cm,frame=none,lastdashpattern=solid]{好}{3}}
+
+\midaligned{虚线}
+\midaligned{\bihuashow[width=1.5cm,frame=none,lastdashpattern=dashed]{好}{3}}
+
+\midaligned{点线}
+\midaligned{\bihuashow[width=1.5cm,frame=none,lastdashpattern=dotted]{好}{3}}
+\stopcolumns
+
+\subject{6. 布局参数测试}
+
+\subsubject{6.1 绘图宽度}
+\startcolumns[n=3]
+\midaligned{1cm}
+\midaligned{\bihuashow[width=1cm,frame=outer]{好}{3}}
+
+\midaligned{2cm}
+\midaligned{\bihuashow[width=2cm,frame=outer]{好}{3}}
+
+\midaligned{3cm}
+\midaligned{\bihuashow[width=3cm,frame=outer]{好}{3}}
+\stopcolumns
+
+\subsubject{6.2 统一内边距}
+\startcolumns[n=3]
+\midaligned{inner=0pt}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,inner=0pt]{好}{3}}
+
+\midaligned{inner=10pt}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,inner=10pt]{好}{3}}
+
+\midaligned{inner=20pt}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,inner=20pt]{好}{3}}
+\stopcolumns
+
+\subsubject{6.3 分别设置内边距}
+\startcolumns[n=2]
+\midaligned{上边距 15pt}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,innert=15pt]{好}{3}}
+
+\midaligned{左边距 15pt}
+\midaligned{\bihuashow[width=1.5cm,frame=outer,innerl=15pt]{好}{3}}
+\stopcolumns
+
+\subsubject{6.4 字符间距 (spacing)}
+\startcolumns[n=3]
+\midaligned{spacing=0cm}
+\midaligned{\bihuashowall[width=1cm,spacing=0cm]{好}}
+
+\midaligned{spacing=0.5cm}
+\midaligned{\bihuashowall[width=1cm,spacing=0.5cm]{好}}
+
+\midaligned{spacing=1cm}
+\midaligned{\bihuashowall[width=1cm,spacing=1cm]{好}}
+\stopcolumns
+
+\subject{7. 样式定义测试}
+
+\subsubject{7.1 定义样式}
+\definebihua[redstyle][bihua][frame=outer,framestroke=red,charfill=red,laststroke=blue,lastfill=blue]
+\definebihua[bluestyle][bihua][frame=outertian,framestroke=blue,iframestroke=0.5blue,charstroke=blue,charfill=blue]
+
+\startcolumns[n=3]
+\midaligned{默认样式}
+\midaligned{\bihuashow[width=1.5cm]{好}{3}}
+
+\midaligned{redstyle}
+\midaligned{\bihuashow[redstyle][width=1.5cm]{好}{3}}
+
+\midaligned{bluestyle}
+\midaligned{\bihuashow[bluestyle][width=1.5cm]{好}{3}}
+\stopcolumns
+
+\subsubject{7.2 样式覆盖}
+\startcolumns[n=2]
+\midaligned{redstyle 原始}
+\midaligned{\bihuashow[redstyle][width=1.5cm]{好}{3}}
+
+\midaligned{redstyle + 绿色填充}
+\midaligned{\bihuashow[redstyle][width=1.5cm,charfill=green]{好}{3}}
+\stopcolumns
+
+\subject{8. 多字符测试}
+
+\subsubject{8.1 不同字符}
+
+\midaligned{好 (6笔)}
+\midaligned{\bihuashowall[width=1cm,spacing=0.3cm,frame=outertian]{好}}
+
+\midaligned{学 (8笔)}
+\midaligned{\bihuashowall[width=1cm,spacing=0.3cm,frame=outertian]{学}}
+
+\midaligned{习 (3笔)}
+\midaligned{\bihuashowall[width=1cm,spacing=0.3cm,frame=outertian]{习}}
+
+
+\subsubject{8.2 笔画进度}
+\startcolumns[n=3]
+\midaligned{好 第1笔}
+\midaligned{\bihuashow[width=1.5cm,frame=outertian]{好}{1}}
+
+\midaligned{好 第3笔}
+\midaligned{\bihuashow[width=1.5cm,frame=outertian]{好}{3}}
+
+\midaligned{好 第6笔}
+\midaligned{\bihuashow[width=1.5cm,frame=outertian]{好}{6}}
+\stopcolumns
+
+\stoptext

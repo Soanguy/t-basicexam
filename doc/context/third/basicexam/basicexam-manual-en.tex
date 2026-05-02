@@ -214,7 +214,7 @@ First use \type{\definepapertitle} to define title style, then use \type{\setupp
 
 The \type{list} parameter controls which elements are displayed in the title and their order. Default list: \type{secret,title,subject,information,signinformation,notice}.
 
-\starttabulate[|l|p|]
+\starttabulate[|l|p(8cm)|]
 \HL
 \NC Element \NC Description \NC\NR
 \HL
@@ -372,7 +372,7 @@ Control the number of display columns through optional parameters:
 \startbuffer
 \startquestion
   Options displayed in 8 columns.
-  \startchoice[8]
+  \startchoice[n=8]
     \startcitem A \stopcitem
     \startcitem B \stopcitem
     \startcitem C \stopcitem
@@ -385,7 +385,7 @@ Control the number of display columns through optional parameters:
 \stopquestion
 
 \question{Options displayed in 8 columns.
-  \choice[8]{A,B,C,D,E,F,G,H}
+  \choice[n=8]{A,B,C,D,E,F,G,H}
 }
 \stopbuffer
 
@@ -1265,7 +1265,7 @@ The module provides various dictionary enumeration environments for structured d
 
 Dictionary entries support various association commands for marking relationships between entries:
 
-\starttabulate[|l|p|]
+\starttabulate[|l|p(8cm)|]
 \HL
 \NC Command \NC Description \NC\NR
 \HL
@@ -1313,18 +1313,18 @@ Answer data is automatically saved to .tuc file and can be accessed during secon
 The basicexam module uses an answer tree structure to manage all question answers and score information.
 Each question node contains the following attributes:
 
-\starttabulate[|l|p|]
+\starttabulate[|l|p(6cm)|l|]
 \HL
-\NC Attribute \NC Description \NC\NR
+\NC Attribute \NC Description \NC Retrieval Method \NC\NR
 \HL
-\NC id \NC Node unique identifier (e.g., \type{jobname-1-Q-1}) \NC\NR
-\NC order \NC Level order (e.g., \type{1}, \type{2-1}, \type{2-2-1}) \NC\NR
-\NC answer \NC Answer content \NC\NR
-\NC point \NC Current node score (valid for leaf nodes) \NC\NR
-\NC totalpoint \NC Total score of this node and child nodes \NC\NR
-\NC totalnumber \NC Total count of this node and child nodes \NC\NR
-\NC is_leaf \NC Whether it is a leaf node \NC\NR
-\NC depth \NC Node depth (0=root node) \NC\NR
+\NC id \NC Node unique identifier (e.g., \type{jobname-1-Q-1}) \NC \type{\UnlimitedCurrentID} \NC\NR
+\NC order \NC Level order (e.g., \type{1}, \type{2-1}, \type{2-2-1}) \NC \type{\UnlimitedGetOrder{ID}} \NC\NR
+\NC answer \NC Answer content \NC \type{\UnlimitedDisplayAnswer{ID}} \NC\NR
+\NC point \NC Current node score (valid for leaf nodes) \NC \type{\UnlimitedDisplayPoint{ID}} \NC\NR
+\NC totalpoint \NC Total score of this node and child nodes \NC \type{\UnlimitedTotalPoint{ID}} \NC\NR
+\NC totalnumber \NC Total count of this node and child nodes \NC \type{\UnlimitedTotalNumber{ID}} \NC\NR
+\NC is_leaf \NC Whether it is a leaf node \NC \type{\UnlimitedIsLeaf{ID}} \NC\NR
+\NC depth \NC Node depth (0=root node) \NC \type{\UnlimitedGetDepth} \NC\NR
 \HL
 \stoptabulate
 
@@ -1332,7 +1332,7 @@ Each question node contains the following attributes:
 
 \subsection{Current Node Information}
 
-\starttabulate[|l|p|]
+\starttabulate[|l|p(8cm)|]
 \HL
 \NC Command \NC Description \NC\NR
 \HL
@@ -1345,20 +1345,164 @@ Each question node contains the following attributes:
 
 \subsection{Specified Node Information}
 
-Use \type{\UnlimitedGetAnswer} to get attributes of specified nodes:
+Use the following commands to get attributes of specified nodes:
+
+\startitemize[packed]
+\item \type{\UnlimitedDisplayPoint{ID}} - Get node score
+\item \type{\UnlimitedDisplayAnswer{ID}} - Get node answer
+\item \type{\UnlimitedTotalPoint{ID}} - Get node total score (including sub-questions)
+\item \type{\UnlimitedTotalNumber{ID}} - Get node total count (including sub-questions)
+\item \type{\UnlimitedGetOrder{ID}} - Get node level order
+\item \type{\UnlimitedIsLeaf{ID}} - Check if it is a leaf node
+\stopitemize
 
 \startbuffer
 % Get score of question 1
-\UnlimitedGetAnswer{jobname-1-Q-1}{point}
+\UnlimitedDisplayPoint{jobname-1-Q-1}
 
 % Get answer of question 1
-\UnlimitedGetAnswer{jobname-1-Q-1}{answer}
+\UnlimitedDisplayAnswer{jobname-1-Q-1}
 
 % Get total score of question 1 (including sub-questions)
-\UnlimitedGetAnswer{jobname-1-Q-1}{totalpoint}
+\UnlimitedTotalPoint{jobname-1-Q-1}
 
 % Get total count of question 1 (including sub-questions)
-\UnlimitedGetAnswer{jobname-1-Q-1}{totalnumber}
+\UnlimitedTotalNumber{jobname-1-Q-1}
+\stopbuffer
+
+\typebuffer
+
+\section{Structure Level Statistics}
+
+The module provides statistics by chapter/section level, allowing you to get question counts and scores for specified levels:
+
+\starttabulate[|l|p(8cm)|]
+\HL
+\NC Command \NC Description \NC\NR
+\HL
+\NC \type{\UnlimitedStructureTotalNumber{level}{number}} \NC Top-level question count for specified level (major questions) \NC\NR
+\NC \type{\UnlimitedStructureTotalPoint{level}{number}} \NC Total points for specified level \NC\NR
+\NC \type{\UnlimitedStructureLeafNumber{level}{number}} \NC Top-level leaf node count for specified level (independent major questions) \NC\NR
+\NC \type{\UnlimitedStructureAllLeafNumber{level}{number}} \NC All leaf node count for specified level (actual sub-questions) \NC\NR
+\NC \type{\UnlimitedCurrentStructureTotalNumber{level}} \NC Top-level question count for current level \NC\NR
+\NC \type{\UnlimitedCurrentStructureTotalPoint{level}} \NC Total points for current level \NC\NR
+\NC \type{\UnlimitedCurrentStructureLeafNumber{level}} \NC Top-level leaf node count for current level \NC\NR
+\NC \type{\UnlimitedCurrentStructureAllLeafNumber{level}} \NC All leaf node count for current level \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Parameter Description}
+
+\startitemize[packed]
+\item \type{level}: Level number, 1=chapter, 2=section, 3=subsection...
+\item \type{number}: The number of that level (e.g., chapter 1, chapter 2)
+\stopitemize
+
+{\bf Important}: When using \type{\UnlimitedCurrentStructure*} commands, they must be called within the corresponding chapter/section structure, otherwise they will return 0.
+
+\subsection{Statistics Concepts}
+
+\startitemize[packed]
+\item {\bf Major questions}: Top-level questions directly under chapters/sections, not contained within other questions
+\item {\bf Independent major questions}: Top-level questions without sub-questions, i.e., standalone major questions
+\item {\bf All sub-questions}: All actual questions that need to be answered, including nested sub-questions
+\stopitemize
+
+\subsection{Statistics Example}
+
+Assume Chapter 1 has the following question structure:
+
+\startbuffer
+Chapter 1
+├── Question 1 (has sub-questions)
+│   ├── Sub-question 1.1
+│   └── Sub-question 1.2
+├── Question 2 (standalone question)
+└── Question 3 (has sub-questions)
+    ├── Sub-question 3.1
+    ├── Sub-question 3.2
+    └── Sub-question 3.3
+\stopbuffer
+
+\typebuffer
+
+Statistics results:
+\startitemize[packed]
+\item Major questions: 3 (Question 1, Question 2, Question 3)
+\item Independent major questions: 1 (only Question 2 is standalone)
+\item All sub-questions: 6 (Sub-question 1.1, 1.2, Question 2, Sub-question 3.1, 3.2, 3.3)
+\stopitemize
+
+\section{Question Level Statistics}
+
+In addition to chapter-level statistics, the module also provides question-level hierarchy statistics:
+
+\starttabulate[|l|p(8cm)|]
+\HL
+\NC Command \NC Description \NC\NR
+\HL
+\NC \type{\UnlimitedQuestionLevelNumber{ID}{depth}} \NC Get the number of sub-questions at a specific level for a question \NC\NR
+\NC \type{\UnlimitedQuestionLeafNumber{ID}} \NC Get the total leaf node count for a question (sub-questions) \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Parameter Description}
+
+\startitemize[packed]
+\item \type{ID}: Question node ID (e.g., \type{jobname-1-Q-1})
+\item \type{depth}: Relative depth level (1=first level sub-questions, 2=second level sub-questions...)
+\stopitemize
+
+\section{Extra Data}
+
+Additional node information can be set through \type{\UnlimitedSetExtraData{key}{value}}, which can be retrieved via \type{\UnlimitedGetCurrentExtraData{key}}.
+
+Common extra data includes:
+
+\starttabulate[|l|p(8cm)|]
+\HL
+\NC Key \NC Description \NC\NR
+\HL
+\NC totalitemnumber \NC Number of options in choice environment \NC\NR
+\NC availablecolumns \NC Available columns \NC\NR
+\NC itemmaxwidth \NC Maximum width of options \NC\NR
+\HL
+\stoptabulate
+
+\section{Usage Examples}
+
+\subsection{Getting Chapter Statistics}
+
+\startbuffer
+% Get statistics for chapter 1
+Chapter 1 question count: \UnlimitedStructureTotalNumber{1}{1}
+Chapter 1 total score: \UnlimitedStructureTotalPoint{1}{1}
+Chapter 1 leaf node count: \UnlimitedStructureLeafNumber{1}{1}
+\stopbuffer
+
+\typebuffer
+
+\subsection{Getting Question Information}
+
+\startbuffer
+% Get information for a specific question
+Question 1 score: \UnlimitedGetAnswer{jobname-1-Q-1}{point}
+Question 1 answer: \UnlimitedGetAnswer{jobname-1-Q-1}{answer}
+Question 1 total score: \UnlimitedGetAnswer{jobname-1-Q-1}{totalpoint}
+Question 1 total count: \UnlimitedGetAnswer{jobname-1-Q-1}{totalnumber}
+\stopbuffer
+
+\typebuffer
+
+\subsection{Getting Information Inside Questions}
+
+\startbuffer
+\question[point=5,answer=A]{Question
+  Current ID: \UnlimitedCurrentID
+  Current depth: \UnlimitedGetDepth
+  Current answer: \UnlimitedDisplayAnswer{\UnlimitedCurrentID}
+  Current score: \UnlimitedDisplayPoint{\UnlimitedCurrentID}
+}
 \stopbuffer
 
 \typebuffer
@@ -1407,7 +1551,7 @@ This module is written in LuaMetaTeX, source code is located in \type{t-basicexa
 
 \subsection{Module Structure}
 
-\starttabulate[|l|p|]
+\starttabulate[|l|p(8cm)|]
 \HL
 \NC File \NC Description \NC\NR
 \HL

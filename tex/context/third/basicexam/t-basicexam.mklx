@@ -279,15 +279,13 @@
   local function generate_level_id()
     local parent = U.current_node
     local chapter = get_current_chapter()
-    if not parent then
+    
+    if not parent or parent.id == "root" then
       local counter = get_chapter_counter(chapter)
       return string.format("%s-Q-%d", get_id_prefix(), counter)
     end
+    
     parent.child_counter = parent.child_counter + 1
-    if parent.id == "root" then
-      local counter = get_chapter_counter(chapter)
-      return string.format("%s-Q-%d", get_id_prefix(), counter)
-    end
     return string.format("%s-%d", parent.id, parent.child_counter)
   end
 
@@ -502,20 +500,23 @@
   end
 
   --[[
-  通过ID查找节点
+  查找节点 by ID
   参数: id - 节点ID
   返回: 节点表或nil
   ]]
-  local function get_node(id)
+  function U.find_node_by_id(id)
     if not U.answer_tree then return nil end
-    local function find(node, target)
-      if node.id == target then return node end
+    
+    local function find(node)
+      if node.id == id then return node end
       for _, child in ipairs(node.children) do
-        local found = find(child, target)
+        local found = find(child)
         if found then return found end
       end
+      return nil
     end
-    return find(U.answer_tree, id)
+    
+    return find(U.answer_tree)
   end
 
   --[[
@@ -525,7 +526,7 @@
   返回: {point, answer, is_leaf, totalnumber}
   ]]
   function U.get_display(id)
-    local node = get_node(id)
+    local node = U.find_node_by_id(id)
     if not node then return {point = 0, answer = "", is_leaf = false} end
     if node.is_leaf then
       return {point = node.currentpoint, answer = node.answer, is_leaf = true}
@@ -556,46 +557,60 @@
   end
 
   --[[
+  统计节点的核心逻辑（内部函数）
+  参数:
+    node - 要统计的节点
+    stats - 统计结果表
+    prefix - 章节前缀（可选）
+  ]]
+  local function count_node_stats(node, stats, prefix)
+    if prefix and node.id and not node.id:find(prefix, 1, true) then
+      return
+    end
+    
+    if node.is_leaf then
+      stats.allleafnumber = stats.allleafnumber + 1
+    end
+    
+    if node.parent and node.parent.id == "root" then
+      stats.totalnumber = stats.totalnumber + 1
+      stats.totalpoint = stats.totalpoint + node.totalpoint
+      if node.is_leaf then
+        stats.leafnumber = stats.leafnumber + 1
+      end
+    end
+  end
+
+  --[[
   获取指定 structure level 的统计信息
   参数: 
     level - structure level (1=chapter, 2=section, etc.)
     number - 该层级的编号
-  返回: {totalnumber, totalpoint, leafnumber}
+  返回: {totalnumber, totalpoint, leafnumber, allleafnumber}
   ]]
   function U.get_structure_stats(level, number)
     local jobname = tex.jobname or "unknown"
-    local prefix
-    if level == 1 then
-      prefix = string.format("%s-%d-Q-", jobname, number)
-    else
-      prefix = string.format("%s-", jobname)
-      local sectiondata = structures.sectiondata
-      if sectiondata then
-        for _, data in ipairs(sectiondata) do
-          if data.numberdata and data.numberdata.numbers then
-            local nums = data.numberdata.numbers
-            if nums[level] == number then
-              local ref = nums[2] or nums[1]
-              prefix = string.format("%s-%d-", jobname, ref)
-              break
-            end
-          end
-        end
-      end
+    local tag = string.format("StructureStats-%s-%d", jobname, number)
+    local cached = job.datasets.getdata("UnlimitedDataset", tag)
+    
+    if cached and cached.totalnumber then
+      report("Retrieved structure stats from cache: %s -> totalnumber=%s, totalpoint=%s", 
+        tag, cached.totalnumber, cached.totalpoint)
+      return {
+        totalnumber = cached.totalnumber,
+        totalpoint = cached.totalpoint,
+        leafnumber = cached.leafnumber or 0,
+        allleafnumber = cached.allleafnumber or 0,
+      }
     end
     
-    local stats = {totalnumber = 0, totalpoint = 0, leafnumber = 0}
+    report("Calculating structure stats (no cache): level=%s, number=%s", level, number)
+    
+    local prefix = string.format("%s-%d-Q-", jobname, number)
+    local stats = {totalnumber = 0, totalpoint = 0, leafnumber = 0, allleafnumber = 0}
     
     local function count_node(node)
-      if node.id and prefix and node.id:find(prefix, 1, true) then
-        if node.parent and node.parent.id == "root" then
-          stats.totalnumber = stats.totalnumber + 1
-          stats.totalpoint = stats.totalpoint + node.totalpoint
-          if node.is_leaf then
-            stats.leafnumber = stats.leafnumber + 1
-          end
-        end
-      end
+      count_node_stats(node, stats, prefix)
       for _, child in ipairs(node.children) do count_node(child) end
     end
     
@@ -606,18 +621,23 @@
   --[[
   获取当前 structure 的统计信息
   参数: level - structure level (1=chapter, 2=section, etc.)
-  返回: {totalnumber, totalpoint, leafnumber}
+  返回: {totalnumber, totalpoint, leafnumber, allleafnumber}
   ]]
   function U.get_current_structure_stats(level)
     local sectiondata = structures.sections.current()
     if sectiondata and sectiondata.numberdata and sectiondata.numberdata.numbers then
       local numbers = sectiondata.numberdata.numbers
-      local number = numbers[level] or numbers[2] or numbers[1]
+      local number
+      if level == 1 then
+        number = numbers[2] or numbers[1]
+      else
+        number = numbers[level + 1] or numbers[level] or numbers[2]
+      end
       if number then
         return U.get_structure_stats(level, tonumber(number) or 0)
       end
     end
-    return {totalnumber = 0, totalpoint = 0, leafnumber = 0}
+    return {totalnumber = 0, totalpoint = 0, leafnumber = 0, allleafnumber = 0}
   end
 
   --[[
@@ -625,7 +645,7 @@
   参数:
     level - structure level (1=chapter, 2=section)
     number - 该层级的编号 (可选，不提供则使用当前 structure)
-    key - 要获取的属性 (totalnumber/totalpoint/leafnumber)
+    key - 要获取的属性 (totalnumber/totalpoint/leafnumber/allleafnumber)
   ]]
   function U.tex_get_structure(level, number, key)
     local stats
@@ -634,11 +654,69 @@
     else
       stats = U.get_current_structure_stats(tonumber(level) or 1)
     end
-    report("Structure stats (level=%s, number=%s): totalnumber=%s, totalpoint=%s, leafnumber=%s", 
-      level, number or "current", stats.totalnumber, stats.totalpoint, stats.leafnumber)
+    report("Structure stats (level=%s, number=%s): totalnumber=%s, totalpoint=%s, leafnumber=%s, allleafnumber=%s", 
+      level, number or "current", stats.totalnumber, stats.totalpoint, stats.leafnumber, stats.allleafnumber)
     if key == "totalnumber" then context(stats.totalnumber)
     elseif key == "totalpoint" then context(stats.totalpoint)
     elseif key == "leafnumber" then context(stats.leafnumber)
+    elseif key == "allleafnumber" then context(stats.allleafnumber)
+    end
+  end
+
+  --[[
+  获取指定题目的层级统计信息
+  参数:
+    id - 题目ID
+  返回: {levelcounts, leafnumber, totalpoint}
+    levelcounts: 表，键为层级深度，值为该层级的题目数量
+    leafnumber: 所有叶子节点数量
+    totalpoint: 总分
+  ]]
+  function U.get_question_level_stats(id)
+    local node = U.find_node_by_id(id)
+    if not node then
+      return {levelcounts = {}, leafnumber = 0, totalpoint = 0}
+    end
+    
+    local stats = {
+      levelcounts = {},
+      leafnumber = 0,
+      totalpoint = node.totalpoint or 0
+    }
+    
+    local function count_by_level(n, relative_depth)
+      if n.children and #n.children > 0 then
+        for _, child in ipairs(n.children) do
+          local depth = relative_depth + 1
+          stats.levelcounts[depth] = (stats.levelcounts[depth] or 0) + 1
+          if child.is_leaf then
+            stats.leafnumber = stats.leafnumber + 1
+          end
+          count_by_level(child, depth)
+        end
+      end
+    end
+    
+    count_by_level(node, 0)
+    return stats
+  end
+
+  --[[
+  TeX接口: 获取题目层级统计
+  参数:
+    id - 题目ID
+    key - 要获取的属性 (levelN/leafnumber/totalpoint)
+  ]]
+  function U.tex_get_question_level(id, key)
+    local stats = U.get_question_level_stats(id)
+    
+    if key:find("^level%d+$") then
+      local depth = tonumber(key:match("level(%d+)"))
+      context(stats.levelcounts[depth] or 0)
+    elseif key == "leafnumber" then
+      context(stats.leafnumber)
+    elseif key == "totalpoint" then
+      context(stats.totalpoint)
     end
   end
 
@@ -733,8 +811,51 @@
     report("Exported to %s", filename)
   end
 
+  function U.save_structure_stats()
+    if not U.answer_tree then 
+      report("No answer tree, skipping structure stats save")
+      return 
+    end
+    
+    local jobname = tex.jobname or "unknown"
+    local chapter_stats = {}
+    
+    local function collect_chapters(node)
+      local chapter_num = node.id:match("%-(%d+)%-Q%-")
+      if chapter_num then
+        chapter_num = tonumber(chapter_num)
+        if chapter_num and not chapter_stats[chapter_num] then
+          chapter_stats[chapter_num] = {totalnumber = 0, totalpoint = 0, leafnumber = 0, allleafnumber = 0}
+        end
+        count_node_stats(node, chapter_stats[chapter_num])
+      end
+      for _, child in ipairs(node.children) do collect_chapters(child) end
+    end
+    
+    collect_chapters(U.answer_tree)
+    
+    for chapter_num, stats in pairs(chapter_stats) do
+      local tag = string.format("StructureStats-%s-%d", jobname, chapter_num)
+      job.datasets.setdata {
+        name = "UnlimitedDataset",
+        tag = tag,
+        data = {
+          level = 1,
+          number = chapter_num,
+          totalnumber = stats.totalnumber,
+          totalpoint = stats.totalpoint,
+          leafnumber = stats.leafnumber,
+          allleafnumber = stats.allleafnumber,
+        }
+      }
+      report("Saved structure stats: %s -> totalnumber=%s, totalpoint=%s, allleafnumber=%s", 
+        tag, stats.totalnumber, stats.totalpoint, stats.allleafnumber)
+    end
+  end
+
   function U.finalize_check()
     U.check_unclosed()
+    U.save_structure_stats()
     if not U.check_mode then return end
     U.debug_tree()
     local tsvname = tex.jobname .. "-answers.tsv"
@@ -767,7 +888,7 @@
 \def\UnlimitedCheckUnclosed{\ctxlua{thirddata.basicexam_unlimited.check_unclosed()}}
 
 % 获取当前深度 %输出数字
-\def\UnlimitedDepth{\ctxlua{context(thirddata.basicexam_unlimited.get_depth())}}
+\def\UnlimitedGetDepth{\ctxlua{context(thirddata.basicexam_unlimited.get_depth())}}
 
 % 获取当前节点ID %输出 Q-1, Q-2-1 等
 \def\UnlimitedCurrentID{\ctxlua{context(thirddata.basicexam_unlimited.get_current_id())}}
@@ -791,7 +912,8 @@
 \def\UnlimitedGetOrder#1{\ctxlua{thirddata.basicexam_unlimited.tex_get("#1", "order")}}
 
 % 获取节点总分 (同DisplayPoint)
-\def\UnlimitedTotalPoint#1{\UnlimitedDisplayPoint{#1}}
+\let\UnlimitedTotalPoint\UnlimitedDisplayPoint
+\let\UnlimitedTotalAnswer\UnlimitedDisplayAnswer
 
 % 获取指定 structure level 的题目总数 % 用法: \UnlimitedStructureTotalNumber{1}{1} → 输出数字 (level 1=chapter, number=1)
 \def\UnlimitedStructureTotalNumber#1#2{\ctxlua{thirddata.basicexam_unlimited.tex_get_structure(#1, "#2", "totalnumber")}}
@@ -802,6 +924,9 @@
 % 获取指定 structure level 的叶子节点数 % 用法: \UnlimitedStructureLeafNumber{1}{1} → 输出数字
 \def\UnlimitedStructureLeafNumber#1#2{\ctxlua{thirddata.basicexam_unlimited.tex_get_structure(#1, "#2", "leafnumber")}}
 
+% 获取指定 structure level 的所有叶子节点数（实际小题数） % 用法: \UnlimitedStructureAllLeafNumber{1}{1} → 输出数字
+\def\UnlimitedStructureAllLeafNumber#1#2{\ctxlua{thirddata.basicexam_unlimited.tex_get_structure(#1, "#2", "allleafnumber")}}
+
 % 获取当前 structure 的题目总数 % 用法: \UnlimitedCurrentStructureTotalNumber{1} → 输出数字
 \def\UnlimitedCurrentStructureTotalNumber#1{\ctxlua{thirddata.basicexam_unlimited.tex_get_structure(#1, "", "totalnumber")}}
 
@@ -811,20 +936,23 @@
 % 获取当前 structure 的叶子节点数 % 用法: \UnlimitedCurrentStructureLeafNumber{1} → 输出数字
 \def\UnlimitedCurrentStructureLeafNumber#1{\ctxlua{thirddata.basicexam_unlimited.tex_get_structure(#1, "", "leafnumber")}}
 
+% 获取当前 structure 的所有叶子节点数（实际小题数） % 用法: \UnlimitedCurrentStructureAllLeafNumber{1} → 输出数字
+\def\UnlimitedCurrentStructureAllLeafNumber#1{\ctxlua{thirddata.basicexam_unlimited.tex_get_structure(#1, "", "allleafnumber")}}
+
+% 获取指定题目的某一层级的子题目数 % 用法: \UnlimitedQuestionLevelNumber{Q-1}{1} → 输出第1层子题目数
+\def\UnlimitedQuestionLevelNumber#1#2{\ctxlua{thirddata.basicexam_unlimited.tex_get_question_level("#1", "level#2")}}
+
+% 获取指定题目的所有叶子节点数（小题数） % 用法: \UnlimitedQuestionLeafNumber{Q-1} → 输出数字
+\def\UnlimitedQuestionLeafNumber#1{\ctxlua{thirddata.basicexam_unlimited.tex_get_question_level("#1", "leafnumber")}}
+
 % 从dataset读取当前节点答案
 \def\UnlimitedCurrentAnswer{\datasetvariable{UnlimitedDataset}{\UnlimitedCurrentID}{answer}}
 
 % 从dataset读取当前节点分数
 \def\UnlimitedCurrentPoint{\datasetvariable{UnlimitedDataset}{\UnlimitedCurrentID}{totalpoint}}
 
-% 检查dataset中是否有数据 % 用法: \UnlimitedHasDataset{Q-1} → yes/no
-\def\UnlimitedHasDataset#1{\doifelsesomething{\datasetvariable{UnlimitedDataset}{#1}{id}}{yes}{no}}
-
 % 设置当前节点的额外数据 % 用法: \UnlimitedSetExtraData{totalitemnumber}{4} % 用于存储选择题排版信息等元数据
 \def\UnlimitedSetExtraData#1#2{\ctxlua{thirddata.basicexam_unlimited.set_extra_data([==[#1]==], [==[#2]==])}}
-
-% 获取当前节点的额外数据（实时，当前编译中） % 用法: \UnlimitedGetCurrentExtraData{totalitemnumber}
-\def\UnlimitedGetCurrentExtraData#1{\ctxlua{thirddata.basicexam_unlimited.get_current_extra_data([==[#1]==])}}
 
 % 从dataset获取节点的额外数据（需编译两次） % 用法: \UnlimitedGetExtraData{Q-1}{totalitemnumber}
 \def\UnlimitedGetExtraData#1#2{\datasetvariable{UnlimitedDataset}{#1}{#2}}
@@ -3733,7 +3861,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \startluacode
-    require("basicexam-sql")
+    require("m-basicexamsql")
     local basicexam_sql = thirddata.basicexam_sql
     
     local current_db = nil

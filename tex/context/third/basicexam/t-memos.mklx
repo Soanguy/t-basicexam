@@ -44,53 +44,18 @@
 \definemode[print]    [keep]
 \definemode[moresize] [keep]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newif\ifcolor_palet_blue     \color_palet_bluefalse%
-\newif\ifcolor_palet_red      \color_palet_redfalse%
-\newif\ifcolor_palet_yellow   \color_palet_yellowfalse%
-\newif\ifcolor_palet_green    \color_palet_greenfalse%
-\newif\ifcolor_palet_black    \color_palet_blackfalse%
-\newif\ifcolor_palet_cyan     \color_palet_cyanfalse%
-\newif\ifcolor_palet_orange   \color_palet_orangefalse%
-\newif\ifcolor_palet_purple   \color_palet_purplefalse%
-\newif\ifcolor_palet_pink     \color_palet_pinkfalse%
-\newif\ifcolor_palet_gray     \color_palet_grayfalse%
-\newif\ifcolor_palet_white    \color_palet_whitefalse%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % h / f + ltext / ctext / rtext / oemargin
 \newif\ifhdr_sty_book         \hdr_sty_bookfalse%
 \newif\ifhdr_sty_novel        \hdr_sty_novelfalse%
 \newif\ifhdr_sty_colorful     \hdr_sty_colorfulfalse%
-\newif\ifhdr_sty_madsen     \hdr_sty_madsenfalse%
+\newif\ifhdr_sty_madsen       \hdr_sty_madsenfalse%
 \newif\ifhdr_sty_hctext       \hdr_sty_hctextfalse%
 \newif\ifhdr_sty_fctext       \hdr_sty_fctextfalse%
 \newif\ifhdr_sty_foemargin    \hdr_sty_foemarginfalse%
 \newif\ifhdr_sty_foemarginalt \hdr_sty_foemarginaltfalse%
 \newif\ifhdr_sty_hoemargin    \hdr_sty_hoemarginfalse
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\processallactionsinset[\currentmoduleparameter{mode}][
-         print=>{\enablemode[print]},
-        kindle=>{\enablemode[kindle]},
-         draft=>{\enablemode[draft]},
-      moresize=>{\enablemode[moresize]},
-    \v!default=>\relax,
-    \v!unknown=>\errorparameter{mode},
-]
-\processaction[\currentmoduleparameter{themecolor}]%
-   [       red=>\color_palet_redtrue,
-          blue=>\color_palet_bluetrue,
-        yellow=>\color_palet_yellowtrue,
-         green=>\color_palet_greentrue,
-         black=>\color_palet_blacktrue,
-         white=>\color_palet_whitetrue,
-          cyan=>\color_palet_cyantrue,
-        orange=>\color_palet_orangetrue,
-        purple=>\color_palet_purpletrue,
-          pink=>\color_palet_pinktrue,
-          gray=>\color_palet_graytrue,
-          none=>\relax,
-    \v!default=>\color_palet_cyantrue,
-    \v!unknown=>\errorparameter{themecolor},]
-
 \processaction[\currentmoduleparameter{hdrstyle}]%
    [       book=>\hdr_sty_booktrue,
            line=>\hdr_sty_booktrue,
@@ -106,7 +71,6 @@
            none=>\relax,
      \v!default=>\hdr_sty_fctexttrue,
      \v!unknown=>\errorparameter{hdrstyle},]
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usesymbols             [fontawesome]%
 \setupcolors            [state=start,pagecolormodel=auto,textcolor=textcolor,]
@@ -294,6 +258,9 @@
 \stopsetups
 \input type-bak-fallbacks.mkiv
 
+\definereferenceformat[cref]  [label=reference:*,style=bold]
+\definereferenceformat[crefat][label=page,style=bold,type=realpage]
+
 \setuplanguage  [hans]
                 [   date={\v!year,年,mm,月,dd,日},
             leftsentence=——,       rightsentence=——,
@@ -317,7 +284,19 @@
              monday:mnem={周一},    tuesday:mnem={周二},
           wednesday:mnem={周三},   thursday:mnem={周四},
              friday:mnem={周五},   saturday:mnem={周六},
-             sunday:mnem={周日}]
+             sunday:mnem={周日},
+       reference:chapter={第,章},
+       reference:section={第,节},  
+        reference:figure=图~,
+         reference:table=表~,
+       reference:theorem=定理~,
+         reference:lemma=引理~,
+     reference:corollary=推论~,
+   reference:proposition=命题~,
+    reference:definition=定义~,
+         reference:proof=证明~,
+        reference:remark=备注~,
+       reference:example=示例~,]
 \setuplanguage  [hant] [date={\v!year,年,mm,月,dd,日},
             leftsentence=——,      rightsentence=——,
          leftsubsentence=——,   rightsubsentence=——,
@@ -340,7 +319,19 @@
              monday:mnem={週一},    tuesday:mnem={週二},
           wednesday:mnem={週三},   thursday:mnem={週四},
              friday:mnem={週五},   saturday:mnem={週六},
-             sunday:mnem={週日}]
+             sunday:mnem={週日},
+       reference:chapter={第,章},
+       reference:section={第,节},  
+        reference:figure=圖~,
+         reference:table=表~,
+       reference:theorem=定理~,
+         reference:lemma=引理~,
+     reference:corollary=推論~,
+   reference:proposition=命題~,
+    reference:definition=定義~,
+         reference:proof=證明~,
+        reference:remark=備註~,
+       reference:example=範例~,]
 \setuplanguage  [ja]  [\c!date={西暦,\v!year,年,mm,月,dd,日},
                   leftsentence=——,    rightsentence=——,
                leftsubsentence=——, rightsubsentence=——,
@@ -361,12 +352,23 @@
                    monday:mnem={月},   tuesday:mnem={火},
                 wednesday:mnem={水},  thursday:mnem={木},
                    friday:mnem={金},  saturday:mnem={土},
-                   sunday:mnem={日}]
+                   sunday:mnem={日},
+             reference:chapter={第,章},
+             reference:section={第,节},  
+              reference:figure=図~,
+               reference:table=表~,
+             reference:theorem=Theorems~,
+               reference:lemma=Lemmas~,
+           reference:corollary=Corollary~,
+         reference:proposition=Proposition~,
+          reference:definition=Definition~,
+               reference:proof=Proof~,
+              reference:remark=Remark~,
+             reference:example=Example~,]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{Multilingual support}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 %% 我们重定义了之前的userlanguage，现在可以直接通过language 命令来切换预设好的环境定义
 %% 但是需要注意必须要预先定义好字体才可以正常切换。
 %% 因为修改了 language 的 setups，导致会修改全局的字体设置，因此 basicexam 应该放在 最开始加载
@@ -432,7 +434,6 @@
   whitespace=none,
   align={height,hanging,justified},
   indenting={first,always,1em},]
-
 
 \mainlanguage        [\moduleparameter{memos}{mainlanguage}]
 \language            [\moduleparameter{memos}{language}]
@@ -764,18 +765,6 @@
                           framecolor=deepwhite,    referencecolor=blue,]
 
 \definecolor [covercolor] [softbackground]
-
-\ifcolor_palet_white   \setuppalet[innocence]  \fi
-\ifcolor_palet_red     \setuppalet[passion]    \fi
-\ifcolor_palet_blue    \setuppalet[serene]     \fi
-\ifcolor_palet_yellow  \setuppalet[optimism]   \fi
-\ifcolor_palet_green   \setuppalet[harmony]    \fi
-\ifcolor_palet_black   \setuppalet[formality]  \fi
-\ifcolor_palet_purple  \setuppalet[magic]      \fi
-\ifcolor_palet_orange  \setuppalet[adventure]  \fi
-\ifcolor_palet_pink    \setuppalet[romance]    \fi
-\ifcolor_palet_gray    \setuppalet[reliable]   \fi
-\ifcolor_palet_cyan    \setuppalet[creativity] \fi
 
 %% 注意，一旦启用 palet ， lib dum 会失效，因为他设定了自己的 palet
 
@@ -1887,7 +1876,7 @@ context.definelayout(
 
 \startsetups memos:toc:madsen
   \edef\currenttocstyle{madsen}
-  \definehead [tochead]   [title][alternative=madsentoc]
+  \setuphead  [tochead] [alternative=madsentoc]
   \setupcombinedlist[content][list={part,title,chapter,subject,section}]
   \setuplist  [chapter,section]
                           [width=1.0em,distance=.5em,before=]
@@ -2026,15 +2015,155 @@ context.definelayout(
   \setuplist  [subsubsubsubsection][width=4.0em,margin=4.0em]
 \stopsetups
 
+\startsetups memos:toc:novel
+  \setupheader[state=stop]
+  \setupcombinedlist[content][list={chapter}]
+  \setuplist[chapter][headnumber=no,margin=.25tw,textstyle=\ssa,pagestyle=\tta,color=darkblue]
+  \setupheadtext[content=\hbox to .5tw{I\hfil N\hfil D\hfil E\hfil X}]
+  \setupbackgrounds[paper][background=color,backgroundcolor=softred,state=start]
+  \vbox to 1th{%
+    \leftskip.25tw\rightskip.25tw\relax
+    \leavevmode\vfill
+      \completecontent
+    \vfill}
+\stopsetups
+
+\startsetups memos:toc:novelnew
+  \setupindenting[none]
+  \setupbackgrounds   [paper][background=color,backgroundcolor=softthemecolor,state=start]
+  \setupcombinedlist  [content][list={chapter}]
+  \setuplist[chapter] [headnumber=no,margin=.25tw,
+                      textstyle=\ssa,pagestyle=\tta,
+                      color=darkblue]
+  \setupheadtext      [content=\hbox to .5tw{I\hfil N\hfil D\hfil E\hfil X}]
+  \setupheader        [state=stop]
+  \setuphead          [title] [style=ttd,color=darkblue]
+  \vbox to 1th{%
+    \leftskip.25tw\rightskip.25tw\relax
+    \vskip-6\baselineskip
+    \leavevmode\vfill
+    \completecontent
+    \vfill}
+\stopsetups
+
+  \define[3]\SectionListEntrySimple
+    {\par \leftaligned\bgroup
+      \hbox to 2em{\color[themecolor]{\ttd #3}}%
+          \hskip   1em
+          \vtop{\hsize\dimexpr\textwidth-3em\relax\color[contentchapc]{\ssb #2}}
+    \egroup \par}
+
+\startsetups memos:toc:simplenovel
+  \setupindenting[none]
+  \definecolor[contentcolor][h=262C30]
+  \definecolor[contentchapc][h=F7FCFD]
+  \setupbackgrounds [paper][background=color,backgroundcolor=contentcolor,state=start]
+  \setupcombinedlist[content][list={chapter}]
+  \setupheader  [state=stop]
+  \setuphead    [tochead] [style=ttd,color=darkblue]
+  \setupheadtext[content=\hbox to .5tw{I\hfil N\hfil D\hfil E\hfil X}]
+  \setuplist    [chapter][headnumber=no,alternative=command,command=\SectionListEntrySimple]
+  \vbox to 1th{
+    \leavevmode\vfill
+    \framed[frame=off,foregroundstyle=\ssd,
+            align=flushright,orientation=90,
+            height=1tw]{\vfill\par 
+            \color[contentchapc]{TABLE OF} 
+            \blank[halfline]
+            \definedfont[SansBold at 60pt]%
+            \color[themecolor]{CONTENTS}}
+    \vskip 2\baselineskip\relax
+    \setupinterlinespace[line=30pt]
+    \placecontent
+  }
+\stopsetups
+
+\define[3]\ChapterListEntryDesign
+  {\par \leftaligned\bgroup
+  \vtop{\hsize\dimexpr\textwidth-3em\relax
+  \framed[foregroundstyle=\rmb\bf,
+          frame=off,bottomframe=on,
+          align=flushleft,
+          width=max,
+          rulethickness=4pt]{#2}}
+  \egroup \par}
+\define[3]\SectionListEntryDesign
+  {\par \leftaligned\bgroup
+    \hbox to 2em{\color[themecolor]{\tta #3}}%
+        \vtop{\hsize\dimexpr\textwidth-3em\relax\color[contentchapc]{\ss #2}}
+  \egroup \par}
+
+\startsetups memos:toc:design
+  \setupindenting[none]
+  \setupbackgrounds [paper][background=color,backgroundcolor=softthemecolor,state=start]
+  \setupcombinedlist[content][list={chapter,section}]
+  \setupheader  [state=stop]
+  \setuphead    [tochead] [style=ttd,color=darkblue]
+  \setupheadtext[content=\hbox to .5tw{I\hfil N\hfil D\hfil E\hfil X}]
+  \setuplist    [chapter][headnumber=no,alternative=command,command=\ChapterListEntryDesign]
+  \setuplist    [section][headnumber=no,alternative=command,command=\SectionListEntryDesign]
+  \framed[frame=off,foregroundstyle=\rmd,
+          align=flushright,]{
+          \definedfont[SerifBoldItalic at 40pt]%
+          \color[darkgray]{TABLE OF} 
+          \blank[halfline]
+          \color[themecolor]{CONTENTS}}
+    \vskip 2\baselineskip\relax
+    \setupinterlinespace[line=22pt]
+    \startcolumns[n=2]
+    \placecontent
+    \stopcolumns
+\stopsetups
+
+  \define[3]\ChapterListEntryDesignNew
+    {\par \leftaligned\bgroup
+    \vtop{\hsize\dimexpr\textwidth-3em\relax
+    \framed[foregroundstyle=\rmb\bf,
+            frame=off,bottomframe=on,
+            align=flushleft,
+            width=max,
+            rulethickness=4pt]{#3}\par
+    \framed[foregroundstyle=\rmb\bf,
+            frame=off,
+            align=flushleft]{#2}}
+    \egroup \par}
+  \define[3]\SectionListEntryDesignNew
+    {\par\hbox\bgroup
+      \hbox to 2em{\color[themecolor]{\tta\hfill #3\hfill}}%
+      \vtop{\hsize\dimexpr\textwidth-2em\relax\ss #2}
+    \egroup\par}
+
+\startsetups memos:toc:designnew
+  \setupindenting[none]
+  \setupbackgrounds [paper][background=color,backgroundcolor=softthemecolor,state=start]
+  \setupcombinedlist[content][list={chapter,section}]
+  \setupheader  [state=stop]
+  \setuplist    [chapter][headnumber=no,alternative=command,command=\ChapterListEntryDesignNew]
+  \setuplist    [section][headnumber=no,alternative=command,command=\SectionListEntryDesignNew]
+  \framed[frame=off,foregroundstyle=\rmd,
+          align=flushleft,]{
+          \definedfont[playfairhairlinebolditalic at 40pt]%
+          \color[darkgray]{Table of} 
+          \blank[halfline]
+          \definedfont[playfairhairlinebolditalic at 60pt]
+          \color[themecolor]{Contents}}
+    \vskip 2\baselineskip\relax
+    \setupinterlinespace[line=22pt]
+    \startcolumns[n=2]
+    \placecontent
+    \stopcolumns
+\stopsetups
+
 %\section{SCMD:placeTOCs}
 \tolerant\def\setupTOCs[#1]%
   {\getparameters[??TOCs][#1]}
 
 \setupTOCs[%#1 to set lists,#2 to set tochead
   alternative=,%
-  interlinespace=\baselineskip,
+  interlinespace=1.5em,
   title=\labeltext{content},
-  content=yes,
+  placetitle=yes,
+  setups=yes,
   layout=moderate,]
 
 \tolerant\def\placeTOCs[#1]{\begingroup%
@@ -2044,12 +2173,20 @@ context.definelayout(
   \doifinsetelse{\namedheadparameter{tochead}\c!page}{no,disable}%
      {}{\startlayout[\??TOCslayout]}%
   \edef\p_title{\??TOCstitle}%
-  \expandafter\expandafter\expandafter\tochead\expandafter{\p_title}%
+  \doif{placetitle}{yes}{%
+    \expandafter\expandafter\expandafter\tochead\expandafter{\p_title}%
+  }%
   \setuplocalinterlinespace[line=\??TOCsinterlinespace]%
-  \doifelse{\??TOCscontent}{yes}{\placecontent}{\??TOCscontent}%
+  \doifelse{\??TOCssetups}{yes}{\placecontent}{\setups{\??TOCssetups}}%
   \stoplayout
   \page[\namedheadparameter{tochead}\c!page]%
   \endgroup}
+
+% \placeTOCs[placetitle=no,setups=memos:toc:novel]
+% \placeTOCs[placetitle=no,setups=memos:toc:novelnew]
+% \placeTOCs[placetitle=no,setups=memos:toc:simplenovel]
+% \placeTOCs[placetitle=no,setups=memos:toc:design]
+% \placeTOCs[placetitle=no,setups=memos:toc:designnew]
 
 \definemargindata   [outermargin] [outer]
 \definemarginframed [outermargin] [outer]
@@ -3040,15 +3177,15 @@ fill pc withcolor \MPcolor{lightthemecolor};
                      headstyle=bold,style=normal,
                      align={flushleft},alternative=top,
                      text={\raise 1pt \hbox to 1em{$\bullet$}},]
-\defineenumeration  [remark] [text=Remark,
-                              alternative=serried,
-                              before=\vskip.25\baselineskip\relax,
-                              after=\vskip.25\baselineskip\relax,
-                              width=fit,
-                              right={.~},
-                              prefix=yes,% or prefixsegments=chapter:section
-                              prefixsegments=section]
-\setupcounter       [remark] [way=bysection]
+
+\defineenumeration[theorem]     [text=\labeltext{reference:theorem},way=bychapter,prefix=yes,prefixsegments=chapter]
+\defineenumeration[lemma]       [text=\labeltext{reference:lemma},way=bychapter,prefix=yes,prefixsegments=chapter]
+\defineenumeration[corollary]   [text=\labeltext{reference:corollary},way=bychapter,prefix=yes,prefixsegments=chapter]
+\defineenumeration[proposition] [text=\labeltext{reference:proposition},way=bychapter,prefix=yes,prefixsegments=chapter]
+\defineenumeration[definition]  [text=\labeltext{reference:definition},way=bychapter,prefix=yes,prefixsegments=chapter]
+\defineenumeration[proof]       [text=\labeltext{reference:proof},way=bychapter,prefix=yes,prefixsegments=chapter]
+\defineenumeration[remark]      [text=\labeltext{reference:remark},way=bychapter,prefix=yes,prefixsegments=chapter]
+\defineenumeration[example]     [text=\labeltext{reference:example},way=bychapter,prefix=yes,prefixsegments=chapter]
 \definedescription  [description][
                      before=\vskip.25\baselineskip\relax,
                      after=\vskip.25\baselineskip\relax,
@@ -3460,7 +3597,7 @@ suggest=\symbol[fontawesome][star]]
 \defineprocessor    [dostopper][left=,right=]
 \defineprocessor    [nostopper][left=,right=]
 \defineconversionset[defaultconversion][][dostopper->n]
-\defineconversionset[floatconversion][][nostopper->n]%
+\defineconversionset[floatconversion]  [][nostopper->n]%
 \setupreferencestructureprefix
              [figure][defaults]
              [prefixconversionset=floatconversion,prefixsegments=2:2]
@@ -3616,8 +3753,10 @@ suggest=\symbol[fontawesome][star]]
 
 \definemarking [book]
 \definemakeup  [preset]
-\definemakeup  [flyleaf]        [default]
-\definemakeup  [usercover]      [default]
+\definemakeup  [flyleaf]        [preset]
+\definemakeup  [usercover]      [preset]
+\definemakeup  [cover]          [preset]
+\definemakeup  [ORLY]           [preset]
 \definelayer   [lay:default]    [repeat=yes,width=\paperwidth, height=\paperheight]
 \definelayer   [lay:flyleaf]    [repeat=yes,width=\paperwidth, height=\paperheight]
 \definelayer   [lay:usercover]  [repeat=yes,width=\paperwidth, height=\paperheight]
@@ -3637,7 +3776,9 @@ suggest=\symbol[fontawesome][star]]
 \definelayout[flyleaf]  [backspace=10mm,rightmargin=10mm,rightedge=0mm,
                          topspace=5mm,bottomspace=5mm,% header=5mm,footer=5mm,
                          height=fit,width=fit,]
-\definelayout[usercover][default]
+\definelayout[usercover][preset]
+\definelayout[cover]    [preset]
+\definelayout[ORLY]     [preset][header=5mm,]
 
 \startsetups setup:defaultmakeup
   \setupbackgrounds[page][background={olay:default}]
@@ -3784,8 +3925,6 @@ suggest=\symbol[fontawesome][star]]
 \stopuseMPgraphic
 
 \defineoverlay [olay:cover]   [\useMPgraphic{MP:cover}]
-\definemakeup  [cover]        [default]
-\definelayout  [cover]        [default]
 \setupmakeup   [cover][before=\setups{setup:covermakeup}]
 \startsetups setup:covermakeup
   \setupbackgrounds[page][background={olay:cover}]
@@ -3823,8 +3962,6 @@ suggest=\symbol[fontawesome][star]]
 \stopuseMPgraphic
 
 \defineoverlay [olay:ORLY]   [\useMPgraphic{MP:ORLY}]
-\definemakeup  [ORLY]        [default]
-\definelayout  [ORLY]        [default][header=5mm,]
 \setupmakeup   [ORLY][before=\setups{setup:ORLYmakeup}]
 \startsetups setup:ORLYmakeup
   \setupbackgrounds[page]        [background={olay:ORLY}]
@@ -4005,169 +4142,343 @@ suggest=\symbol[fontawesome][star]]
   \number\cnt_floor\relax\fi%
 }
 
+
+\definemode [memos:extra:zhnumber][keep]
+\definemode [memos:extra:pinyin]  [keep]
+\definemode [memos:extra:index]   [keep]
+\definemode [memos:extra:bihua]   [keep]
+
+\processallactionsinset[\currentmoduleparameter{extra}][
+        pinyin=>{\enablemode[memos:extra:pinyin]},
+      zhnumber=>{\enablemode[memos:extra:zhnumber]},
+         index=>{\enablemode[memos:extra:index]},
+         bihua=>{\enablemode[memos:extra:bihua]},
+           all=>{\enablemode[memos:extra:pinyin,memos:extra:zhnumber,memos:extra:index,memos:extra:bihua]}, 
+          none=>\relax,
+    \v!default=>\relax,
+    \v!unknown=>\errorparameter{extra},
+]
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                               zhnumber                              %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\registerctxluafile{m-zhnumber}{}
+\startmode[memos:extra:zhnumber]
+  \registerctxluafile{m-zhnumber}{}
 
-\installnamespace {zhnumber}
+  \installnamespace {zhnumber}
 
-\installcommandhandler \????zhnumber {zhnumber} \????zhnumber
+  \installcommandhandler \????zhnumber {zhnumber} \????zhnumber
 
-\setupzhnumber[zero=〇]
+  \setupzhnumber[zero=〇]
 
-\permanent\def\zhnumber{\dosingleempty\dozhnumber}
-\def\dozhnumber[#1]#2{\clf_zhnumber{#2}{#1}}
+  \permanent\def\zhnumber{\dosingleempty\dozhnumber}
+  \def\dozhnumber[#1]#2{\clf_zhnumber{#2}{#1}}
 
-\permanent\def\zhdate#1{\clf_zhdate{#1}}
+  \permanent\def\zhdate#1{\clf_zhdate{#1}}
 
-\permanent\def\zhtime#1{\clf_zhtime{#1}}
+  \permanent\def\zhtime#1{\clf_zhtime{#1}}
 
-\permanent\def\zhweekday#1{\clf_zhweekday{#1}}
+  \permanent\def\zhweekday#1{\clf_zhweekday{#1}}
 
-\permanent\def\zhtoday{\expanded{\clf_zhdate{\the\normalyear/\the\normalmonth/\the\normalday}}}
+  \permanent\def\zhtoday{\expanded{\clf_zhdate{\the\normalyear/\the\normalmonth/\the\normalday}}}
 
-\permanent\def\zhcurrtime{\calculatecurrenttime\clf_zhtime{\currenthour:\currentminute}}
+  \permanent\def\zhcurrtime{\calculatecurrenttime\clf_zhtime{\currenthour:\currentminute}}
 
-\permanent\def\zhtiangan#1{\clf_zhtiangan{#1}}
+  \permanent\def\zhtiangan#1{\clf_zhtiangan{#1}}
 
-\permanent\def\zhdizhi#1{\clf_zhdizhi{#1}}
+  \permanent\def\zhdizhi#1{\clf_zhdizhi{#1}}
 
-\permanent\def\zhganzhi#1{\clf_zhganzhi{#1}}
+  \permanent\def\zhganzhi#1{\clf_zhganzhi{#1}}
 
-\permanent\def\zhganzhinian#1{\clf_zhganzhinian{#1}}
+  \permanent\def\zhganzhinian#1{\clf_zhganzhinian{#1}}
 
-\appendtoks
-    \clf_zhsetzero{\zhnumberparameter{zero}}%
-\to \everysetupzhnumber
+  \appendtoks
+      \clf_zhsetzero{\zhnumberparameter{zero}}%
+  \to \everysetupzhnumber
 
-\clf_zhsetzero{\zhnumberparameter{zero}}%
+  \clf_zhsetzero{\zhnumberparameter{zero}}%
 
-\defineconversion[tiangan][甲, 乙, 丙, 丁, 戊, 己, 庚, 辛, 壬, 癸]
+  \defineconversion[tiangan][甲, 乙, 丙, 丁, 戊, 己, 庚, 辛, 壬, 癸]
 
-\defineconversion[dizhi][子, 丑, 寅, 卯, 辰, 巳, 午, 未, 申, 酉, 戌, 亥]
+  \defineconversion[dizhi][子, 丑, 寅, 卯, 辰, 巳, 午, 未, 申, 酉, 戌, 亥]
 
-\defineconversion[ganzhi]
-                 [甲子,乙丑,丙寅,丁卯,戊辰,己巳,庚午,辛未,壬申,癸酉,
-                  甲戌,乙亥,丙子,丁丑,戊寅,己卯,庚辰,辛巳,壬午,癸未,
-                  甲申,乙酉,丙戌,丁亥,戊子,己丑,庚寅,辛卯,壬辰,癸巳,
-                  甲午,乙未,丙申,丁酉,戊戌,己亥,庚子,辛丑,壬寅,癸卯,
-                  甲辰,乙巳,丙午,丁未,戊申,己酉,庚戌,辛亥,壬子,癸丑,
-                  甲寅,乙卯,丙辰,丁巳,戊午,己未,庚申,辛酉,壬戌,癸亥]
-
+  \defineconversion[ganzhi]
+                  [甲子,乙丑,丙寅,丁卯,戊辰,己巳,庚午,辛未,壬申,癸酉,
+                    甲戌,乙亥,丙子,丁丑,戊寅,己卯,庚辰,辛巳,壬午,癸未,
+                    甲申,乙酉,丙戌,丁亥,戊子,己丑,庚寅,辛卯,壬辰,癸巳,
+                    甲午,乙未,丙申,丁酉,戊戌,己亥,庚子,辛丑,壬寅,癸卯,
+                    甲辰,乙巳,丙午,丁未,戊申,己酉,庚戌,辛亥,壬子,癸丑,
+                    甲寅,乙卯,丙辰,丁巳,戊午,己未,庚申,辛酉,壬戌,癸亥]
+\stopmode
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                               zhpinyin                              %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\registerctxluafile{m-pinyin}{}
+\startmode[memos:extra:pinyin]
+  \registerctxluafile{m-pinyin}{}
 
-\newdimen\pinyinvsep
-\newskip\pinyinhsep
-\newskip\pinyinpysep
-\newcount\pinyinratio
+  \newdimen\pinyinvsep
+  \newskip\pinyinhsep
+  \newskip\pinyinpysep
+  \newcount\pinyinratio
 
-\pinyinvsep=1em
-\pinyinhsep=0pt
-\pinyinpysep=\spaceskip
-\pinyinratio=4
+  \pinyinvsep=1em
+  \pinyinhsep=0pt
+  \pinyinpysep=\spaceskip
+  \pinyinratio=4
 
-\def\pinyinpysepstr{\hskip\pinyinpysep}
+  \def\pinyinpysepstr{\hskip\pinyinpysep}
 
-\installnamespace{pinyin}
+  \installnamespace{pinyin}
 
-\tolerant\def\setuppinyin#*[#S#1]{%
-   \getparameters[\????pinyin][#1]%
-   \pinyinvsep   =\csname\????pinyin vsep\endcsname
-   \pinyinhsep   =\csname\????pinyin hsep\endcsname
-   \pinyinpysep  =\csname\????pinyin pysep\endcsname
-   \pinyinratio  =\csname\????pinyin ratio\endcsname
-   \ctxlua{thirddata.pinyin.setup{%
-     multiple=[[\csname\????pinyin multiple\endcsname]],%
-     markpolyphone=[[\csname\????pinyin markpolyphone\endcsname]]%
-   }}%
- }
+  \tolerant\def\setuppinyin#*[#S#1]{%
+    \getparameters[\????pinyin][#1]%
+    \pinyinvsep   =\csname\????pinyin vsep\endcsname
+    \pinyinhsep   =\csname\????pinyin hsep\endcsname
+    \pinyinpysep  =\csname\????pinyin pysep\endcsname
+    \pinyinratio  =\csname\????pinyin ratio\endcsname
+    \ctxlua{thirddata.pinyin.setup{%
+      multiple=[[\csname\????pinyin multiple\endcsname]],%
+      markpolyphone=[[\csname\????pinyin markpolyphone\endcsname]]%
+    }}%
+  }
 
-\setuppinyin[vsep=0pt,hsep=2pt plus 1pt minus 2pt,pysep=\spaceskip,ratio=6,multiple=no,markpolyphone=no]
+  \setuppinyin[vsep=0pt,hsep=2pt plus 1pt minus 2pt,pysep=\spaceskip,ratio=6,multiple=no,markpolyphone=no]
 
-\tolerant\def\startpinyinscope#*[#1]%
-  {\begingroup
-   \doifnotempty{#1}{\setuppinyin[#1]}%
-   \grabbufferdata[pinyinscope][pinyinscope][startpinyinscope][stoppinyinscope]}
+  \tolerant\def\startpinyinscope#*[#1]%
+    {\begingroup
+    \doifnotempty{#1}{\setuppinyin[#1]}%
+    \grabbufferdata[pinyinscope][pinyinscope][startpinyinscope][stoppinyinscope]}
 
-\def\stoppinyinscope
-  {\ctxlua{thirddata.pinyin.process_buffer()}%
-   \endgroup}
+  \def\stoppinyinscope
+    {\ctxlua{thirddata.pinyin.process_buffer()}%
+    \endgroup}
 
-\tolerant\def\pinyin#*[#S#1]#:#2%
-  {\begingroup
-   \ifparameters\or\setuppinyin[#1]\fi
-   \ctxlua{thirddata.pinyin.format_pinyin_string([==[#2]==])}%
-   \endgroup}
+  \tolerant\def\pinyin#*[#S#1]#:#2%
+    {\begingroup
+    \ifparameters\or\setuppinyin[#1]\fi
+    \ctxlua{thirddata.pinyin.format_pinyin_string([==[#2]==])}%
+    \endgroup}
 
-\tolerant\def\xpinyin#*[#S#1]#*[#S#2]#:#3%
-  {\begingroup
-   \ifparameters
-     \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])}%
-     \ctxlua{thirddata.pinyin.process_buffer("xpinyinbuf")}%
-   \or
-     \ifhastok={#1}%
-       \setuppinyin[#1]%
-       \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])}%
-       \ctxlua{thirddata.pinyin.process_buffer("xpinyinbuf")}%
-     \else
-       \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])}%
-       \ctxlua{thirddata.pinyin.process_buffer("xpinyinbuf",[==[#1]==])}%
-     \fi
-   \or
-     \setuppinyin[#2]%
-     \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])}%
-     \ctxlua{thirddata.pinyin.process_buffer("xpinyinbuf",[==[#1]==])}%
-   \fi
-   \endgroup}
+  \tolerant\def\xpinyin#*[#S#1]#*[#S#2]#:#3%
+    {\begingroup
+    \ifparameters
+      \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])}%
+      \ctxlua{thirddata.pinyin.process_buffer("xpinyinbuf")}%
+    \or
+      \ifhastok={#1}%
+        \setuppinyin[#1]%
+        \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])}%
+        \ctxlua{thirddata.pinyin.process_buffer("xpinyinbuf")}%
+      \else
+        \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])}%
+        \ctxlua{thirddata.pinyin.process_buffer("xpinyinbuf",[==[#1]==])}%
+      \fi
+    \or
+      \setuppinyin[#2]%
+      \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])}%
+      \ctxlua{thirddata.pinyin.process_buffer("xpinyinbuf",[==[#1]==])}%
+    \fi
+    \endgroup}
 
-\def\setpinyin#1#2%
-  {\ctxlua{thirddata.pinyin.set(utf.byte([==[#1]==]), [==[#2]==])}}
+  \def\setpinyin#1#2%
+    {\ctxlua{thirddata.pinyin.set(utf.byte([==[#1]==]), [==[#2]==])}}
 
-\newbox\pinyinbox
-\newbox\hanzibox
+  \newbox\pinyinbox
+  \newbox\hanzibox
 
-\def\pinyinannotate#1#2#3%
-  {\dontleavehmode
-   \begingroup
-   \setbox\hanzibox\hbox{#1}%
-   \setbox\pinyinbox\hbox{%
-     \tf
-     \doif{#3}{true}{}%
-     #2%
-   }%
-   \dimen1=\wd\pinyinbox
-   \multiply\dimen1 by \pinyinratio
-   \divide\dimen1 by 10
-   \setbox\pinyinbox\hbox{%
-     \scale[width=\dimen1]{\box\pinyinbox}%
-   }%
-   \dp\pinyinbox\z@
-   \dimen0=\wd\hanzibox
-   \ifdim\wd\pinyinbox>\dimen0
-     \dimen0=\wd\pinyinbox
-   \fi
-   \vbox{%
-     \lineskip\z@
-     \hbox to \dimen0{\hss\vrule width0pt height0pt depth\pinyinvsep\box\pinyinbox\hss}%
-     \nointerlineskip
-     \hbox to \dimen0{\hss\strut\box\hanzibox\hss}%
-   }%
-   \hskip\pinyinhsep\relax
-   \endgroup}
-
+  \def\pinyinannotate#1#2#3%
+    {\dontleavehmode
+    \begingroup
+    \setbox\hanzibox\hbox{#1}%
+    \setbox\pinyinbox\hbox{%
+      \tf
+      \doif{#3}{true}{}%
+      #2%
+    }%
+    \dimen1=\wd\pinyinbox
+    \multiply\dimen1 by \pinyinratio
+    \divide\dimen1 by 10
+    \setbox\pinyinbox\hbox{%
+      \scale[width=\dimen1]{\box\pinyinbox}%
+    }%
+    \dp\pinyinbox\z@
+    \dimen0=\wd\hanzibox
+    \ifdim\wd\pinyinbox>\dimen0
+      \dimen0=\wd\pinyinbox
+    \fi
+    \vbox{%
+      \lineskip\z@
+      \hbox to \dimen0{\hss\vrule width0pt height0pt depth\pinyinvsep\box\pinyinbox\hss}%
+      \nointerlineskip
+      \hbox to \dimen0{\hss\strut\box\hanzibox\hss}%
+    }%
+    \hskip\pinyinhsep\relax
+    \endgroup}
+\stopmode
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                               zhindex                               %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\registerctxluafile{m-zhindex}{}
+\startmode[memos:extra:index]
+  \registerctxluafile{m-zhindex}{}
+\stopmode
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                               zhbihua                               %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% license：MIT
+%% author：雾月，https://github.com/Sophanatprime
+
+%% bihua data: https://github.com/skishore/makemeahanzi and https://github.com/chanind/hanzi-writer-data
+
+\startmode[memos:extra:bihua]
+\registerctxluafile{m-bihua}{}
+
+\installnamespace {bihua}
+\installcommandhandler \????bihua {bihua} \????bihua
+
+\newdimen\d_bihua_width
+\newdimen\d_bihua_spacing
+\newdimen\d_bihua_linewidth
+\newdimen\d_bihua_inner
+
+\definebihua
+    [bihua]
+    [width=1cm,
+     frame=outer,
+     natural=no,
+     framestroke=black,
+     framefill=,
+     framelinewidth=0.5pt,
+     framedashpattern=solid,
+     iframestroke=0.5white,
+     iframelinewidth=0.3pt,
+     iframedashpattern=dashed,
+     charstroke=black,
+     charfill=black,
+     charlinewidth=0.3pt,
+     chardashpattern=solid,
+     laststroke=red,
+     lastfill=red,
+     lastlinewidth=0.3pt,
+     lastdashpattern=solid,
+     innert=0pt,
+     innerb=0pt,
+     innerl=0pt,
+     innerr=0pt,
+     inner=,
+     spacing=0em]
+
+\unexpanded\def\bihuaload#1{%
+    \ctxlua{thirddata.bihua.load_chars("#1")}%
+}
+
+\def\bihua_setup_options{%
+    \d_bihua_width=\dimexpr\bihuaparameter{width}\relax
+    \d_bihua_spacing=\dimexpr\bihuaparameter{spacing}\relax
+    \ctxlua{
+        thirddata.bihua.set_options{
+            width = tex.dimen["d_bihua_width"] / 65781.8,
+            spacing = tex.dimen["d_bihua_spacing"] / 65781.8,
+            frame = "\bihuaparameter{frame}",
+            natural = \bihuaparameter{natural},
+            frame_stroke = "\bihuaparameter{framestroke}",
+            frame_fill = "\bihuaparameter{framefill}",
+            frame_linewidth = "\bihuaparameter{framelinewidth}",
+            frame_dashpattern = "\bihuaparameter{framedashpattern}",
+            iframe_stroke = "\bihuaparameter{iframestroke}",
+            iframe_linewidth = "\bihuaparameter{iframelinewidth}",
+            iframe_dashpattern = "\bihuaparameter{iframedashpattern}",
+            char_stroke = "\bihuaparameter{charstroke}",
+            char_fill = "\bihuaparameter{charfill}",
+            char_linewidth = "\bihuaparameter{charlinewidth}",
+            char_dashpattern = "\bihuaparameter{chardashpattern}",
+            last_stroke = "\bihuaparameter{laststroke}",
+            last_fill = "\bihuaparameter{lastfill}",
+            last_linewidth = "\bihuaparameter{lastlinewidth}",
+            last_dashpattern = "\bihuaparameter{lastdashpattern}",
+            inner_t = "\bihuaparameter{innert}",
+            inner_b = "\bihuaparameter{innerb}",
+            inner_l = "\bihuaparameter{innerl}",
+            inner_r = "\bihuaparameter{innerr}",
+            inner = "\bihuaparameter{inner}",
+        }
+    }%
+}
+
+\unexpanded\def\bihuashow{%
+    \dodoubleempty\do_bihuashow%
+}
+
+\def\do_bihuashow[#1][#2]#3#4{%
+    \begingroup
+    \ifsecondargument
+        \cdef\currentbihua{#1}%
+        \setupcurrentbihua[#2]%
+    \else
+        \cdef\currentbihua{bihua}%
+        \setupcurrentbihua[#1]%
+    \fi
+    \bihua_setup_options
+    \ctxlua{
+        local mp_code = thirddata.bihua.generate_metafun("#3", #4)
+        context.startMPcode()
+        context(mp_code)
+        context.stopMPcode()
+    }%
+    \endgroup
+}
+
+\unexpanded\def\bihuashowall{%
+    \dodoubleempty\do_bihuashowall%
+}
+
+\def\do_bihuashowall[#1][#2]#3{%
+    \begingroup
+    \ifsecondargument
+        \cdef\currentbihua{#1}%
+        \setupcurrentbihua[#2]%
+    \else
+        \cdef\currentbihua{bihua}%
+        \setupcurrentbihua[#1]%
+    \fi
+    \bihua_setup_options
+    \ctxlua{
+        local mp_code = thirddata.bihua.generate_metafun_all("#3")
+        context.startMPcode()
+        context(mp_code)
+        context.stopMPcode()
+    }%
+    \endgroup
+}
+\stopmode
 
 %%%%% \processaction 执行顺序，需要先定义这些参数
+\processallactionsinset[\currentmoduleparameter{mode}][
+         print=>{\enablemode[print]},
+        kindle=>{\enablemode[kindle]},
+         draft=>{\enablemode[draft]},
+      moresize=>{\enablemode[moresize]},
+    \v!default=>\relax,
+    \v!unknown=>\errorparameter{mode},
+]
+\processaction[\currentmoduleparameter{themecolor}]%
+   [       red=>{\setuppalet[passion]},
+          blue=>{\setuppalet[serene]},
+        yellow=>{\setuppalet[optimism]},
+         green=>{\setuppalet[harmony]},
+         black=>{\setuppalet[formality]},
+         white=>{\setuppalet[innocence]},
+          cyan=>{\setuppalet[creativity]},
+        orange=>{\setuppalet[adventure]},
+        purple=>{\setuppalet[magic]},
+          pink=>{\setuppalet[romance]},
+          gray=>{\setuppalet[reliable]},
+          none=>\relax,
+    \v!default=>{\setuppalet[creativity]},
+    \v!unknown=>\errorparameter{themecolor},]
 
 \processaction[\currentmoduleparameter{chapterstyle}]%
    [      line=>\setups{memos:chap:line},

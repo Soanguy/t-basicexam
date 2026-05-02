@@ -1,0 +1,616 @@
+\usemodule[memos]
+\starttext
+
+% ==============================================
+% ConTeXt 人物绘制模块
+% 
+% 使用方法：\useMPgraphic{PersonFigure}{参数}
+% 
+% 参数说明（所有参数均可选）：
+%   x         - X坐标，默认 5
+%   y         - Y坐标，默认 10
+%   bodytype  - 体型：thin(瘦), normal(正常), fat(胖)，默认 normal
+%   bodyshape - 身体形状：rectangle(矩形), drop(水滴形💧), inverteddrop(倒水滴形),
+%                         pentagon(五边形), ellipse(椭圆形), hexagon(六边形), heart(心形)
+%                         默认 rectangle
+%   pose      - 姿势：stand(站立), raise(举手), run(跑步), sit(坐下),
+%                     wave(挥手), jump(跳跃), dance(跳舞), fight(战斗)
+%                     默认 stand
+%   face      - 表情：happy(开心), sad(悲伤), surprised(惊讶),
+%                     thinking(思考), cool(酷), excited(兴奋),
+%                     angry(生气), sleepy(困倦)
+%                     默认 happy
+%   wear      - 服装：plain(朴素)，默认 plain
+%   item      - 道具：none(无), sword(剑), shield(盾牌), wand(魔法棒),
+%                     sword_shield(剑+盾牌)
+%                     默认 none
+%   scale     - 缩放比例，默认 1
+%
+% 示例：
+%   \useMPgraphic{PersonFigure}{}                          % 默认人物
+%   \useMPgraphic{PersonFigure}{pose=run, face=excited}    % 跑步的兴奋人物
+%   \useMPgraphic{PersonFigure}{x=10, y=5, item=sword}     % 带剑的人物
+% ==============================================
+
+\startMPdefinitions
+    % 基础尺寸
+    numeric u, lw, perscale;
+    perscale := 1;
+    u := 16pt * perscale;
+    lw := 1.5 * perscale;
+    
+    % 颜色定义
+    color skin, shirtcol, pantscol;
+    skin := (0.95, 0.75, 0.6);
+    shirtcol := 0.8[cyan, white];
+    pantscol := 0.7[blue, white];
+    
+    % 小人各部分颜色
+    color headfill, bodyfill, limbcol, outlinecol, handfootcol;
+    headfill := skin;
+    bodyfill := skin;
+    limbcol := skin;
+    outlinecol := skin;
+    handfootcol := skin;
+    
+    % 辅助宏：绘制圆形手
+    def hand(expr pos) =
+        fill fullcircle scaled 0.24u shifted pos withcolor handfootcol;
+    enddef;
+    
+    % 辅助宏：绘制脚
+    def foot(expr pos) =
+        fill fullcircle xscaled 0.3u yscaled 0.2u shifted pos withcolor handfootcol;
+    enddef;
+    
+    % 辅助宏：绘制弯曲手臂
+    def armcurve(expr start, cp, end, right) =
+        draw start .. cp .. end
+            withpen pencircle scaled lw
+            withcolor limbcol;
+        fill fullcircle scaled 0.24u shifted end withcolor handfootcol;
+    enddef;
+    
+    % 辅助宏：绘制弯曲腿
+    def legcurve(expr start, cp, end) =
+        draw start .. cp .. end
+            withpen pencircle scaled lw
+            withcolor limbcol;
+        foot(end);
+    enddef;
+    
+    % 辅助宏：绘制剑
+    def draw_sword(expr pos, dir) =
+        pair tip, gripBase, guardL, guardR, hiltEnd;
+        path blade, crossguard, handle, pommel;
+        if dir = "right":
+            tip = pos + (0.8u, 0.6u);
+            gripBase = pos;
+            hiltEnd = pos + (-0.35u, -0.26u);
+            guardL = gripBase + (-0.08u, 0.1u);
+            guardR = gripBase + (0.08u, -0.1u);
+            blade = gripBase + (-0.03u, 0.02u) -- gripBase + (0.06u, 0.08u) -- tip -- gripBase + (0.1u, 0.02u) -- gripBase + (0.03u, -0.02u) -- cycle;
+            fill blade withcolor (0.85, 0.85, 0.9);
+            draw blade withpen pencircle scaled 0.4 withcolor (0.5, 0.5, 0.55);
+            draw gripBase + (0.04u, 0.05u) -- tip withpen pencircle scaled 0.25 withcolor white;
+            crossguard = guardL -- guardL + (-0.02u, -0.04u) -- guardR + (0.02u, 0.04u) -- guardR -- cycle;
+            fill crossguard withcolor (0.85, 0.7, 0.15);
+            draw crossguard withpen pencircle scaled 0.3 withcolor (0.6, 0.5, 0.1);
+            handle = gripBase + (-0.02u, 0.02u) -- gripBase + (-0.02u, 0.02u) + (-0.28u, -0.21u) -- gripBase + (0.02u, -0.02u) + (-0.28u, -0.21u) -- gripBase + (0.02u, -0.02u) -- cycle;
+            fill handle withcolor (0.4, 0.25, 0.15);
+            draw handle withpen pencircle scaled 0.3 withcolor (0.25, 0.15, 0.1);
+            pommel = fullcircle scaled 0.1u shifted hiltEnd;
+            fill pommel withcolor (0.85, 0.7, 0.15);
+            draw pommel withpen pencircle scaled 0.3 withcolor (0.6, 0.5, 0.1);
+        else:
+            tip = pos + (-0.8u, 0.6u);
+            gripBase = pos;
+            hiltEnd = pos + (0.35u, -0.26u);
+            guardL = gripBase + (0.08u, 0.1u);
+            guardR = gripBase + (-0.08u, -0.1u);
+            blade = gripBase + (0.03u, 0.02u) -- gripBase + (-0.06u, 0.08u) -- tip -- gripBase + (-0.1u, 0.02u) -- gripBase + (-0.03u, -0.02u) -- cycle;
+            fill blade withcolor (0.85, 0.85, 0.9);
+            draw blade withpen pencircle scaled 0.4 withcolor (0.5, 0.5, 0.55);
+            draw gripBase + (-0.04u, 0.05u) -- tip withpen pencircle scaled 0.25 withcolor white;
+            crossguard = guardR -- guardR + (0.02u, -0.04u) -- guardL + (-0.02u, 0.04u) -- guardL -- cycle;
+            fill crossguard withcolor (0.85, 0.7, 0.15);
+            draw crossguard withpen pencircle scaled 0.3 withcolor (0.6, 0.5, 0.1);
+            handle = gripBase + (0.02u, 0.02u) -- gripBase + (0.02u, 0.02u) + (0.28u, -0.21u) -- gripBase + (-0.02u, -0.02u) + (0.28u, -0.21u) -- gripBase + (-0.02u, -0.02u) -- cycle;
+            fill handle withcolor (0.4, 0.25, 0.15);
+            draw handle withpen pencircle scaled 0.3 withcolor (0.25, 0.15, 0.1);
+            pommel = fullcircle scaled 0.1u shifted hiltEnd;
+            fill pommel withcolor (0.85, 0.7, 0.15);
+            draw pommel withpen pencircle scaled 0.3 withcolor (0.6, 0.5, 0.1);
+        fi;
+    enddef;
+    
+    % 辅助宏：绘制盾牌
+    def draw_shield(expr pos) =
+        path shield, boss, rim;
+        shield = pos + (-0.35u, 0.55u) -- pos + (0.35u, 0.55u) -- pos + (0.42u, 0.15u) 
+                 -- pos + (0.35u, -0.5u) -- pos + (0, -0.65u) -- pos + (-0.35u, -0.5u) 
+                 -- pos + (-0.42u, 0.15u) -- cycle;
+        fill shield withcolor (0.25, 0.35, 0.55);
+        draw shield withpen pencircle scaled 0.5 withcolor (0.15, 0.2, 0.35);
+        rim = pos + (-0.3u, 0.48u) -- pos + (0.3u, 0.48u) -- pos + (0.36u, 0.12u) 
+              -- pos + (0.3u, -0.42u) -- pos + (0, -0.55u) -- pos + (-0.3u, -0.42u) 
+              -- pos + (-0.36u, 0.12u) -- cycle;
+        draw rim withpen pencircle scaled 0.6 withcolor (0.7, 0.55, 0.2);
+        boss = fullcircle scaled 0.28u shifted (pos + (0, 0.08u));
+        fill boss withcolor (0.8, 0.65, 0.2);
+        draw boss withpen pencircle scaled 0.4 withcolor (0.55, 0.45, 0.15);
+        fill fullcircle scaled 0.1u shifted (pos + (0, 0.08u)) withcolor (0.6, 0.5, 0.15);
+    enddef;
+    
+    % 辅助宏：绘制魔法棒
+    def draw_wand(expr pos) =
+        path wand_body, star;
+        pair wand_tip;
+        wand_tip = pos + (0.7u, 0.55u);
+        wand_body = pos -- pos + (0.08u, 0.05u) -- wand_tip + (0.02u, -0.02u) -- wand_tip + (-0.02u, -0.02u) -- pos + (-0.02u, -0.02u) -- cycle;
+        fill wand_body withcolor (0.35, 0.15, 0.45);
+        draw wand_body withpen pencircle scaled 0.3 withcolor (0.2, 0.1, 0.25);
+        star = for i = 0 upto 4: wand_tip + 0.12u * dir(90 + i*72) -- wand_tip + 0.05u * dir(90 + i*72 + 36) -- endfor cycle;
+        fill star withcolor (1, 0.9, 0.3);
+        draw star withpen pencircle scaled 0.25 withcolor (1, 0.7, 0.1);
+        for i = 0 upto 4:
+            pair spark_start, spark_end;
+            spark_start = wand_tip + 0.12u * dir(90 + i*72);
+            spark_end = spark_start + 0.08u * dir(90 + i*72);
+            draw spark_start -- spark_end withpen pencircle scaled 0.3 withcolor (1, 0.95, 0.5);
+        endfor;
+    enddef;
+    
+    % 人物绘制宏
+    vardef person(expr x, y, bodytype, bodyshape, pose, face, wear, item, scale) =
+        save u, lw, hsize, bw, bh;
+        numeric u, lw, hsize, bw, bh;
+        
+        numeric _x, _y, _scale;
+        string _bodytype, _bodyshape, _pose, _face, _wear, _item;
+        
+        _x := if known x and numeric x: x else: 5 fi;
+        _y := if known y and numeric y: y else: 10 fi;
+        _bodytype := if known bodytype and string bodytype: bodytype else: "normal" fi;
+        _bodyshape := if known bodyshape and string bodyshape: bodyshape else: "rectangle" fi;
+        _pose := if known pose and string pose: pose else: "stand" fi;
+        _face := if known face and string face: face else: "happy" fi;
+        _wear := if known wear and string wear: wear else: "plain" fi;
+        _item := if known item and string item: item else: "none" fi;
+        _scale := if known scale and numeric scale: scale else: 1 fi;
+        
+        u := 16pt * _scale;
+        lw := 1.5 * _scale;
+        
+        pair headtop, bodytop, bodybot, handRpos, handLpos;
+        
+        if _bodytype = "thin":
+            hsize := 1.0u; bw := 0.45u; bh := 2.2u;
+        elseif _bodytype = "fat":
+            hsize := 1.3u; bw := 0.9u;  bh := 1.8u;
+        else:
+            hsize := 1.1u; bw := 0.65u; bh := 2.0u;
+        fi;
+        
+        headtop := (_x, _y);
+        bodytop := headtop - (0, hsize/2);
+        bodybot := bodytop - (0, bh);
+        
+        % 头部
+        fill fullcircle scaled hsize shifted headtop withcolor headfill;
+        draw fullcircle scaled hsize shifted headtop withcolor outlinecol;
+        
+        % 表情
+        pair eyeL, eyeR;
+        eyeL := headtop + (-0.18u, 0.08u);
+        eyeR := headtop + (0.18u, 0.08u);
+        
+        if _face = "happy":
+            draw eyeL + (-0.08u, 0.02u) .. eyeL .. eyeL + (0.08u, 0.02u);
+            draw eyeR + (-0.08u, 0.02u) .. eyeR .. eyeR + (0.08u, 0.02u);
+            draw (headtop + (-0.2u, -0.18u)) .. (headtop + (0, -0.28u)) .. (headtop + (0.2u, -0.18u));
+        elseif _face = "sad":
+            draw eyeL + (-0.06u, 0.04u) .. eyeL + (0, 0) .. eyeL + (0.06u, 0.04u);
+            draw eyeR + (-0.06u, 0.04u) .. eyeR + (0, 0) .. eyeR + (0.06u, 0.04u);
+            draw (headtop + (-0.2u, -0.1u)) .. (headtop + (0, -0.02u)) .. (headtop + (0.2u, -0.1u));
+        elseif _face = "surprised":
+            fill fullcircle scaled 0.14u shifted eyeL;
+            fill fullcircle scaled 0.14u shifted eyeR;
+            fill fullcircle scaled 0.06u shifted (eyeL + (0.03u, 0.03u)) withcolor white;
+            fill fullcircle scaled 0.06u shifted (eyeR + (0.03u, 0.03u)) withcolor white;
+            draw fullcircle scaled 0.18u shifted (headtop + (0, -0.22u));
+        elseif _face = "thinking":
+            draw eyeL + (-0.06u, 0) -- eyeL + (0.06u, 0);
+            draw eyeR + (-0.06u, 0) -- eyeR + (0.06u, 0);
+            draw (headtop + (-0.15u, -0.18u)) -- (headtop + (0.15u, -0.18u));
+            pair qp; qp = headtop + (0.55u, 0.5u);
+            draw (qp + (-0.06u, 0.1u)) .. (qp + (0, 0.16u)) .. (qp + (0.06u, 0.06u))
+                 .. (qp + (0.02u, 0)) .. (qp + (-0.02u, -0.04u));
+            fill fullcircle scaled 0.05u shifted (qp + (0, -0.1u));
+        elseif _face = "cool":
+            fill (eyeL + (-0.1u, 0.06u)) -- (eyeL + (0.1u, 0.06u)) -- (eyeL + (0.1u, -0.06u)) -- (eyeL + (-0.1u, -0.06u)) -- cycle withcolor 0.2white;
+            fill (eyeR + (-0.1u, 0.06u)) -- (eyeR + (0.1u, 0.06u)) -- (eyeR + (0.1u, -0.06u)) -- (eyeR + (-0.1u, -0.06u)) -- cycle withcolor 0.2white;
+            draw eyeL + (0.1u, 0) -- eyeR + (-0.1u, 0) withpen pencircle scaled 0.8;
+            draw (headtop + (-0.12u, -0.2u)) -- (headtop + (0.12u, -0.2u));
+        elseif _face = "excited":
+            fill fullcircle scaled 0.12u shifted eyeL;
+            fill fullcircle scaled 0.12u shifted eyeR;
+            fill fullcircle scaled 0.04u shifted (eyeL + (0.02u, 0.02u)) withcolor white;
+            fill fullcircle scaled 0.04u shifted (eyeR + (0.02u, 0.02u)) withcolor white;
+            draw (headtop + (-0.22u, -0.15u)) .. (headtop + (0, -0.32u)) .. (headtop + (0.22u, -0.15u));
+            draw (eyeL + (-0.06u, 0.1u)) -- (eyeL + (0.06u, 0.14u));
+            draw (eyeR + (0.06u, 0.1u)) -- (eyeR + (-0.06u, 0.14u));
+        elseif _face = "angry":
+            draw (eyeL + (-0.08u, 0.08u)) -- (eyeL + (0.08u, 0.02u));
+            draw (eyeR + (0.08u, 0.08u)) -- (eyeR + (-0.08u, 0.02u));
+            fill fullcircle scaled 0.1u shifted eyeL;
+            fill fullcircle scaled 0.1u shifted eyeR;
+            draw (headtop + (-0.18u, -0.18u)) -- (headtop + (-0.05u, -0.22u)) -- (headtop + (0.05u, -0.18u)) -- (headtop + (0.18u, -0.22u));
+        elseif _face = "sleepy":
+            draw eyeL + (-0.08u, 0) .. eyeL + (0, -0.03u) .. eyeL + (0.08u, 0);
+            draw eyeR + (-0.08u, 0) .. eyeR + (0, -0.03u) .. eyeR + (0.08u, 0);
+            draw fullcircle scaled 0.15u shifted (headtop + (0, -0.2u));
+            draw (headtop + (0.35u, 0.15u)) -- (headtop + (0.45u, 0.08u)) -- (headtop + (0.35u, 0.01u));
+        else:
+            draw eyeL + (-0.06u, 0) -- eyeL + (0.06u, 0);
+            draw eyeR + (-0.06u, 0) -- eyeR + (0.06u, 0);
+            draw (headtop + (-0.12u, -0.18u)) -- (headtop + (0.12u, -0.18u));
+        fi;
+        
+        % 身体
+        path bodyrect;
+        numeric rxa, rxb, rxc, rxd, rya, ryb;
+        rxa := uniformdeviate(0.08u) - 0.04u;
+        rxb := uniformdeviate(0.08u) - 0.04u;
+        rxc := uniformdeviate(0.08u) - 0.04u;
+        rxd := uniformdeviate(0.08u) - 0.04u;
+        rya := uniformdeviate(0.06u) - 0.03u;
+        ryb := uniformdeviate(0.06u) - 0.03u;
+        
+        if _bodyshape = "drop":
+            bodyrect = (bodytop + (0, 0))
+                       .. controls (bodytop + (-bw/4, 0) + (uniformdeviate(0.05u), rya))
+                       and (bodybot - (bw/2, 0) + (rxa, -bh/4))
+                       .. (bodybot - (bw/2, 0) + (rxa, 0))
+                       .. controls (bodybot - (bw/4, 0))
+                       and (bodybot + (bw/4, 0))
+                       .. (bodybot + (bw/2, 0) + (rxd, 0))
+                       .. controls (bodybot + (bw/2, 0) + (rxd, -bh/4))
+                       and (bodytop + (bw/4, 0) + (-uniformdeviate(0.05u), ryb))
+                       .. (bodytop + (0, 0))
+                       .. cycle;
+        elseif _bodyshape = "inverteddrop":
+            bodyrect = (bodytop - (bw/2, 0) + (rxa, 0))
+                       .. controls (bodytop - (bw/2, 0) + (rxa, -bh/4))
+                       and (bodybot - (bw/4, 0) + (uniformdeviate(0.05u), rya))
+                       .. (bodybot + (0, 0))
+                       .. controls (bodybot + (bw/4, 0) + (-uniformdeviate(0.05u), ryb))
+                       and (bodytop + (bw/2, 0) + (rxd, -bh/4))
+                       .. (bodytop + (bw/2, 0) + (rxd, 0))
+                       .. controls (bodytop + (bw/4, 0))
+                       and (bodytop - (bw/4, 0))
+                       .. cycle;
+        elseif _bodyshape = "pentagon":
+            bodyrect = (bodytop + (0, 0))
+                       -- (bodytop + (-bw/2, -bh/4) + (rxa, 0))
+                       -- (bodybot + (-bw/3, 0) + (rxb, rya))
+                       -- (bodybot + (bw/3, 0) + (rxc, ryb))
+                       -- (bodytop + (bw/2, -bh/4) + (rxd, 0))
+                       -- cycle;
+        elseif _bodyshape = "ellipse":
+            bodyrect = fullcircle xscaled bw yscaled bh
+                       shifted (bodytop - (0, bh/2));
+        elseif _bodyshape = "hexagon":
+            bodyrect = (bodytop + (-bw/3, 0) + (rxa, 0))
+                       -- (bodytop + (-bw/2, -bh/4) + (rxb, 0))
+                       -- (bodybot + (-bw/2, 0) + (rxc, rya))
+                       -- (bodybot + (bw/2, 0) + (rxd, ryb))
+                       -- (bodytop + (bw/2, -bh/4) + (rxa, 0))
+                       -- (bodytop + (bw/3, 0) + (rxb, 0))
+                       -- cycle;
+        elseif _bodyshape = "heart":
+            pair hearttip, heartleft, heartright, hearttopL, hearttopR, heartdip;
+            hearttip := bodybot + (0, 0);
+            heartleft := bodytop + (-bw/2, -bh*0.35);
+            heartright := bodytop + (bw/2, -bh*0.35);
+            hearttopL := bodytop + (-bw/4, 0);
+            hearttopR := bodytop + (bw/4, 0);
+            heartdip := bodytop + (0, -bh*0.15);
+            bodyrect = hearttip
+                       .. controls (hearttip + (-bw*0.3, bh*0.2))
+                       and (heartleft + (bw*0.1, -bh*0.1))
+                       .. heartleft
+                       .. controls (heartleft + (-bw*0.05, -bh*0.2))
+                       and (hearttopL + (-bw*0.2, -bh*0.05))
+                       .. hearttopL
+                       .. controls (hearttopL + (bw*0.15, bh*0.02))
+                       and (heartdip + (-bw*0.08, 0))
+                       .. heartdip
+                       .. controls (heartdip + (bw*0.08, 0))
+                       and (hearttopR + (-bw*0.15, bh*0.02))
+                       .. hearttopR
+                       .. controls (hearttopR + (bw*0.2, -bh*0.05))
+                       and (heartright + (bw*0.05, -bh*0.2))
+                       .. heartright
+                       .. controls (heartright + (-bw*0.1, -bh*0.1))
+                       and (hearttip + (bw*0.3, bh*0.2))
+                       .. hearttip
+                       .. cycle;
+        else:
+            bodyrect = (bodytop - (bw/2, 0) + (rxa, 0)) 
+                       .. controls (bodytop - (bw/2, 0) + (rxa, -bh/3) + (uniformdeviate(0.05u), 0)) 
+                       and (bodybot - (bw/2, 0) + (rxb, 0) + (uniformdeviate(0.05u), rya))
+                       .. (bodybot - (bw/2, 0) + (rxb, rya))
+                       .. controls (bodybot - (bw/2 + bw/6, 0))
+                       and (bodybot + (bw/2 - bw/6, 0))
+                       .. (bodybot + (bw/2, 0) + (rxc, ryb))
+                       .. controls (bodybot + (bw/2, 0) + (rxc, ryb) + (-uniformdeviate(0.05u), 0))
+                       and (bodytop + (bw/2, 0) + (rxd, -bh/3) + (-uniformdeviate(0.05u), 0))
+                       .. (bodytop + (bw/2, 0) + (rxd, 0))
+                       .. controls (bodytop + (bw/4, 0))
+                       and (bodytop - (bw/4, 0))
+                       .. cycle;
+        fi;
+        fill bodyrect withcolor bodyfill;
+        draw bodyrect withcolor outlinecol;
+        
+        % 肩膀和髋部坐标（根据身体形状调整）
+        pair shoulderL, shoulderR, hipL, hipR;
+        if _bodyshape = "drop":
+            shoulderL := bodytop + (-bw*0.35, -bh*0.3);
+            shoulderR := bodytop + (bw*0.35, -bh*0.3);
+            hipL := bodybot + (-bw*0.4, 0);
+            hipR := bodybot + (bw*0.4, 0);
+        elseif _bodyshape = "inverteddrop":
+            shoulderL := bodytop + (-bw*0.4, 0);
+            shoulderR := bodytop + (bw*0.4, 0);
+            hipL := bodybot + (-bw*0.3, 0);
+            hipR := bodybot + (bw*0.3, 0);
+        elseif _bodyshape = "pentagon":
+            shoulderL := bodytop + (-bw*0.3, -bh*0.15);
+            shoulderR := bodytop + (bw*0.3, -bh*0.15);
+            hipL := bodybot + (-bw*0.25, 0);
+            hipR := bodybot + (bw*0.25, 0);
+        elseif _bodyshape = "ellipse":
+            shoulderL := bodytop + (-bw*0.35, -bh*0.15);
+            shoulderR := bodytop + (bw*0.35, -bh*0.15);
+            hipL := bodybot + (-bw*0.35, 0);
+            hipR := bodybot + (bw*0.35, 0);
+        elseif _bodyshape = "hexagon":
+            shoulderL := bodytop + (-bw*0.3, 0);
+            shoulderR := bodytop + (bw*0.3, 0);
+            hipL := bodybot + (-bw*0.4, 0);
+            hipR := bodybot + (bw*0.4, 0);
+        elseif _bodyshape = "heart":
+            shoulderL := bodytop + (-bw*0.25, 0);
+            shoulderR := bodytop + (bw*0.25, 0);
+            hipL := bodybot + (-bw*0.3, 0);
+            hipR := bodybot + (bw*0.3, 0);
+        else:
+            shoulderL := bodytop + (-bw/2 + 0.05u, 0);
+            shoulderR := bodytop + (bw/2 - 0.05u, 0);
+            hipL := bodybot + (-bw/4, 0);
+            hipR := bodybot + (bw/4, 0);
+        fi;
+        
+        % 动作
+        if _pose = "stand":
+            handLpos := shoulderL + (-0.4u, -1.0u);
+            handRpos := shoulderR + (0.4u, -1.0u);
+            armcurve(shoulderL, shoulderL + (-0.2u, -0.5u), handLpos, false);
+            armcurve(shoulderR, shoulderR + (0.2u, -0.5u), handRpos, true);
+            legcurve(hipL, hipL + (-0.2u, -0.6u), hipL + (-0.25u, -1.2u));
+            legcurve(hipR, hipR + (0.2u, -0.6u), hipR + (0.25u, -1.2u));
+        elseif _pose = "raise":
+            handLpos := shoulderL + (-0.3u, 1.2u);
+            handRpos := shoulderR + (0.3u, 1.2u);
+            armcurve(shoulderL, shoulderL + (-0.2u, 0.6u), handLpos, false);
+            armcurve(shoulderR, shoulderR + (0.2u, 0.6u), handRpos, true);
+            legcurve(hipL, hipL + (-0.2u, -0.6u), hipL + (-0.25u, -1.2u));
+            legcurve(hipR, hipR + (0.2u, -0.6u), hipR + (0.25u, -1.2u));
+        elseif _pose = "run":
+            handLpos := shoulderL + (-0.8u, -0.2u);
+            handRpos := shoulderR + (0.8u, -0.2u);
+            armcurve(shoulderL, shoulderL + (-0.5u, 0.1u), handLpos, false);
+            armcurve(shoulderR, shoulderR + (0.5u, 0.1u), handRpos, true);
+            legcurve(hipL, hipL + (0.3u, -0.4u), hipL + (0.6u, -1.0u));
+            legcurve(hipR, hipR + (-0.3u, -0.4u), hipR + (-0.6u, -1.0u));
+        elseif _pose = "sit":
+            handLpos := shoulderL + (-0.6u, -0.3u);
+            handRpos := shoulderR + (0.6u, -0.3u);
+            armcurve(shoulderL, shoulderL + (-0.3u, -0.1u), handLpos, false);
+            armcurve(shoulderR, shoulderR + (0.3u, -0.1u), handRpos, true);
+            legcurve(hipL, hipL + (-0.5u, 0.1u), hipL + (-0.9u, 0.0u));
+            legcurve(hipR, hipR + (0.5u, 0.1u), hipR + (0.9u, 0.0u));
+        elseif _pose = "wave":
+            handLpos := shoulderL + (-0.4u, -1.0u);
+            handRpos := shoulderR + (0.6u, 1.0u);
+            armcurve(shoulderL, shoulderL + (-0.2u, -0.5u), handLpos, false);
+            armcurve(shoulderR, shoulderR + (0.4u, 0.5u), handRpos, true);
+            legcurve(hipL, hipL + (-0.2u, -0.6u), hipL + (-0.25u, -1.2u));
+            legcurve(hipR, hipR + (0.2u, -0.6u), hipR + (0.25u, -1.2u));
+        elseif _pose = "jump":
+            handLpos := shoulderL + (-0.9u, 0.7u);
+            handRpos := shoulderR + (0.9u, 0.7u);
+            armcurve(shoulderL, shoulderL + (-0.6u, 0.3u), handLpos, false);
+            armcurve(shoulderR, shoulderR + (0.6u, 0.3u), handRpos, true);
+            legcurve(hipL, hipL + (-0.5u, -0.3u), hipL + (-0.8u, -0.6u));
+            legcurve(hipR, hipR + (0.5u, -0.3u), hipR + (0.8u, -0.6u));
+        elseif _pose = "dance":
+            handLpos := hipL + (-0.5u, 0.1u);
+            handRpos := shoulderR + (1.0u, 0.6u);
+            armcurve(shoulderL, shoulderL + (-0.3u, -0.2u), handLpos, false);
+            armcurve(shoulderR, shoulderR + (0.7u, 0.2u), handRpos, true);
+            legcurve(hipL, hipL + (-0.3u, -0.8u), hipL + (-0.4u, -1.2u));
+            legcurve(hipR, hipR + (0.6u, -0.2u), hipR + (1.0u, -0.5u));
+        elseif _pose = "fight":
+            handLpos := shoulderL + (-1.4u, 0.0u);
+            handRpos := shoulderR + (1.4u, 0.0u);
+            armcurve(shoulderL, shoulderL + (-0.8u, -0.1u), handLpos, false);
+            armcurve(shoulderR, shoulderR + (0.8u, -0.1u), handRpos, true);
+            legcurve(hipL, hipL + (-0.5u, -0.6u), hipL + (-0.6u, -1.2u));
+            legcurve(hipR, hipR + (0.5u, -0.6u), hipR + (0.6u, -1.2u));
+        else:
+            handLpos := shoulderL + (-0.4u, -1.0u);
+            handRpos := shoulderR + (0.4u, -1.0u);
+            armcurve(shoulderL, shoulderL + (-0.2u, -0.5u), handLpos, false);
+            armcurve(shoulderR, shoulderR + (0.2u, -0.5u), handRpos, true);
+            legcurve(hipL, hipL + (-0.2u, -0.6u), hipL + (-0.25u, -1.2u));
+            legcurve(hipR, hipR + (0.2u, -0.6u), hipR + (0.25u, -1.2u));
+        fi;
+        
+        % 道具
+        if _item = "sword":
+            draw_sword(handRpos, "right");
+        elseif _item = "shield":
+            draw_shield(handLpos);
+        elseif _item = "wand":
+            draw_wand(handRpos);
+        elseif _item = "sword_shield":
+            draw_sword(handRpos, "right");
+            draw_shield(handLpos);
+        fi;
+    enddef;
+\stopMPdefinitions
+
+% ==============================================
+% 使用方法：\useMPgraphic{PersonFigure}{参数}
+% 参数：x, y, bodytype, bodyshape, pose, face, wear, item, scale（均可选，有默认值）
+% ==============================================
+
+\setupMPvariables
+  [PersonFigure]
+  [x=5,
+   y=10,
+   bodytype=normal,
+   bodyshape=rectangle,
+   pose=stand,
+   face=happy,
+   wear=plain,
+   item=none,
+   scale=1]
+
+\startuseMPgraphic{PersonFigure}
+  person(
+    \MPvar{x},
+    \MPvar{y},
+    "\MPvar{bodytype}",
+    "\MPvar{bodyshape}",
+    "\MPvar{pose}",
+    "\MPvar{face}",
+    "\MPvar{wear}",
+    "\MPvar{item}",
+    \MPvar{scale}
+  );
+\stopuseMPgraphic
+
+% ==============================================
+% 使用示例
+% ==============================================
+
+
+\subject{人物绘制示例}
+
+\startcolumns[n=4]
+
+\subsubject{默认人物（不填任何参数）}
+
+\useMPgraphic{PersonFigure}{}
+
+
+\subsubject{基本使用}
+
+\useMPgraphic{PersonFigure}{x=5, y=5, bodytype=normal, pose=stand, face=happy, scale=1}
+\useMPgraphic{PersonFigure}{x=10, y=5, bodytype=thin, pose=run, face=excited, scale=1}
+\useMPgraphic{PersonFigure}{x=15, y=5, bodytype=fat, pose=sit, face=sleepy, scale=1}
+
+
+\subsubject{带道具的人物}
+
+\useMPgraphic{PersonFigure}{x=5, y=12, pose=fight, face=angry, item=sword}
+\useMPgraphic{PersonFigure}{x=10, y=12, pose=fight, face=angry, item=shield}
+\useMPgraphic{PersonFigure}{x=15, y=12, pose=fight, face=angry, item=sword_shield}
+\useMPgraphic{PersonFigure}{x=20, y=12, pose=raise, face=excited, item=wand}
+
+
+\subsubject{不同表情}
+
+\useMPgraphic{PersonFigure}{x=5, y=19, pose=stand, face=happy}
+\useMPgraphic{PersonFigure}{x=7, y=19, pose=stand, face=sad}
+\useMPgraphic{PersonFigure}{x=9, y=19, pose=stand, face=surprised}
+\useMPgraphic{PersonFigure}{x=11, y=19, pose=stand, face=angry}
+\useMPgraphic{PersonFigure}{x=13, y=19, pose=stand, face=cool}
+\useMPgraphic{PersonFigure}{x=15, y=19, pose=stand, face=thinking}
+\useMPgraphic{PersonFigure}{x=17, y=19, pose=stand, face=sleepy}
+
+
+\subsubject{不同动作}
+
+\useMPgraphic{PersonFigure}{x=5, y=26, pose=stand, face=happy}
+\useMPgraphic{PersonFigure}{x=7, y=26, pose=raise, face=happy}
+\useMPgraphic{PersonFigure}{x=9, y=26, pose=run, face=happy}
+\useMPgraphic{PersonFigure}{x=11, y=26, pose=jump, face=happy}
+\useMPgraphic{PersonFigure}{x=13, y=26, pose=dance, face=happy}
+\useMPgraphic{PersonFigure}{x=15, y=26, pose=wave, face=happy}
+\useMPgraphic{PersonFigure}{x=17, y=26, pose=sit, face=happy}
+
+
+\subsubject{不同身体形状}
+
+\useMPgraphic{PersonFigure}{x=5, y=33, bodyshape=rectangle, face=happy}
+\useMPgraphic{PersonFigure}{x=7, y=33, bodyshape=drop, face=happy}
+\useMPgraphic{PersonFigure}{x=9, y=33, bodyshape=inverteddrop, face=happy}
+\useMPgraphic{PersonFigure}{x=11, y=33, bodyshape=pentagon, face=happy}
+\useMPgraphic{PersonFigure}{x=13, y=33, bodyshape=ellipse, face=happy}
+\useMPgraphic{PersonFigure}{x=15, y=33, bodyshape=hexagon, face=happy}
+\useMPgraphic{PersonFigure}{x=17, y=33, bodyshape=heart, face=happy}
+
+
+\subsubject{水滴形与不同姿势}
+
+\useMPgraphic{PersonFigure}{x=5, y=40, bodyshape=drop, pose=stand, face=happy}
+\useMPgraphic{PersonFigure}{x=7, y=40, bodyshape=drop, pose=raise, face=excited}
+\useMPgraphic{PersonFigure}{x=9, y=40, bodyshape=drop, pose=run, face=happy}
+\useMPgraphic{PersonFigure}{x=11, y=40, bodyshape=drop, pose=jump, face=excited}
+\useMPgraphic{PersonFigure}{x=13, y=40, bodyshape=drop, pose=dance, face=happy}
+\useMPgraphic{PersonFigure}{x=15, y=40, bodyshape=drop, pose=fight, face=angry}
+
+
+\subsubject{倒水滴形与不同姿势}
+
+\useMPgraphic{PersonFigure}{x=5, y=47, bodyshape=inverteddrop, pose=stand, face=happy}
+\useMPgraphic{PersonFigure}{x=7, y=47, bodyshape=inverteddrop, pose=raise, face=excited}
+\useMPgraphic{PersonFigure}{x=9, y=47, bodyshape=inverteddrop, pose=run, face=happy}
+\useMPgraphic{PersonFigure}{x=11, y=47, bodyshape=inverteddrop, pose=jump, face=excited}
+\useMPgraphic{PersonFigure}{x=13, y=47, bodyshape=inverteddrop, pose=dance, face=happy}
+\useMPgraphic{PersonFigure}{x=15, y=47, bodyshape=inverteddrop, pose=fight, face=angry}
+
+
+\subsubject{椭圆形与不同姿势}
+
+\useMPgraphic{PersonFigure}{x=5, y=54, bodyshape=ellipse, pose=stand, face=happy}
+\useMPgraphic{PersonFigure}{x=7, y=54, bodyshape=ellipse, pose=raise, face=excited}
+\useMPgraphic{PersonFigure}{x=9, y=54, bodyshape=ellipse, pose=run, face=happy}
+\useMPgraphic{PersonFigure}{x=11, y=54, bodyshape=ellipse, pose=jump, face=excited}
+\useMPgraphic{PersonFigure}{x=13, y=54, bodyshape=ellipse, pose=dance, face=happy}
+\useMPgraphic{PersonFigure}{x=15, y=54, bodyshape=ellipse, pose=fight, face=angry}
+
+
+\subsubject{心形与不同姿势}
+
+\useMPgraphic{PersonFigure}{x=5, y=61, bodyshape=heart, pose=stand, face=happy}
+\useMPgraphic{PersonFigure}{x=7, y=61, bodyshape=heart, pose=raise, face=excited}
+\useMPgraphic{PersonFigure}{x=9, y=61, bodyshape=heart, pose=run, face=happy}
+\useMPgraphic{PersonFigure}{x=11, y=61, bodyshape=heart, pose=jump, face=excited}
+\useMPgraphic{PersonFigure}{x=13, y=61, bodyshape=heart, pose=dance, face=happy}
+\useMPgraphic{PersonFigure}{x=15, y=61, bodyshape=heart, pose=fight, face=angry}
+
+
+\subsubject{缩放示例}
+
+\useMPgraphic{PersonFigure}{x=5, y=68, pose=stand, scale=0.5}
+\useMPgraphic{PersonFigure}{x=8, y=68, pose=stand, scale=1}
+\useMPgraphic{PersonFigure}{x=12, y=68, pose=stand, scale=1.5}
+
+\stopcolumns
+\stoptext

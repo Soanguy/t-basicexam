@@ -132,20 +132,8 @@ local function load_pinyin_data()
         return true
     end
     
-    local filename = "data/pinyin.txt"
-    local fullname = resolvers.findfile(filename) or filename
-    
-    local file = io.open(fullname, "r")
-    if not file then
-        file = io.open(filename, "r")
-    end
-    
-    if not file then
-        local basepath = debug.getinfo(1, "S").source:match("@(.*/)")
-        if basepath then
-            file = io.open(basepath .. filename, "r")
-        end
-    end
+    local filename = resolvers and resolvers.findfile("pinyin.txt") or "data-index/pinyin.txt"
+    local file = io.open(filename, "r")
     
     if not file then
         log.report("pinyin", "warning", "Cannot find pinyin data file: %s", filename)

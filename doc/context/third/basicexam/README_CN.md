@@ -22,6 +22,8 @@ ConTeXt 中文排版工具集，包含试卷生成、文档排版和样式定制
 
 ## t-basicexam - 试卷生成模块
 
+<img style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);" src="https://files.seeusercontent.com/2026/05/02/icF6/260502200738.png">
+
 ### 功能特性
 
 - **选择题** - 支持单选、多选，自动判分
@@ -130,7 +132,12 @@ ConTeXt 中文排版工具集，包含试卷生成、文档排版和样式定制
 
 ## t-memos - 文档排版模块
 
-包含 `zhnumber`（中文数字）和 `zhindex`（中文索引）功能。
+包含 `pinyin`（拼音注音）、`bihua`（笔画显示）、`zhnumber`（中文数字）和 `zhindex`（中文索引）功能。
+
+<img style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);" src="https://files.seeusercontent.com/2026/05/02/6Owk/260502200601.png">
+<img style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);" src="https://files.seeusercontent.com/2026/05/02/g4fD/260502200410.png">
+<img style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);" src="https://files.seeusercontent.com/2026/05/02/el4P/260502200631.png">
+<img style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);" src="https://files.seeusercontent.com/2026/05/02/7Twl/260502200523.png">
 
 ### 功能特性
 
@@ -141,6 +148,86 @@ ConTeXt 中文排版工具集，包含试卷生成、文档排版和样式定制
 - **多种页眉样式**：book、novel、colorful、hctext、fctext、foemargin、foemarginalt、hoemargin
 - **完整字号系统**：从初号(42pt)到小九号(3pt)
 - **多语言支持**：中文简体(hans)、繁体(hant)、日文、英文
+
+### 加载扩展功能
+
+```tex
+% 加载特定扩展
+\usemodule[memos][extra=pinyin]
+\usemodule[memos][extra=bihua]
+\usemodule[memos][extra=zhnumber]
+\usemodule[memos][extra=index]
+
+% 或加载所有扩展
+\usemodule[memos][extra=all]
+```
+
+### pinyin - 拼音注音
+
+**作用**：为汉字自动或手动添加拼音标注，适用于教育材料、语言学习文档等场景。
+
+**主要命令**：
+
+| 命令 | 说明 | 示例 |
+|------|------|------|
+| `\startpinyinscope ... \stoppinyinscope` | 自动注音环境 | 见下方示例 |
+| `\xpinyin{文本}` | 手动注音 | `\xpinyin{汉字}` → hànzì |
+| `\xpinyin[拼音]{汉字}` | 指定多音字拼音 | `\xpinyin[chong2]{重}` |
+| `\setuppinyin[...]` | 设置拼音参数 | 设置 vsep、hsep、ratio 等 |
+
+**使用示例**：
+
+```tex
+\usemodule[memos][extra=pinyin]
+
+% 自动注音
+\startpinyinscope
+汉语拼音自动注音测试。
+\stoppinyinscope
+
+% 手动注音
+汉字：\xpinyin{手动注音测试}
+
+% 多音字处理
+\xpinyin[chong2]{重}庆是一座美丽的城市。
+```
+
+### bihua - 笔画显示
+
+**作用**：展示汉字的笔画顺序和结构，适用于汉字教学、书法练习等场景。
+
+**主要命令**：
+
+| 命令 | 说明 | 示例 |
+|------|------|------|
+| `\bihuaload{汉字}` | 加载汉字数据 | `\bihuaload{好学习}` |
+| `\bihuashow{汉字}{笔画数}` | 显示指定笔画 | `\bihuashow{好}{3}` |
+| `\bihuashowall{汉字}` | 显示所有笔画 | `\bihuashowall{好}` |
+| `\definebihua[样式][...]` | 定义自定义样式 | 配置颜色、边框等 |
+
+**边框类型**：
+- **outer**：只有外框
+- **tian**：田字格（十字线）
+- **mi**：米字格（十字+对角线）
+- **x**：只有对角线
+- **none**：无边框
+
+**使用示例**：
+
+```tex
+\usemodule[memos][extra=bihua]
+
+\bihuaload{好学习}
+
+% 显示指定笔画
+\bihuashow{好}{3}
+
+% 带边框显示
+\bihuashow[frame=tian]{好}{3}
+
+% 显示所有笔画
+\bihuashowall{好学习}
+```
 
 ### zhnumber - 中文数字转换
 
@@ -187,8 +274,7 @@ ConTeXt 中文排版工具集，包含试卷生成、文档排版和样式定制
 **使用示例**：
 
 ```tex
-\usemodule[memos]
-\usemodule[zhindex]
+\usemodule[memos][extra=index]
 
 % 添加索引项
 \index{北京大学}
@@ -270,17 +356,11 @@ mtxrun --script install-modules --install visualcounter
 
 - **[basicexam 手册](basicexam-manual.tex)**：详细的使用指南
 - **[memos 手册](memos-manual.tex)**：文档排版模块说明
+- **[memos 手册（英文）](memos-manual-en.tex)**：文档排版模块说明（英文版）
 - **[试卷生成测试](test-exam.tex)**：basicexam 模块测试示例
 - **[框架测试](test-frame.tex)**：框架功能测试
 - **[样式模块测试](test-poriginal.tex)**：s-poriginal 模块测试
 - **[中文数字测试](test-zhnumber.tex)**：zhnumber 功能测试
 - **[中文索引测试](test-zhindex.tex)**：zhindex 功能测试
-
----
-
-## 预览
-
-![](doc/context/third/basicexam/assets/soanguy-103113.png)
-![](doc/context/third/basicexam/assets/soanguy-1048579.png)
-![](doc/context/third/basicexam/assets/soanguy-105577.png)
-![](doc/context/third/basicexam/assets/soanguy-1020859.png)
+- **[拼音注音测试](test-pinyin.tex)**：pinyin 功能测试
+- **[笔画显示测试](test-bihua.tex)**：bihua 功能测试

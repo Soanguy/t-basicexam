@@ -2,10 +2,10 @@ local sorters           = sorters or { }
 local definitions       = sorters.definitions or { }
 
 local pinyin_data = nil
-local pinyin_file = "pinyin.txt"
-
 local stroke_data = nil
-local stroke_file = "sunwb_strokeorder.txt"
+
+local pinyin_file = resolvers and resolvers.findfile("pinyin.txt") or "data-index/pinyin.txt"
+local stroke_file = resolvers and resolvers.findfile("sunwb_strokeorder.txt") or "data-index/sunwb_strokeorder.txt"
 
 local digitsoffset      = 0x20000 -- frozen
 local digitsmaximum     = 0xFFFFF -- frozen
@@ -29,14 +29,14 @@ local function load_stroke_data()
         return stroke_data
     end
     
-    local data = io.loaddata(resolvers and resolvers.findfile(stroke_file) or stroke_file)
-    if not data then
+    local file = io.open(stroke_file, "r")
+    if not file then
         return nil
     end
     
     stroke_data = {}
     
-    for line in string.gmatch(data, "([^\r\n]+)") do
+    for line in file:lines() do
         if not line:match("^#") then
             local char, stroke_code = line:match("^(%S+)%s*(%d+)")
             if char and stroke_code then
@@ -49,6 +49,7 @@ local function load_stroke_data()
         end
     end
     
+    file:close()
     return stroke_data
 end
 
@@ -57,14 +58,14 @@ local function load_pinyin_data()
         return pinyin_data
     end
     
-    local data = io.loaddata(resolvers and resolvers.findfile(pinyin_file) or pinyin_file)
-    if not data then
+    local file = io.open(pinyin_file, "r")
+    if not file then
         return nil
     end
     
     pinyin_data = {}
     
-    for line in string.gmatch(data, "([^\r\n]+)") do
+    for line in file:lines() do
         if not line:match("^#") then
             local pinyin_raw, char = line:match("U%+[0-9A-Fa-f]+:%s*([^#]+)#%s*(%S+)")
             if pinyin_raw and char then
@@ -78,6 +79,7 @@ local function load_pinyin_data()
         end
     end
     
+    file:close()
     return pinyin_data
 end
 

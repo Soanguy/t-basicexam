@@ -1,4 +1,4 @@
-\usemodule[memos][mainlanguage=en,language=en]
+\usemodule[memos][mainlanguage=en,language=en,extra=all]
 \usemodule[setups]
 
 \enablemode[no-setup-main]
@@ -1429,6 +1429,277 @@ Multiple modes can be combined:
 \usemodule[memos][mode={print,moresize}]
 \stoptyping
 
+\chapter{Pinyin Annotation}
+
+\section{Introduction}
+
+The pinyin annotation feature automatically or manually adds pinyin (romanization) to Chinese characters, suitable for educational materials and language learning documents.
+
+\section{Loading the Module}
+
+\starttyping
+\usemodule[memos][extra=pinyin]
+% or load all extra features
+\usemodule[memos][extra=all]
+\stoptyping
+
+\section{Automatic Annotation Environment}
+
+Use the \type{startpinyinscope} environment to automatically add pinyin to Chinese characters:
+
+\startbuffer
+\startpinyinscope
+汉语拼音自动注音测试。
+\stoppinyinscope
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\section{Manual Annotation}
+
+Use the \type{\xpinyin} command to add pinyin to specific characters:
+
+\startbuffer
+汉字：\xpinyin{手动注音测试}
+
+手动指定拼音：\xpinyin[hàn]{汉}
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\section{Polyphonic Character Handling}
+
+\subsection{Manually Specifying Polyphonic Characters}
+
+\startbuffer
+\xpinyin[chong2]{重}庆是一座美丽的城市。
+\xpinyin{重}要
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\subsection{Polyphonic Character Marking Mode}
+
+Enable \type{markpolyphone=yes} to mark polyphonic characters:
+
+\startbuffer
+\startpinyinscope[markpolyphone=yes]
+重庆是一座美丽的城市。
+\stoppinyinscope
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\section{Parameter Settings}
+
+Use \type{\setuppinyin} to set pinyin parameters:
+
+\starttabulate[|l|l|p(8cm)|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC vsep \NC 1em \NC Vertical spacing between pinyin and character \NC\NR
+\NC hsep \NC 0pt \NC Horizontal spacing between pinyin characters \NC\NR
+\NC pysep \NC \tex{spaceskip} \NC Spacing between pinyin syllables \NC\NR
+\NC ratio \NC 4 \NC Pinyin font size ratio (relative to character) \NC\NR
+\NC multiple \NC no \NC Whether to show polyphonic options \NC\NR
+\NC markpolyphone \NC no \NC Whether to mark polyphonic characters \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Parameter Examples}
+
+\startbuffer
+% Adjust pinyin size
+\xpinyin[ratio=6]{汉}  % larger
+\xpinyin[ratio=3]{汉}  % smaller
+
+% Adjust vertical spacing
+\xpinyin[vsep=2em]{汉字}
+
+% Show polyphonic options
+\xpinyin[multiple=yes]{重庆}
+\stopbuffer
+
+\typebuffer
+
+\chapter{Stroke Display}
+
+\bihuaload{好学习}
+
+\section{Introduction}
+
+The stroke display feature shows the stroke order and structure of Chinese characters, suitable for character teaching and calligraphy practice.
+
+\section{Loading the Module}
+
+\starttyping
+\usemodule[memos][extra=bihua]
+% or load all extra features
+\usemodule[memos][extra=all]
+\stoptyping
+
+\section{Basic Usage}
+
+\subsection{Loading Character Data}
+
+Before using stroke features, load character data:
+
+\starttyping
+\bihuaload{好学习}
+\stoptyping
+
+\subsection{Displaying Single Stroke}
+
+Use \type{\bihuashow} to display a specific stroke:
+
+\startbuffer
+% Display the 3rd stroke of "好"
+\bihuashow{好}{3}
+
+% Display all strokes
+\bihuashowall{好}
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\section{Frame Types}
+
+The module provides various frame types:
+
+\starttabulate[|l|p(8cm)|]
+\HL
+\NC Type \NC Description \NC\NR
+\HL
+\NC outer \NC Outer frame only \NC\NR
+\NC tian \NC Tian character grid (cross lines) \NC\NR
+\NC outertian \NC Outer frame + Tian grid \NC\NR
+\NC mi \NC Mi character grid (cross + diagonal lines) \NC\NR
+\NC outermi \NC Outer frame + Mi grid \NC\NR
+\NC x \NC Diagonal lines only \NC\NR
+\NC outerx \NC Outer frame + diagonal lines \NC\NR
+\NC none \NC No frame \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Frame Examples}
+
+\startbuffer
+% Tian grid
+\bihuashow[frame=tian]{好}{3}
+
+% Mi grid
+\bihuashow[frame=outermi]{好}{3}
+
+% No frame
+\bihuashow[frame=none]{好}{3}
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\section{Style Parameters}
+
+\starttabulate[|l|l|p(8cm)|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC width \NC 1cm \NC Drawing width \NC\NR
+\NC frame \NC outer \NC Frame type \NC\NR
+\NC natural \NC no \NC Use natural width \NC\NR
+\NC framestroke \NC black \NC Frame line color \NC\NR
+\NC framefill \NC (none) \NC Frame fill color \NC\NR
+\NC framelinewidth \NC 0.5pt \NC Frame line width \NC\NR
+\NC framedashpattern \NC solid \NC Frame line style (solid/dashed/dotted) \NC\NR
+\NC iframestroke \NC 0.5white \NC Inner frame line color \NC\NR
+\NC iframelinewidth \NC 0.3pt \NC Inner frame line width \NC\NR
+\NC iframedashpattern \NC dashed \NC Inner frame line style \NC\NR
+\NC charstroke \NC black \NC Character line color \NC\NR
+\NC charfill \NC black \NC Character fill color \NC\NR
+\NC charlinewidth \NC 0.3pt \NC Character line width \NC\NR
+\NC chardashpattern \NC solid \NC Character line style \NC\NR
+\NC laststroke \NC red \NC Last stroke line color \NC\NR
+\NC lastfill \NC red \NC Last stroke fill color \NC\NR
+\NC lastlinewidth \NC 0.3pt \NC Last stroke line width \NC\NR
+\NC lastdashpattern \NC solid \NC Last stroke line style \NC\NR
+\NC innert \NC 0pt \NC Top inner padding \NC\NR
+\NC innerb \NC 0pt \NC Bottom inner padding \NC\NR
+\NC innerl \NC 0pt \NC Left inner padding \NC\NR
+\NC innerr \NC 0pt \NC Right inner padding \NC\NR
+\NC inner \NC (none) \NC Unified inner padding \NC\NR
+\NC spacing \NC 0em \NC Character spacing (for \type{\bihuashowall} only) \NC\NR
+\HL
+\stoptabulate
+
+\subsection{Style Examples}
+
+\startbuffer
+% Custom size
+\bihuashow[width=2cm]{好}{3}
+
+% Custom colors
+\bihuashow[framestroke=red,charfill=blue]{好}{3}
+
+% Custom padding
+\bihuashow[inner=10pt]{好}{3}
+
+% Display all strokes with spacing
+\bihuashowall[spacing=0.5cm]{好学习}
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\section{Custom Styles}
+
+Use \type{\definebihua} to define new styles:
+
+\startbuffer
+% Define red style
+\definebihua[redstyle][bihua][
+  frame=outer,
+  framestroke=red,
+  charfill=red,
+  laststroke=blue,
+  lastfill=blue
+]
+
+% Use custom style
+\bihuashow[redstyle]{好}{3}
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\section{Stroke Teaching Example}
+
+\startbuffer
+% Display strokes progressively
+\bihuashow[width=1.5cm,frame=outertian]{好}{1}
+\bihuashow[width=1.5cm,frame=outertian]{好}{2}
+\bihuashow[width=1.5cm,frame=outertian]{好}{3}
+\bihuashow[width=1.5cm,frame=outertian]{好}{4}
+\bihuashow[width=1.5cm,frame=outertian]{好}{5}
+\bihuashow[width=1.5cm,frame=outertian]{好}{6}
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
 \chapter{Chinese Numeral Extension (zhnumber)}
 
 \section{Introduction}
@@ -1438,8 +1709,9 @@ The zhnumber module provides comprehensive Chinese numeral conversion functional
 \section{Loading the Module}
 
 \starttyping
-\usemodule[memos]
-% zhnumber functionality is integrated in memos module
+\usemodule[memos][extra=zhnumber]
+% or load all extra features
+\usemodule[memos][extra=all]
 \stoptyping
 
 \section{Integer Conversion}
@@ -1627,8 +1899,9 @@ The zhindex module provides Chinese index sorting functionality with three sorti
 \section{Loading the Module}
 
 \starttyping
-\usemodule[memos]
-\usemodule[zhindex]
+\usemodule[memos][extra=index]
+% or load all extra features
+\usemodule[memos][extra=all]
 \stoptyping
 
 \section{Sorting Methods}

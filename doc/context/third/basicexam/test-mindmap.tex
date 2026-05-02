@@ -1,0 +1,1795 @@
+\usemodule[memos][fontfamily=adobehans,layout=narrow]
+\setupinteractionscreen[option=bookmark]
+
+\usemodule[mindmap]
+
+
+\defineframed[RightCodeExampleFramedX][
+    frame=off,before=,after=,
+    minheight=2\baselineskip,
+    align=top,
+    offset=none,frameoffset=0pt,
+    width=0.5\textwidth,
+    loffset=.5em]
+
+\definebuffer[MindmapExample]
+
+\permanent\protected\def\stopMindmapExample{%
+    \noindent\placesidebyside
+    {\LeftCodeExampleFramedX{\typeMindmapExample\vfil}}
+    {\RightCodeExampleFramedX{\bgroup\getMindmapExample\egroup\vfil}}}
+
+\dontcomplain
+\definecolor[lightblue][r=0.68, g=0.85, b=0.90]
+\definecolor[lightgreen][r=0.56, g=0.93, b=0.56]
+\definecolor[lightyellow][r=1.00, g=1.00, b=0.88]
+\definecolor[lightpink][r=1.00, g=0.71, b=0.76]
+\definecolor[lightcyan][r=0.88, g=1.00, b=1.00]
+\definecolor[lightgray][r=0.83, g=0.83, b=0.83]
+\definecolor[lightlavender][r=0.90, g=0.90, b=1.00]
+\definecolor[darkblue][r=0.00, g=0.00, b=0.55]
+\definecolor[darkgreen][r=0.00, g=0.39, b=0.00]
+\definecolor[darkorange][r=1.00, g=0.55, b=0.00]
+\definecolor[darkred][r=0.55, g=0.00, b=0.00]
+\definecolor[darkcyan][r=0.00, g=0.55, b=0.55]
+\definecolor[darkgray][r=0.33, g=0.33, b=0.33]
+\definecolor[gray][r=0.50, g=0.50, b=0.50]
+\definecolor[transparent][t=1]
+\placebookmarks [subject,subsubject][force=yes]
+
+\starttext
+
+\title{思维导图模块 - JSON 语法示例}
+
+\subject{一、基础示例}
+
+\subsubject{1.1 最简单的思维导图}
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "中心主题";
+    children: [
+        {name: "子主题1"},
+        {name: "子主题2"},
+        {name: "子主题3"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{1.2 带颜色的节点}
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "项目计划";
+    background_color: "lightblue";
+    border_color: "darkblue";
+    children: [
+        {name: "需求分析"; background_color: "lightgreen"; border_color: "darkgreen"},
+        {name: "设计阶段"; background_color: "lightyellow"; border_color: "darkorange"},
+        {name: "开发实现"; background_color: "lightpink"; border_color: "darkred"},
+        {name: "测试部署"; background_color: "lightcyan"; border_color: "darkcyan"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{1.3 多层结构}
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "知识体系";
+    background_color: "lightblue";
+    children: [
+        {
+            name: "编程语言";
+            background_color: "lightgreen";
+            children: [
+                {name: "Python"; background_color: "white"},
+                {name: "JavaScript"; background_color: "white"},
+                {name: "PHP"; background_color: "white"}
+            ]
+        },
+        {
+            name: "算法数据结构";
+            background_color: "lightyellow";
+            children: [
+                {name: "排序算法"; background_color: "white"},
+                {name: "树结构"; background_color: "white"}
+            ]
+        },
+        {
+            name: "系统设计";
+            background_color: "lightpink";
+            children: [
+                {name: "架构设计"; background_color: "white"},
+                {name: "数据库设计"; background_color: "white"}
+            ]
+        }
+    ]
+}
+\stopMindmapExample
+
+\subject{二、布局方向}
+
+\subsubject{2.1 四种布局方向}
+
+\startMindmapExample
+\mmjson{direction: "top-down"; name: "从上到下"; children: [{name: "子1"}, {name: "子2"}]}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{direction: "bottom-up"; name: "从下到上"; children: [{name: "子1"}, {name: "子2"}]}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{direction: "left-right"; name: "从左到右"; children: [{name: "子1"}, {name: "子2"}]}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{direction: "right-left"; name: "从右到左"; children: [{name: "子1"}, {name: "子2"}]}
+\stopMindmapExample
+
+\subsubject{2.2 径向布局}
+
+\startMindmapExample
+\mmjson{
+    layout: "radial";
+    radial_spacing: 60;
+    name: "技术栈";
+    background_color: "lightblue";
+    children: [
+        {name: "前端"; background_color: "lightgreen"},
+        {name: "后端"; background_color: "lightyellow"},
+        {name: "数据库"; background_color: "lightpink"},
+        {name: "DevOps"; background_color: "lightcyan"},
+        {name: "测试"; background_color: "lightlavender"}
+    ]
+}
+\stopMindmapExample
+
+\subject{三、节点样式}
+
+\subsubject{3.1 形状 (shape)}
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "矩形";
+    shape: "rectangle";
+    background_color: "lightblue";
+    children: [
+        {name: "圆形"; shape: "circle"; background_color: "lightgreen"},
+        {name: "椭圆"; shape: "ellipse"; background_color: "lightyellow"},
+        {name: "菱形"; shape: "diamond"; background_color: "lightpink"},
+        {name: "六边形"; shape: "hexagon"; background_color: "lightcyan"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{3.2 圆角矩形 (rounded + corner_radius)}
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "圆角矩形";
+    shape: "rounded";
+    corner_radius: 10;
+    background_color: "lightblue";
+    children: [
+        {name: "小圆角"; shape: "rounded"; corner_radius: 5; background_color: "lightgreen"},
+        {name: "中圆角"; shape: "rounded"; corner_radius: 10; background_color: "lightyellow"},
+        {name: "大圆角"; shape: "rounded"; corner_radius: 20; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{3.3 字体大小和颜色 (font_size, text_color)}
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "大标题";
+    font_size: 14;
+    text_color: "darkblue";
+    background_color: "lightblue";
+    children: [
+        {name: "中标题"; font_size: 12; text_color: "darkgreen"; background_color: "lightgreen"},
+        {name: "小标题"; font_size: 10; text_color: "darkorange"; background_color: "lightyellow"},
+        {name: "更小"; font_size: 8; text_color: "darkred"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{3.4 文本对齐 (text_align)}
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "左对齐";
+    text_align: "left";
+    width: 100;
+    background_color: "lightblue";
+    children: [
+        {name: "居中"; text_align: "center"; width: 100; background_color: "lightgreen"},
+        {name: "右对齐"; text_align: "right"; width: 100; background_color: "lightyellow"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{3.5 边框样式 (border_width, border_color, border_direction)}
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "粗边框";
+    border_width: 3;
+    border_color: "darkblue";
+    background_color: "lightblue";
+    children: [
+        {name: "中边框"; border_width: 2; border_color: "darkgreen"; background_color: "lightgreen"},
+        {name: "细边框"; border_width: 1; border_color: "darkorange"; background_color: "lightyellow"},
+        {name: "无边框"; border_width: 0; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "完整边框";
+    border_direction: "all";
+    background_color: "lightblue";
+    border_color: "darkblue";
+    children: [
+        {name: "上边框"; border_direction: "top"; background_color: "lightgreen"; border_color: "darkgreen"},
+        {name: "下边框"; border_direction: "bottom"; background_color: "lightyellow"; border_color: "darkorange"},
+        {name: "左右边框"; border_direction: "left, right"; background_color: "lightpink"; border_color: "darkred"}
+    ]
+}
+\stopMindmapExample
+
+\subject{四、连接线样式}
+
+\subsubject{4.1 连接类型 (connection)}
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "直线连接";
+    connection: "straight";
+    background_color: "lightblue";
+    children: [
+        {name: "子节点1"; background_color: "lightgreen"},
+        {name: "子节点2"; background_color: "lightyellow"},
+        {name: "子节点3"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "曲线连接";
+    connection: "curved";
+    background_color: "lightblue";
+    children: [
+        {name: "子节点1"; background_color: "lightgreen"},
+        {name: "子节点2"; background_color: "lightyellow"},
+        {name: "子节点3"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "折线连接";
+    connection: "orthogonal";
+    background_color: "lightblue";
+    children: [
+        {name: "子节点1"; background_color: "lightgreen"},
+        {name: "子节点2"; background_color: "lightyellow"},
+        {name: "子节点3"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "圆角折线";
+    connection: "rounded";
+    background_color: "lightblue";
+    children: [
+        {name: "子节点1"; background_color: "lightgreen"},
+        {name: "子节点2"; background_color: "lightyellow"},
+        {name: "子节点3"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    name: "横向圆角折线";
+    connection: "rounded";
+    background_color: "lightblue";
+    children: [
+        {name: "子节点1"; background_color: "lightgreen"},
+        {name: "子节点2"; background_color: "lightyellow"},
+        {name: "子节点3"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "bottom-up";
+    name: "从下到上圆角";
+    connection: "rounded";
+    background_color: "lightblue";
+    children: [
+        {name: "子节点1"; background_color: "lightgreen"},
+        {name: "子节点2"; background_color: "lightyellow"},
+        {name: "子节点3"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "right-left";
+    name: "从右到左圆角";
+    connection: "rounded";
+    line_radius: 12;
+    background_color: "lightblue";
+    children: [
+        {name: "子节点1"; background_color: "lightgreen"},
+        {name: "子节点2"; background_color: "lightyellow"},
+        {name: "子节点3"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{4.2 连接线颜色和宽度 (line_color, line_width)}
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "父节点";
+    line_color: "darkblue";
+    line_width: 2;
+    background_color: "lightblue";
+    children: [
+        {name: "子节点1"; line_color: "darkgreen"; line_width: 1.5; background_color: "lightgreen"},
+        {name: "子节点2"; line_color: "darkorange"; line_width: 1; background_color: "lightyellow"},
+        {name: "子节点3"; line_color: "darkred"; line_width: 0.5; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{4.3 连接锚点 (connection_anchor)}
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "边框到边框";
+    connection_anchor: "edge-edge";
+    background_color: "lightblue";
+    children: [
+        {name: "子节点1"; background_color: "lightgreen"},
+        {name: "子节点2"; background_color: "lightyellow"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "中心到中心";
+    connection_anchor: "center-center";
+    background_color: "lightblue";
+    children: [
+        {name: "子节点1"; background_color: "lightgreen"},
+        {name: "子节点2"; background_color: "lightyellow"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{4.4 锚点位置 (from_pos, to_pos)}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+{\bf from\_pos} 和 {\bf to\_pos} 控制连接线在边框上的具体位置。\\
+上下结构 (top-down/bottom-up): {\tt left/center/right}\\
+左右结构 (left-right/right-left): {\tt top/center/bottom}
+\stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "左侧连接";
+    from_pos: "left";
+    to_pos: "left";
+    background_color: "lightblue";
+    children: [
+        {name: "子节点1"; background_color: "lightgreen"},
+        {name: "子节点2"; background_color: "lightyellow"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "右侧连接";
+    from_pos: "right";
+    to_pos: "right";
+    background_color: "lightblue";
+    children: [
+        {name: "子节点1"; background_color: "lightgreen"},
+        {name: "子节点2"; background_color: "lightyellow"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    name: "顶部连接";
+    from_pos: "top";
+    to_pos: "top";
+    background_color: "lightblue";
+    children: [
+        {name: "子节点1"; background_color: "lightgreen"},
+        {name: "子节点2"; background_color: "lightyellow"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    name: "底部连接";
+    from_pos: "bottom";
+    to_pos: "bottom";
+    background_color: "lightblue";
+    children: [
+        {name: "子节点1"; background_color: "lightgreen"},
+        {name: "子节点2"; background_color: "lightyellow"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{4.5 多层节点的曲线连接}
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "多层曲线";
+    connection: "curved";
+    background_color: "lightblue";
+    children: [
+        {
+            name: "左分支";
+            background_color: "lightgreen";
+            children: [
+                {name: "左1"; background_color: "white"},
+                {name: "左2"; background_color: "white"}
+            ]
+        },
+        {
+            name: "中分支";
+            background_color: "lightyellow";
+            children: [
+                {name: "中1"; background_color: "white"},
+                {name: "中2"; background_color: "white"}
+            ]
+        },
+        {
+            name: "右分支";
+            background_color: "lightpink";
+            children: [
+                {name: "右1"; background_color: "white"},
+                {name: "右2"; background_color: "white"}
+            ]
+        }
+    ]
+}
+\stopMindmapExample
+
+\subsubject{4.6 不同方向的连接类型对比}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+{\bf 从上到下 (top-down)} - 直线 / 曲线 / 折线
+\stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "直线";
+    connection: "straight";
+    background_color: "lightblue";
+    children: [
+        {name: "A"; background_color: "lightgreen"},
+        {name: "B"; background_color: "lightyellow"},
+        {name: "C"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "曲线";
+    connection: "curved";
+    background_color: "lightblue";
+    children: [
+        {name: "A"; background_color: "lightgreen"},
+        {name: "B"; background_color: "lightyellow"},
+        {name: "C"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "折线";
+    connection: "orthogonal";
+    background_color: "lightblue";
+    children: [
+        {name: "A"; background_color: "lightgreen"},
+        {name: "B"; background_color: "lightyellow"},
+        {name: "C"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+{\bf 从下到上 (bottom-up)} - 直线 / 曲线 / 折线
+\stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "bottom-up";
+    name: "直线";
+    connection: "straight";
+    background_color: "lightblue";
+    children: [
+        {name: "A"; background_color: "lightgreen"},
+        {name: "B"; background_color: "lightyellow"},
+        {name: "C"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "bottom-up";
+    name: "曲线";
+    connection: "curved";
+    background_color: "lightblue";
+    children: [
+        {name: "A"; background_color: "lightgreen"},
+        {name: "B"; background_color: "lightyellow"},
+        {name: "C"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "bottom-up";
+    name: "折线";
+    connection: "orthogonal";
+    background_color: "lightblue";
+    children: [
+        {name: "A"; background_color: "lightgreen"},
+        {name: "B"; background_color: "lightyellow"},
+        {name: "C"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+{\bf 从左到右 (left-right)} - 直线 / 曲线 / 折线
+\stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    name: "直线";
+    connection: "straight";
+    background_color: "lightblue";
+    children: [
+        {name: "A"; background_color: "lightgreen"},
+        {name: "B"; background_color: "lightyellow"},
+        {name: "C"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    name: "曲线";
+    connection: "curved";
+    background_color: "lightblue";
+    children: [
+        {name: "A"; background_color: "lightgreen"},
+        {name: "B"; background_color: "lightyellow"},
+        {name: "C"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    name: "折线";
+    connection: "orthogonal";
+    background_color: "lightblue";
+    children: [
+        {name: "A"; background_color: "lightgreen"},
+        {name: "B"; background_color: "lightyellow"},
+        {name: "C"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+{\bf 从右到左 (right-left)} - 直线 / 曲线 / 折线
+\stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "right-left";
+    name: "直线";
+    connection: "straight";
+    background_color: "lightblue";
+    children: [
+        {name: "A"; background_color: "lightgreen"},
+        {name: "B"; background_color: "lightyellow"},
+        {name: "C"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "right-left";
+    name: "曲线";
+    connection: "curved";
+    background_color: "lightblue";
+    children: [
+        {name: "A"; background_color: "lightgreen"},
+        {name: "B"; background_color: "lightyellow"},
+        {name: "C"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "right-left";
+    name: "折线";
+    connection: "orthogonal";
+    background_color: "lightblue";
+    children: [
+        {name: "A"; background_color: "lightgreen"},
+        {name: "B"; background_color: "lightyellow"},
+        {name: "C"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\subject{五、属性继承}
+
+\subsubject{5.1 基本继承 (inherit)}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+{\bf inherit.level} 表示往后继承的层数。设置 inherit 的节点本身不参与计算，从其直接子节点开始往下数 level 层。
+\stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    name: "根节点";
+    background_color: "lightblue";
+    border_color: "darkblue";
+    inherit: {
+        background_color: "lightgreen",
+        border_color: "darkgreen",
+        font_size: 12,
+        level: 2
+    };
+    children: [
+        {
+            name: "子节点(第1层)";
+            children: [
+                {name: "孙节点(第2层)"},
+                {name: "曾孙(第3层)"}
+            ]
+        }
+    ]
+}
+\stopMindmapExample
+
+\subsubject{5.2 从子节点开始继承}
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    name: "根节点";
+    background_color: "lightblue";
+    children: [
+        {
+            name: "子节点";
+            background_color: "lightgreen";
+            inherit: {
+                background_color: "lightyellow",
+                border_color: "darkorange",
+                level: 1
+            };
+            children: [
+                {
+                    name: "孙节点(继承)";
+                    children: [
+                        {name: "曾孙(不继承)"}
+                    ]
+                }
+            ]
+        }
+    ]
+}
+\stopMindmapExample
+
+\subject{六、网格紧凑布局}
+
+\subsubject{6.1 紧凑布局对比}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+{\bf enable\_grid\_compact: true} - 启用网格紧凑布局，利用空白空间使布局更紧凑。
+\stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    enable_grid_compact: true;
+    name: "知识体系";
+    background_color: "lightblue";
+    children: [
+        {
+            name: "编程语言";
+            background_color: "lightgreen";
+            children: [
+                {name: "Python"; background_color: "white"},
+                {name: "JavaScript"; background_color: "white"},
+                {name: "PHP"; background_color: "white"}
+            ]
+        },
+        {
+            name: "算法数据结构";
+            background_color: "lightyellow";
+        },
+        {
+            name: "系统设计";
+            background_color: "lightpink";
+        }
+    ]
+}
+\stopMindmapExample
+
+\subsubject{6.2 属性兼容性测试}
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    enable_grid_compact: true;
+    name: "属性测试";
+    background_color: "lightblue";
+    border_color: "darkblue";
+    border_width: 2;
+    font_size: 12;
+    text_color: "darkblue";
+    width: 80;
+    shape: "rounded";
+    corner_radius: 8;
+    line_color: "darkblue";
+    line_width: 1.5;
+    connection: "curved";
+    children: [
+        {
+            name: "样式测试";
+            background_color: "lightgreen";
+            border_color: "darkgreen";
+            border_width: 2;
+            shape: "ellipse";
+            width: 70;
+            children: [
+                {name: "圆形"; background_color: "white"; shape: "circle"; width: 50},
+                {name: "椭圆"; background_color: "white"; shape: "ellipse"; width: 60}
+            ]
+        },
+        {
+            name: "文本测试";
+            background_color: "lightyellow";
+            font_size: 11;
+            text_color: "darkorange";
+            text_align: "left";
+            width: 70;
+        },
+        {
+            name: "边框测试";
+            background_color: "lightpink";
+            border_color: "darkred";
+            border_width: 3;
+            corner_radius: 10;
+            width: 70;
+        },
+        {
+            name: "连接线测试";
+            background_color: "lightcyan";
+            line_color: "darkcyan";
+            line_width: 2;
+            width: 70;
+        }
+    ]
+}
+\stopMindmapExample
+
+\subsubject{6.3 Align 属性测试}
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    enable_grid_compact: true;
+    name: "Align测试";
+    background_color: "lightblue";
+    width: 70;
+    children: [
+        {
+            name: "Top对齐";
+            background_color: "lightgreen";
+            align: "top";
+            width: 60;
+            children: [
+                {name: "A1"; background_color: "white"},
+                {name: "A2"; background_color: "white"},
+                {name: "A3"; background_color: "white"}
+            ]
+        },
+        {
+            name: "Center";
+            background_color: "lightyellow";
+            align: "center";
+            width: 60;
+        },
+        {
+            name: "Bottom对齐";
+            background_color: "lightpink";
+            align: "bottom";
+            width: 60;
+            children: [
+                {name: "B1"; background_color: "white"},
+                {name: "B2"; background_color: "white"}
+            ]
+        }
+    ]
+}
+\stopMindmapExample
+
+\subject{七、综合示例}
+
+\subsubject{7.1 项目管理思维导图}
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    name: "项目管理";
+    background_color: "lightblue";
+    border_color: "darkblue";
+    font_size: 11;
+    width: 80;
+    connection: "curved";
+    children: [
+        {
+            name: "计划阶段";
+            background_color: "lightgreen";
+            width: 80;
+            children: [
+                {name: "需求分析"; background_color: "white"; width: 70},
+                {name: "资源评估"; background_color: "white"; width: 70},
+                {name: "时间规划"; background_color: "white"; width: 70}
+            ]
+        },
+        {
+            name: "执行阶段";
+            background_color: "lightyellow";
+            width: 80;
+            children: [
+                {name: "任务分配"; background_color: "white"; width: 70},
+                {name: "进度跟踪"; background_color: "white"; width: 70},
+                {name: "风险控制"; background_color: "white"; width: 70}
+            ]
+        },
+        {
+            name: "收尾阶段";
+            background_color: "lightpink";
+            width: 80;
+            children: [
+                {name: "成果验收"; background_color: "white"; width: 70},
+                {name: "文档归档"; background_color: "white"; width: 70},
+                {name: "经验总结"; background_color: "white"; width: 70}
+            ]
+        }
+    ]
+}
+\stopMindmapExample
+
+\subsubject{7.2 软件开发流程}
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    name: "软件开发";
+    background_color: "lightblue";
+    border_color: "darkblue";
+    font_size: 11;
+    width: 80;
+    connection: "curved";
+    children: [
+        {
+            name: "需求";
+            background_color: "lightgreen";
+            width: 70;
+            children: [
+                {name: "用户需求"; background_color: "white"; width: 60},
+                {name: "功能需求"; background_color: "white"; width: 60}
+            ]
+        },
+        {
+            name: "设计";
+            background_color: "lightyellow";
+            width: 70;
+            children: [
+                {name: "架构设计"; background_color: "white"; width: 60},
+                {name: "UI设计"; background_color: "white"; width: 60}
+            ]
+        },
+        {
+            name: "开发";
+            background_color: "lightpink";
+            width: 70;
+            children: [
+                {name: "前端开发"; background_color: "white"; width: 60},
+                {name: "后端开发"; background_color: "white"; width: 60}
+            ]
+        },
+        {
+            name: "测试";
+            background_color: "lightcyan";
+            width: 70;
+            children: [
+                {name: "单元测试"; background_color: "white"; width: 60},
+                {name: "集成测试"; background_color: "white"; width: 60}
+            ]
+        }
+    ]
+}
+\stopMindmapExample
+
+\subject{七、主题系统}
+
+\subsubject{7.1 定义主题 (definemmtheme)}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+{\bf \textbackslash definemmtheme[主题名][属性...]} - 定义可复用的主题样式。
+\stopframed
+
+\definemmtheme[blue][
+    direction: "left-right",
+    connection: "rounded",
+    enable_grid_compact: true,
+    text_color=darkblue,
+    background_color=lightblue,
+    border_color=lightblue,
+    from_pos=bottom,
+    to_pos=bottom,
+]
+
+\definemmtheme[green][
+    text_color=darkgreen,
+    background_color=lightgreen,
+    border_color=darkgreen,
+]
+
+\definemmtheme[orange][
+    text_color=darkorange,
+    background_color=lightyellow,
+    border_color=darkorange,
+]
+
+\startMindmapExample
+\mmjson{
+    name: "使用主题";
+    theme: "blue";
+    children: [
+        {name: "绿色主题"; theme: "green"},
+        {name: "橙色主题"; theme: "orange"},
+        {name: "默认样式"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{7.2 主题覆盖}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+主题属性可以被节点级别的属性覆盖。
+\stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    name: "主题覆盖测试";
+    theme: "blue";
+    children: [
+        {name: "继承主题"},
+        {name: "覆盖背景"; background_color: "lightpink"},
+        {name: "覆盖字体"; font_size: 14; text_color: "darkred"},
+        {name: "覆盖形状"; shape: "ellipse"; background_color: "lightcyan"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{7.3 修改主题 (setupmmtheme)}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+{\bf \textbackslash setupmmtheme[主题名][属性...]} - 修改已定义的主题。
+\stopframed
+
+\definemmtheme[custom][
+    text_color=black,
+    background_color=white,
+    border_color=gray,
+]
+
+\setupmmtheme[custom][
+    text_color=darkblue,
+    background_color=lightblue,
+    shape=rounded,
+    corner_radius=5,
+]
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "修改后的主题";
+    theme: "custom";
+    children: [
+        {name: "子节点1"},
+        {name: "子节点2"},
+        {name: "子节点3"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{7.4 主题继承链}
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    name: "根节点";
+    theme: "blue";
+    children: [
+        {
+            name: "分支1";
+            theme: "green";
+            children: [
+                {name: "孙节点1"},
+                {name: "孙节点2"}
+            ]
+        },
+        {
+            name: "分支2";
+            theme: "orange";
+            children: [
+                {name: "孙节点3"},
+                {name: "孙节点4"}
+            ]
+        }
+    ]
+}
+\stopMindmapExample
+
+\subsubject{7.5 行高设置 (lineheight)}
+
+\definemmtheme[compact][
+    lineheight=1.0,
+]
+
+\definemmtheme[spacious][
+    lineheight=2.0,
+]
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "紧凑行高";
+    theme: "compact";
+    width: 80;
+    background_color: "lightblue";
+    children: [
+        {name: "这是一个较长的文本用于测试行高效果"; width: 70; background_color: "lightgreen"},
+        {name: "另一段长文本用于测试多行显示效果"; width: 70; background_color: "lightyellow"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "宽松行高";
+    theme: "spacious";
+    width: 80;
+    background_color: "lightblue";
+    children: [
+        {name: "这是一个较长的文本用于测试行高效果"; width: 70; background_color: "lightgreen"},
+        {name: "另一段长文本用于测试多行显示效果"; width: 70; background_color: "lightyellow"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{7.6 主题继承 (definemmtheme 继承)}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+{\bf \textbackslash definemmtheme[新主题][父主题]} - 新主题继承父主题的所有属性。
+\stopframed
+
+\definemmtheme[basedark][
+    text_color=white,
+    background_color=darkgray,
+    border_color=black,
+    shape=rounded,
+    corner_radius=8,
+]
+
+\definemmtheme[lightblue][basedark]
+\setupmmtheme[lightblue][
+    background_color=lightblue,
+    text_color=darkblue,
+    border_color=blue,
+]
+
+\definemmtheme[lightgreen][basedark]
+\setupmmtheme[lightgreen][
+    background_color=lightgreen,
+    text_color=darkgreen,
+    border_color=green,
+]
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    name: "继承测试";
+    theme: "basedark";
+    children: [
+        {name: "浅蓝主题"; theme: "lightblue"},
+        {name: "浅绿主题"; theme: "lightgreen"},
+        {name: "原始深色"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{7.7 层级主题 (definemmtheme 三参数)}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+{\bf \textbackslash definemmtheme[主题名][层级][属性...]} - 为不同层级定义不同样式。\\
+层级 0 = 根节点，层级 1 = 第一层子节点，以此类推。
+\stopframed
+
+\definemmtheme[leveltheme]
+\definemmtheme[leveltheme][0][
+    text_color=white,
+    background_color=darkblue,
+    shape=ellipse,
+]
+\definemmtheme[leveltheme][1][
+    text_color=darkblue,
+    background_color=lightblue,
+    shape=rounded,
+    corner_radius=10,
+]
+\definemmtheme[leveltheme][2][
+    text_color=darkgreen,
+    background_color=lightgreen,
+    shape=rectangle,
+]
+\definemmtheme[leveltheme][3][
+    text_color=darkorange,
+    background_color=lightyellow,
+    shape=rounded,
+]
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "层级主题根节点";
+    theme: "leveltheme";
+    children: [
+        {
+            name: "第一层";
+            children: [
+                {
+                    name: "第二层";
+                    children: [
+                        {name: "第三层A"},
+                        {name: "第三层B"}
+                    ]
+                }
+            ]
+        },
+        {
+            name: "第一层B";
+            children: [
+                {name: "第二层C"},
+                {name: "第二层D"}
+            ]
+        }
+    ]
+}
+\stopMindmapExample
+
+\subsubject{7.8 层级主题继承}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+结合主题继承和层级设置，创建更灵活的主题系统。
+\stopframed
+
+\definemmtheme[baselevel][
+    direction: "left-right",
+    connection: "rounded",
+]
+\definemmtheme[baselevel][0][
+    text_color=white,
+    background_color=purple,
+    shape=ellipse,
+]
+\definemmtheme[baselevel][1][
+    background_color=plum,
+    text_color=purple,
+]
+
+\definemmtheme[childlevel][baselevel]
+\setupmmtheme[childlevel][0][
+    background_color=darkred,
+]
+\setupmmtheme[childlevel][1][
+    background_color=lightcoral,
+    text_color=darkred,
+]
+
+\startMindmapExample
+\mmjson{
+    name: "父主题";
+    theme: "baselevel";
+    children: [
+        {name: "子节点1"},
+        {name: "子节点2"}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    name: "子主题";
+    theme: "childlevel";
+    children: [
+        {name: "子节点1"},
+        {name: "子节点2"}
+    ]
+}
+\stopMindmapExample
+
+\subject{六、思维导图布局}
+
+\subsubject{6.1 中心节点左右均衡分布}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+{\bf direction: "mindmap"} 将子节点均匀分布在中心节点的左右两侧，奇数子节点在左侧，偶数子节点在右侧。
+\stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "mindmap";
+    name: "中心主题";
+    background_color: "lightblue";
+    border_color: "darkblue";
+    children: [
+        {name: "分支1"; background_color: "lightgreen"; children: [{name: "子1"}, {name: "子2"}]},
+        {name: "分支2"; background_color: "lightyellow"; children: [{name: "子1"}, {name: "子2"}]},
+        {name: "分支3"; background_color: "lightpink"; children: [{name: "子1"}]},
+        {name: "分支4"; background_color: "lightcyan"; children: [{name: "子1"}, {name: "子2"}]}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{6.2 思维导图布局的曲线连接}
+
+\startMindmapExample
+\mmjson{
+    direction: "mindmap";
+    connection: "curved";
+    name: "项目";
+    background_color: "lightblue";
+    children: [
+        {name: "需求"; background_color: "lightgreen"},
+        {name: "设计"; background_color: "lightyellow"},
+        {name: "开发"; background_color: "lightpink"},
+        {name: "测试"; background_color: "lightcyan"}
+    ]
+}
+\stopMindmapExample
+
+\subject{七、连线端点装饰}
+
+\subsubject{7.1 箭头端点}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+{\bf line\_start\_marker} 和 {\bf line\_end\_marker} 可设置连线端点的装饰类型。\\
+可选值: {\tt arrow} (箭头), {\tt circle/dot} (圆点), {\tt square} (方点), {\tt diamond} (菱形)
+\stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    name: "流程";
+    background_color: "lightblue";
+    line_end_marker: "arrow";
+    children: [
+        {name: "步骤1"; background_color: "lightgreen"; line_end_marker: "arrow"},
+        {name: "步骤2"; background_color: "lightyellow"; line_end_marker: "arrow"},
+        {name: "步骤3"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{7.2 圆点端点}
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "任务列表";
+    background_color: "lightblue";
+    line_start_marker: "circle";
+    line_end_marker: "circle";
+    children: [
+        {name: "任务A"; background_color: "lightgreen"},
+        {name: "任务B"; background_color: "lightyellow"},
+        {name: "任务C"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{7.3 方点端点}
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    name: "模块";
+    background_color: "lightblue";
+    line_end_marker: "square";
+    children: [
+        {name: "模块A"; background_color: "lightgreen"},
+        {name: "模块B"; background_color: "lightyellow"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{7.4 菱形端点}
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "决策";
+    background_color: "lightblue";
+    line_end_marker: "diamond";
+    children: [
+        {name: "选项1"; background_color: "lightgreen"},
+        {name: "选项2"; background_color: "lightyellow"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{7.5 混合端点}
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    name: "数据流";
+    background_color: "lightblue";
+    line_start_marker: "circle";
+    line_end_marker: "arrow";
+    children: [
+        {name: "处理1"; background_color: "lightgreen"; line_start_marker: "circle"; line_end_marker: "arrow"},
+        {name: "处理2"; background_color: "lightyellow"; line_start_marker: "circle"; line_end_marker: "arrow"},
+        {name: "输出"; background_color: "lightpink"; line_start_marker: "circle"}
+    ]
+}
+\stopMindmapExample
+
+\subject{八、括号连接}
+
+\subsubject{8.1 左括号连接}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+{\bf connection: "brace-left"} 使用左括号形状 {\tt \{} 包围所有子节点。\\
+括号从父节点延伸，覆盖所有子节点的垂直范围，不单独连接每个子节点。
+\stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    connection: "brace-left";
+    name: "分类";
+    background_color: "lightblue";
+    children: [
+        {name: "项目A"; background_color: "lightgreen"},
+        {name: "项目B"; background_color: "lightyellow"},
+        {name: "项目C"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{8.2 右括号连接}
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    connection: "brace-right";
+    name: "分类";
+    background_color: "lightblue";
+    children: [
+        {name: "项目A"; background_color: "lightgreen"},
+        {name: "项目B"; background_color: "lightyellow"},
+        {name: "项目C"; background_color: "lightpink"}
+    ]
+}
+\stopMindmapExample
+
+\subject{九、节点偏移}
+
+\subsubject{9.1 X 轴偏移 (offset_x)}
+
+% \startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+% {\bf offset\_x} 控制节点在 X 轴方向的偏移量（单位：pt）。\\
+% 正值向右偏移，负值向左偏移，默认值为 0。
+% \stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "中心主题";
+    background_color: "lightblue";
+    children: [
+        {
+            name: "向右偏移";
+            background_color: "lightgreen";
+            offset_x: 50;
+            children: [
+                {name: "子节点1"; background_color: "white"},
+                {name: "子节点2"; background_color: "white"}
+            ]
+        },
+        {
+            name: "向左偏移";
+            background_color: "lightyellow";
+            offset_x: -30;
+            children: [
+                {name: "子节点1"; background_color: "white"},
+                {name: "子节点2"; background_color: "white"}
+            ]
+        },
+        {
+            name: "无偏移";
+            background_color: "lightpink";
+            children: [
+                {name: "子节点1"; background_color: "white"},
+                {name: "子节点2"; background_color: "white"}
+            ]
+        }
+    ]
+}
+\stopMindmapExample
+
+\subsubject{9.2 Y 轴偏移 (offset_y)}
+
+% \startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+% {\bf offset\_y} 控制节点在 Y 轴方向的偏移量（单位：pt）。\\
+% 正值向下偏移，负值向上偏移，默认值为 0。
+% \stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "中心主题";
+    background_color: "lightblue";
+    children: [
+        {
+            name: "向下偏移";
+            background_color: "lightgreen";
+            offset_y: 40;
+            children: [
+                {name: "子节点1"; background_color: "white"},
+                {name: "子节点2"; background_color: "white"}
+            ]
+        },
+        {
+            name: "向上偏移";
+            background_color: "lightyellow";
+            offset_y: -20;
+            children: [
+                {name: "子节点1"; background_color: "white"},
+                {name: "子节点2"; background_color: "white"}
+            ]
+        }
+    ]
+}
+\stopMindmapExample
+
+\subsubject{9.3 同时偏移 X 轴和 Y 轴}
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "中心主题";
+    background_color: "lightblue";
+    children: [
+        {
+            name: "右下偏移";
+            background_color: "lightgreen";
+            offset_x: 40;
+            offset_y: 30;
+            children: [
+                {name: "子节点1"; background_color: "white"}
+            ]
+        },
+        {
+            name: "左上偏移";
+            background_color: "lightyellow";
+            offset_x: -50;
+            offset_y: -25;
+            children: [
+                {name: "子节点1"; background_color: "white"}
+            ]
+        }
+    ]
+}
+\stopMindmapExample
+
+\subsubject{9.4 深层节点偏移}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+偏移功能支持任意深度的节点，可以为不同层级的节点设置不同的偏移量。
+\stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "根节点";
+    background_color: "lightblue";
+    children: [
+        {
+            name: "第一层";
+            background_color: "lightgreen";
+            offset_x: 30;
+            children: [
+                {
+                    name: "第二层";
+                    background_color: "lightyellow";
+                    offset_y: 20;
+                    children: [
+                        {
+                            name: "第三层";
+                            background_color: "lightpink";
+                            offset_x: -20;
+                            children: [
+                                {name: "第四层"; background_color: "white"}
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+\stopMindmapExample
+
+\subsubject{9.5 横向布局偏移}
+
+\startMindmapExample
+\mmjson{
+    direction: "left-right";
+    name: "中心主题";
+    background_color: "lightblue";
+    children: [
+        {
+            name: "X 轴偏移";
+            background_color: "lightgreen";
+            offset_x: 50;
+            children: [
+                {name: "子节点1"; background_color: "white"}
+            ]
+        },
+        {
+            name: "Y 轴偏移";
+            background_color: "lightyellow";
+            offset_y: -30;
+            children: [
+                {name: "子节点1"; background_color: "white"}
+            ]
+        }
+    ]
+}
+\stopMindmapExample
+
+\subsubject{9.7 微调节点位置}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+使用小偏移量进行微调，可以优化节点的视觉布局，避免重叠或改善美观度。
+\stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "项目计划";
+    background_color: "lightblue";
+    children: [
+        {
+            name: "需求分析";
+            background_color: "lightgreen";
+            offset_x: 10;
+            children: [
+                {name: "用户调研"; background_color: "white"},
+                {name: "需求文档"; background_color: "white"}
+            ]
+        },
+        {
+            name: "设计阶段";
+            background_color: "lightyellow";
+            offset_x: -5;
+            children: [
+                {name: "UI设计"; background_color: "white"},
+                {name: "架构设计"; background_color: "white"}
+            ]
+        },
+        {
+            name: "开发实现";
+            background_color: "lightpink";
+            offset_y: 5;
+            children: [
+                {name: "前端开发"; background_color: "white"},
+                {name: "后端开发"; background_color: "white"}
+            ]
+        }
+    ]
+}
+\stopMindmapExample
+
+\subsubject{9.8 不同布局算法的偏移}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+偏移功能支持所有布局算法：hybrid、scanline、dp、radial。
+\stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    method: "hybrid";
+    name: "混合布局";
+    background_color: "lightblue";
+    children: [
+        {name: "节点1"; background_color: "lightgreen"; offset_x: 30},
+        {name: "节点2"; background_color: "lightyellow"; offset_y: 20}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    method: "scanline";
+    name: "扫描线布局";
+    background_color: "lightblue";
+    children: [
+        {name: "节点1"; background_color: "lightgreen"; offset_x: 30},
+        {name: "节点2"; background_color: "lightyellow"; offset_y: 20}
+    ]
+}
+\stopMindmapExample
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    method: "dp";
+    name: "动态规划布局";
+    background_color: "lightblue";
+    children: [
+        {name: "节点1"; background_color: "lightgreen"; offset_x: 30},
+        {name: "节点2"; background_color: "lightyellow"; offset_y: 20}
+    ]
+}
+\stopMindmapExample
+
+\subsubject{9.9 偏移量限制}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+单个偏移量的绝对值不能超过 1000pt。超过限制的值会被自动截断并显示警告信息。
+\stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    name: "中心主题";
+    background_color: "lightblue";
+    children: [
+        {
+            name: "大偏移";
+            background_color: "lightgreen";
+            offset_x: 500;
+            children: [
+                {name: "子节点"; background_color: "white"}
+            ]
+        },
+        {
+            name: "负大偏移";
+            background_color: "lightyellow";
+            offset_y: -400;
+            children: [
+                {name: "子节点"; background_color: "white"}
+            ]
+        }
+    ]
+}
+\stopMindmapExample
+
+\subsubject{9.10 偏移与连接线}
+
+\startframed[frame=off,background=color,backgroundcolor=lightgray,align=flushleft,width=max]
+偏移不会自动调整连接线。如果偏移量过大，可能会导致连接线看起来不自然。建议使用较小的偏移量进行微调。
+\stopframed
+
+\startMindmapExample
+\mmjson{
+    direction: "top-down";
+    connection: "curved";
+    name: "中心主题";
+    background_color: "lightblue";
+    children: [
+        {
+            name: "适度偏移";
+            background_color: "lightgreen";
+            offset_x: 20;
+            offset_y: 10;
+            children: [
+                {name: "子节点1"; background_color: "white"},
+                {name: "子节点2"; background_color: "white"}
+            ]
+        },
+        {
+            name: "适度偏移";
+            background_color: "lightyellow";
+            offset_x: -20;
+            offset_y: -10;
+            children: [
+                {name: "子节点1"; background_color: "white"},
+                {name: "子节点2"; background_color: "white"}
+            ]
+        }
+    ]
+}
+\stopMindmapExample
+
+\stoptext
