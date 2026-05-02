@@ -22,6 +22,8 @@ A ConTeXt Chinese typesetting toolkit featuring three core modules: exam generat
 
 ## t-basicexam - Exam Generation Module
 
+<img style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);" src="https://files.seeusercontent.com/2026/05/02/icF6/260502200738.png">
+
 ### Features
 
 - **Multiple Choice Questions** - Support for single and multiple selections with automatic grading
@@ -92,7 +94,12 @@ we \closechoice[walk,run,jump,fly] in the park.
 
 ## t-memos - Document Layout Module
 
-Includes `zhnumber` (Chinese numerals) and `zhindex` (Chinese index) functionality.
+Includes `pinyin` (Pinyin annotation), `bihua` (Stroke display), `zhnumber` (Chinese numerals), and `zhindex` (Chinese index) functionality.
+
+<img style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);" src="https://files.seeusercontent.com/2026/05/02/6Owk/260502200601.png">
+<img style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);" src="https://files.seeusercontent.com/2026/05/02/g4fD/260502200410.png">
+<img style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);" src="https://files.seeusercontent.com/2026/05/02/el4P/260502200631.png">
+<img style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);" src="https://files.seeusercontent.com/2026/05/02/7Twl/260502200523.png">
 
 ### Features
 
@@ -103,6 +110,84 @@ Includes `zhnumber` (Chinese numerals) and `zhindex` (Chinese index) functionali
 - **Header Styles**: book, novel, colorful, hctext, fctext, foemargin, foemarginalt, hoemargin
 - **Font Size System**: Complete font sizes from 42pt to 3pt
 - **Multi-language Support**: Chinese Simplified (hans), Traditional (hant), Japanese, English
+
+### Loading Extension Features
+
+```tex
+% Load specific extension
+\usemodule[memos][extra=pinyin]
+\usemodule[memos][extra=bihua]
+\usemodule[memos][extra=zhnumber]
+\usemodule[memos][extra=index]
+
+% Or load all extensions
+\usemodule[memos][extra=all]
+```
+
+### pinyin - Pinyin Annotation
+
+**Purpose**: Automatically or manually adds pinyin (romanization) to Chinese characters for educational materials and language learning.
+
+**Main Commands**:
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `\startpinyinscope ... \stoppinyinscope` | Automatic pinyin annotation environment | See example below |
+| `\xpinyin{text}` | Manual pinyin annotation | `\xpinyin{汉字}` → hànzì |
+| `\xpinyin[pinyin]{char}` | Specify pinyin for polyphonic characters | `\xpinyin[chong2]{重}` |
+| `\setuppinyin[...]` | Configure pinyin parameters | Set vsep, hsep, ratio, etc. |
+
+**Usage**:
+```tex
+\usemodule[memos][extra=pinyin]
+
+% Automatic annotation
+\startpinyinscope
+汉语拼音自动注音测试。
+\stoppinyinscope
+
+% Manual annotation
+汉字：\xpinyin{手动注音测试}
+
+% Polyphonic character
+\xpinyin[chong2]{重}庆是一座美丽的城市。
+```
+
+### bihua - Stroke Display
+
+**Purpose**: Shows the stroke order and structure of Chinese characters for character teaching and calligraphy practice.
+
+**Main Commands**:
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `\bihuaload{chars}` | Load character data | `\bihuaload{好学习}` |
+| `\bihuashow{char}{n}` | Display the nth stroke | `\bihuashow{好}{3}` |
+| `\bihuashowall{char}` | Display all strokes | `\bihuashowall{好}` |
+| `\definebihua[style][...]` | Define custom stroke style | Configure colors, frame, etc. |
+
+**Frame Types**:
+- **outer**: Outer frame only
+- **tian**: Tian character grid (cross lines)
+- **mi**: Mi character grid (cross + diagonal lines)
+- **x**: Diagonal lines only
+- **none**: No frame
+
+**Usage**:
+```tex
+\usemodule[memos][extra=bihua]
+
+\bihuaload{好学习}
+
+% Display specific stroke
+\bihuashow{好}{3}
+
+% Display with frame
+\bihuashow[frame=tian]{好}{3}
+
+% Display all strokes
+\bihuashowall{好学习}
+```
 
 ### zhnumber - Chinese Numeral Conversion
 
@@ -132,8 +217,7 @@ Includes `zhnumber` (Chinese numerals) and `zhindex` (Chinese index) functionali
 
 **Usage**:
 ```tex
-\usemodule[memos]
-\usemodule[zhindex]
+\usemodule[memos][extra=index]
 
 \index{Peking University}
 \index{Tsinghua University}
@@ -173,15 +257,12 @@ mtxrun --script install-modules --install visualcounter
 - **[Chinese README](doc/context/third/basicexam/README_CN.md)** - Complete documentation in Chinese
 - **[basicexam Manual](doc/context/third/basicexam/basicexam-manual.tex)** - Detailed usage guide
 - **[memos Manual](doc/context/third/basicexam/memos-manual-en.tex)** - Document layout documentation (English)
+- **[memos Manual (Chinese)](doc/context/third/basicexam/memos-manual.tex)** - Document layout documentation (Chinese)
 - **[Test Files](doc/context/third/basicexam/)**:
   - **[test-exam.tex](doc/context/third/basicexam/test-exam.tex)** - Exam generation tests
   - **[test-frame.tex](doc/context/third/basicexam/test-frame.tex)** - Frame tests
   - **[test-poriginal.tex](doc/context/third/basicexam/test-poriginal.tex)** - Style module tests
   - **[test-zhnumber.tex](doc/context/third/basicexam/test-zhnumber.tex)** - Chinese numeral tests
   - **[test-zhindex.tex](doc/context/third/basicexam/test-zhindex.tex)** - Chinese index tests
-
----
-
-## License
-
-This project is licensed under the MIT License. See LICENSE file for details.
+  - **[test-pinyin.tex](doc/context/third/basicexam/test-pinyin.tex)** - Pinyin annotation tests
+  - **[test-bihua.tex](doc/context/third/basicexam/test-bihua.tex)** - Stroke display tests
