@@ -3374,30 +3374,113 @@
 %D \section{设定一些可能用得到的符号 / Symbol Defination / シンボルの定義}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\doifelsefontpresent{NotoSansSymbols2-Regular}{}{
-  \showmessage\m!basicexam{9}{NotoSansSymbols2 font,symbol}}
-\definefontsynonym[NotoSansSymbols2][file:NotoSansSymbols2-Regular]
-\def\notosymb#1{\getglyphstyled{NotoSansSymbols2}{\tochar{n:#1}}}
+\newcount\BEM_markstyle\BEM_markstyle=0
+\def\BEM_markcolor{black}
 
-\definesymbol[marksquare]          [\notosymb{☐}]
-\definesymbol[markcircle]          [\notosymb{○}]
-\definesymbol[marknotcheck]        [\notosymb{⍻}]
-\definesymbol[markcheck]           [\notosymb{🗸}]
-\definesymbol[markheavycheck]      [\notosymb{✓}]
-\definesymbol[marksquarecheck]     [\notosymb{\rlap{☐}\,\raise.2em\hbox{🗸}}]
-\definesymbol[marksquareheavycheck][\notosymb{\rlap{☐}\,\raise.2em\hbox{✓}}]
-\definesymbol[markcirclecheck]     [\notosymb{\rlap{○}\,\raise.2em\hbox{🗸}}]
-\definesymbol[markcircleheavycheck][\notosymb{\rlap{○}\,\raise.2em\hbox{✓}}]
-\definesymbol[markcross]           [\notosymb{✗}]
-\definesymbol[markheavycross]      [\notosymb{✘}]
-\definesymbol[marksquarecross]     [\notosymb{\rlap{☐}\,\raise.1em\hbox{✗}}]
-\definesymbol[marksquareheavycross][\notosymb{\rlap{☐}\,\raise.1em\hbox{✘}}]
-\definesymbol[markcirclecross]     [\notosymb{\rlap{○}\,\raise.1em\hbox{✗}}]
-\definesymbol[markcircleheavycross][\notosymb{\rlap{○}\,\raise.1em\hbox{✘}}]
+\unexpanded\def\setupmarkstyle{\dosingleargument\dosetupmarkstyle}
+\def\dosetupmarkstyle[#1]{%
+  \doifelse{#1}{handdrawn}
+    {\BEM_markstyle=1}
+    {\BEM_markstyle=0}}
 
-%D It is important to note that these symbols require
-%D the font {\bf NotoSansSymbols2} to be pre-installed.
-%D
+\def\setupmarkcolor[#1]{\def\BEM_markcolor{#1}}
+
+\startMPdefinitions
+  def markdrawpath(expr p, w, handdrawn, color) =
+    if handdrawn = 1 :
+      draw p 
+        withpen pencircle scaled (w * 0.7) 
+        withcolor color ;
+      draw p 
+        shifted (0.02BodyFontSize, 0.02BodyFontSize)
+        withpen pencircle scaled (w * 0.7) 
+        withcolor color ;
+      draw p 
+        shifted (-0.02BodyFontSize, -0.02BodyFontSize)
+        withpen pencircle scaled (w * 0.7) 
+        withcolor color ;
+    else :
+      draw p withpen pencircle scaled w withcolor color ;
+    fi ;
+  enddef ;
+\stopMPdefinitions
+
+\def\markdraw#1{%
+  \startMPcode
+    markdrawpath(#1, 0.056BodyFontSize, \the\BEM_markstyle, \BEM_markcolor) ;
+  \stopMPcode
+}
+
+\def\markdrawheavy#1{%
+  \startMPcode
+    markdrawpath(#1, 0.0896BodyFontSize, \the\BEM_markstyle, \BEM_markcolor) ;
+  \stopMPcode
+}
+
+\def\markdrawtwo#1#2{%
+  \startMPcode
+    markdrawpath(#1, 0.056BodyFontSize, \the\BEM_markstyle, \BEM_markcolor) ;
+    markdrawpath(#2, 0.056BodyFontSize, \the\BEM_markstyle, \BEM_markcolor) ;
+  \stopMPcode
+}
+
+\def\markdrawtwoheavy#1#2{%
+  \startMPcode
+    markdrawpath(#1, 0.056BodyFontSize, \the\BEM_markstyle, \BEM_markcolor) ;
+    markdrawpath(#2, 0.0896BodyFontSize, \the\BEM_markstyle, \BEM_markcolor) ;
+  \stopMPcode
+}
+
+\def\markdrawtwoallheavy#1#2{%
+  \startMPcode
+    markdrawpath(#1, 0.0896BodyFontSize, \the\BEM_markstyle, \BEM_markcolor) ;
+    markdrawpath(#2, 0.0896BodyFontSize, \the\BEM_markstyle, \BEM_markcolor) ;
+  \stopMPcode
+}
+
+\def\markdrawthree#1#2#3{%
+  \startMPcode
+    markdrawpath(#1, 0.056BodyFontSize, \the\BEM_markstyle, \BEM_markcolor) ;
+    markdrawpath(#2, 0.056BodyFontSize, \the\BEM_markstyle, \BEM_markcolor) ;
+    markdrawpath(#3, 0.056BodyFontSize, \the\BEM_markstyle, \BEM_markcolor) ;
+  \stopMPcode
+}
+
+\def\markdrawthreeheavy#1#2#3{%
+  \startMPcode
+    markdrawpath(#1, 0.056BodyFontSize, \the\BEM_markstyle, \BEM_markcolor) ;
+    markdrawpath(#2, 0.0896BodyFontSize, \the\BEM_markstyle, \BEM_markcolor) ;
+    markdrawpath(#3, 0.0896BodyFontSize, \the\BEM_markstyle, \BEM_markcolor) ;
+  \stopMPcode
+}
+
+\def\markpath_square{(unitsquare xscaled 0.8BodyFontSize yscaled 0.8BodyFontSize) shifted (-0.4BodyFontSize, -0.4BodyFontSize)}
+\def\markpath_circle{fullcircle scaled 0.8BodyFontSize}
+\def\markpath_check{((0.2BodyFontSize, 0.28BodyFontSize) -- (0.336BodyFontSize, 0.096BodyFontSize) -- (0.6BodyFontSize, 0.544BodyFontSize)) shifted (-0.4BodyFontSize, -0.32BodyFontSize)}
+\def\markpath_crossa{((0.2BodyFontSize, 0.2BodyFontSize) -- (0.6BodyFontSize, 0.6BodyFontSize)) shifted (-0.4BodyFontSize, -0.4BodyFontSize)}
+\def\markpath_crossb{((0.2BodyFontSize, 0.6BodyFontSize) -- (0.6BodyFontSize, 0.2BodyFontSize)) shifted (-0.4BodyFontSize, -0.4BodyFontSize)}
+\def\markpath_slash{((0.25BodyFontSize, 0.45BodyFontSize) -- (0.55BodyFontSize, 0.15BodyFontSize)) shifted (-0.3BodyFontSize, -0.3BodyFontSize)}
+
+\definesymbol[marksquare]           [\markdraw{\markpath_square}]
+\definesymbol[markcircle]           [\markdraw{\markpath_circle}]
+\definesymbol[markcheck]            [\markdraw{\markpath_check}]
+\definesymbol[markheavycheck]       [\markdrawheavy{\markpath_check}]
+\definesymbol[markcross]            [\markdrawtwo{\markpath_crossa}{\markpath_crossb}]
+\definesymbol[markheavycross]       [\markdrawtwoallheavy{\markpath_crossa}{\markpath_crossb}]
+\definesymbol[marknotcheck]         [\markdrawtwo{\markpath_check}{\markpath_slash}]
+\definesymbol[marksquarecheck]      [\markdrawtwo{\markpath_square}{\markpath_check}]
+\definesymbol[marksquareheavycheck] [\markdrawtwoheavy{\markpath_square}{\markpath_check}]
+\definesymbol[marksquarecross]      [\markdrawthree{\markpath_square}{\markpath_crossa}{\markpath_crossb}]
+\definesymbol[marksquareheavycross] [\markdrawthreeheavy{\markpath_square}{\markpath_crossa}{\markpath_crossb}]
+\definesymbol[markcirclecheck]      [\markdrawtwo{\markpath_circle}{\markpath_check}]
+\definesymbol[markcircleheavycheck] [\markdrawtwoheavy{\markpath_circle}{\markpath_check}]
+\definesymbol[markcirclecross]      [\markdrawthree{\markpath_circle}{\markpath_crossa}{\markpath_crossb}]
+\definesymbol[markcircleheavycross] [\markdrawthreeheavy{\markpath_circle}{\markpath_crossa}{\markpath_crossb}]
+
+%D These symbols are drawn using MetaFun (no font dependency).
+%D Use \type{\setupmarkstyle[handdrawn]} for hand-drawn style,
+%D or \type{\setupmarkstyle[formal]} for formal style (default).
+%D 
 %D \starttabulate[|l|r|l|r|]
 %D \NC \type{\symbol{marksquare}}           \NC \symbol{marksquare}
 %D \VL \type{\symbol{markcircle}}           \NC \symbol{markcircle}          \NC\NR\HL
@@ -3429,23 +3512,35 @@
 
 % 绘制叉号
 \startuseMPgraphic{mp:cross}
-  path p ;
-  % 对角线路径（左下到右上）
-  p := (-0.35, -0.35) -- (0.35, 0.35) ;
+  numeric w, h;
+  w := OverlayWidth;
+  h := OverlayHeight;
+  path p;
+  p := (-0.35w, -0.35h) -- (0.35w, 0.35h);
   draw p
-    scaled OverlayWidth
     withpen pencircle scaled OverlayLineWidth
-    withcolor OverlayLineColor ;
-  % 对角线路径（左上到右下）
-  p := (-0.35, 0.35) -- (0.35, -0.35) ;  % 左上到右下
+    withcolor OverlayLineColor;
+  p := (-0.35w, 0.35h) -- (0.35w, -0.35h);
   draw p
-    scaled OverlayWidth
     withpen pencircle scaled OverlayLineWidth
-    withcolor OverlayLineColor ;
+    withcolor OverlayLineColor;
+\stopuseMPgraphic
+
+% 绘制叉号
+\startuseMPgraphic{mp:halfcross}
+  numeric w, h;
+  w := OverlayWidth;
+  h := OverlayHeight;
+  path p;
+  p := (-0.35w, -0.35h) -- (0.35w, 0.35h);
+  draw p
+    withpen pencircle scaled OverlayLineWidth
+    withcolor OverlayLineColor;
 \stopuseMPgraphic
 
 \defineoverlay[circle][\useMPgraphic{mp:circle}]
 \defineoverlay[cross] [\useMPgraphic{mp:cross}]
+\defineoverlay[halfcross] [\useMPgraphic{mp:halfcross}]
 
 \defineframed[symcircle]
   [background=circle,
@@ -3453,11 +3548,15 @@
    align=lohi,
    location=low,
    offset=0pt,
-   width=1em,
+   width=fit,
    framecolor=red,
    rulethickness=1pt]
 
 \defineframed[symcross][symcircle][background=cross]
+\defineframed[symhalfcross][symcircle][background=halfcross]
+%D \symcircle{circle}
+%D \symcross{cross}
+%D \symhalfcross{half cross}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{Extra Command}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -23,7 +23,7 @@
               lineheight=\ifcsname lang:\currentlanguage interlinespace\endcsname\lastnamedcs\else 2.8ex\fi,
               fallbackfont=\userlanguageparameter{fallbackfont},
               bodyfont=\ifcsname lang:\currentlanguage bodyfont\endcsname\lastnamedcs\else modern\fi,
-              script=hanzi,
+              script=\userlanguageparameter{script},
               fontstyle=rm,
               fontsize=11pt,
               textcount=40, heightcount=40, margincount=0,
@@ -46,23 +46,25 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % h / f + ltext / ctext / rtext / oemargin
-\newif\ifhdr_sty_book         \hdr_sty_bookfalse%
-\newif\ifhdr_sty_novel        \hdr_sty_novelfalse%
-\newif\ifhdr_sty_colorful     \hdr_sty_colorfulfalse%
-\newif\ifhdr_sty_madsen       \hdr_sty_madsenfalse%
-\newif\ifhdr_sty_hctext       \hdr_sty_hctextfalse%
-\newif\ifhdr_sty_fctext       \hdr_sty_fctextfalse%
-\newif\ifhdr_sty_foemargin    \hdr_sty_foemarginfalse%
-\newif\ifhdr_sty_foemarginalt \hdr_sty_foemarginaltfalse%
+\newif\ifhdr_sty_book         \hdr_sty_bookfalse
+\newif\ifhdr_sty_novel        \hdr_sty_novelfalse
+\newif\ifhdr_sty_colorful     \hdr_sty_colorfulfalse
+\newif\ifhdr_sty_madsen       \hdr_sty_madsenfalse
+\newif\ifhdr_sty_rocket       \hdr_sty_rocketfalse
+\newif\ifhdr_sty_hctext       \hdr_sty_hctextfalse
+\newif\ifhdr_sty_fctext       \hdr_sty_fctextfalse
+\newif\ifhdr_sty_foemargin    \hdr_sty_foemarginfalse
+\newif\ifhdr_sty_foemarginalt \hdr_sty_foemarginaltfalse
 \newif\ifhdr_sty_hoemargin    \hdr_sty_hoemarginfalse
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \processaction[\currentmoduleparameter{hdrstyle}]%
    [       book=>\hdr_sty_booktrue,
-           line=>\hdr_sty_booktrue,
           novel=>\hdr_sty_noveltrue,
+           line=>\hdr_sty_booktrue,
        colorful=>\hdr_sty_colorfultrue,
          madsen=>\hdr_sty_madsentrue,
         kaolike=>\hdr_sty_hoemargintrue,
+         rocket=>\hdr_sty_rockettrue,
          hctext=>\hdr_sty_hctexttrue,
          fctext=>\hdr_sty_fctexttrue,
       foemargin=>\hdr_sty_foemargintrue,
@@ -286,7 +288,7 @@
              friday:mnem={周五},   saturday:mnem={周六},
              sunday:mnem={周日},
        reference:chapter={第,章},
-       reference:section={第,节},  
+       reference:section={第,节},
         reference:figure=图~,
          reference:table=表~,
        reference:theorem=定理~,
@@ -321,7 +323,7 @@
              friday:mnem={週五},   saturday:mnem={週六},
              sunday:mnem={週日},
        reference:chapter={第,章},
-       reference:section={第,节},  
+       reference:section={第,节},
         reference:figure=圖~,
          reference:table=表~,
        reference:theorem=定理~,
@@ -354,7 +356,7 @@
                    friday:mnem={金},  saturday:mnem={土},
                    sunday:mnem={日},
              reference:chapter={第,章},
-             reference:section={第,节},  
+             reference:section={第,节},
               reference:figure=図~,
                reference:table=表~,
              reference:theorem=Theorems~,
@@ -384,7 +386,7 @@
   {\getparameters[lang:#1][#2]%
    \startsetups[lang:#1:setup]%
     \lang_set_if_provided{#1}{script}\setlocalscript
-    \lang_set_if_provided{#1}{fallbackfont}\setups
+    \lang_set_if_provided{fallback:#1}{fallbackfont}\setups
     \lang_set_if_provided{#1}{bodyfont}\switchtobodyfont
     \lang_set_if_provided{#1}{interlinespace}\setuplocalinterlinespace
     \lang_set_if_provided{#1}{align}\setupalign
@@ -407,7 +409,7 @@
 
 \setupuserlanguage[hans][
   bodyfont=adobehans,
-  fallbackfont=fallback:cormorant,
+  fallbackfont=cormorant,
   patterns={zh,en},
   script=hanzi,
   interlinespace=1.5em,
@@ -417,7 +419,7 @@
 
 \setupuserlanguage[hant][
   bodyfont=adobehant,
-  fallbackfont=fallback:cormorant,
+  fallbackfont=cormorant,
   patterns={zh,en},
   script=hanzi,
   interlinespace=1.5em,
@@ -427,7 +429,7 @@
 
 \setupuserlanguage[ja][
   bodyfont=adobenihon,
-  fallbackfont=fallback:ibmplex,
+  fallbackfont=ibmplex,
   patterns={ja,en},
   script=nihongo,
   interlinespace=1.5em,
@@ -465,6 +467,7 @@
                                     middle=\symbol[leftquotation]\nobreak,
                                     right=\nobreak\symbol[rightquote]]
 
+
 % 链接断行规则
 \enabledirectives[hyphenators.urls.packslashes] % 避免连续斜杠分到不同行
 %\sethyphenatedurlnormal{:=?&}
@@ -489,7 +492,8 @@
 %D \stoptyping
 %%%%%%%%%%%%%%%
 %%  ！！！ 應該只考慮 英數 和 漢字 之間的空間插入，符號 和 漢字 之間的間距不應該由這個程式控制
-
+%% 这段代码来自黄复雄，有细微修改。
+%% https://mailman.ntg.nl/archives/list/ntg-context@ntg.nl/thread/CIE43VW6Z4PCMBE2AJZJWFIDTCSLCJ76/#WA7SJQGHHXHWHVA6UAIMVZCHNZLLLL5O
 \startluacode
   thirddata = thirddata or {}
   thirddata.memos = thirddata.memos or {}
@@ -506,42 +510,51 @@
       -- for more ranges:
       -- https://wiki.contextgarden.net/List_of_Unicode_blocks
       -- 按常用程度排列
-      return (c >= 0x04E00 and c <= 0x09FFF) --CJK Unified Ideographs;
-          or (c >= 0x03040 and c <= 0x0309F) --Hiragana
-          or (c >= 0x030A0 and c <= 0x030FF) --Katakana
-          or (c >= 0x0F900 and c <= 0x0FAFF) --CJK Compatibility Ideographs;
-          or (c >= 0x02E80 and c <= 0x02EFF) --CJK Radicals Supplement;
-          or (c >= 0x02F00 and c <= 0x02FDF) --Kangxi Radicals
-          or (c >= 0x02FF0 and c <= 0x02FFF) --Ideographic Description Characters
-          or c == 0x03007 -- 〇
-          -- or (c >= 0x03000 and c <= 0x0303F) --CJK Symbols and Punctuation
-          or (c >= 0x03100 and c <= 0x0312F) --Bopomofo
-          or (c >= 0x03190 and c <= 0x0319F) --Kanbun
-          or (c >= 0x031A0 and c <= 0x031BF) --Bopomofo Extended
-          or (c >= 0x031C0 and c <= 0x031EF) --CJK Strokes; cjkstrokes
-          or (c >= 0x031F0 and c <= 0x031FF) --Katakana Phonetic Extensions
-          or (c >= 0x03200 and c <= 0x032FF) --Enclosed CJK Letters and Months
-          or (c >= 0x03400 and c <= 0x04DBF) --CJK Unified Ideographs Extension A;
-          or (c >= 0x20000 and c <= 0x2A6DF) --CJK Unified Ideographs Extension B;
-          or (c >= 0x2A700 and c <= 0x2B73F) --CJK Unified Ideographs Extension C;
-          or (c >= 0x2B740 and c <= 0x2B81F) --CJK Unified Ideographs Extension D;
-          or (c >= 0x2B820 and c <= 0x2CEAF) --CJK Unified Ideographs Extension E;
-          or (c >= 0x2CEB0 and c <= 0x2EBEF) --CJK Unified Ideographs Extension F;
-          or (c >= 0x2F800 and c <= 0x2FA1F) --CJK Compatibility Ideographs Supplement;
+      return (c >= 0x04E00 and c <= 0x09FFF)    --CJK Unified Ideographs;
+          or (c >= 0x03040 and c <= 0x0309F)    --Hiragana
+          or (c >= 0x030A0 and c <= 0x030FF)    --Katakana
+          or (c >= 0x0F900 and c <= 0x0FAFF)    --CJK Compatibility Ideographs;
+          or (c >= 0x02E80 and c <= 0x02EFF)    --CJK Radicals Supplement;
+          or (c >= 0x02F00 and c <= 0x02FDF)    --Kangxi Radicals
+          or (c >= 0x02FF0 and c <= 0x02FFF)    --Ideographic Description Characters
+          or c == 0x03007                       -- 〇
+          or (c >= 0x03100 and c <= 0x0312F)    --Bopomofo
+          or (c >= 0x03190 and c <= 0x0319F)    --Kanbun
+          or (c >= 0x031A0 and c <= 0x031BF)    --Bopomofo Extended
+          or (c >= 0x031C0 and c <= 0x031EF)    --CJK Strokes; cjkstrokes
+          or (c >= 0x031F0 and c <= 0x031FF)    --Katakana Phonetic Extensions
+          or (c >= 0x03200 and c <= 0x032FF)    --Enclosed CJK Letters and Months
+          or (c >= 0x03400 and c <= 0x04DBF)    --CJK Unified Ideographs Extension A;
+          or (c >= 0x20000 and c <= 0x2A6DF)    --CJK Unified Ideographs Extension B;
+          or (c >= 0x2A700 and c <= 0x2B73F)    --CJK Unified Ideographs Extension C;
+          or (c >= 0x2B740 and c <= 0x2B81F)    --CJK Unified Ideographs Extension D;
+          or (c >= 0x2B820 and c <= 0x2CEAF)    --CJK Unified Ideographs Extension E;
+          or (c >= 0x2CEB0 and c <= 0x2EBEF)    --CJK Unified Ideographs Extension F;
+          or (c >= 0x2F800 and c <= 0x2FA1F)    --CJK Compatibility Ideographs Supplement;
+  end
+
+  local function ischinesepunctuation(c)
+      return (c >= 0x3000 and c <= 0x303F)      --CJK Symbols and Punctuation
+          or (c >= 0xFF00 and c <= 0xFFEF)      --Halfwidth and Fullwidth Forms
   end
 
   local function ispunctuation(c)
-    return (c >= 0x0000 and c <= 0x002F)
-        or (c >= 0x003A and c <= 0x003F)
-        or (c >= 0x005B and c <= 0x0060)
-        or (c >= 0x007B and c <= 0x007F)
-        or (c >= 0x2000 and c <= 0x206F)
+      return (c >= 0x0000 and c <= 0x002F)      --ASCII punctuation
+          or (c >= 0x003A and c <= 0x003F)      --ASCII punctuation
+          or (c >= 0x005B and c <= 0x0060)      --ASCII punctuation
+          or (c >= 0x007B and c <= 0x007F)      --ASCII punctuation
+          or (c >= 0x2000 and c <= 0x206F)      --General Punctuation
+          or ischinesepunctuation(c)
   end
 
-  -- 汉字环境中的（非汉字）合法符号
+  local function isdigit(c)
+      return (c >= 0x0030 and c <= 0x0039)      --ASCII digits
+          or (c >= 0xFF10 and c <= 0xFF19)      --Fullwidth digits
+  end
+
   local legalsymbolinchinese = {
       [0x00b7] = true, -- ·   MIDDLE DOT
-      [0x002D] = true, -- -  Hyphen-Minus. Will there be any side effects?
+      [0x002D] = true, -- -  Hyphen-Minus
       [0x002F] = true, -- /  Solidus
   }
 
@@ -549,19 +562,41 @@
       return legalsymbolinchinese[c]
   end
 
+  local debug_pangu = false
+
+  function thirddata.memos.setdebugpangu(flag)
+      debug_pangu = flag
+  end
+
   function thirddata.memos.processmystuff(head)
       local n = head
       while n do
           if n.id == glyph_id then
-              if  ischinesechar(n.char) then -- 本字是汉字
+              if ischinesechar(n.char) then
                   local n_prev = n.prev
-                  if n_prev and n_prev.id == glyph_id  and not ispunctuation(n_prev.char) then
-                      if ischinesechar(n_prev.char) then -- 前字是汉字
-                      elseif not islegalsymbolinchinese(n_prev.char) then --前字不是汉字也不是合法中文语境符号
+                  if n_prev and n_prev.id == glyph_id then
+                      if ischinesechar(n_prev.char) then
+                      elseif ischinesepunctuation(n_prev.char) then
+                      elseif ispunctuation(n_prev.char) then
+                      elseif isdigit(n_prev.char) then
                           local glue = node_new("glue")
                           glue.width = tex_sp("0.25em")
                           glue.stretch = tex_sp("0.25em")
-                          --print("insert space before:", utf8.char(n.char))
+                          if debug_pangu then
+                              print(string.format("[Pangu] Insert space BEFORE: '%s' (U+%04X) <- '%s' (U+%04X)",
+                                  utf8.char(n.char), n.char,
+                                  utf8.char(n_prev.char), n_prev.char))
+                          end
+                          head, glue = node_insertbefore(head, n, glue)
+                      else
+                          local glue = node_new("glue")
+                          glue.width = tex_sp("0.25em")
+                          glue.stretch = tex_sp("0.25em")
+                          if debug_pangu then
+                              print(string.format("[Pangu] Insert space BEFORE: '%s' (U+%04X) <- '%s' (U+%04X)",
+                                  utf8.char(n.char), n.char,
+                                  utf8.char(n_prev.char), n_prev.char))
+                          end
                           head, glue = node_insertbefore(head, n, glue)
                       end
                   end
@@ -570,36 +605,25 @@
                   if n_next
                   and n_next.id == glyph_id
                   and not ischinesechar(n_next.char)
-                  and not islegalsymbolinchinese(n_next.char)
+                  and not ischinesepunctuation(n_next.char)
                   and not ispunctuation(n_next.char)
                   then
                       local glue = node_new("glue")
                       glue.width = tex_sp("0.25em")
                       glue.stretch = tex_sp("0.25em")
-                      --print("insert space after:", utf8.char(n.char))
+                      if debug_pangu then
+                          print(string.format("[Pangu] Insert space AFTER: '%s' (U+%04X) -> '%s' (U+%04X)",
+                              utf8.char(n.char), n.char,
+                              utf8.char(n_next.char), n_next.char))
+                      end
                       head, glue = node_insertafter(head, n, glue)
                       n = glue.next
                   end
-              elseif n.char == 0x2014 then -- — — 双符破折号中间加入一个
-                  local n_prev = n.prev
-              if n_prev and n_prev.id == glyph_id and n_prev.char == 0x2014 then
-                      local k_l = node_new("kern")
-                      k_l.kern = -n.width / 2
-                      head, k_l = node_insertbefore(head, n, k_l)
-                      local glyph_n = node_new("glyph")
-                      glyph_n.font = font.current()
-                      glyph_n.subtype = 0
-                      glyph_n.char = 0x2014
-                      head, glyph_n = node_insertbefore(head, n, glyph_n)
-                      local k_r = node_new("kern")
-                      k_r.kern = -n.width / 2
-                      head, k_r = node_insertbefore(head, n, k_r)
-              end
               end
           end
           n = n.next
       end
-      return head, done
+      return head, true
   end
 
   nodes.tasks.appendaction("processors", "after", "thirddata.memos.processmystuff")
@@ -607,6 +631,13 @@
 
 \def\disablepanguspace{\ctxluacode{nodes.tasks.disableaction("processors","thirddata.memos.processmystuff")}}
 \def\enablepanguspace {\ctxluacode{nodes.tasks.enableaction ("processors","thirddata.memos.processmystuff")}}
+\def\debugpangu       {\ctxluacode{thirddata.memos.setdebugpangu(true)}}
+\def\nodebugpangu     {\ctxluacode{thirddata.memos.setdebugpangu(false)}}
+
+\definebreakpoint [compound] [、] [nleft=1,nright=1,type=1]
+\definebreakpoint [compound] [（] [nleft=3,nright=3,type=1]
+\definebreakpoint [compound] [）] [nleft=2,nright=2,type=1]
+\setbreakpoints   [compound]
 
 \startprotectedcolors
   \definecolor [transparentcolor] [r=0,g=1,b=1,t=0,a=normal]
@@ -1046,8 +1077,8 @@ context.definelayout(
                                   commandbefore=\blank,
                                   before={\null\vfill},
                                   after={\vfill}]
-\setuphead [part,title]          [header=empty,footer=empty]
-\setuphead [chapter]             [header=empty,footer=empty,
+\setuphead [part,title]          [header=empty,]
+\setuphead [chapter]             [header=empty,
                                   frontpartlabel=preface,
                                   bodypartlabel=chapter,
                                   appendixlabel=appendix,
@@ -1434,7 +1465,7 @@ context.definelayout(
   \doifelsemode {rocket:chapterpage} {
       \setlayer
         [layer:chapter:rocket:number]
-        [preset=righttop,hoffset=16pt,]
+        [preset=righttop,hoffset=\rightedgewidth,]
         {\useMPgraphic{style:chapter:rocket:number}}
       \globaldisablemode[rocket:chapterpage]
   } {
@@ -1451,23 +1482,22 @@ context.definelayout(
   \globaldisablemode[hexa:chapterpage]
   \globalenablemode[rocket:chapterpage]
   \vbox{
-    \headsetupspacing\veryraggedright
+    \headsetupspacing\hfill
     \let\\\endgraf\let\crlf\endgraf
     \ifnum{\somenamedheadnumber{chapter}{current}}>0
       \framed[frame=off,bottomframe=on,offset=0pt,
               framecolor=titlecolor,rulethickness=2pt]
-              {\color[white]{
+              {\hfill
       \ifconditional\headshownumber
-      \strut\headnumbercontent\quad%\pa
-      \else\fakeheadnumbercontent\fi}}
+      \strut\headnumbercontent
+      \else\fakeheadnumbercontent\fi}
     \else
-      \framed[frame=off,offset=0pt,
-              framecolor=titlecolor]
-              {\color[white]{
+      \framed[frame=off,offset=0pt]
+              {\hfill
       \ifconditional\headshownumber
-      \strut\headnumbercontent\quad%\pa
-      \else\fakeheadnumbercontent\fi}}%
-    \fi
+      \strut\headnumbercontent
+      \else\fakeheadnumbercontent\fi}%
+    \fi\par\hfill
     \begstrut\headtextcontent\endstrut
   }
 \stopsetups
@@ -1788,9 +1818,10 @@ context.definelayout(
             [color=black,style={\feature[+][tabularnumbers]}]
 \setuphead  [title,subject][incrementnumber=list]
 \definehead [tochead]      [title]
-            [placehead=yes,page=yes,incrementnumber=no,
+            [placehead=yes,page=odd,incrementnumber=no,
              before=\null\vskip2\baselineskip\relax,
-             after=\vskip\baselineskip\relax]
+             after=\vskip\baselineskip\relax,
+             header=stop,]
 
 % \section{TOC: style}
 \define[3]\mms_partlabel_default%
@@ -2067,8 +2098,8 @@ context.definelayout(
     \leavevmode\vfill
     \framed[frame=off,foregroundstyle=\ssd,
             align=flushright,orientation=90,
-            height=1tw]{\vfill\par 
-            \color[contentchapc]{TABLE OF} 
+            height=1tw]{\vfill\par
+            \color[contentchapc]{TABLE OF}
             \blank[halfline]
             \definedfont[SansBold at 60pt]%
             \color[themecolor]{CONTENTS}}
@@ -2105,7 +2136,7 @@ context.definelayout(
   \framed[frame=off,foregroundstyle=\rmd,
           align=flushright,]{
           \definedfont[SerifBoldItalic at 40pt]%
-          \color[darkgray]{TABLE OF} 
+          \color[darkgray]{TABLE OF}
           \blank[halfline]
           \color[themecolor]{CONTENTS}}
     \vskip 2\baselineskip\relax
@@ -2143,7 +2174,7 @@ context.definelayout(
   \framed[frame=off,foregroundstyle=\rmd,
           align=flushleft,]{
           \definedfont[playfairhairlinebolditalic at 40pt]%
-          \color[darkgray]{Table of} 
+          \color[darkgray]{Table of}
           \blank[halfline]
           \definedfont[playfairhairlinebolditalic at 60pt]
           \color[themecolor]{Contents}}
@@ -2169,13 +2200,12 @@ context.definelayout(
 \tolerant\def\placeTOCs[#1]{\begingroup%
   \iffirstargument\getparameters[??TOCs][#1]\fi%
   \edef\currenttocstyle{\ifempty\??TOCsalternative\currenttocstyle\else\??TOCsalternative\fi}%
+  \edef\p_title{\??TOCstitle}%
   \setups{memos:toc:\currenttocstyle}%
   \doifinsetelse{\namedheadparameter{tochead}\c!page}{no,disable}%
      {}{\startlayout[\??TOCslayout]}%
-  \edef\p_title{\??TOCstitle}%
-  \doif{placetitle}{yes}{%
-    \expandafter\expandafter\expandafter\tochead\expandafter{\p_title}%
-  }%
+  \doif{\??TOCsplacetitle}{yes}{%
+    \expandafter\expandafter\expandafter\tochead\expandafter{\p_title}}%
   \setuplocalinterlinespace[line=\??TOCsinterlinespace]%
   \doifelse{\??TOCssetups}{yes}{\placecontent}{\setups{\??TOCssetups}}%
   \stoplayout
@@ -2359,6 +2389,59 @@ context.definelayout(
   \setupheadertexts  []
   \setupheadertexts  [\donetrue\setups [hdr:even:chaptermark]][][]
                      [\donetrue\setups [hdr:odd:sectionmark]]
+\fi
+\ifhdr_sty_rocket
+  \newdimen\pos_xi_hdr_margin
+  \newdimen\pos_xii_hdr_margin
+  \pos_xii_hdr_margin=\dimexpr\paperwidth-\textwidth-\backspace-\rightmargindistance\relax
+  \pos_xi_hdr_margin=\dimexpr\textwidth+\rightmargindistance\relax
+  \defineframed
+    [hdrtextframed]
+    [width=\pos_xi_hdr_margin,
+     height=\dimexpr\topspace+\headerheight\relax,
+     frame=off,bottomframe=on,
+     foregroundstyle=ss,]
+  
+  \defineframed
+    [hdrmarginframed]
+    [frame=off,bottomframe=on,
+     align={center,low},
+     width=\pos_xii_hdr_margin,
+     height=\dimexpr\topspace+\headerheight\relax,
+     background=color,
+     foregroundcolor=white,
+     foregroundstyle=ss,]
+    
+  \def\hdrmarginhigh#1{\dontleavehmode\tfd\raise .8\exheight\relax\hbox {\tfx\sc #1}}
+  
+  \setupheadertexts[]
+  
+  \setupheadertexts[text][][%
+     \hbox xoffset \rightmargindistance{%
+      \hdrtextframed[align={outer,low},framecolor=themecolor,]
+     {\hfil\getmarking[chapter]\hbox to \rightmargindistance{}}}]
+     [][%
+     \hbox xoffset -\rightmargindistance{%
+       \hdrtextframed[align={outer,low},framecolor=optcolor,]
+     {\hbox to 2\rightmargindistance{}\getmarking[section]\hfil}}]
+  
+  \setupheadertexts[margin][][%
+     \hdrmarginframed
+     [backgroundcolor=themecolor,framecolor=themecolor,]{\vfil
+        \hdrmarginhigh{Chapter}\ %
+        \tfd\getmarking[chapternumber]}]
+     [%
+     \hdrmarginframed
+     [backgroundcolor=optcolor,framecolor=optcolor,]{\vfil
+        \hdrmarginhigh{Section\ \getmarking[chapternumber].\,}%
+        \tfd\getmarking[sectionnumber]}][]
+        
+  \setuppagenumbering [alternative=doublesided,]
+  
+  \setupfootertexts
+    [margin]
+    [][\framed[frame=off,align={center,lohi},width=\hsize,height=\footerheight]{\userpagenumber}]
+    [\framed[frame=off,align={center,lohi},width=\hsize,height=\footerheight]{\userpagenumber}][]
 \fi
 %%%%%%%%%%%%%%%%%%%%
 
@@ -3545,10 +3628,8 @@ suggest=\symbol[fontawesome][star]]
 
 \def\Mdot {\hbox to .5em{\hss\scale[s=1.5]{$\cdot$}\hss}}
 \def\mdot {\hbox to .5em{\hss\utf{00B7}\hss}}
-\def\symbol_style#1{\nobreak\high{{\switchtobodyfont[5pt]#1}}}
-\def\urlsymbol{\symbol_style{%
-     \useurlstyleandcolor\c!style\c!color
-     \usersymbolparameter{from}}}
+\def\symbol_style#1{\nobreak\high{{\switchtobodyfont[5pt]\useurlstyleandcolor\c!style\c!color #1}}}
+\def\urlsymbol{\symbol_style{\usersymbolparameter{from}}}
 \def\refsymbol{\symbol_style{\usersymbolparameter{ref}}}
 
 \pushoverloadmode
@@ -4142,6 +4223,255 @@ suggest=\symbol[fontawesome][star]]
   \number\cnt_floor\relax\fi%
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                                 ruby                                %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\installnamespace          {xruby}
+\installcommandhandler    \????xruby  {xruby}  \????xruby
+
+\setupxruby[mono] [style=\switchtobodyfont[5pt],color=red,bodycolor=blue,yoffset=0pt,location=top,intrusion=no]%
+\setupxruby[group][style=\switchtobodyfont[5pt],color=red,bodycolor=blue,yoffset=0pt,location=top,intrusion=no]%
+\setupxruby[jyuku][style=\switchtobodyfont[5pt],color=red,bodycolor=blue,yoffset=0pt,location=top,intrusion=big,bprotrusion=no]%
+
+\protected\tolerant\def\xruby#*[#S#1]#*[#S#2]#:#3#4{
+  \begingroup\edef\currentxruby{mono}%
+    \ifparameters#1\else
+      \ifhastok={#1}
+        \ifparameters#1\else\setupxruby[\currentxruby][#1]\fi
+			\else
+        \iftok{#1}{m}\edef\currentxruby{mono}\fi
+        \iftok{#1}{g}\edef\currentxruby{group}\fi
+        \iftok{#1}{j}\edef\currentxruby{jyuku}\fi
+      \fi
+    \fi
+    \ifparameters#2\else\setupxruby[\currentxruby][#2]\fi
+    \ifx\p_protrusion\v!yes\edef\p_bprotrusion{\v!yes}\edef\p_aprotrusion{\v!yes}\fi
+    \edef\p_intrusion  {\xrubyparameter{intrusion}}%
+    \edef\p_bintrusion {\xrubyparameter{bintrusion}}%
+    \edef\p_aintrusion {\xrubyparameter{aintrusion}}%
+    \edef\p_protrusion {\xrubyparameter{protrusion}}%
+    \edef\p_bprotrusion{\xrubyparameter{bprotrusion}}%
+    \edef\p_aprotrusion{\xrubyparameter{aprotrusion}}%
+    \edef\p_stretch    {\xrubyparameter    {stretch}}%
+    \edef\p_rubystretch{\xrubyparameter{rubystretch}}%
+    \edef\p_location   {\xrubyparameter\c!location}%
+    \def\c!mono{mono}\edef\c!jyuku{jyuku}%
+    \removeunwantedspaces
+    \ifx\currentxruby\c!mono  \xruby_mono [#2]{#3}{#4}\fi
+    \ifx\currentxruby\c!group \xruby_group[#2]{#3}{#4}\fi
+    \ifx\currentxruby\c!jyuku \xruby_mono [#2]{#3}{#4}\fi
+  \endgroup
+}
+
+\newcount\c_flag_box
+\newdimen\d_xruby_biggerwidth
+\newskip\d_xruby_topback
+\newskip\d_xruby_leftskip
+\newskip\d_xruby_rightskip
+\newcount\c_xruby_mono_current
+\newcount\c_xruby_mono_total
+\newif\ifxruby_mono_first
+
+\def\hfilword#1{%
+    \ifx\p_stretch\v!yes
+      \ifx\p_bprotrusion\v!no\else\hfil\fi
+    \fi
+  #1%
+    \ifx\p_stretch\v!yes
+      \ifx\p_aprotrusion\v!no\else\hfil\fi
+    \fi
+}
+
+\def\xruby_settopbox#1%
+  {\setbox0=\hbox{%
+   \noindent
+   \removeunwantedspaces
+   \usexrubystyleandcolor\c!style\c!color
+   \xrubyparameter\c!left
+   \ifx\p_rubystretch\v!yes
+     \processisolatedwords{#1}\hfilword
+   \else{\hfil#1\hfil}\fi
+   \xrubyparameter\c!right}%
+}
+
+\def\xruby_topbox{%
+  \ifx\p_location\v!top
+    \scratchdimen\dimexpr\ht1+\xrubyparameter\c!yoffset\relax
+  \fi
+  \ifx\p_location\v!bottom
+    \scratchdimen\dimexpr-\dp1-\ht0-\xrubyparameter\c!yoffset\relax
+  \fi
+  \hskip-\dimexpr(\wd1+\wd0)/2\relax
+  \raise\scratchdimen
+  \ruledhbox\ifnum\c_flag_box=\zeropoint to \d_xruby_biggerwidth\fi{\unhcopy0}%
+}
+
+\def\xruby_setbodybox#1{\setbox1\hbox{\noindent\strut\usexrubystyleandcolor{bodystyle}{bodycolor}\processisolatedwords{#1}\hfilword}}
+
+\def\xruby_bodybox{\ruledhbox \ifnum\c_flag_box=\zeropoint to \d_xruby_biggerwidth\fi{\unhcopy1}}
+
+\def\get_mindimen#1{%
+  \ifdim\dimexpr-\d_xruby_topback>#1\relax\scratchdimen#1\fi
+  \ifdim\dimexpr-\d_xruby_topback<#1\relax\scratchdimen-\d_xruby_topback\fi
+  \ifdim\dimexpr-\d_xruby_topback=#1\relax\scratchdimen#1\fi
+}
+
+\def\set_intrusion#1{%
+  \ifx#1\v!small\scratchdimenone0.5em\fi
+  \ifx#1\v!big  \scratchdimenone1.0em\fi
+  \ifx#1\v!no   \scratchdimenone0.0em\fi
+  \get_mindimen \scratchdimenone
+}
+
+\def\xruby_output_pair#1#2{%
+  \begingroup
+    \xruby_setbodybox{#1}%
+    \xruby_settopbox{#2}%
+    \d_xruby_topback  \dimexpr(\wd1-\wd0)/2\relax
+    \d_xruby_leftskip \zeropoint
+    \d_xruby_rightskip\zeropoint
+    \c_flag_box       \zerocount
+    \ifdim\wd1>\wd0%body is bigger
+      \d_xruby_biggerwidth\wd1\c_flag_box=1
+    \fi
+    \ifdim\wd1=\wd0
+      \d_xruby_biggerwidth\wd1\c_flag_box\zerocount
+    \fi
+    \ifdim\wd1<\wd0
+      \d_xruby_biggerwidth\wd0\c_flag_box=-1
+      \set_intrusion\p_intrusion
+      \d_xruby_leftskip=\scratchdimen
+      \d_xruby_rightskip\d_xruby_leftskip
+      \set_intrusion\p_bintrusion
+      \d_xruby_leftskip=\scratchdimen
+      \set_intrusion\p_aintrusion
+      \d_xruby_rightskip\scratchdimen
+    \fi
+    \ifx\p_stretch\v!yes\c_flag_box\zerocount\fi
+    \ifnum\c_flag_box=\zeropoint
+      \scratchdimen   \d_xruby_leftskip
+      \scratchdimenone\d_xruby_rightskip
+      \d_xruby_leftskip \zeropoint
+      \d_xruby_rightskip\d_xruby_leftskip
+      \wd0\d_xruby_biggerwidth
+      \wd1\d_xruby_biggerwidth
+    \fi
+    \ifx\p_bprotrusion\v!yes
+      \ifx\p_aprotrusion\v!yes
+        \kern-\scratchdimen
+      \else
+        \kern-2\scratchdimen
+      \fi
+    \fi
+    \ifnum\c_flag_box<\zeropoint\kern-\dimexpr\d_xruby_leftskip+\d_xruby_topback\relax\fi
+    \bgroup\hbox{\noindent\xruby_bodybox\xruby_topbox}\egroup
+    \ifnum\c_flag_box>\zeropoint\kern\dimexpr+\d_xruby_topback  \relax\fi
+    \ifnum\c_flag_box<\zeropoint\kern\dimexpr-\d_xruby_rightskip\relax\fi
+    \ifx\p_aprotrusion\v!yes
+      \ifx\p_bprotrusion\v!yes
+        \kern-\scratchdimenone
+      \else
+        \kern-2\scratchdimenone
+      \fi
+    \fi
+  \endgroup
+}
+
+\tolerant\def\xruby_group#*[#S#1]#:#2#3{%
+  \begingroup\dontcomplain
+   \penalty0\dontleavehmode
+   \xruby_output_pair{#2}{#3}%
+   \penalty0%
+  \endgroup
+}
+
+\def\xruby_mono_inter{\penalty0}
+
+\def\xruby_mono_body_pop#1#2\relax{%
+  \def\xruby_mono_current_body{#1}%
+  \def\xruby_mono_body{#2}%
+}
+
+\def\xruby_mono_count#1|{%
+  \def\xruby_next{\xruby_mono_count}%
+  \ifx#1\relax
+    \let\xruby_next\relax
+  \else
+    \advance\c_xruby_mono_total\plusone
+  \fi
+  \xruby_next
+}
+
+\def\xruby_mono_ruby_next#1|{%
+  \def\xruby_next{\xruby_mono_ruby_next}%
+  \ifx#1\relax
+    \let\xruby_next\relax
+  \else
+    \def\xruby_mono_current_ruby{#1}%
+    \xruby_mono_process_pair
+  \fi
+  \xruby_next
+}
+
+\def\xruby_mono_process_pair{%
+  \ifx\xruby_mono_body\empty
+  \else
+    \expandafter\xruby_mono_body_pop\xruby_mono_body\relax
+    \advance\c_xruby_mono_current by 1
+    \ifxruby_mono_first
+      \xruby_mono_firstfalse
+    \else
+      \xruby_mono_inter
+    \fi
+    \xruby_mono_adjust_params
+    \xruby_output_pair{\xruby_mono_current_body}{\xruby_mono_current_ruby}%
+  \fi
+}
+
+\def\xruby_save_params{%
+  \edef\saved_bprotrusion{\p_bprotrusion}%
+  \edef\saved_aprotrusion{\p_aprotrusion}%
+  \edef\saved_bintrusion {\p_bintrusion}%
+  \edef\saved_aintrusion {\p_aintrusion}%
+  \edef\saved_stretch    {\p_stretch}%
+}
+
+\def\xruby_restore_params{%
+  \let\p_bprotrusion\saved_bprotrusion
+  \let\p_aprotrusion\saved_aprotrusion
+  \let\p_bintrusion \saved_bintrusion
+  \let\p_aintrusion \saved_aintrusion
+  \let\p_stretch    \saved_stretch
+}
+
+\def\xruby_mono_adjust_params{%
+  \ifnum\c_xruby_mono_current=1
+    \xruby_save_params
+  \fi
+  \ifnum\c_xruby_mono_current>1
+    \let\p_bprotrusion\v!no
+    \let\p_bintrusion\v!no
+    \let\p_stretch\v!no
+  \fi
+  \ifnum\c_xruby_mono_current=\c_xruby_mono_total
+    \xruby_restore_params
+  \fi
+}
+
+\tolerant\def\xruby_mono#*[#S#1]#:#2#3%
+  {\begingroup\dontcomplain
+   \def\xruby_mono_body{#2}%
+   \xruby_mono_firsttrue
+   \c_xruby_mono_current\zerocount
+   \c_xruby_mono_total\zerocount
+   \penalty0
+   \dontleavehmode
+   \expandafter\xruby_mono_count#3|\relax|%
+   \expandafter\xruby_mono_ruby_next#3|\relax|%
+   \penalty0
+  \endgroup}
+
 
 \definemode [memos:extra:zhnumber][keep]
 \definemode [memos:extra:pinyin]  [keep]
@@ -4153,7 +4483,7 @@ suggest=\symbol[fontawesome][star]]
       zhnumber=>{\enablemode[memos:extra:zhnumber]},
          index=>{\enablemode[memos:extra:index]},
          bihua=>{\enablemode[memos:extra:bihua]},
-           all=>{\enablemode[memos:extra:pinyin,memos:extra:zhnumber,memos:extra:index,memos:extra:bihua]}, 
+           all=>{\enablemode[memos:extra:pinyin,memos:extra:zhnumber,memos:extra:index,memos:extra:bihua]},
           none=>\relax,
     \v!default=>\relax,
     \v!unknown=>\errorparameter{extra},
@@ -4257,7 +4587,7 @@ suggest=\symbol[fontawesome][star]]
 
   \tolerant\def\pinyin#*[#S#1]#:#2%
     {\begingroup
-    \ifparameters\or\setuppinyin[#1]\fi
+    \ifparameters#1\else\setuppinyin[#1]\fi
     \ctxlua{thirddata.pinyin.format_pinyin_string([==[#2]==])}%
     \endgroup}
 
@@ -4339,11 +4669,6 @@ suggest=\symbol[fontawesome][star]]
 \installnamespace {bihua}
 \installcommandhandler \????bihua {bihua} \????bihua
 
-\newdimen\d_bihua_width
-\newdimen\d_bihua_spacing
-\newdimen\d_bihua_linewidth
-\newdimen\d_bihua_inner
-
 \definebihua
     [bihua]
     [width=1cm,
@@ -4369,52 +4694,67 @@ suggest=\symbol[fontawesome][star]]
      innerl=0pt,
      innerr=0pt,
      inner=,
-     spacing=0em]
+     spacing=0em,
+     font=SimSun,
+     fontsize=0pt,
+     charcolor=black,
+     charopacity=1,
+     charstrokecolor=,
+     charstrokewidth=0.3pt,
+     charmode=fill,
+     charscale=1,
+     charxoffset=0pt,
+     charyoffset=0pt,
+     mode=stroke]
 
 \unexpanded\def\bihuaload#1{%
     \ctxlua{thirddata.bihua.load_chars("#1")}%
 }
 
 \def\bihua_setup_options{%
-    \d_bihua_width=\dimexpr\bihuaparameter{width}\relax
-    \d_bihua_spacing=\dimexpr\bihuaparameter{spacing}\relax
     \ctxlua{
         thirddata.bihua.set_options{
-            width = tex.dimen["d_bihua_width"] / 65781.8,
-            spacing = tex.dimen["d_bihua_spacing"] / 65781.8,
-            frame = "\bihuaparameter{frame}",
-            natural = \bihuaparameter{natural},
-            frame_stroke = "\bihuaparameter{framestroke}",
-            frame_fill = "\bihuaparameter{framefill}",
-            frame_linewidth = "\bihuaparameter{framelinewidth}",
-            frame_dashpattern = "\bihuaparameter{framedashpattern}",
-            iframe_stroke = "\bihuaparameter{iframestroke}",
-            iframe_linewidth = "\bihuaparameter{iframelinewidth}",
+            width              = "\bihuaparameter{width}",
+            spacing            = "\bihuaparameter{spacing}",
+            frame              = "\bihuaparameter{frame}",
+            natural            = \bihuaparameter{natural},
+            frame_stroke       = "\bihuaparameter{framestroke}",
+            frame_fill         = "\bihuaparameter{framefill}",
+            frame_linewidth    = "\bihuaparameter{framelinewidth}",
+            frame_dashpattern  = "\bihuaparameter{framedashpattern}",
+            iframe_stroke      = "\bihuaparameter{iframestroke}",
+            iframe_linewidth   = "\bihuaparameter{iframelinewidth}",
             iframe_dashpattern = "\bihuaparameter{iframedashpattern}",
-            char_stroke = "\bihuaparameter{charstroke}",
-            char_fill = "\bihuaparameter{charfill}",
-            char_linewidth = "\bihuaparameter{charlinewidth}",
-            char_dashpattern = "\bihuaparameter{chardashpattern}",
-            last_stroke = "\bihuaparameter{laststroke}",
-            last_fill = "\bihuaparameter{lastfill}",
-            last_linewidth = "\bihuaparameter{lastlinewidth}",
-            last_dashpattern = "\bihuaparameter{lastdashpattern}",
-            inner_t = "\bihuaparameter{innert}",
-            inner_b = "\bihuaparameter{innerb}",
-            inner_l = "\bihuaparameter{innerl}",
-            inner_r = "\bihuaparameter{innerr}",
-            inner = "\bihuaparameter{inner}",
-        }
+            char_stroke        = "\bihuaparameter{charstroke}",
+            char_fill          = "\bihuaparameter{charfill}",
+            char_linewidth     = "\bihuaparameter{charlinewidth}",
+            char_dashpattern   = "\bihuaparameter{chardashpattern}",
+            last_stroke        = "\bihuaparameter{laststroke}",
+            last_fill          = "\bihuaparameter{lastfill}",
+            last_linewidth     = "\bihuaparameter{lastlinewidth}",
+            last_dashpattern   = "\bihuaparameter{lastdashpattern}",
+            inner_t            = "\bihuaparameter{innert}",
+            inner_b            = "\bihuaparameter{innerb}",
+            inner_l            = "\bihuaparameter{innerl}",
+            inner_r            = "\bihuaparameter{innerr}",
+            inner              = "\bihuaparameter{inner}",
+            font               = "\bihuaparameter{font}",
+            fontsize           = "\bihuaparameter{fontsize}",
+            char_color         = "\bihuaparameter{charcolor}",
+            char_opacity       = \bihuaparameter{charopacity},
+            char_stroke_color  = "\bihuaparameter{charstrokecolor}",
+            char_stroke_width  = "\bihuaparameter{charstrokewidth}",
+            char_mode          = "\bihuaparameter{charmode}",
+            char_scale         = \bihuaparameter{charscale},
+            char_xoffset       = "\bihuaparameter{charxoffset}",
+            char_yoffset       = "\bihuaparameter{charyoffset}",
+            mode               = "\bihuaparameter{mode}",
+        }%
     }%
 }
 
-\unexpanded\def\bihuashow{%
-    \dodoubleempty\do_bihuashow%
-}
-
-\def\do_bihuashow[#1][#2]#3#4{%
-    \begingroup
-    \ifsecondargument
+\def\bihua_setup_current#1#2{%
+    \ifparameter#2\or
         \cdef\currentbihua{#1}%
         \setupcurrentbihua[#2]%
     \else
@@ -4422,37 +4762,63 @@ suggest=\symbol[fontawesome][star]]
         \setupcurrentbihua[#1]%
     \fi
     \bihua_setup_options
-    \ctxlua{
-        local mp_code = thirddata.bihua.generate_metafun("#3", #4)
-        context.startMPcode()
-        context(mp_code)
-        context.stopMPcode()
-    }%
-    \endgroup
 }
 
-\unexpanded\def\bihuashowall{%
-    \dodoubleempty\do_bihuashowall%
-}
+\permanent\protected\tolerant\def\bihuashow[#1]#*[#2]#:#3#4%
+    {\begingroup
+     \bihua_setup_current{#1}{#2}%
+     \ctxlua{
+         local mp_code = thirddata.bihua.generate_metafun("#3", #4)
+         context.startMPcode()
+         context(mp_code)
+         context.stopMPcode()
+     }%
+     \endgroup}
 
-\def\do_bihuashowall[#1][#2]#3{%
-    \begingroup
-    \ifsecondargument
-        \cdef\currentbihua{#1}%
-        \setupcurrentbihua[#2]%
-    \else
-        \cdef\currentbihua{bihua}%
-        \setupcurrentbihua[#1]%
-    \fi
-    \bihua_setup_options
-    \ctxlua{
-        local mp_code = thirddata.bihua.generate_metafun_all("#3")
-        context.startMPcode()
-        context(mp_code)
-        context.stopMPcode()
-    }%
-    \endgroup
-}
+\permanent\protected\tolerant\def\bihuashowall[#1]#*[#2]#:#3%
+    {\begingroup
+     \bihua_setup_current{#1}{#2}%
+     \ctxlua{
+         local mp_code = thirddata.bihua.generate_metafun_all("#3")
+         context.startMPcode()
+         context(mp_code)
+         context.stopMPcode()
+     }%
+     \endgroup}
+
+\permanent\protected\tolerant\def\zitiefont[#1]#*[#2]#:#3%
+    {\begingroup
+     \bihua_setup_current{#1}{#2}%
+     \ctxlua{
+         local mp_code = thirddata.bihua.generate_metafun_font("#3")
+         context.startMPcode()
+         context(mp_code)
+         context.stopMPcode()
+     }%
+     \endgroup}
+
+\permanent\protected\tolerant\def\zitiefonts[#1]#*[#2]#:#3%
+    {\begingroup
+     \bihua_setup_current{#1}{#2}%
+     \dontleavehmode
+     \ctxlua{
+         local chars = "#3"
+         local spacing = "\bihuaparameter{spacing}"
+         for i = 1, utf8.len(chars) do
+             local pos = utf8.offset(chars, i)
+             local char = chars:sub(pos, utf8.offset(chars, i+1)-1)
+             context.hbox(function()
+                 local mp_code = thirddata.bihua.generate_metafun_font(char)
+                 context.startMPcode()
+                 context(mp_code)
+                 context.stopMPcode()
+             end)
+             if i < utf8.len(chars) then
+                 context.hskip(spacing)
+             end
+         end
+     }%
+     \endgroup}
 \stopmode
 
 %%%%% \processaction 执行顺序，需要先定义这些参数

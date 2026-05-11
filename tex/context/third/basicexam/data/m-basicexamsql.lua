@@ -3,17 +3,13 @@ if not modules then modules = { } end modules ['basicexam-sql'] = {
     comment   = "basicexam SQLite database module(beta version)",
 }
 
-local sqlitelib = resolvers.libraries.validoptional("sqlite")
-
 thirddata = thirddata or { }
 thirddata.basicexam_sql = thirddata.basicexam_sql or { }
 local basicexam_sql = thirddata.basicexam_sql
 
-local current_material_shown = nil
+local report = logs.reporter("basicexam-sql")
 
-if not sqlitelib then
-    return basicexam_sql
-end
+local current_material_shown = nil
 
 if not basicexam_sql.libfile then
     basicexam_sql.libfile = ""
@@ -25,22 +21,102 @@ if not basicexam_sql.set_libpath then
     end
 end
 
-local function okay()
+local function detect_sqlite_library()
+    local candidates = {}
+    
+    if os.type == "windows" or package.config:sub(1,1) == "\\" then
+        candidates = {
+            "sqlite3.dll",
+            "libsqlite3.dll",
+            os.getenv("SQLITE_DLL") or "",
+        }
+    else
+        local uname = io.popen("uname -s 2>/dev/null", "r")
+        local os_name = uname and uname:read("*l") or ""
+        if uname then uname:close() end
+        
+        if os_name == "Darwin" then
+            candidates = {
+                "/opt/homebrew/opt/sqlite/lib/libsqlite3.dylib",
+                "/usr/local/opt/sqlite/lib/libsqlite3.dylib",
+                "/usr/lib/libsqlite3.dylib",
+                "/usr/local/lib/libsqlite3.dylib",
+                os.getenv("SQLITE_LIB") or "",
+            }
+        else
+            candidates = {
+                "/usr/lib/x86_64-linux-gnu/libsqlite3.so",
+                "/usr/lib/aarch64-linux-gnu/libsqlite3.so",
+                "/usr/lib64/libsqlite3.so",
+                "/usr/lib/libsqlite3.so",
+                "/usr/local/lib/libsqlite3.so",
+                os.getenv("SQLITE_LIB") or "",
+            }
+        end
+    end
+    
+    for _, path in ipairs(candidates) do
+        if path and path ~= "" then
+            local f = io.open(path, "r")
+            if f then
+                f:close()
+                return path
+            end
+        end
+    end
+    
+    return nil
+end
+
+local sqlitelib = nil
+local sqlitelib_initialized = false
+
+local function load_sqlite_library()
+    if sqlitelib and sqlitelib_initialized then
+        return true
+    end
+    
+    local auto_detected = detect_sqlite_library()
     local libfile = basicexam_sql.libfile
+    
+    sqlitelib = resolvers.libraries.validoptional("sqlite")
+    if not sqlitelib then
+        report("SQLite library not available")
+        return false
+    end
+    
     if libfile and libfile ~= "" then
         if resolvers.libraries.optionalloaded("sqlite", libfile) then
+            sqlitelib_initialized = true
             return true
         end
     end
+    
+    if auto_detected then
+        if resolvers.libraries.optionalloaded("sqlite", auto_detected) then
+            basicexam_sql.libfile = auto_detected
+            sqlitelib_initialized = true
+            return true
+        end
+    end
+    
+    if resolvers.libraries.optionalloaded("sqlite", "sqlite3") then
+        sqlitelib_initialized = true
+        return true
+    end
+    
+    report("failed to initialize SQLite library")
     return false
 end
 
-local report = logs.reporter("basicexam-sql")
-
-local sqlite_open        = sqlitelib.open
-local sqlite_close       = sqlitelib.close
-local sqlite_execute     = sqlitelib.execute
-local sqlite_getmessage  = sqlitelib.getmessage
+local function okay()
+    if not sqlitelib then
+        if not load_sqlite_library() then
+            return false
+        end
+    end
+    return sqlitelib ~= nil
+end
 
 local format = string.format
 local concat = table.concat
@@ -103,20 +179,29 @@ function basicexam_sql.open_database(dbpath)
         return nil
     end
     
-    local db = sqlite_open(dbpath)
+    local abs_path = dbpath
+    if not file.is_rootbased_path(dbpath) then
+        abs_path = file.join(lfs.currentdir(), dbpath)
+    end
+    
+    local base = file.removesuffix(abs_path)
+    local final_path = file.addsuffix(base, "db")
+    
+    local db = sqlitelib.open(final_path)
+    
     if not db then
-        report("error: cannot open database %s", dbpath)
+        report("error: cannot open database %s", final_path)
         return nil
     end
     
-    sqlite_execute(db, SCHEMA)
+    sqlitelib.execute(db, SCHEMA)
     
     return db
 end
 
 function basicexam_sql.close_database(db)
     if db then
-        sqlite_close(db)
+        sqlitelib.close(db)
     end
 end
 
@@ -145,9 +230,9 @@ local function execute_query(db, query, callback)
         result[#result + 1] = row
     end
     
-    local ok = sqlite_execute(db, query, cb)
+    local ok = sqlitelib.execute(db, query, cb)
     if not ok then
-        report("error: %s", sqlite_getmessage(db))
+        report("error: %s", sqlitelib.getmessage(db))
         return nil
     end
     

@@ -5,6 +5,7 @@ local bihua = thirddata.bihua
 local loaded_chars = {}
 local data_dir = "data-bihua"
 local current_options = {}
+local tex_sp = tex.sp
 
 function bihua.set_data_dir(dir)
     data_dir = dir
@@ -12,24 +13,29 @@ end
 
 function bihua.set_options(opts)
     current_options = opts or {}
-    local function parse_dim(s)
+    local function parse_dim(s, default)
+        default = default or 10
         if type(s) == "number" then return s end
-        if not s or s == "" then return 0 end
+        if not s or s == "" then return default end
+        local ok, result = pcall(function() return tex_sp(s) end)
+        if ok and result then
+            return result / 65536
+        end
         local num = s:match("([%d.]+)")
-        return tonumber(num) or 0
+        return tonumber(num) or default
     end
-    current_options.width = parse_dim(opts.width) or 10
-    current_options.spacing = parse_dim(opts.spacing) or 0
-    current_options.frame_linewidth = parse_dim(opts.frame_linewidth) or 0.5
-    current_options.iframe_linewidth = parse_dim(opts.iframe_linewidth) or 0.3
-    current_options.char_linewidth = parse_dim(opts.char_linewidth) or 0.3
-    current_options.last_linewidth = parse_dim(opts.last_linewidth) or 0.3
-    current_options.inner_t = parse_dim(opts.inner_t) or 0
-    current_options.inner_b = parse_dim(opts.inner_b) or 0
-    current_options.inner_l = parse_dim(opts.inner_l) or 0
-    current_options.inner_r = parse_dim(opts.inner_r) or 0
+    current_options.width = parse_dim(opts.width, 10)
+    current_options.spacing = parse_dim(opts.spacing, 0)
+    current_options.frame_linewidth = parse_dim(opts.frame_linewidth, 0.5)
+    current_options.iframe_linewidth = parse_dim(opts.iframe_linewidth, 0.3)
+    current_options.char_linewidth = parse_dim(opts.char_linewidth, 0.3)
+    current_options.last_linewidth = parse_dim(opts.last_linewidth, 0.3)
+    current_options.inner_t = parse_dim(opts.inner_t, 0)
+    current_options.inner_b = parse_dim(opts.inner_b, 0)
+    current_options.inner_l = parse_dim(opts.inner_l, 0)
+    current_options.inner_r = parse_dim(opts.inner_r, 0)
     if opts.inner and opts.inner ~= "" then
-        local v = parse_dim(opts.inner)
+        local v = parse_dim(opts.inner, 0)
         current_options.inner_t = v
         current_options.inner_b = v
         current_options.inner_l = v
@@ -39,6 +45,22 @@ function bihua.set_options(opts)
     if type(nat) == "string" then
         current_options.natural = (nat == "yes" or nat == "true")
     end
+    
+    current_options.font = opts.font or "SimKai"
+    current_options.fontsize = parse_dim(opts.fontsize, 0)
+    current_options.char_color = opts.char_color or "black"
+    current_options.char_opacity = tonumber(opts.char_opacity) or 1
+    current_options.char_stroke_color = opts.char_stroke_color or ""
+    current_options.char_stroke_width = parse_dim(opts.char_stroke_width, 0.3)
+    current_options.char_mode = opts.char_mode or "fill"
+    current_options.char_scale = tonumber(opts.char_scale) or 1
+    current_options.char_xoffset = parse_dim(opts.char_xoffset, 0)
+    current_options.char_yoffset = parse_dim(opts.char_yoffset, 0)
+    current_options.mode = opts.mode or "stroke"
+end
+
+function bihua.get_option(key)
+    return current_options[key]
 end
 
 local function split_path(path_str)
@@ -301,6 +323,109 @@ function bihua.generate_metafun_all(char)
         table.insert(mp, string.format("  %% 格子 %d", i))
         draw_frame(mp, opts, offset_x)
         draw_strokes(mp, data, i, opts, scale, offset_x)
+    end
+    
+    table.insert(mp, "endfig;")
+    return table.concat(mp, "\n")
+end
+
+local function draw_char_font(mp, char, opts, offset_x)
+    offset_x = offset_x or 0
+    local w = opts.width
+    local fontname = opts.font or "SimHei"
+    local fontsize = opts.fontsize > 0 and opts.fontsize or w * 0.85
+    local char_color = opts.char_color or "black"
+    local opacity = opts.char_opacity or 1
+    local stroke_color = opts.char_stroke_color or ""
+    local stroke_width = opts.char_stroke_width or 0.3
+    local mode = opts.char_mode or "fill"
+    local xoff = opts.char_xoffset or 0
+    local yoff = opts.char_yoffset or 0
+    
+    local cx = offset_x + w/2 + xoff
+    local cy = w/2 + yoff
+    
+    local font_cmd = string.format("\\definedfont[%s at %fpt]", fontname, fontsize)
+    local char_cmd = string.format("%s%s", font_cmd, char)
+    
+    local opacity_cmd = ""
+    if opacity < 1 then
+        opacity_cmd = string.format(" withtransparency (1,%s)", tostring(opacity))
+    end
+    
+    local kind, drawcolor, fillcolor
+    if mode == "fill" or mode == "fillstroke" or mode == "filled" then
+        if stroke_width <= 0 then
+            kind = "fill"
+            fillcolor = char_color
+            drawcolor = nil
+        else
+            kind = "both"
+            fillcolor = char_color
+            drawcolor = stroke_color ~= "" and stroke_color or "black"
+        end
+    else
+        kind = "draw"
+        fillcolor = nil
+        drawcolor = stroke_color ~= "" and stroke_color or char_color
+    end
+    
+    local outline_opts = string.format('text = "%s", kind = "%s"', char_cmd, kind)
+    if fillcolor then
+        outline_opts = outline_opts .. string.format(', fillcolor = "%s"', fillcolor)
+    end
+    if drawcolor and kind == "both" then
+        outline_opts = outline_opts .. string.format(', drawcolor = "%s"', drawcolor)
+    end
+    
+    local pen_cmd = ""
+    if stroke_width > 0 then
+        pen_cmd = string.format(" withpen pencircle scaled %fpt", stroke_width)
+    end
+    
+    local color_cmd = ""
+    if drawcolor and kind == "draw" then
+        color_cmd = string.format(" withcolor %s", drawcolor)
+    end
+    
+    table.insert(mp, string.format(
+        '  picture p; p := lmt_outline [ %s ]; draw p shifted ((%f,%f) - center p)%s%s%s;',
+        outline_opts, cx, cy, pen_cmd, color_cmd, opacity_cmd
+    ))
+end
+
+function bihua.generate_metafun_font(char, step)
+    local opts = current_options
+    local mp = {}
+    local w = opts.width
+    
+    table.insert(mp, "beginfig(0);")
+    table.insert(mp, string.format("  w := %f; h := %f;", w, w))
+    draw_frame(mp, opts)
+    draw_char_font(mp, char, opts)
+    table.insert(mp, "endfig;")
+    
+    return table.concat(mp, "\n")
+end
+
+function bihua.generate_metafun_font_all(chars)
+    local opts = current_options
+    local mp = {}
+    local w = opts.width
+    local spacing = opts.spacing
+    
+    local char_list = {}
+    for char in chars:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
+        table.insert(char_list, char)
+    end
+    
+    table.insert(mp, "beginfig(0);")
+    
+    for i, char in ipairs(char_list) do
+        local offset_x = (i - 1) * (w + spacing)
+        table.insert(mp, string.format("  %% 字符 %d: %s", i, char))
+        draw_frame(mp, opts, offset_x)
+        draw_char_font(mp, char, opts, offset_x)
     end
     
     table.insert(mp, "endfig;")
