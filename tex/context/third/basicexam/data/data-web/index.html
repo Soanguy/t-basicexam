@@ -1,0 +1,2594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Question Management System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    /* ===================================================================
+       DESIGN TOKENS — Apple HIG
+       =================================================================== */
+    :root {
+      --accent:       #007AFF;
+      --accent-hover: #0062CC;
+      --accent-glow:  rgba(0,122,255,0.10);
+      --success:      #34C759;
+      --danger:       #FF3B30;
+      --warning:      #FF9500;
+
+      --bg:           #F7F7F7;
+      --card:         #F9F9F9;
+      --surface-solid:#FFFFFF;
+      --surface:      rgba(255,255,255,0.5);
+      --separator:    rgba(60,60,67,0.12);
+      --border:       rgba(0,0,0,0.06);
+      --surface-hover:rgba(0,0,0,0.04);
+      --surface-active:rgba(0,0,0,0.08);
+
+      --text-1: #000000;
+      --text-2: #3C3C4399;
+      --text-3: #3C3C434D;
+
+      --fs-display: 2rem;
+      --fs-title:   1.25rem;
+      --fs-body:    1rem;
+      --fs-sub:     0.875rem;
+      --fs-sm:      0.75rem;
+      --fs-xs:      0.6875rem;
+
+      --fw-regular: 400;
+      --fw-medium:  500;
+      --fw-semibold:600;
+
+      --sp-1: 0.25rem;
+      --sp-2: 0.5rem;
+      --sp-3: 0.75rem;
+      --sp-4: 1rem;
+      --sp-6: 1.5rem;
+      --sp-8: 2rem;
+
+      --r-xs: 4px;
+      --r-sm: 8px;
+      --r-md: 12px;
+      --r-lg: 16px;
+
+      --left-w: 280px;
+      --right-w: 400px;
+      --nav-h: 52px;
+      --touch: 32px;
+      --action-bar-h: 50px;
+      --spring: 300ms cubic-bezier(0.25, 0.1, 0.25, 1);
+      --instant: 80ms ease-out;
+    }
+
+    /* ===== Base ===== */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      overflow: hidden;
+      line-height: 1.47059;
+      font-size: var(--fs-body);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== Navbar ===== */
+    .navbar {
+      background: var(--surface) !important;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 0.5px solid var(--separator);
+      padding: 0 var(--sp-4);
+      height: var(--nav-h);
+      z-index: 1030;
+    }
+    .navbar > .container-fluid { gap: var(--sp-2); }
+
+    .navbar-brand { font-weight: var(--fw-semibold); color: var(--text-1) !important; font-size: var(--fs-body); }
+    .navbar-brand i { color: var(--accent); }
+
+    .navbar-center { flex: 1; min-width: 0; max-width: 680px; margin: 0 auto; }
+    .navbar-center .input-group { max-width: 320px; min-width: 120px; }
+
+    /* ===== Panel Toggle ===== */
+    .panel-toggle-btn {
+      width: var(--touch); height: var(--touch);
+      border: none; background: transparent; cursor: pointer;
+      border-radius: var(--r-sm); color: var(--text-2);
+      transition: background var(--spring), color var(--spring);
+    }
+    .panel-toggle-btn:hover { background: var(--surface-hover); color: var(--text-1); }
+    .panel-toggle-btn:active { background: var(--surface-active); transform: scale(0.95); transition: transform var(--instant); }
+    .panel-toggle-btn.active { color: var(--accent); }
+    .panel-toggle-btn.active:hover { background: rgba(0,122,255,0.18); }
+
+    /* ===== App Container ===== */
+    .app-container { display: flex; height: calc(100vh - var(--nav-h)); overflow: hidden; }
+    .panel { display: flex; flex-direction: column; overflow: hidden; position: relative; }
+    .panel-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+    /* ===== Left Panel ===== */
+    .left-panel {
+      width: var(--left-w); min-width: var(--left-w);
+      background: var(--surface); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-right: 0.5px solid var(--separator);
+      transition: transform var(--spring), opacity var(--spring);
+    }
+    .left-panel.collapsed { transform: translateX(-100%); position: absolute; left: 0; top: 0; bottom: 0; z-index: 1040; opacity: 0; pointer-events: none; }
+
+    /* ===== Right Panel ===== */
+    .right-panel {
+      width: var(--right-w); min-width: var(--right-w);
+      background: var(--surface); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-left: 0.5px solid var(--separator);
+      transition: transform var(--spring), opacity var(--spring);
+    }
+    .right-panel.collapsed { transform: translateX(100%); position: absolute; right: 0; top: 0; bottom: 0; z-index: 1040; opacity: 0; pointer-events: none; }
+
+    .middle-panel { flex: 1; min-width: 300px; background: var(--bg); }
+
+    /* ===== Left Panel Content ===== */
+    .left-panel .card { border: none; border-radius: var(--r-md); box-shadow: none; background: var(--card); }
+    .left-panel .card-header { background: transparent; border-bottom: none; font-weight: var(--fw-semibold); font-size: var(--fs-sub); color: var(--text-1); }
+    .stats-number { font-size: var(--fs-title); font-weight: var(--fw-semibold); color: var(--text-1); line-height: 1; }
+    .stats-label { font-size: var(--fs-xs); font-weight: var(--fw-medium); color: var(--text-3); }
+
+    /* ===== Tag Cloud ===== */
+    .tag-cloud .badge { cursor: pointer; transition: background 150ms ease; display: inline-flex; align-items: center; line-height: 1.4; }
+    .tag-cloud .badge:active { transform: scale(0.95); }
+
+    /* ===== Form Overrides ===== */
+    .form-select, .form-control { border-color: var(--separator); border-radius: var(--r-sm); font-size: var(--fs-sub); }
+    .form-select:focus, .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .form-label { font-size: var(--fs-sm); font-weight: var(--fw-medium); color: var(--text-2); }
+
+    /* ===== Table ===== */
+    .question-table-container { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .question-table-container table { font-size: var(--fs-sub); }
+    .question-table-container table th {
+      position: sticky; top: 0; background: var(--bg); z-index: 2;
+      font-size: var(--fs-xs); font-weight: var(--fw-semibold); color: var(--text-3); white-space: nowrap;
+      border-bottom: 0.5px solid var(--separator);
+    }
+    .question-table-container table td { vertical-align: middle; border-bottom: 0.5px solid rgba(0,0,0,0.04); }
+    .question-table-container .table-hover tbody tr { transition: background 150ms ease; cursor: pointer; }
+    .question-table-container .table-hover tbody tr:hover { background-color: rgba(0,122,255,0.04); }
+    .question-table-container .table-hover tbody tr:active { background-color: rgba(0,122,255,0.08); }
+
+    /* ===== Badge — monochrome chips ===== */
+    .badge { font-weight: var(--fw-medium); border-radius: var(--r-sm); font-size: var(--fs-sm); display: inline-flex; align-items: center; }
+    .badge.bg-primary { background: var(--accent-glow) !important; color: var(--accent) !important; }
+    .badge.bg-secondary { background: var(--surface-solid) !important; color: var(--text-2) !important; }
+    .badge.bg-success { background: rgba(52,199,89,0.12) !important; color: var(--success) !important; }
+    .badge.bg-info { background: var(--accent-glow) !important; color: var(--accent) !important; }
+    .badge.bg-warning { background: rgba(255,149,0,0.12) !important; color: var(--warning) !important; }
+    .badge.bg-light { background:  var(--surface-solid) !important; color: var(--text-2) !important; }
+
+    /* ===== Buttons ===== */
+    .btn { border-radius: var(--r-sm); font-weight: var(--fw-medium); transition: background var(--spring), transform var(--instant), box-shadow var(--spring); }
+    .btn:active { transform: scale(0.97); }
+    .btn-group-sm .btn { min-height: auto; padding: 0.25rem 0.5rem; }
+    .btn-primary, .btn-accent { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn-primary:hover, .btn-accent:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn-outline-secondary { border-color: var(--separator); color: var(--text-2); }
+    .btn-outline-secondary:hover { background: var(--surface-hover); border-color: var(--separator); color: var(--text-1); }
+    .btn-outline-secondary.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn-outline-primary { color: var(--accent); border-color: rgba(0,122,255,0.3); }
+    .btn-outline-primary:hover { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+    .btn-outline-success { color: var(--success); border-color: rgba(52,199,89,0.3); }
+    .btn-outline-success:hover { background: rgba(52,199,89,0.08); border-color: var(--success); color: var(--success); }
+    .btn-outline-danger { color: var(--danger); border-color: rgba(255,59,48,0.3); }
+    .btn-outline-danger:hover { background: rgba(255,59,48,0.08); border-color: var(--danger); color: var(--danger); }
+    .btn-ghost { background: transparent; border: none; color: var(--accent); }
+    .btn-ghost:hover { background: var(--accent-glow); }
+
+    /* ===== Right Panel — iOS grouped list ===== */
+    .right-panel-section { border-radius: var(--r-md); overflow: hidden; background: var(--card); }
+    .right-panel-section + .right-panel-section { margin-top: var(--sp-4); }
+    .right-panel-section .section-header { font-weight: var(--fw-semibold); font-size: var(--fs-sm); color: var(--text-1); }
+    .detail-group { background: var(--card); border-radius: var(--r-md); overflow: hidden; }
+    .detail-group + .detail-group { margin-top: var(--sp-4); }
+    .detail-group-header { font-size: var(--fs-sm); font-weight: var(--fw-medium); color: var(--text-3); padding: var(--sp-2) var(--sp-4) var(--sp-1); }
+    .detail-row { display: flex; align-items: flex-start; padding: var(--sp-3) var(--sp-4); border-bottom: 0.5px solid var(--separator); }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-key { flex-shrink: 0; width: 5rem; font-size: var(--fs-sub); color: var(--text-2); padding-top: 1px; }
+    .detail-val { flex: 1; font-size: var(--fs-sub); color: var(--text-1); min-width: 0; word-break: break-word; }
+    .detail-val .badge { margin-right: var(--sp-1); margin-bottom: var(--sp-1); }
+    .detail-content { padding: var(--sp-3) var(--sp-4); border-bottom: 0.5px solid var(--separator); }
+    .detail-content:last-child { border-bottom: none; }
+    .detail-content-label { font-size: var(--fs-sm); font-weight: var(--fw-medium); color: var(--text-3); margin-bottom: var(--sp-1); }
+    .option-item { background: transparent; transition: background 150ms ease; font-size: var(--fs-sub); display: flex; align-items: center; padding: var(--sp-2) var(--sp-4); border-bottom: 0.5px solid var(--separator); }
+    .option-item:last-child { border-bottom: none; }
+    .option-item:hover { background: var(--surface-hover); }
+    .option-item.correct { background: rgba(52,199,89,0.06); }
+    .option-item .form-check-label { opacity: 1 !important; color: var(--text-1) !important; }
+    .option-item .form-check-input:disabled { opacity: 1; }
+    .preview-container { background: var(--card); border-radius: var(--r-sm); min-height: 200px; }
+    #pdfCanvas { max-width: 100%; height: auto; border-radius: var(--r-xs); }
+    .no-compile-hint { background: var(--card); border-radius: var(--r-sm); }
+
+    /* ===== Edit Form ===== */
+    .edit-form .form-label { font-size: var(--fs-sm); }
+    .edit-form .form-control, .edit-form .form-select { font-size: var(--fs-sub); }
+
+    /* ===== Sortable ===== */
+    .sortable { user-select: none; cursor: pointer; transition: color 150ms ease; }
+    .sortable:hover { color: var(--accent); }
+    .sortable i { font-size: var(--fs-xs); opacity: 0.4; margin-left: 2px; }
+
+    /* ===== Toast — Apple material ===== */
+    .toast-container { position: fixed; top: calc(var(--nav-h) + var(--sp-3)); right: var(--sp-4); z-index: 9999; display: flex; flex-direction: column; gap: var(--sp-2); }
+    .toast {
+      min-width: 280px; max-width: 380px;
+      background: var(--surface); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 0 0 0.5px var(--separator);
+      border-radius: var(--r-md); border: none;
+      overflow: hidden;
+      animation: toast-in 300ms cubic-bezier(0.25, 0.1, 0.25, 1) both;
+    }
+    .toast.hiding { animation: toast-out 200ms cubic-bezier(0.25, 0.1, 0.25, 1) both; }
+    @keyframes toast-in { from { transform: translateX(100%) scale(0.95); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
+    @keyframes toast-out { from { transform: translateX(0) scale(1); opacity: 1; } to { transform: translateX(100%) scale(0.95); opacity: 0; } }
+    .toast-header { border-bottom: none; padding: var(--sp-2) var(--sp-3) 0; font-size: var(--fs-sub); font-weight: var(--fw-semibold); }
+    .toast-body { padding: var(--sp-1) var(--sp-3) var(--sp-2); font-size: var(--fs-sub); color: var(--text-2); min-height: 3rem; display:flex; align-items: center;}
+    .toast .btn-close { opacity: 0.3; }
+    .toast .btn-close:hover { opacity: 0.7; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .toast { animation: toast-in-reduced 200ms ease both; }
+      .toast.hiding { animation: toast-out-reduced 150ms ease both; }
+      @keyframes toast-in-reduced { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes toast-out-reduced { from { opacity: 1; } to { opacity: 0; } }
+    }
+
+    /* ===== Scrollbar ===== */
+    .panel-content::-webkit-scrollbar, .question-table-container::-webkit-scrollbar { width: 6px; }
+    .panel-content::-webkit-scrollbar-track, .question-table-container::-webkit-scrollbar-track { background: transparent; }
+    .panel-content::-webkit-scrollbar-thumb, .question-table-container::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+    .panel-content::-webkit-scrollbar-thumb:hover, .question-table-container::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+
+    /* ===== Panel Backdrop ===== */
+    .panel-backdrop { position: fixed; inset: 0; z-index: 1035; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity var(--spring); }
+    .panel-backdrop.visible { opacity: 1; pointer-events: auto; }
+
+    /* ===== Mobile Action Bar ===== */
+    .mobile-action-bar {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1030;
+      background: var(--surface); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-top: 0.5px solid var(--separator);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .mobile-action-bar .action-item {
+      background: none; border: none; cursor: pointer; color: var(--text-3);
+      font-size: 0.625rem; border-radius: var(--r-sm);
+      flex: 1; padding: 0.4rem 0;
+      transition: color 150ms ease, background 150ms ease;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    }
+    .mobile-action-bar .action-item i { font-size: 1.25rem; line-height: 1; }
+    .mobile-action-bar .action-item:active { color: var(--accent); background: var(--accent-glow); }
+    .mobile-action-bar .action-item.active { color: var(--accent); }
+    .mobile-action-bar .action-item-danger { color: var(--danger); }
+    .mobile-action-bar .action-item-danger:active { color: var(--danger); background: rgba(255,59,48,0.08); }
+
+    /* ===== Responsive — Large Tablet ===== */
+    @media (max-width: 1200px) {
+      :root { --right-w: 340px; }
+    }
+
+    /* ===== Responsive — Small Tablet ===== */
+    @media (max-width: 992px) {
+      :root { --left-w: 256px; --right-w: 320px; }
+      .navbar-center .input-group { max-width: 200px; }
+      .navbar-center { max-width: 520px; }
+    }
+
+    /* ===== Responsive — Tablet portrait (intermediate) ===== */
+    @media (max-width: 860px) {
+      :root { --left-w: 240px; --right-w: 300px; }
+      .navbar-center { max-width: 400px; }
+      .navbar-brand span { display: none; }
+      .navbar-brand { margin-right: var(--sp-1) !important; }
+      .navbar > .container-fluid { gap: var(--sp-1); }
+      /* Source column too cramped, hide it early */
+      .question-table-container table th:nth-child(6),
+      .question-table-container table td:nth-child(6) { display: none; }
+    }
+
+    /* ===== Responsive — Mobile ===== */
+    @media (max-width: 768px) {
+      :root { --fs-body: 1rem; --fs-sub: 0.9375rem; --fs-sm: 0.8125rem; --fs-xs: 0.75rem; --nav-h: 48px; --touch: 44px; --action-bar-h: 50px; }
+      .mobile-action-bar { display: flex; }
+      .app-container { height: calc(100vh - var(--nav-h) - var(--action-bar-h) - env(safe-area-inset-bottom, 0px)); }
+      .navbar-center .btn-group { display: none; }
+      .navbar-brand span { display: none; }
+      .navbar-center { max-width: none; }
+      .navbar-center .input-group { max-width: none; flex: 1; }
+      .left-panel {
+        position: fixed; left: 0; top: var(--nav-h); bottom: 0; z-index: 1040;
+        width: 85vw !important; min-width: 0 !important; max-width: 320px;
+        box-shadow: 8px 0 32px rgba(0,0,0,0.12);
+      }
+      .left-panel.collapsed { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+      .right-panel {
+        position: fixed; right: 0; top: var(--nav-h); bottom: 0; z-index: 1040;
+        width: 100vw !important; min-width: 0 !important; max-width: 420px;
+        box-shadow: -8px 0 32px rgba(0,0,0,0.12);
+      }
+      .right-panel.collapsed { transform: translateX(100%); opacity: 0; pointer-events: none; }
+      .middle-panel { min-width: 0; }
+      .question-table-container table td { padding: var(--sp-2) var(--sp-1); }
+      .btn { min-height: var(--touch); }
+      .tag-cloud .badge { min-height: var(--touch); padding: var(--sp-1) var(--sp-2); }
+      .form-select, .form-control { min-height: var(--touch); }
+      .option-item { min-height: var(--touch); }
+      .question-table-container .btn-sm { min-width: var(--touch); min-height: var(--touch); }
+      .question-table-container table th:nth-child(6), .question-table-container table td:nth-child(6) { display: none; }
+      .left-panel .card { margin-bottom: var(--sp-4); }
+      .left-panel .form-select { font-size: var(--fs-sub); }
+      .detail-group .detail-row { padding: var(--sp-2) var(--sp-3); }
+      .right-panel .panel-content { padding: var(--sp-3); }
+      /* Toast responsive */
+      .toast { min-width: auto; max-width: calc(100vw - var(--sp-8)); }
+      .toast-container { right: var(--sp-2); left: var(--sp-2); }
+      /* detail-key wider for CJK labels on mobile */
+      .detail-key { width: 4.5rem; }
+      /* Navbar compact on mobile */
+      .navbar { padding: 0 var(--sp-1); }
+      .navbar > .container-fluid { gap: var(--sp-1); }
+      .navbar-brand { margin-right: var(--sp-1) !important; }
+      /* Right side toggle buttons need touch spacing */
+      .d-flex.gap-2.ms-auto { gap: var(--sp-2); }
+    }
+
+    /* ===== Responsive — Small phone ===== */
+    @media (max-width: 480px) {
+      :root { --fs-sub: 1rem; }
+      .question-table-container table th:nth-child(5), .question-table-container table td:nth-child(5) { display: none; }
+      /* Right panel full width on small phones */
+      .right-panel { max-width: none !important; width: 100vw !important; }
+    }
+
+    /* ===== Responsive — Very small phone ===== */
+    @media (max-width: 360px) {
+      :root { --left-w: 0px; --right-w: 0px; --fs-body: 0.9375rem; --fs-sub: 0.875rem; }
+      .navbar-center { gap: var(--sp-1); }
+      .panel-toggle-btn { width: 36px; height: 36px; }
+      .detail-key { width: 3.5rem; font-size: var(--fs-sm); }
+      .detail-val { font-size: var(--fs-sm); }
+      .mobile-action-bar .action-item { font-size: 0.5625rem; }
+      .mobile-action-bar .action-item i { font-size: 1.125rem; }
+    }
+
+    /* ===== Responsive — Landscape mobile ===== */
+    @media (max-width: 768px) and (orientation: landscape) {
+      :root { --nav-h: 40px; --action-bar-h: 44px; }
+      .left-panel { max-width: 260px; top: var(--nav-h); }
+      .right-panel { max-width: 360px; top: var(--nav-h); }
+      .mobile-action-bar .action-item { padding: 0.25rem 0; }
+      .mobile-action-bar .action-item i { font-size: 1.125rem; }
+    }
+
+    /* ===== Export Modal ===== */
+    #exportModal .modal-dialog { max-width: 560px; }
+    #exportModal .modal-body { padding: 0; }
+    #exportModal .tab-content { padding: var(--sp-4); max-height: 50vh; overflow-y: auto; }
+    .export-tab-nav { padding: var(--sp-2) var(--sp-4) 0; background: var(--surface); border-bottom: 0.5px solid var(--separator); }
+    .export-tab-nav .nav-link { font-size: var(--fs-sub); font-weight: var(--fw-medium); color: var(--text-3); border: none; padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md) var(--r-md) 0 0; transition: color 150ms ease, background 150ms ease; }
+    .export-tab-nav .nav-link:hover { color: var(--text-1); background: var(--surface-hover); }
+    .export-tab-nav .nav-link.active { color: var(--accent); background: var(--card); border-bottom: 2px solid var(--accent); }
+    .export-bottom-options { padding: var(--sp-3) var(--sp-4); border-top: 0.5px solid var(--separator); display: flex; align-items: center; gap: var(--sp-6); flex-wrap: wrap; }
+    .export-bottom-options .form-check { margin-bottom: 0; }
+    .export-bottom-options .form-check-label { font-size: var(--fs-sub); }
+    .export-format-group { display: flex; align-items: center; gap: var(--sp-3); font-size: var(--fs-sub); }
+    .export-format-group .form-check { margin-bottom: 0; }
+    .export-q-item { display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); border-bottom: 0.5px solid var(--separator); background: var(--card); transition: background 150ms ease; cursor: grab; }
+    .export-q-item:hover { background: var(--surface-hover); }
+    .export-q-item.dragging { opacity: 0.5; background: var(--accent-glow); }
+    .export-q-item .drag-handle { color: var(--text-3); cursor: grab; font-size: var(--fs-sub); }
+    .export-q-item .q-order { font-size: var(--fs-sm); color: var(--accent); font-weight: var(--fw-semibold); min-width: 1.5rem; text-align: center; }
+    .export-q-item .q-summary { flex: 1; font-size: var(--fs-sub); color: var(--text-1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .export-q-item .q-move-btns { display: flex; flex-direction: column; gap: 0; }
+    .export-q-item .q-move-btns .btn { padding: 0 0.375rem; min-height: auto; font-size: var(--fs-xs); line-height: 1; }
+    .export-q-empty { padding: var(--sp-6) var(--sp-3); text-align: center; color: var(--text-3); font-size: var(--fs-sub); }
+    @media (max-width: 768px) {
+      #exportModal .modal-dialog { max-width: 100vw; margin: 0; }
+      #exportModal .modal-content { border-radius: 0; height: 100vh; }
+      #exportModal .tab-content { max-height: calc(100vh - 240px); }
+      .export-q-item .q-summary { font-size: var(--fs-sm); max-width: 50vw; }
+      .export-q-item .drag-handle { display: none; }
+      .export-q-item { cursor: default; }
+      .export-bottom-options { gap: var(--sp-4); }
+    }
+
+    /* ===== A11y ===== */
+    @media (prefers-reduced-motion: reduce) {
+      .left-panel, .right-panel, .btn, .panel-toggle-btn, .tag-cloud .badge, .question-table-container .table-hover tbody tr { transition: opacity 200ms ease !important; }
+      .btn:active, .panel-toggle-btn:active, .tag-cloud .badge:active { transform: none !important; }
+    }
+    @media (prefers-reduced-transparency: reduce) {
+      .navbar, .left-panel, .right-panel, .mobile-action-bar, .toast { background: var(--card) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ===== Navbar ===== -->
+  <nav class="navbar navbar-expand navbar-light sticky-top">
+    <div class="container-fluid d-flex align-items-center">
+      <!-- Left panel toggle (always visible) -->
+      <button class="panel-toggle-btn active" onclick="toggleLeftPanel()" id="leftToggleBtn" title="筛选面板">
+        <i class="bi bi-layout-sidebar-inset"></i>
+      </button>
+
+      <a class="navbar-brand me-2" href="#" id="navBrand">
+        <i class="bi bi-journal-bookmark"></i> <span id="systemTitle"></span>
+      </a>
+
+      <div class="navbar-center d-flex align-items-center justify-content-center gap-2">
+        <div class="input-group input-group-sm">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" class="form-control" id="searchInput" oninput="filterQuestions()">
+        </div>
+        <div class="btn-group btn-group-sm" role="group">
+          <button class="btn btn-accent" onclick="openCreateModal()" id="newBtn" data-bs-toggle="tooltip" data-bs-placement="bottom">
+            <i class="bi bi-plus-circle"></i>
+          </button>
+          <button class="btn btn-outline-primary" onclick="compileSelected()" id="compileBtn" data-bs-toggle="tooltip" data-bs-placement="bottom">
+            <i class="bi bi-gear"></i>
+          </button>
+          <button class="btn btn-outline-primary" onclick="openExportModal()" id="exportBtn" data-bs-toggle="tooltip" data-bs-placement="bottom">
+            <i class="bi bi-download"></i>
+          </button>
+          <button class="btn btn-outline-danger" onclick="deleteSelected()" id="deleteBtn" data-bs-toggle="tooltip" data-bs-placement="bottom">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 ms-auto">
+        <button class="panel-toggle-btn active" onclick="toggleLanguage()" id="langToggleBtn" title="切换至 English">
+          <i class="bi bi-translate"></i>
+        </button>
+        <!-- Right panel toggle (always visible) -->
+        <button class="panel-toggle-btn" onclick="toggleRightPanel()" id="rightToggleBtn" title="详情面板">
+          <i class="bi bi-layout-sidebar-inset-reverse"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== Three-Column Layout ===== -->
+  <div class="panel-backdrop" id="panelBackdrop" onclick="closeAllPanels()"></div>
+  <div class="app-container">
+
+    <!-- ===== Left Panel: Filters & Stats ===== -->
+    <div class="panel left-panel" id="leftPanel">
+      <div class="panel-content p-3">
+        <div class="card mb-3">
+          <div class="card-header p-2 px-3 pb-1" id="statsHeader">
+            <i class="bi bi-bar-chart"></i> <span id="statisticsText"></span>
+          </div>
+          <div class="card-body p-2 px-3 pb-3">
+            <div class="row g-2">
+              <div class="col-6">
+                <div class="stats-card text-center p-2" style="background: var(--surface-solid); border-radius: var(--r-sm);">
+                  <div class="stats-number mb-1" id="totalQuestions">0</div>
+                  <div class="stats-label" id="totalLabel"></div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="stats-card text-center p-2" style="background: var(--surface-solid); border-radius: var(--r-sm);">
+                  <div class="stats-number mb-1" id="compiledQuestions">0</div>
+                  <div class="stats-label" id="compiledLabel"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header p-2 px-3 pb-1" id="filterHeader">
+            <i class="bi bi-funnel"></i> <span id="filterText"></span>
+          </div>
+          <div class="card-body p-2 px-3 pb-3">
+            <div class="mb-3">
+              <label class="form-label mb-1" for="typeFilter" id="typeLabel"></label>
+              <select class="form-select form-select-sm" id="typeFilter" onchange="applyFilters()"></select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label mb-1" for="yearFilter" id="yearLabel"></label>
+              <select class="form-select form-select-sm" id="yearFilter" onchange="applyFilters()"></select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label mb-1" for="sourceFilter" id="sourceLabel"></label>
+              <select class="form-select form-select-sm" id="sourceFilter" onchange="applyFilters()"></select>
+            </div>
+            <div>
+              <label class="form-label mb-1" for="tagFilter" id="tagsLabel"></label>
+              <div id="tagFilter" class="tag-cloud d-flex flex-wrap gap-1"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Middle Panel: Question List ===== -->
+    <div class="panel middle-panel" id="middlePanel">
+      <div class="panel-content d-flex flex-column p-3 px-4">
+        <div class="d-flex align-items-center justify-content-between pb-2 mb-2 flex-shrink-0">
+          <div class="form-check mb-0">
+            <input type="checkbox" class="form-check-input" id="selectAll" onchange="toggleSelectAll()">
+            <label class="form-check-label" for="selectAll" id="selectAllLabel"></label>
+          </div>
+          <span class="text-muted" id="questionCountLabel" style="font-size: var(--fs-sm);"></span>
+        </div>
+        <div class="question-table-container">
+          <table class="table table-hover table-sm" id="questionList">
+            <thead>
+              <tr>
+                <th style="width: 32px;"></th>
+                <th style="width: 46px;" onclick="sortQuestions('id')" class="sortable">
+                  ID <i class="bi bi-arrow-down-up"></i>
+                </th>
+                <th style="width: 66px;" onclick="sortQuestions('type')" class="sortable" id="typeHeader">
+                  <i class="bi bi-arrow-down-up"></i>
+                </th>
+                <th onclick="sortQuestions('content')" class="sortable" id="contentHeader">
+                  <i class="bi bi-arrow-down-up"></i>
+                </th>
+                <th style="width: 54px;" onclick="sortQuestions('point')" class="sortable" id="pointHeader">
+                  <i class="bi bi-arrow-down-up"></i>
+                </th>
+                <th style="width: 76px;" onclick="sortQuestions('source')" class="sortable" id="sourceHeader">
+                  <i class="bi bi-arrow-down-up"></i>
+                </th>
+                <th style="width: 52px;" onclick="sortQuestions('year')" class="sortable" id="yearHeader">
+                  <i class="bi bi-arrow-down-up"></i>
+                </th>
+                <th style="width: 56px;" id="actionsHeader"></th>
+              </tr>
+            </thead>
+            <tbody id="questionTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Right Panel: Detail & Preview ===== -->
+    <div class="panel right-panel collapsed" id="rightPanel">
+      <div class="panel-content p-4 d-flex flex-column gap-4" id="rightPanelContent">
+        <!-- Empty state -->
+        <div class="empty-state text-center px-4 py-5" style="color: var(--text-3);" id="rightPanelEmpty">
+          <i class="bi bi-file-text d-block mb-2" style="font-size: var(--fs-display); opacity: 0.4;"></i>
+          <p class="mb-0" id="selectQuestionHint" style="font-size: var(--fs-sub);"></p>
+        </div>
+
+        <!-- Detail view -->
+        <div id="rightPanelDetail" style="display: none;">
+          <div class="right-panel-section">
+            <div class="section-header d-flex align-items-center justify-content-between p-2 px-3 pb-1">
+              <span><i class="bi bi-info-circle me-1"></i> <span id="detailTitleText"></span></span>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-primary btn-sm" onclick="editCurrentQuestion()" id="editBtn">
+                  <i class="bi bi-pencil"></i> <span id="editBtnText"></span>
+                </button>
+                <button class="btn btn-outline-primary btn-sm" onclick="compileCurrentQuestion()" id="compileCurrentBtn">
+                  <i class="bi bi-gear"></i> <span id="compileBtnText"></span>
+                </button>
+              </div>
+            </div>
+            <div class="section-body pb-3">
+              <div id="detailBody"></div>
+            </div>
+          </div>
+          <div class="right-panel-section">
+            <div class="section-header p-2 px-3 pb-1">
+              <span style="cursor: pointer;" onclick="openPreviewModal()" id="previewSectionHeader">
+                <i class="bi bi-eye me-1"></i> <span id="previewText"></span>
+                <i class="bi bi-arrows-fullscreen ms-1" style="font-size: 0.65rem; opacity: 0.5;"></i>
+              </span>
+            </div>
+            <div class="section-body p-2 px-3 pb-3" style="cursor: pointer;" onclick="openPreviewModal()">
+              <div class="preview-container d-flex align-items-center justify-content-center p-2" id="previewContainer">
+                <canvas id="pdfCanvas"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit form — iOS grouped list style -->
+        <div id="rightPanelEdit" style="display: none;" class="edit-form">
+          <form id="questionForm">
+            <input type="hidden" id="questionId">
+            <input type="hidden" id="questionType" value="choice">
+
+            <!-- Group: 基本信息 -->
+            <div class="detail-group-header"><i class="bi bi-info-circle me-1"></i> <span id="editFormTitle"></span></div>
+            <div class="detail-group">
+              <div class="detail-row">
+                <div class="detail-key"><label for="questionTypeSelect" id="typeSelectLabel" style="color: inherit;"></label></div>
+                <div class="detail-val">
+                  <select class="form-select form-select-sm" id="questionTypeSelect" onchange="selectQuestionType(this.value)">
+                    <option value="choice" id="choiceOption"></option>
+                    <option value="question" id="questionOption"></option>
+                    <option value="multi_question" id="multiQuestionOption"></option>
+                    <option value="writing" id="writingOption"></option>
+                    <option value="multi_writing" id="multiWritingOption"></option>
+                    <option value="material" id="materialOption"></option>
+                  </select>
+                </div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-key"><label for="questionPoint" id="pointLabel" style="color: inherit;"></label></div>
+                <div class="detail-val">
+                  <input type="number" class="form-control form-control-sm" id="questionPoint" value="1" min="0.5" step="0.5">
+                </div>
+              </div>
+            </div>
+
+            <!-- Group: 题目内容 -->
+            <div class="detail-group-header" id="contentGroupHeader"></div>
+            <div class="detail-group">
+              <div class="detail-content">
+                <label class="form-label mb-1" for="questionContent" id="contentLabel"></label>
+                <textarea class="form-control form-control-sm" id="questionContent" rows="2" style="resize: vertical;"></textarea>
+              </div>
+              <div id="choiceOptions">
+                <div class="detail-content">
+                  <label class="form-label mb-1" for="answersList" id="optionsLabel"></label>
+                  <div id="answersList"></div>
+                  <button type="button" class="btn btn-ghost btn-sm mt-1" onclick="addAnswer()" id="addOptionBtn">
+                    <i class="bi bi-plus"></i> <span id="addOptionText"></span>
+                  </button>
+                </div>
+              </div>
+              <div id="materialOptions" style="display: none;">
+                <div class="detail-content">
+                  <label class="form-label mb-1" for="materialTitle" id="materialTitleLabel"></label>
+                  <input type="text" class="form-control form-control-sm" id="materialTitle">
+                </div>
+                <div class="detail-content">
+                  <label class="form-label mb-1" for="materialContent" id="materialContentLabel"></label>
+                  <textarea class="form-control form-control-sm" id="materialContent" rows="3"></textarea>
+                </div>
+                <div class="detail-content">
+                  <label class="form-label mb-1" id="subQuestionsLabel"></label>
+                  <div id="subQuestionsList"></div>
+                  <button type="button" class="btn btn-ghost btn-sm mt-1" onclick="addSubQuestion()" id="addSubQuestionBtn">
+                    <i class="bi bi-plus"></i> <span id="addSubQuestionText"></span>
+                  </button>
+                </div>
+              </div>
+              <div id="multiOptions" style="display: none;">
+                <div class="detail-content">
+                  <label class="form-label mb-1" id="multiSubQuestionsLabel"></label>
+                  <div id="multiSubQuestionsList"></div>
+                  <button type="button" class="btn btn-ghost btn-sm mt-1" onclick="addMultiSubQuestion()" id="addMultiSubQuestionBtn">
+                    <i class="bi bi-plus"></i> <span id="addMultiSubQuestionText"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Group: 答案与解析 -->
+            <div class="detail-group-header" id="answerGroupHeader"></div>
+            <div class="detail-group">
+              <div class="detail-content">
+                <label class="form-label mb-1" for="questionAnswer" id="answerLabel"></label>
+                <textarea class="form-control form-control-sm" id="questionAnswer" rows="2" style="resize: vertical;"></textarea>
+              </div>
+              <div class="detail-content">
+                <label class="form-label mb-1" for="questionExplanation" id="explanationLabel"></label>
+                <textarea class="form-control form-control-sm" id="questionExplanation" rows="2" style="resize: vertical;"></textarea>
+              </div>
+            </div>
+
+            <!-- Group: 元数据 -->
+            <div class="detail-group-header" id="metadataGroupHeader"></div>
+            <div class="detail-group">
+              <div class="detail-row">
+                <div class="detail-key"><label for="questionSource" id="sourceInputLabel" style="color: inherit;"></label></div>
+                <div class="detail-val">
+                  <input type="text" class="form-control form-control-sm" id="questionSource">
+                </div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-key"><label for="questionYear" id="yearInputLabel" style="color: inherit;"></label></div>
+                <div class="detail-val">
+                  <input type="number" class="form-control form-control-sm" id="questionYear">
+                </div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-key"><label for="questionTags" id="tagsInputLabel" style="color: inherit;"></label></div>
+                <div class="detail-val">
+                  <input type="text" class="form-control form-control-sm" id="questionTags">
+                </div>
+              </div>
+            </div>
+          </form>
+          <div class="d-flex gap-2 mt-3">
+            <button type="button" class="btn btn-accent btn-sm" onclick="saveQuestion()" id="saveBtn"></button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="cancelEdit()" id="cancelBtn"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== Export Modal ===== -->
+  <div class="modal fade" id="exportModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content" style="border-radius: var(--r-lg); border: none; box-shadow: 0 24px 80px rgba(0,0,0,0.16);">
+        <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+          <h5 class="modal-title" style="font-size: var(--fs-body); font-weight: 600;">
+            <i class="bi bi-download me-1"></i> <span id="exportModalTitle"></span>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Tab navigation: Order → Page → Style -->
+          <ul class="nav nav-tabs export-tab-nav" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="exportOrderTab" data-bs-toggle="tab" data-bs-target="#exportOrderPane" type="button" role="tab">
+                <i class="bi bi-list-ol me-1"></i><span id="exportOrderTabLabel"></span>
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="exportPageTab" data-bs-toggle="tab" data-bs-target="#exportPagePane" type="button" role="tab">
+                <i class="bi bi-file-earmark me-1"></i><span id="exportPageTabLabel"></span>
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="exportStyleTab" data-bs-toggle="tab" data-bs-target="#exportStylePane" type="button" role="tab">
+                <i class="bi bi-palette me-1"></i><span id="exportStyleTabLabel"></span>
+              </button>
+            </li>
+          </ul>
+          <!-- Tab content -->
+          <div class="tab-content">
+            <!-- Tab 1: Question Order (default active) -->
+            <div class="tab-pane fade show active" id="exportOrderPane" role="tabpanel">
+              <div id="exportQuestionList"></div>
+            </div>
+            <!-- Tab 2: Page Settings -->
+            <div class="tab-pane fade" id="exportPagePane" role="tabpanel">
+              <div class="detail-group">
+                <div class="detail-row">
+                  <span class="detail-key" id="exportPapersizeLabel"></span>
+                  <span class="detail-val">
+                    <select class="form-select form-select-sm" id="exportPapersize">
+                      <option value="A3">A3</option>
+                      <option value="A4" selected>A4</option>
+                      <option value="A5">A5</option>
+                      <option value="B5">B5</option>
+                      <option value="ipad">ipad</option>
+                      <option value="kindle">kindle</option>
+                    </select>
+                  </span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-key" id="exportLayoutLabel"></span>
+                  <span class="detail-val">
+                    <select class="form-select form-select-sm" id="exportLayout">
+                      <option value="narrow">narrow</option>
+                      <option value="moderate" selected>moderate</option>
+                      <option value="wide">wide</option>
+                      <option value="extrawide">extrawide</option>
+                      <option value="exotic">exotic</option>
+                      <option value="kaolike">kaolike</option>
+                      <option value="ipad">ipad</option>
+                      <option value="kindle">kindle</option>
+                      <option value="sidemirror">sidemirror</option>
+                      <option value="propiorroot">propiorroot</option>
+                      <option value="propiorgolden">propiorgolden</option>
+                      <option value="hermes">hermes</option>
+                    </select>
+                  </span>
+                </div>
+                <!-- Hermes-only fields -->
+                <div id="exportHermesFields" style="display: none;">
+                  <div class="detail-row">
+                    <span class="detail-key" id="exportTextcountLabel"></span>
+                    <span class="detail-val">
+                      <input type="number" class="form-control form-control-sm" id="exportTextcount" value="40" min="10" max="100" style="width:5rem;">
+                    </span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-key" id="exportHeightcountLabel"></span>
+                    <span class="detail-val">
+                      <input type="number" class="form-control form-control-sm" id="exportHeightcount" value="40" min="10" max="100" style="width:5rem;">
+                    </span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-key" id="exportMargincountLabel"></span>
+                    <span class="detail-val">
+                      <input type="number" class="form-control form-control-sm" id="exportMargincount" value="0" min="0" max="10" style="width:5rem;">
+                    </span>
+                  </div>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-key" id="exportDoublesidedLabel"></span>
+                  <span class="detail-val">
+                    <select class="form-select form-select-sm" id="exportDoublesided">
+                      <option value="no" selected>no</option>
+                      <option value="yes">yes</option>
+                    </select>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <!-- Tab 3: Style Settings -->
+            <div class="tab-pane fade" id="exportStylePane" role="tabpanel">
+              <div class="detail-group">
+                <div class="detail-row">
+                  <span class="detail-key" id="exportBodyfontLabel"></span>
+                  <span class="detail-val">
+                    <select class="form-select form-select-sm" id="exportBodyfont">
+                      <option value="adobehans" selected>adobehans</option>
+                      <option value="sourcehans">sourcehans</option>
+                      <option value="sinohans">sinohans</option>
+                      <option value="modern">modern</option>
+                    </select>
+                  </span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-key" id="exportFontsizeLabel"></span>
+                  <span class="detail-val">
+                    <select class="form-select form-select-sm" id="exportFontsize">
+                      <option value="9pt">9pt</option>
+                      <option value="10pt">10pt</option>
+                      <option value="11pt" selected>11pt</option>
+                      <option value="12pt">12pt</option>
+                      <option value="14pt">14pt</option>
+                    </select>
+                  </span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-key" id="exportFontstyleLabel"></span>
+                  <span class="detail-val">
+                    <select class="form-select form-select-sm" id="exportFontstyle">
+                      <option value="rm" selected>rm</option>
+                      <option value="ss">ss</option>
+                      <option value="tt">tt</option>
+                    </select>
+                  </span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-key" id="exportThemecolorLabel"></span>
+                  <span class="detail-val">
+                    <select class="form-select form-select-sm" id="exportThemecolor">
+                      <option value="">—</option>
+                      <option value="serene">serene</option>
+                      <option value="harmony">harmony</option>
+                      <option value="passion">passion</option>
+                      <option value="adventure">adventure</option>
+                      <option value="optimism">optimism</option>
+                      <option value="creativity">creativity</option>
+                      <option value="magic">magic</option>
+                      <option value="romance">romance</option>
+                      <option value="reliable">reliable</option>
+                      <option value="formality">formality</option>
+                      <option value="innocence">innocence</option>
+                    </select>
+                  </span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-key" id="exportHdrstyleLabel"></span>
+                  <span class="detail-val">
+                    <select class="form-select form-select-sm" id="exportHdrstyle">
+                      <option value="">—</option>
+                      <option value="default">default</option>
+                      <option value="book">book</option>
+                      <option value="novel">novel</option>
+                      <option value="colorful">colorful</option>
+                      <option value="madsen">madsen</option>
+                      <option value="kaolike">kaolike</option>
+                      <option value="rocket">rocket</option>
+                      <option value="hctext">hctext</option>
+                      <option value="fctext">fctext</option>
+                      <option value="foemargin">foemargin</option>
+                      <option value="foemarginalt">foemarginalt</option>
+                      <option value="hoemargin">hoemargin</option>
+                      <option value="none">none</option>
+                    </select>
+                  </span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-key" id="exportLineheightLabel"></span>
+                  <span class="detail-val">
+                    <input type="text" class="form-control form-control-sm" id="exportLineheight" value="" placeholder="auto" style="width:6rem;">
+                  </span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-key" id="exportModeLabel"></span>
+                  <span class="detail-val">
+                    <div class="d-flex flex-wrap gap-2" id="exportModeCheckboxes">
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="exportModeKindle" value="kindle">
+                        <label class="form-check-label" for="exportModeKindle">kindle</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="exportModeDraft" value="draft">
+                        <label class="form-check-label" for="exportModeDraft">draft</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="exportModePrint" value="print">
+                        <label class="form-check-label" for="exportModePrint">print</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="exportModeMoresize" value="moresize">
+                        <label class="form-check-label" for="exportModeMoresize">moresize</label>
+                      </div>
+                    </div>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Bottom fixed options -->
+          <div class="export-bottom-options">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="showAnswer" checked>
+              <label class="form-check-label" for="showAnswer" id="showAnswerLabel"></label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="showMore" checked>
+              <label class="form-check-label" for="showMore" id="showMoreLabel"></label>
+            </div>
+            <div class="export-format-group">
+              <span id="exportFormatLabel" style="font-weight: var(--fw-medium);"></span>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="exportFormatTex" value="tex" checked>
+                <label class="form-check-label" for="exportFormatTex" id="formatTexLabel"></label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="exportFormatPdf" value="pdf">
+                <label class="form-check-label" for="exportFormatPdf" id="formatPdfLabel"></label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top: none;">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" id="exportCancelBtn"></button>
+          <button type="button" class="btn btn-accent" onclick="exportSelectedWithOptions()" id="exportConfirmBtn"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PDF Preview Modal ===== -->
+  <div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-xl" style="max-width: 95vw; max-height: 95vh;">
+      <div class="modal-content" style="border-radius: var(--r-lg); border: none; box-shadow: 0 24px 80px rgba(0,0,0,0.16); height: 90vh; display: flex; flex-direction: column;">
+        <div class="modal-header" style="border-bottom: 1px solid var(--border); padding: var(--sp-2) var(--sp-3); flex-shrink: 0;">
+          <h6 class="modal-title" style="font-size: var(--fs-sub); font-weight: 600; margin: 0;">
+            <i class="bi bi-file-earmark-pdf me-1"></i> <span id="previewModalTitle">PDF Preview</span>
+          </h6>
+          <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-secondary btn-sm" onclick="previewModalZoom(-1)" title="Zoom Out">
+              <i class="bi bi-dash"></i>
+            </button>
+            <span class="text-muted" id="previewModalZoomLabel" style="font-size: var(--fs-sm); min-width: 3rem; text-align: center;">100%</span>
+            <button class="btn btn-outline-secondary btn-sm" onclick="previewModalZoom(1)" title="Zoom In">
+              <i class="bi bi-plus"></i>
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="previewModalZoom(0)" title="Fit">
+              <i class="bi bi-arrows-angle-expand"></i>
+            </button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+        </div>
+        <div class="modal-body" style="flex: 1; overflow: auto; padding: var(--sp-2); display: flex; justify-content: center; align-items: flex-start;">
+          <canvas id="previewModalCanvas" style="border-radius: var(--r-xs);"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Mobile Bottom Action Bar ===== -->
+  <nav class="mobile-action-bar" id="mobileActionBar" role="toolbar" aria-label="Actions">
+    <button class="action-item" onclick="toggleLeftPanel()" title="筛选" id="mobileFilterBtn" aria-label="筛选">
+      <i class="bi bi-funnel"></i>
+      <span id="mobileFilterLabel">筛选</span>
+    </button>
+    <button class="action-item" onclick="openCreateModal()" title="新建" aria-label="新建">
+      <i class="bi bi-plus-circle"></i>
+      <span id="mobileNewLabel">新建</span>
+    </button>
+    <button class="action-item" onclick="compileSelected()" title="编译" aria-label="编译">
+      <i class="bi bi-gear"></i>
+      <span id="mobileCompileLabel">编译</span>
+    </button>
+    <button class="action-item" onclick="openExportModal()" title="导出" aria-label="导出">
+      <i class="bi bi-download"></i>
+      <span id="mobileExportLabel">导出</span>
+    </button>
+    <button class="action-item action-item-danger" onclick="deleteSelected()" title="删除" aria-label="删除">
+      <i class="bi bi-trash"></i>
+      <span id="mobileDeleteLabel">删除</span>
+    </button>
+  </nav>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const API_BASE = '/api';
+    let allQuestions = [];
+    let selectedQuestions = new Set();
+    let currentQuestion = null;
+    let currentLang = 'zh';
+    let sortField = 'id';
+    let sortOrder = 'asc';
+
+    const i18n = {
+      zh: {
+        totalQuestions: '总题目', selected: '已选择', compiled: '已编译', sources: '来源数',
+        search: '搜索题目...', newQuestion: '新建题目', compileSelected: '编译选中', deleteSelected: '删除选中', exportSelected: '导出选中',
+        choice: '选择题', writing: '写作题', question: '问答题', multi_question: '多项问答题', multi_writing: '多项写作题', material: '材料阅读',
+        content: '题目内容', options: '选项', answer: '答案', explanation: '解析', source: '来源', year: '年份', tags: '标签', points: '分数',
+        save: '保存', cancel: '取消', delete: '删除', edit: '编辑', compile: '编译', close: '关闭',
+        noQuestions: '暂无题目', loading: '加载中...', saveSuccess: '保存成功', deleteSuccess: '删除成功', compileSuccess: '编译成功', exportSuccess: '导出成功',
+        selectQuestionsFirst: '请先选择题目', confirmDelete: '确定要删除吗？', systemTitle: '题目管理系统', statistics: '统计', filter: '筛选',
+        questionType: '类型', all: '全部', searchPlaceholder: '搜索题目...', questionDetails: '题目详情', notCompiled: '该题目尚未编译', compileNow: '立即编译',
+        referenceAnswer: '参考答案', addOption: '添加选项', questionContent: '题目内容', questionContentPlaceholder: '请输入题目内容，填空使用{{1}}{{2}}标记',
+        answerPlaceholder: '填空答案用|分隔，如：答案1|答案2', explanationPlaceholder: '请输入解析...', sourcePlaceholder: '请输入来源', yearPlaceholder: '请输入年份',
+        tagsPlaceholder: '多个标签用逗号分隔', questionInfo: '题目信息', preview: '预览', export: '导出', compiling: '编译中...', exporting: '导出中...',
+        compileFailed: '编译失败', exportFailed: '导出失败', exportOptions: '导出选项', showAnswer: '显示答案', showMore: '显示解析', confirm: '确定',
+        materialTitle: '材料标题', materialContent: '材料内容', subQuestions: '子题目', addSubQuestion: '添加子题目',
+        subQuestionType: '题型', subQuestionContent: '题目内容', subQuestionAnswer: '答案', subQuestionExplanation: '解析', subQuestionPoint: '分值', addSubOption: '添加选项',
+        multiSubQuestions: '子问题列表', addMultiSubQuestion: '添加子问题',
+        selectQuestion: '请选择一个题目查看详情', selectAllLabel: '全选', questionCount: '共 {n} 题',
+        // Export panel enhancement
+        exportTabPage: '页面设置', exportTabStyle: '样式设置', exportTabOrder: '题目排序',
+        papersize: '纸张大小', layout: '版式布局', textcount: '每行字数', heightcount: '每页行数', margincount: '边注行数',
+        doublesided: '双面打印', bodyfont: '正文字体', fontsize: '字号',
+        fontstyle: '字体风格', themecolor: '主题色', hdrstyle: '页眉样式',
+        lineheight: '行距', mode: '排版模式',
+        moveUp: '上移', moveDown: '下移', dragHint: '拖拽或使用按钮调整顺序',
+        noQuestionsSelected: '暂无选中题目',
+        exportFormat: '导出格式', formatTex: 'TeX 源文件', formatPdf: 'PDF 文件',
+        paperA3: 'A3', paperA4: 'A4', paperA5: 'A5', paperB5: 'B5',
+        paperIpad: 'iPad', paperKindle: 'Kindle',
+        layoutNarrow: '紧凑', layoutModerate: '适中', layoutWide: '宽松',
+        layoutExtrawide: '超宽', layoutExotic: '异域', layoutKaolike: '考卷',
+        layoutIpad: 'iPad', layoutKindle: 'Kindle', layoutSidemirror: '侧边镜像',
+        layoutPropiorroot: '近根', layoutPropiorgolden: '近金', layoutHermes: '赫尔墨斯',
+        fontAdobeHans: 'Adobe 汉', fontSourceHans: '思源汉', fontSinoHans: '华文', fontModern: 'Modern',
+        fs9pt: '9pt', fs10pt: '10pt', fs11pt: '11pt', fs12pt: '12pt', fs14pt: '14pt',
+        fontRm: '衬线', fontSs: '无衬线', fontTt: '等宽',
+        modeDefault: '默认', modeKindle: 'Kindle', modeDraft: '草稿', modePrint: '印刷', modeMoresize: '大字号',
+        colorSerene: '宁静', colorHarmony: '和谐', colorPassion: '热情',
+        colorAdventure: '冒险', colorOptimism: '乐观', colorCreativity: '创意',
+        colorMagic: '魔力', colorRomance: '浪漫', colorReliable: '可靠',
+        colorFormality: '正式', colorInnocence: '纯真', colorDefault: '默认',
+        hdrDefault: '默认', hdrBook: '书籍', hdrNovel: '小说', hdrColorful: '彩色',
+        hdrMadsen: 'Madsen', hdrKaolike: '考卷', hdrRocket: '火箭',
+        hdrHctext: 'HC文字', hdrFctext: 'FC文字', hdrFoemargin: 'FO边距',
+        hdrFoemarginalt: 'FO边距B', hdrHoemargin: 'HO边距', hdrNone: '无',
+        dsYes: '是', dsNo: '否'
+      },
+      en: {
+        totalQuestions: 'Total', selected: 'Selected', compiled: 'Compiled', sources: 'Sources',
+        search: 'Search questions...', newQuestion: 'New Question', compileSelected: 'Compile Selected', deleteSelected: 'Delete Selected', exportSelected: 'Export Selected',
+        choice: 'Choice', writing: 'Writing', question: 'Question', multi_question: 'Multi-question', multi_writing: 'Multi-writing', material: 'Material',
+        content: 'Content', options: 'Options', answer: 'Answer', explanation: 'Explanation', source: 'Source', year: 'Year', tags: 'Tags', points: 'Points',
+        save: 'Save', cancel: 'Cancel', delete: 'Delete', edit: 'Edit', compile: 'Compile', close: 'Close',
+        noQuestions: 'No questions', loading: 'Loading...', saveSuccess: 'Saved successfully', deleteSuccess: 'Deleted successfully', compileSuccess: 'Compiled successfully', exportSuccess: 'Exported successfully',
+        selectQuestionsFirst: 'Please select questions first', confirmDelete: 'Are you sure to delete?', systemTitle: 'Question Management System', statistics: 'Statistics', filter: 'Filter',
+        questionType: 'Type', all: 'All', searchPlaceholder: 'Search questions...', questionDetails: 'Question Details', notCompiled: 'Not compiled yet', compileNow: 'Compile Now',
+        referenceAnswer: 'Reference Answer', addOption: 'Add Option', questionContent: 'Question Content', questionContentPlaceholder: 'Enter content, use {{1}}{{2}} for blanks',
+        answerPlaceholder: 'Blank answers separated by |, e.g., ans1|ans2', explanationPlaceholder: 'Enter explanation...', sourcePlaceholder: 'Enter source', yearPlaceholder: 'Enter year',
+        tagsPlaceholder: 'Multiple tags separated by commas', questionInfo: 'Question Info', preview: 'Preview', export: 'Export', compiling: 'Compiling...', exporting: 'Exporting...',
+        compileFailed: 'Compile failed', exportFailed: 'Export failed', exportOptions: 'Export Options', showAnswer: 'Show Answer', showMore: 'Show Explanation', confirm: 'Confirm',
+        materialTitle: 'Material Title', materialContent: 'Material Content', subQuestions: 'Sub-questions', addSubQuestion: 'Add Sub-question',
+        subQuestionType: 'Type', subQuestionContent: 'Content', subQuestionAnswer: 'Answer', subQuestionExplanation: 'Explanation', subQuestionPoint: 'Points', addSubOption: 'Add Option',
+        multiSubQuestions: 'Sub-questions', addMultiSubQuestion: 'Add Sub-question',
+        selectQuestion: 'Select a question to view details', selectAllLabel: 'Select All', questionCount: '{n} questions',
+        // Export panel enhancement
+        exportTabPage: 'Page', exportTabStyle: 'Style', exportTabOrder: 'Order',
+        papersize: 'Paper Size', layout: 'Layout', textcount: 'Chars/Line', heightcount: 'Lines/Page', margincount: 'Margin Lines',
+        doublesided: 'Double-sided', bodyfont: 'Body Font', fontsize: 'Font Size',
+        fontstyle: 'Font Style', themecolor: 'Theme Color', hdrstyle: 'Header Style',
+        lineheight: 'Line Height', mode: 'Typeset Mode',
+        moveUp: 'Up', moveDown: 'Down', dragHint: 'Drag or use buttons to reorder',
+        noQuestionsSelected: 'No questions selected',
+        exportFormat: 'Export Format', formatTex: 'TeX Source', formatPdf: 'PDF File',
+        paperA3: 'A3', paperA4: 'A4', paperA5: 'A5', paperB5: 'B5',
+        paperIpad: 'iPad', paperKindle: 'Kindle',
+        layoutNarrow: 'Narrow', layoutModerate: 'Moderate', layoutWide: 'Wide',
+        layoutExtrawide: 'Extra Wide', layoutExotic: 'Exotic', layoutKaolike: 'Exam',
+        layoutIpad: 'iPad', layoutKindle: 'Kindle', layoutSidemirror: 'Side Mirror',
+        layoutPropiorroot: 'Prox. Root', layoutPropiorgolden: 'Prox. Golden', layoutHermes: 'Hermes',
+        fontAdobeHans: 'Adobe Hans', fontSourceHans: 'Source Hans', fontSinoHans: 'Sino Hans', fontModern: 'Modern',
+        fs9pt: '9pt', fs10pt: '10pt', fs11pt: '11pt', fs12pt: '12pt', fs14pt: '14pt',
+        fontRm: 'Serif', fontSs: 'Sans', fontTt: 'Mono',
+        modeDefault: 'Default', modeKindle: 'Kindle', modeDraft: 'Draft', modePrint: 'Print', modeMoresize: 'Large',
+        colorSerene: 'Serene', colorHarmony: 'Harmony', colorPassion: 'Passion',
+        colorAdventure: 'Adventure', colorOptimism: 'Optimism', colorCreativity: 'Creativity',
+        colorMagic: 'Magic', colorRomance: 'Romance', colorReliable: 'Reliable',
+        colorFormality: 'Formality', colorInnocence: 'Innocence', colorDefault: 'Default',
+        hdrDefault: 'Default', hdrBook: 'Book', hdrNovel: 'Novel', hdrColorful: 'Colorful',
+        hdrMadsen: 'Madsen', hdrKaolike: 'Exam', hdrRocket: 'Rocket',
+        hdrHctext: 'HC Text', hdrFctext: 'FC Text', hdrFoemargin: 'FO Margin',
+        hdrFoemarginalt: 'FO Margin B', hdrHoemargin: 'HO Margin', hdrNone: 'None',
+        dsYes: 'Yes', dsNo: 'No'
+      }
+    };
+
+    function t(key) {
+      return i18n[currentLang][key] || key;
+    }
+
+    // ===== Panel Controls — toggle buttons always visible in navbar =====
+    let leftPanelCollapsed = false;
+    let rightPanelCollapsed = true;
+
+    function isMobile() {
+      return window.innerWidth <= 768;
+    }
+
+    function updateBackdrop() {
+      const backdrop = document.getElementById('panelBackdrop');
+      if (!backdrop) return;
+      const show = isMobile() && (!leftPanelCollapsed || !rightPanelCollapsed);
+      backdrop.classList.toggle('visible', show);
+    }
+
+    function closeAllPanels() {
+      if (!leftPanelCollapsed) toggleLeftPanel();
+      if (!rightPanelCollapsed) toggleRightPanel();
+    }
+
+    function toggleLeftPanel() {
+      leftPanelCollapsed = !leftPanelCollapsed;
+      const panel = document.getElementById('leftPanel');
+      const btn = document.getElementById('leftToggleBtn');
+      panel.classList.toggle('collapsed', leftPanelCollapsed);
+      btn.classList.toggle('active', !leftPanelCollapsed);
+      btn.title = leftPanelCollapsed
+        ? (currentLang === 'zh' ? '展开筛选面板' : 'Show filter panel')
+        : (currentLang === 'zh' ? '收起筛选面板' : 'Hide filter panel');
+      // Update mobile action bar filter button active state
+      const mobileFilterBtn = document.getElementById('mobileFilterBtn');
+      if (mobileFilterBtn) mobileFilterBtn.classList.toggle('active', !leftPanelCollapsed);
+      updateBackdrop();
+    }
+
+    function toggleRightPanel() {
+      rightPanelCollapsed = !rightPanelCollapsed;
+      const panel = document.getElementById('rightPanel');
+      const btn = document.getElementById('rightToggleBtn');
+      panel.classList.toggle('collapsed', rightPanelCollapsed);
+      btn.classList.toggle('active', !rightPanelCollapsed);
+      btn.title = rightPanelCollapsed
+        ? (currentLang === 'zh' ? '展开详情面板' : 'Show detail panel')
+        : (currentLang === 'zh' ? '收起详情面板' : 'Hide detail panel');
+      updateBackdrop();
+    }
+
+    // ===== Right Panel View Management =====
+    function showRightPanelView() {
+      document.getElementById('rightPanelEmpty').style.display = 'none';
+      document.getElementById('rightPanelDetail').style.display = 'block';
+      document.getElementById('rightPanelEdit').style.display = 'none';
+    }
+
+    function showRightPanelEdit() {
+      document.getElementById('rightPanelEmpty').style.display = 'none';
+      document.getElementById('rightPanelDetail').style.display = 'none';
+      document.getElementById('rightPanelEdit').style.display = 'block';
+    }
+
+    function showRightPanelEmpty() {
+      document.getElementById('rightPanelEmpty').style.display = 'block';
+      document.getElementById('rightPanelDetail').style.display = 'none';
+      document.getElementById('rightPanelEdit').style.display = 'none';
+    }
+
+    function cancelEdit() {
+      if (currentQuestion) {
+        showQuestionDetail(currentQuestion.id);
+      } else {
+        showRightPanelEmpty();
+      }
+    }
+
+    // ===== KaTeX =====
+    function renderMath(text) {
+      if (!text) return '';
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = text;
+      if (typeof window.renderMathInElement === 'function') {
+        window.renderMathInElement(tempDiv, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+            { left: '\\[', right: '\\]', display: true },
+            { left: '\\(', right: '\\)', display: false }
+          ],
+          throwOnError: false
+        });
+      }
+      return tempDiv.innerHTML;
+    }
+
+    // ===== i18n =====
+    function updateUILanguage() {
+      document.title = i18n[currentLang].systemTitle;
+
+      document.getElementById('systemTitle').textContent = i18n[currentLang].systemTitle;
+      document.getElementById('statisticsText').textContent = i18n[currentLang].statistics;
+      document.getElementById('filterText').textContent = i18n[currentLang].filter;
+
+      document.getElementById('totalLabel').textContent = i18n[currentLang].totalQuestions;
+      document.getElementById('compiledLabel').textContent = i18n[currentLang].compiled;
+
+      document.getElementById('typeLabel').textContent = i18n[currentLang].questionType;
+      document.getElementById('yearLabel').textContent = i18n[currentLang].year;
+      document.getElementById('sourceLabel').textContent = i18n[currentLang].source;
+      document.getElementById('tagsLabel').textContent = i18n[currentLang].tags;
+
+      document.getElementById('searchInput').placeholder = i18n[currentLang].searchPlaceholder;
+
+      document.getElementById('newBtn').title = i18n[currentLang].newQuestion;
+      document.getElementById('compileBtn').title = i18n[currentLang].compileSelected;
+      document.getElementById('exportBtn').title = i18n[currentLang].exportSelected;
+      document.getElementById('deleteBtn').title = i18n[currentLang].deleteSelected;
+
+      document.getElementById('selectAllLabel').textContent = i18n[currentLang].selectAllLabel;
+      document.getElementById('selectQuestionHint').textContent = i18n[currentLang].selectQuestion;
+
+      document.getElementById('detailTitleText').textContent = i18n[currentLang].questionDetails;
+      document.getElementById('previewText').textContent = i18n[currentLang].preview;
+      document.getElementById('editBtnText').textContent = i18n[currentLang].edit;
+      document.getElementById('compileBtnText').textContent = i18n[currentLang].compile;
+      document.getElementById('editFormTitle').textContent = i18n[currentLang].newQuestion;
+
+      document.getElementById('typeSelectLabel').textContent = i18n[currentLang].questionType;
+      document.getElementById('pointLabel').textContent = i18n[currentLang].points;
+      document.getElementById('contentLabel').textContent = i18n[currentLang].questionContent;
+      document.getElementById('questionContent').placeholder = i18n[currentLang].questionContentPlaceholder;
+      document.getElementById('optionsLabel').textContent = i18n[currentLang].options;
+      document.getElementById('addOptionText').textContent = i18n[currentLang].addOption;
+      document.getElementById('materialTitleLabel').textContent = i18n[currentLang].materialTitle;
+      document.getElementById('materialContentLabel').textContent = i18n[currentLang].materialContent;
+      document.getElementById('subQuestionsLabel').textContent = i18n[currentLang].subQuestions;
+      document.getElementById('addSubQuestionText').textContent = i18n[currentLang].addSubQuestion;
+      document.getElementById('multiSubQuestionsLabel').textContent = i18n[currentLang].multiSubQuestions;
+      document.getElementById('addMultiSubQuestionText').textContent = i18n[currentLang].addMultiSubQuestion;
+      // Edit form group headers
+      document.getElementById('contentGroupHeader').textContent = i18n[currentLang].questionContent;
+      document.getElementById('answerGroupHeader').textContent = i18n[currentLang].answer;
+      document.getElementById('metadataGroupHeader').textContent = currentLang === 'zh' ? '元数据' : 'Metadata';
+      document.getElementById('answerLabel').textContent = i18n[currentLang].answer;
+      document.getElementById('questionAnswer').placeholder = i18n[currentLang].answerPlaceholder;
+      document.getElementById('explanationLabel').textContent = i18n[currentLang].explanation;
+      document.getElementById('questionExplanation').placeholder = i18n[currentLang].explanationPlaceholder;
+      document.getElementById('sourceInputLabel').textContent = i18n[currentLang].source;
+      document.getElementById('questionSource').placeholder = i18n[currentLang].sourcePlaceholder;
+      document.getElementById('yearInputLabel').textContent = i18n[currentLang].year;
+      document.getElementById('questionYear').placeholder = i18n[currentLang].yearPlaceholder;
+      document.getElementById('tagsInputLabel').textContent = i18n[currentLang].tags;
+      document.getElementById('questionTags').placeholder = i18n[currentLang].tagsPlaceholder;
+
+      document.getElementById('cancelBtn').textContent = i18n[currentLang].cancel;
+      document.getElementById('saveBtn').textContent = i18n[currentLang].save;
+
+      document.getElementById('choiceOption').textContent = i18n[currentLang].choice;
+      document.getElementById('questionOption').textContent = i18n[currentLang].question;
+      document.getElementById('multiQuestionOption').textContent = i18n[currentLang].multi_question;
+      document.getElementById('writingOption').textContent = i18n[currentLang].writing;
+      document.getElementById('multiWritingOption').textContent = i18n[currentLang].multi_writing;
+      document.getElementById('materialOption').textContent = i18n[currentLang].material;
+
+      const typeFilter = document.getElementById('typeFilter');
+      typeFilter.innerHTML = `<option value="">${i18n[currentLang].all}</option>
+        <option value="choice">${i18n[currentLang].choice}</option>
+        <option value="question">${i18n[currentLang].question}</option>
+        <option value="multi_question">${i18n[currentLang].multi_question}</option>
+        <option value="writing">${i18n[currentLang].writing}</option>
+        <option value="multi_writing">${i18n[currentLang].multi_writing}</option>
+        <option value="material">${i18n[currentLang].material}</option>`;
+
+      document.getElementById('exportModalTitle').textContent = i18n[currentLang].exportOptions;
+      document.getElementById('showAnswerLabel').textContent = i18n[currentLang].showAnswer;
+      document.getElementById('showMoreLabel').textContent = i18n[currentLang].showMore;
+      document.getElementById('exportCancelBtn').textContent = i18n[currentLang].cancel;
+      document.getElementById('exportConfirmBtn').textContent = i18n[currentLang].confirm;
+
+      // Export panel tabs
+      document.getElementById('exportPageTabLabel').textContent = i18n[currentLang].exportTabPage;
+      document.getElementById('exportStyleTabLabel').textContent = i18n[currentLang].exportTabStyle;
+      document.getElementById('exportOrderTabLabel').textContent = i18n[currentLang].exportTabOrder;
+
+      // Export panel labels
+      document.getElementById('exportPapersizeLabel').textContent = i18n[currentLang].papersize;
+      document.getElementById('exportLayoutLabel').textContent = i18n[currentLang].layout;
+      document.getElementById('exportTextcountLabel').textContent = i18n[currentLang].textcount;
+      document.getElementById('exportHeightcountLabel').textContent = i18n[currentLang].heightcount;
+      document.getElementById('exportMargincountLabel').textContent = i18n[currentLang].margincount;
+      document.getElementById('exportDoublesidedLabel').textContent = i18n[currentLang].doublesided;
+      document.getElementById('exportBodyfontLabel').textContent = i18n[currentLang].bodyfont;
+      document.getElementById('exportFontsizeLabel').textContent = i18n[currentLang].fontsize;
+      document.getElementById('exportFontstyleLabel').textContent = i18n[currentLang].fontstyle;
+      document.getElementById('exportThemecolorLabel').textContent = i18n[currentLang].themecolor;
+      document.getElementById('exportHdrstyleLabel').textContent = i18n[currentLang].hdrstyle;
+      document.getElementById('exportLineheightLabel').textContent = i18n[currentLang].lineheight;
+      document.getElementById('exportModeLabel').textContent = i18n[currentLang].mode;
+      document.getElementById('exportFormatLabel').textContent = i18n[currentLang].exportFormat;
+      document.getElementById('formatTexLabel').textContent = i18n[currentLang].formatTex;
+      document.getElementById('formatPdfLabel').textContent = i18n[currentLang].formatPdf;
+
+      // Export panel: Hermes toggle + other dynamic updates
+      updateExportSelectOptions();
+
+      // Mobile action bar labels (short text for mobile)
+      document.getElementById('mobileFilterLabel').textContent = currentLang === 'zh' ? '筛选' : 'Filter';
+      document.getElementById('mobileNewLabel').textContent = currentLang === 'zh' ? '新建' : 'New';
+      document.getElementById('mobileCompileLabel').textContent = currentLang === 'zh' ? '编译' : 'Build';
+      document.getElementById('mobileExportLabel').textContent = currentLang === 'zh' ? '导出' : 'Export';
+      document.getElementById('mobileDeleteLabel').textContent = currentLang === 'zh' ? '删除' : 'Delete';
+
+      // Panel toggle titles
+      document.getElementById('leftToggleBtn').title = leftPanelCollapsed
+        ? (currentLang === 'zh' ? '展开筛选面板' : 'Show filter panel')
+        : (currentLang === 'zh' ? '收起筛选面板' : 'Hide filter panel');
+      document.getElementById('rightToggleBtn').title = rightPanelCollapsed
+        ? (currentLang === 'zh' ? '展开详情面板' : 'Show detail panel')
+        : (currentLang === 'zh' ? '收起详情面板' : 'Hide detail panel');
+
+      updateTableHeaders();
+      updateQuestionCount();
+    }
+
+    function updateTableHeaders() {
+      document.getElementById('typeHeader').innerHTML = `${i18n[currentLang].questionType} <i class="bi bi-arrow-down-up"></i>`;
+      document.getElementById('contentHeader').innerHTML = `${i18n[currentLang].content} <i class="bi bi-arrow-down-up"></i>`;
+      document.getElementById('pointHeader').innerHTML = `${i18n[currentLang].points} <i class="bi bi-arrow-down-up"></i>`;
+      document.getElementById('sourceHeader').innerHTML = `${i18n[currentLang].source} <i class="bi bi-arrow-down-up"></i>`;
+      document.getElementById('yearHeader').innerHTML = `${i18n[currentLang].year} <i class="bi bi-arrow-down-up"></i>`;
+      document.getElementById('actionsHeader').textContent = currentLang === 'zh' ? '操作' : 'Act';
+    }
+
+    function updateQuestionCount() {
+      const visible = document.querySelectorAll('#questionTableBody tr').length;
+      const total = allQuestions.length;
+      const countLabel = document.getElementById('questionCountLabel');
+      if (visible === total) {
+        countLabel.textContent = i18n[currentLang].questionCount.replace('{n}', total);
+      } else {
+        countLabel.textContent = `${i18n[currentLang].questionCount.replace('{n}', total)} (${currentLang === 'zh' ? '显示' : 'showing'} ${visible})`;
+      }
+    }
+
+    function getTypeName(type) {
+      return i18n[currentLang][type] || type;
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ===== Toast =====
+    function showToast(message, type = 'info', title = null) {
+      const toastContainer = document.getElementById('toastContainer');
+      const toastId = 'toast-' + Date.now();
+
+      const iconColor = type === 'success' ? 'var(--success)' :
+        type === 'error' ? 'var(--danger)' :
+          type === 'warning' ? 'var(--warning)' : 'var(--accent)';
+
+      const icon = type === 'success' ? 'check-circle-fill' :
+        type === 'error' ? 'x-circle-fill' :
+          type === 'warning' ? 'exclamation-triangle-fill' : 'info-circle-fill';
+
+      const delay = type === 'error' ? 5000 : 3000;
+
+      const defaultTitle = type === 'success' ? (currentLang === 'zh' ? '操作成功' : 'Success') :
+        type === 'error' ? (currentLang === 'zh' ? '操作失败' : 'Error') :
+          type === 'warning' ? (currentLang === 'zh' ? '警告' : 'Warning') : (currentLang === 'zh' ? '提示' : 'Info');
+
+      const toastHtml = `
+        <div id="${toastId}" class="toast" role="alert">
+          <div class="toast-header d-flex align-items-center">
+            <i class="bi bi-${icon} me-2" style="color: ${iconColor}; font-size: 1rem;"></i>
+            <strong class="me-auto" style="color: var(--text-1);">${title || defaultTitle}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" style="font-size: 0.6rem;"></button>
+          </div>
+          <div class="toast-body">${message}</div>
+        </div>
+      `;
+
+      toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+      const toastElement = document.getElementById(toastId);
+      const toast = new bootstrap.Toast(toastElement, { delay: delay });
+      toast.show();
+
+      toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.classList.add('hiding');
+        setTimeout(() => toastElement.remove(), 200);
+      });
+    }
+
+    // ===== Language =====
+    function toggleLanguage() {
+      switchLanguage(currentLang === 'zh' ? 'en' : 'zh');
+    }
+
+    function switchLanguage(lang) {
+      currentLang = lang;
+      // Update the language toggle button appearance
+      const langBtn = document.getElementById('langToggleBtn');
+      if (lang === 'zh') {
+        langBtn.classList.add('active');
+        langBtn.title = '切换至 English';
+      } else {
+        langBtn.classList.remove('active');
+        langBtn.title = 'Switch to 中文';
+      }
+      updateUILanguage();
+      loadQuestions();
+    }
+
+    // ===== API =====
+    async function loadStats() {
+      try {
+        const response = await fetch(`${API_BASE}/stats`);
+        const data = await response.json();
+        document.getElementById('totalQuestions').textContent = data.total_questions || 0;
+        document.getElementById('compiledQuestions').textContent = data.compiled_count || 0;
+      } catch (error) {
+        console.error('加载统计失败:', error);
+      }
+    }
+
+    let selectedTags = new Set();
+
+    async function loadQuestions() {
+      try {
+        const response = await fetch(`${API_BASE}/questions`);
+        const data = await response.json();
+        allQuestions = Array.isArray(data) ? data : (data.questions || []);
+
+        const years = [...new Set(allQuestions.map(q => q.year).filter(y => y))].sort((a, b) => b - a);
+        const sources = [...new Set(allQuestions.map(q => q.source).filter(s => s))].sort();
+
+        const yearFilter = document.getElementById('yearFilter');
+        yearFilter.innerHTML = `<option value="">${i18n[currentLang].all}</option>` +
+          years.map(y => `<option value="${y}">${y}</option>`).join('');
+
+        const sourceFilter = document.getElementById('sourceFilter');
+        sourceFilter.innerHTML = `<option value="">${i18n[currentLang].all}</option>` +
+          sources.map(s => `<option value="${s}">${escapeHtml(s)}</option>`).join('');
+
+        displayQuestions(allQuestions);
+        loadStats();
+        loadTags();
+      } catch (error) {
+        console.error('加载题目失败:', error);
+      }
+    }
+
+    async function loadTags() {
+      try {
+        const response = await fetch(`${API_BASE}/tags`);
+        const data = await response.json();
+        const tags = Array.isArray(data) ? data : (data.tags || []);
+
+        const tagFilter = document.getElementById('tagFilter');
+        tagFilter.innerHTML = tags.map(tag =>
+          `<span class="badge ${selectedTags.has(tag) ? 'bg-primary' : 'bg-secondary'}" style="cursor: pointer;" onclick="toggleTagFilter('${escapeHtml(tag)}')">${escapeHtml(tag)}</span>`
+        ).join('');
+      } catch (error) {
+        console.error('加载标签失败:', error);
+      }
+    }
+
+    function toggleTagFilter(tag) {
+      if (selectedTags.has(tag)) {
+        selectedTags.delete(tag);
+      } else {
+        selectedTags.add(tag);
+      }
+
+      const tagFilter = document.getElementById('tagFilter');
+      tagFilter.querySelectorAll('.badge').forEach(badge => {
+        if (badge.textContent === tag) {
+          badge.className = `badge ${selectedTags.has(tag) ? 'bg-primary' : 'bg-secondary'}`;
+        }
+      });
+
+      applyFilters();
+    }
+
+    // ===== Display Questions =====
+    function displayQuestions(questions) {
+      const tbody = document.getElementById('questionTableBody');
+
+      if (questions.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center py-5" style="color: var(--text-3);">
+              <i class="bi bi-inbox" style="font-size: var(--fs-display); margin-bottom: var(--sp-2); display: block; opacity: 0.4;"></i>
+              <p style="font-size: var(--fs-sub);">${i18n[currentLang].noQuestions}</p>
+            </td>
+          </tr>
+        `;
+        updateQuestionCount();
+        return;
+      }
+
+      tbody.innerHTML = questions.map(q => {
+        return `
+          <tr onclick="showQuestionDetail(${q.id})">
+            <td>
+              <input class="form-check-input" type="checkbox" 
+                     ${selectedQuestions.has(q.id) ? 'checked' : ''}
+                     onclick="toggleQuestion(${q.id}, event)">
+            </td>
+            <td><span style="color: var(--text-2);">#${q.id}</span></td>
+            <td><span class="badge bg-primary">${getTypeName(q.type)}</span></td>
+            <td>
+              <div>${renderMath(escapeHtml(q.content.substring(0, 100)))}${q.content.length > 100 ? '…' : ''}</div>
+            </td>
+            <td>${q.point}${currentLang === 'zh' ? '分' : 'pts'}</td>
+            <td>${q.source ? `<span style="color: var(--text-2);">${escapeHtml(q.source)}</span>` : '—'}</td>
+            <td>${q.year ? `<span style="color: var(--text-2);">${q.year}</span>` : '—'}</td>
+            <td>
+              <button class="btn btn-sm ${q.pdf_url ? 'btn-outline-primary' : 'btn-outline-secondary'}" 
+                      onclick="compileQuestion(${q.id}, event)" 
+                      title="${q.pdf_url ? (currentLang === 'zh' ? '已编译' : 'Compiled') : (currentLang === 'zh' ? '编译' : 'Compile')}"
+                      style="padding: var(--sp-1);">
+                <i class="bi bi-${q.pdf_url ? 'check2' : 'gear'}"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      updateQuestionCount();
+    }
+
+    // ===== Sort & Filter =====
+    function sortQuestions(field) {
+      if (sortField === field) {
+        sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortField = field;
+        sortOrder = 'asc';
+      }
+
+      allQuestions.sort((a, b) => {
+        let aVal = a[field];
+        let bVal = b[field];
+
+        if (field === 'type') {
+          aVal = getTypeName(aVal);
+          bVal = getTypeName(bVal);
+        } else if (field === 'pdf_url') {
+          aVal = aVal ? 1 : 0;
+          bVal = bVal ? 1 : 0;
+        } else if (aVal === null || aVal === undefined) {
+          aVal = '';
+        } else if (bVal === null || bVal === undefined) {
+          bVal = '';
+        }
+
+        if (typeof aVal === 'string') {
+          aVal = aVal.toLowerCase();
+          bVal = bVal.toLowerCase();
+        }
+
+        if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      applyFilters();
+    }
+
+    function filterQuestions() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allQuestions.filter(q =>
+        q.content.toLowerCase().includes(searchTerm) ||
+        (q.source && q.source.toLowerCase().includes(searchTerm)) ||
+        (q.tags && q.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
+      );
+      displayQuestions(filtered);
+    }
+
+    function applyFilters() {
+      const type = document.getElementById('typeFilter').value;
+      const year = document.getElementById('yearFilter').value;
+      const source = document.getElementById('sourceFilter').value;
+
+      let filtered = allQuestions;
+
+      if (type) filtered = filtered.filter(q => q.type === type);
+      if (year) filtered = filtered.filter(q => q.year == year);
+      if (source) filtered = filtered.filter(q => q.source === source);
+
+      if (selectedTags.size > 0) {
+        filtered = filtered.filter(q => {
+          if (!q.tags || !Array.isArray(q.tags)) return false;
+          return [...selectedTags].some(tag => q.tags.includes(tag));
+        });
+      }
+
+      displayQuestions(filtered);
+    }
+
+    function toggleQuestion(id, event) {
+      event.stopPropagation();
+      if (selectedQuestions.has(id)) {
+        selectedQuestions.delete(id);
+      } else {
+        selectedQuestions.add(id);
+      }
+    }
+
+    function toggleSelectAll() {
+      const selectAllCheckbox = document.getElementById('selectAll');
+      const checkboxes = document.querySelectorAll('#questionTableBody input[type="checkbox"]');
+
+      if (selectAllCheckbox.checked) {
+        allQuestions.forEach(q => selectedQuestions.add(q.id));
+        checkboxes.forEach(cb => cb.checked = true);
+      } else {
+        selectedQuestions.clear();
+        checkboxes.forEach(cb => cb.checked = false);
+      }
+    }
+
+    // ===== Show Question Detail in Right Panel =====
+    function showQuestionDetail(id) {
+      const question = allQuestions.find(q => q.id === id);
+      if (!question) return;
+
+      currentQuestion = question;
+      showRightPanelView();
+
+      let html = '';
+
+      // Group 1: Question info (key-value rows)
+      html += `
+        <div class="detail-group-header">${i18n[currentLang].questionInfo}</div>
+        <div class="detail-group">
+          <div class="detail-row">
+            <div class="detail-key">${i18n[currentLang].questionType}</div>
+            <div class="detail-val"><span class="badge bg-primary">${getTypeName(question.type)}</span></div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-key">${i18n[currentLang].points}</div>
+            <div class="detail-val">${question.point}${currentLang === 'zh' ? ' 分' : ' pts'}</div>
+          </div>
+          ${question.source ? `
+          <div class="detail-row">
+            <div class="detail-key">${i18n[currentLang].source}</div>
+            <div class="detail-val">${escapeHtml(question.source)}</div>
+          </div>` : ''}
+          ${question.year ? `
+          <div class="detail-row">
+            <div class="detail-key">${i18n[currentLang].year}</div>
+            <div class="detail-val">${question.year}</div>
+          </div>` : ''}
+          ${question.tags && question.tags.length > 0 ? `
+          <div class="detail-row">
+            <div class="detail-key">${i18n[currentLang].tags}</div>
+            <div class="detail-val">${question.tags.map(t => `<span class="badge bg-light">${escapeHtml(t)}</span>`).join('')}</div>
+          </div>` : ''}
+        </div>
+      `;
+
+      // Group 2: Question content
+      html += `
+        <div class="detail-group-header">${i18n[currentLang].questionContent}</div>
+        <div class="detail-group">
+          <div class="detail-content">
+            <div class="mb-0">${renderMath(escapeHtml(question.content))}</div>
+          </div>
+      `;
+
+      if (question.type === 'choice' && question.answers && question.answers.length > 0) {
+        html += question.answers.map((ans, idx) => `
+          <div class="option-item ${ans.is_correct ? 'correct' : ''}">
+            <div class="form-check mb-0">
+              <input class="form-check-input" type="radio" disabled ${ans.is_correct ? 'checked' : ''}>
+              <label class="form-check-label d-inline">
+                <strong class="me-2">${String.fromCharCode(65 + idx)}.</strong>
+                ${renderMath(escapeHtml(ans.content))}
+                ${ans.is_correct ? '<i class="bi bi-check-circle-fill text-success ms-2"></i>' : ''}
+              </label>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      html += `</div>`;
+
+      // Group 3: Answer & explanation
+      if (question.answer || question.explanation) {
+        html += `
+          <div class="detail-group-header">${i18n[currentLang].answer}</div>
+          <div class="detail-group">
+        `;
+
+        if (question.answer) {
+          html += `
+            <div class="detail-content">
+              <div class="detail-content-label">${i18n[currentLang].referenceAnswer}</div>
+              <div class="mb-0">${renderMath(escapeHtml(question.answer))}</div>
+            </div>
+          `;
+        }
+
+        if (question.explanation) {
+          html += `
+            <div class="detail-content">
+              <div class="detail-content-label">${i18n[currentLang].explanation}</div>
+              <div class="mb-0">${renderMath(escapeHtml(question.explanation))}</div>
+            </div>
+          `;
+        }
+
+        html += `</div>`;
+      }
+
+      document.getElementById('detailBody').innerHTML = html;
+
+      document.getElementById('detailTitleText').textContent = `${i18n[currentLang].questionDetails} #${id}`;
+
+      // Render PDF preview
+      const previewContainer = document.getElementById('previewContainer');
+      previewContainer.innerHTML = `<canvas id="pdfCanvas" style="width: 100%; height: auto;"></canvas>`;
+
+      if (question.pdf_url) {
+        setTimeout(() => renderPDF(question.pdf_url), 100);
+      } else {
+        previewContainer.innerHTML = `
+          <div class="no-compile-hint text-center p-4 px-3" style="color: var(--text-2);">
+            <i class="bi bi-file-earmark-pdf d-block mb-2" style="font-size: var(--fs-display); opacity: 0.4;"></i>
+            <p class="mb-2" style="font-size: var(--fs-sub);">${i18n[currentLang].notCompiled}</p>
+            <button class="btn btn-outline-primary btn-sm" onclick="compileQuestion(${id}, event)">
+              <i class="bi bi-gear"></i> ${i18n[currentLang].compileNow}
+            </button>
+          </div>
+        `;
+      }
+
+      // Auto-expand right panel if collapsed
+      if (rightPanelCollapsed) {
+        toggleRightPanel();
+      }
+
+      // On mobile, auto-collapse left panel when showing detail
+      if (isMobile() && !leftPanelCollapsed) {
+        toggleLeftPanel();
+      }
+    }
+
+    // ===== Show Edit Form in Right Panel =====
+    function openCreateModal() {
+      document.getElementById('questionForm').reset();
+      document.getElementById('questionId').value = '';
+      document.getElementById('questionType').value = 'choice';
+      document.getElementById('questionTypeSelect').value = 'choice';
+      selectQuestionType('choice');
+
+      document.getElementById('editFormTitle').textContent = i18n[currentLang].newQuestion;
+      showRightPanelEdit();
+
+      if (rightPanelCollapsed) {
+        toggleRightPanel();
+      }
+
+      // On mobile, auto-collapse left panel when editing
+      if (isMobile() && !leftPanelCollapsed) {
+        toggleLeftPanel();
+      }
+    }
+
+    function editCurrentQuestion() {
+      if (!currentQuestion) return;
+
+      document.getElementById('questionId').value = currentQuestion.id;
+      document.getElementById('questionType').value = currentQuestion.type;
+      document.getElementById('questionTypeSelect').value = currentQuestion.type;
+      document.getElementById('questionContent').value = currentQuestion.content || '';
+      document.getElementById('questionPoint').value = currentQuestion.point || 1;
+      document.getElementById('questionAnswer').value = currentQuestion.answer || '';
+      document.getElementById('questionExplanation').value = currentQuestion.explanation || '';
+      document.getElementById('questionSource').value = currentQuestion.source || '';
+      document.getElementById('questionYear').value = currentQuestion.year || '';
+      document.getElementById('questionTags').value = (currentQuestion.tags || []).join(', ');
+
+      selectQuestionType(currentQuestion.type);
+
+      if (currentQuestion.type === 'choice' && currentQuestion.answers) {
+        const answersList = document.getElementById('answersList');
+        answersList.innerHTML = '';
+
+        currentQuestion.answers.forEach(ans => {
+          const answerHtml = `
+            <div class="input-group input-group-sm mb-1">
+              <span class="input-group-text">${String.fromCharCode(65 + answersList.children.length)}</span>
+              <input type="text" class="form-control answer-content" value="${escapeHtml(ans.content)}">
+              <div class="input-group-text">
+                <input class="form-check-input" type="checkbox" ${ans.is_correct ? 'checked' : ''}>
+              </div>
+              <button type="button" class="btn btn-outline-danger" onclick="removeAnswer(this)">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          `;
+          answersList.insertAdjacentHTML('beforeend', answerHtml);
+        });
+      }
+
+      document.getElementById('editFormTitle').textContent = `${i18n[currentLang].edit} #${currentQuestion.id}`;
+      showRightPanelEdit();
+
+      if (rightPanelCollapsed) {
+        toggleRightPanel();
+      }
+
+      if (isMobile() && !leftPanelCollapsed) {
+        toggleLeftPanel();
+      }
+    }
+
+    // ===== Question Type Selection =====
+    function selectQuestionType(type) {
+      document.getElementById('questionType').value = type;
+
+      const choiceOptions = document.getElementById('choiceOptions');
+      const materialOptions = document.getElementById('materialOptions');
+      const multiOptions = document.getElementById('multiOptions');
+      const answerInput = document.getElementById('questionAnswer');
+
+      if (type === 'choice') {
+        choiceOptions.style.display = 'block';
+        materialOptions.style.display = 'none';
+        multiOptions.style.display = 'none';
+        answerInput.placeholder = currentLang === 'zh' ? '例如：A' : 'e.g., A';
+        if (document.getElementById('answersList').children.length === 0) {
+          addAnswer();
+          addAnswer();
+        }
+      } else if (type === 'material') {
+        choiceOptions.style.display = 'none';
+        materialOptions.style.display = 'block';
+        multiOptions.style.display = 'none';
+        answerInput.placeholder = '';
+        answerInput.value = '';
+      } else if (type === 'multi_question' || type === 'multi_writing') {
+        choiceOptions.style.display = 'none';
+        materialOptions.style.display = 'none';
+        multiOptions.style.display = 'block';
+        answerInput.placeholder = '';
+        answerInput.value = '';
+      } else {
+        choiceOptions.style.display = 'none';
+        materialOptions.style.display = 'none';
+        multiOptions.style.display = 'none';
+        answerInput.placeholder = i18n[currentLang].answerPlaceholder;
+      }
+    }
+
+    function addAnswer() {
+      const answersList = document.getElementById('answersList');
+      const index = answersList.children.length;
+      const letter = String.fromCharCode(65 + index);
+
+      const answerHtml = `
+        <div class="input-group input-group-sm mb-1">
+          <span class="input-group-text">${letter}</span>
+          <input type="text" class="form-control answer-content" placeholder="${i18n[currentLang].options}">
+          <div class="input-group-text">
+            <input class="form-check-input" type="checkbox" title="${currentLang === 'zh' ? '正确答案' : 'Correct answer'}">
+          </div>
+          <button type="button" class="btn btn-outline-danger" onclick="removeAnswer(this)">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      `;
+
+      answersList.insertAdjacentHTML('beforeend', answerHtml);
+    }
+
+    function removeAnswer(btn) {
+      btn.closest('.input-group').remove();
+      updateAnswerLabels();
+    }
+
+    function updateAnswerLabels() {
+      const answersList = document.getElementById('answersList');
+      const answers = answersList.querySelectorAll('.input-group');
+      answers.forEach((answer, idx) => {
+        const label = answer.querySelector('.input-group-text');
+        label.textContent = String.fromCharCode(65 + idx);
+      });
+    }
+
+    let subQuestionCounter = 0;
+
+    function addSubQuestion() {
+      const subQuestionsList = document.getElementById('subQuestionsList');
+      const index = subQuestionCounter++;
+
+      const subQuestionHtml = `
+        <div class="card mb-2" id="subQuestion${index}" style="border-radius: var(--r-sm); border: none; background: var(--card);">
+          <div class="card-header d-flex justify-content-between align-items-center py-2" style="border-bottom: none; background: transparent;">
+            <span style="font-size: var(--fs-sub); font-weight: 600;">${currentLang === 'zh' ? '子题目' : 'Sub-question'} ${index + 1}</span>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeSubQuestion(${index})">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+          <div class="card-body py-2">
+            <div class="row mb-2">
+              <div class="col-md-4">
+                <label class="form-label">${currentLang === 'zh' ? '题型' : 'Type'}</label>
+                <select class="form-select form-select-sm sub-question-type">
+                  <option value="choice">${currentLang === 'zh' ? '选择题' : 'Choice'}</option>
+                  <option value="writing">${currentLang === 'zh' ? '简答题' : 'Writing'}</option>
+                  <option value="problem">${currentLang === 'zh' ? '计算题' : 'Problem'}</option>
+                  <option value="fillin">${currentLang === 'zh' ? '填空题' : 'Fill-in'}</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">${currentLang === 'zh' ? '分值' : 'Points'}</label>
+                <input type="number" class="form-control form-control-sm sub-question-point" value="1" min="0.5" step="0.5">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">${currentLang === 'zh' ? '答案' : 'Answer'}</label>
+                <input type="text" class="form-control form-control-sm sub-question-answer" placeholder="${currentLang === 'zh' ? '填空答案用|分隔' : 'Blank answers separated by |'}">
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">${currentLang === 'zh' ? '题目内容' : 'Content'}</label>
+              <textarea class="form-control form-control-sm sub-question-content" rows="2" placeholder="${currentLang === 'zh' ? '填空使用{{1}}{{2}}标记' : 'Use {{1}}{{2}} for blanks'}"></textarea>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">${currentLang === 'zh' ? '解析' : 'Explanation'}</label>
+              <textarea class="form-control form-control-sm sub-question-explanation" rows="1"></textarea>
+            </div>
+            <div class="sub-choice-options" style="display: none;">
+              <label class="form-label">${currentLang === 'zh' ? '选项' : 'Options'}</label>
+              <div class="sub-answers-list"></div>
+              <button type="button" class="btn btn-outline-secondary btn-sm mt-1" onclick="addSubAnswer(this)">
+                <i class="bi bi-plus"></i> ${currentLang === 'zh' ? '添加选项' : 'Add Option'}
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      subQuestionsList.insertAdjacentHTML('beforeend', subQuestionHtml);
+
+      const newSubQuestion = document.getElementById(`subQuestion${index}`);
+      const typeSelect = newSubQuestion.querySelector('.sub-question-type');
+      typeSelect.addEventListener('change', function () {
+        const choiceOptions = newSubQuestion.querySelector('.sub-choice-options');
+        if (this.value === 'choice') {
+          choiceOptions.style.display = 'block';
+          if (choiceOptions.querySelector('.sub-answers-list').children.length === 0) {
+            addSubAnswer(choiceOptions.querySelector('.sub-answers-list'));
+            addSubAnswer(choiceOptions.querySelector('.sub-answers-list'));
+          }
+        } else {
+          choiceOptions.style.display = 'none';
+        }
+      });
+    }
+
+    function removeSubQuestion(index) {
+      const subQuestion = document.getElementById(`subQuestion${index}`);
+      if (subQuestion) {
+        subQuestion.remove();
+      }
+    }
+
+    let multiSubQuestionCounter = 0;
+
+    function addMultiSubQuestion() {
+      const multiSubQuestionsList = document.getElementById('multiSubQuestionsList');
+      const index = multiSubQuestionCounter++;
+
+      const subQuestionHtml = `
+        <div class="card mb-2" id="multiSubQuestion${index}" style="border-radius: var(--r-sm); border: none; background: var(--card);">
+          <div class="card-body py-2">
+            <div class="row mb-2">
+              <div class="col-md-6">
+                <label class="form-label">${currentLang === 'zh' ? '题目内容' : 'Content'}</label>
+                <textarea class="form-control form-control-sm multi-sub-content" rows="2" placeholder="${currentLang === 'zh' ? '填空使用{{1}}{{2}}标记' : 'Use {{1}}{{2}} for blanks'}"></textarea>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">${currentLang === 'zh' ? '答案' : 'Answer'}</label>
+                <input type="text" class="form-control form-control-sm multi-sub-answer" placeholder="${currentLang === 'zh' ? '填空答案用|分隔' : 'Blank answers separated by |'}">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">${currentLang === 'zh' ? '分值' : 'Points'}</label>
+                <input type="number" class="form-control form-control-sm multi-sub-point" value="1" min="0.5" step="0.5">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-10">
+                <label class="form-label">${currentLang === 'zh' ? '解析' : 'Explanation'}</label>
+                <textarea class="form-control form-control-sm multi-sub-explanation" rows="1"></textarea>
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="removeMultiSubQuestion(${index})">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      multiSubQuestionsList.insertAdjacentHTML('beforeend', subQuestionHtml);
+    }
+
+    function removeMultiSubQuestion(index) {
+      const subQuestion = document.getElementById(`multiSubQuestion${index}`);
+      if (subQuestion) {
+        subQuestion.remove();
+      }
+    }
+
+    function addSubAnswer(container) {
+      const answersList = container.classList ? container : container.closest('.sub-choice-options').querySelector('.sub-answers-list');
+      const index = answersList.children.length;
+      const letter = String.fromCharCode(65 + index);
+
+      const answerHtml = `
+        <div class="input-group input-group-sm mb-1">
+          <span class="input-group-text">${letter}</span>
+          <input type="text" class="form-control sub-answer-content" placeholder="${currentLang === 'zh' ? '选项内容' : 'Option content'}">
+          <div class="input-group-text">
+            <input class="form-check-input" type="checkbox" title="${currentLang === 'zh' ? '正确答案' : 'Correct answer'}">
+          </div>
+        </div>
+      `;
+
+      answersList.insertAdjacentHTML('beforeend', answerHtml);
+    }
+
+    // ===== Save Question =====
+    async function saveQuestion() {
+      const questionId = document.getElementById('questionId').value;
+      const type = document.getElementById('questionType').value;
+      const content = document.getElementById('questionContent').value;
+      const point = parseFloat(document.getElementById('questionPoint').value) || 1;
+      const answer = document.getElementById('questionAnswer').value;
+      const explanation = document.getElementById('questionExplanation').value;
+      const source = document.getElementById('questionSource').value;
+      const year = parseInt(document.getElementById('questionYear').value) || null;
+      const tagsInput = document.getElementById('questionTags').value;
+      const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+
+      const questionData = { type, content, point, answer, explanation, source, year, tags };
+
+      if (type === 'choice') {
+        const answersList = document.getElementById('answersList');
+        const answerInputs = answersList.querySelectorAll('.input-group');
+        const answers = [];
+        answerInputs.forEach((input, idx) => {
+          const content = input.querySelector('.answer-content').value;
+          const isCorrect = input.querySelector('.form-check-input').checked;
+          if (content) {
+            answers.push({ content, is_correct: isCorrect ? 1 : 0, position: idx });
+          }
+        });
+        questionData.answers = answers;
+        questionData.answer = answer || 'A';
+      } else if (type === 'material') {
+        const materialTitle = document.getElementById('materialTitle').value;
+        const materialContent = document.getElementById('materialContent').value;
+        const subQuestionsList = document.getElementById('subQuestionsList');
+        const subQuestionCards = subQuestionsList.querySelectorAll('.card');
+        const subQuestions = [];
+        subQuestionCards.forEach((card, idx) => {
+          const subType = card.querySelector('.sub-question-type').value;
+          const subPoint = parseFloat(card.querySelector('.sub-question-point').value) || 1;
+          const subAnswer = card.querySelector('.sub-question-answer').value;
+          const subContent = card.querySelector('.sub-question-content').value;
+          const subExplanation = card.querySelector('.sub-question-explanation').value;
+          const subQuestionData = { type: subType, content: subContent, point: subPoint, answer: subAnswer, explanation: subExplanation };
+          if (subType === 'choice') {
+            const subAnswersList = card.querySelector('.sub-answers-list');
+            const subAnswerInputs = subAnswersList.querySelectorAll('.input-group');
+            const subAnswers = [];
+            subAnswerInputs.forEach((input, aIdx) => {
+              const content = input.querySelector('.sub-answer-content').value;
+              const isCorrect = input.querySelector('.form-check-input').checked;
+              if (content) { subAnswers.push({ content, is_correct: isCorrect ? 1 : 0, position: aIdx }); }
+            });
+            subQuestionData.answers = subAnswers;
+            subQuestionData.answer = subAnswer || 'A';
+          }
+          subQuestions.push(subQuestionData);
+        });
+        questionData.material_title = materialTitle;
+        questionData.material_content = materialContent;
+        questionData.sub_questions = subQuestions;
+      } else if (type === 'multi_question' || type === 'multi_writing') {
+        const multiSubQuestionsList = document.getElementById('multiSubQuestionsList');
+        const subQuestionCards = multiSubQuestionsList.querySelectorAll('.card');
+        const subQuestions = [];
+        subQuestionCards.forEach((card, idx) => {
+          const subContent = card.querySelector('.multi-sub-content').value;
+          const subAnswer = card.querySelector('.multi-sub-answer').value;
+          const subPoint = parseFloat(card.querySelector('.multi-sub-point').value) || 1;
+          const subExplanation = card.querySelector('.multi-sub-explanation').value;
+          if (subContent) {
+            subQuestions.push({ type: 'problem', content: subContent, point: subPoint, answer: subAnswer, explanation: subExplanation, position: idx });
+          }
+        });
+        questionData.sub_questions = subQuestions;
+      }
+
+      try {
+        const url = questionId ? `${API_BASE}/questions/${questionId}` : `${API_BASE}/questions`;
+        const method = questionId ? 'PUT' : 'POST';
+        const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(questionData) });
+        const result = await response.json();
+        if (response.ok) {
+          showToast(i18n[currentLang].saveSuccess, 'success');
+          loadQuestions();
+          if (result.id) { showQuestionDetail(result.id); } else { showRightPanelEmpty(); }
+        } else {
+          showToast(result.error || 'Error', 'error');
+        }
+      } catch (error) {
+        console.error('保存失败:', error);
+        showToast('Error', 'error');
+      }
+    }
+
+    // ===== PDF Preview =====
+    async function renderPDF(url) {
+      try {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        const timestamp = Date.now();
+        const pdfUrl = url.includes('?') ? `${url}&t=${timestamp}` : `${url}?t=${timestamp}`;
+        const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+        const page = await pdf.getPage(1);
+        const canvas = document.getElementById('pdfCanvas');
+        if (!canvas) return false;
+        const context = canvas.getContext('2d');
+        if (!context) return false;
+        const container = canvas.parentElement;
+        if (!container) return false;
+        let containerWidth = container.clientWidth - 16;
+        let containerHeight = container.clientHeight - 16;
+        if (containerWidth <= 0 || containerHeight <= 0) { containerWidth = Math.max(containerWidth, 280); containerHeight = Math.max(containerHeight, 300); }
+        const viewport = page.getViewport({ scale: 1 });
+        const scale = Math.min(containerWidth / viewport.width, containerHeight / viewport.height, 3);
+        const scaledViewport = page.getViewport({ scale: scale * 2 });
+        canvas.width = scaledViewport.width;
+        canvas.height = scaledViewport.height;
+        canvas.style.width = scaledViewport.width / 2 + 'px';
+        canvas.style.height = scaledViewport.height / 2 + 'px';
+        await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
+        return true;
+      } catch (error) {
+        console.error('PDF渲染失败:', error);
+        return false;
+      }
+    }
+
+    // ===== PDF Preview Modal =====
+    let previewModalPdfUrl = null;
+    let previewModalPdfDoc = null;
+    let previewModalCurrentZoom = 1;    // 1 = fit-to-container
+    let previewModalBaseScale = 1;      // scale at zoom=1
+
+    function openPreviewModal() {
+      if (!currentQuestion || !currentQuestion.pdf_url) return;
+
+      previewModalPdfUrl = currentQuestion.pdf_url;
+      previewModalCurrentZoom = 1;
+
+      document.getElementById('previewModalTitle').textContent =
+        `${i18n[currentLang].preview} #${currentQuestion.id}`;
+
+      const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+      modal.show();
+
+      // Render after modal is shown (needs dimensions)
+      const modalEl = document.getElementById('previewModal');
+      const onShown = async () => {
+        modalEl.removeEventListener('shown.bs.modal', onShown);
+        await renderPreviewModal(true);
+      };
+      modalEl.addEventListener('shown.bs.modal', onShown);
+    }
+
+    function previewModalZoom(direction) {
+      // direction: 1 = zoom in, -1 = zoom out, 0 = fit
+      if (direction === 0) {
+        previewModalCurrentZoom = 1;
+      } else {
+        const step = 0.25;
+        previewModalCurrentZoom = Math.max(0.25, Math.min(4, previewModalCurrentZoom + direction * step));
+      }
+      renderPreviewModal(false);
+    }
+
+    async function renderPreviewModal(isFit) {
+      if (!previewModalPdfUrl) return;
+      try {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        if (!previewModalPdfDoc) {
+          const timestamp = Date.now();
+          const pdfUrl = previewModalPdfUrl.includes('?')
+            ? `${previewModalPdfUrl}&t=${timestamp}`
+            : `${previewModalPdfUrl}?t=${timestamp}`;
+          previewModalPdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
+        }
+
+        const page = await previewModalPdfDoc.getPage(1);
+        const canvas = document.getElementById('previewModalCanvas');
+        if (!canvas) return;
+        const context = canvas.getContext('2d');
+        if (!context) return;
+
+        const container = canvas.closest('.modal-body');
+        if (!container) return;
+
+        const containerWidth = container.clientWidth - 16;
+        const containerHeight = container.clientHeight - 16;
+        const viewport = page.getViewport({ scale: 1 });
+
+        if (isFit) {
+          // Calculate base scale to fit container
+          previewModalBaseScale = Math.min(
+            containerWidth / viewport.width,
+            containerHeight / viewport.height,
+            3
+          );
+        }
+
+        const finalScale = previewModalBaseScale * previewModalCurrentZoom;
+        const scaledViewport = page.getViewport({ scale: finalScale * 2 });
+
+        canvas.width = scaledViewport.width;
+        canvas.height = scaledViewport.height;
+        canvas.style.width = scaledViewport.width / 2 + 'px';
+        canvas.style.height = scaledViewport.height / 2 + 'px';
+
+        await page.render({ canvasContext: context, viewport: scaledViewport }).promise;
+
+        // Update zoom label
+        const zoomPercent = Math.round(previewModalCurrentZoom * 100);
+        document.getElementById('previewModalZoomLabel').textContent = `${zoomPercent}%`;
+      } catch (error) {
+        console.error('Preview modal render failed:', error);
+      }
+    }
+
+    // Reset pdf doc cache when preview modal closes
+    function initPreviewModalReset() {
+      const previewModalEl = document.getElementById('previewModal');
+      if (previewModalEl) {
+        previewModalEl.addEventListener('hidden.bs.modal', () => {
+          previewModalPdfDoc = null;
+          previewModalPdfUrl = null;
+          previewModalCurrentZoom = 1;
+        });
+
+        // Scroll wheel zoom in preview modal
+        previewModalEl.addEventListener('wheel', (e) => {
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            const direction = e.deltaY < 0 ? 1 : -1;
+            previewModalZoom(direction);
+          }
+        }, { passive: false });
+      }
+    }
+
+    // ===== Compile =====
+    async function compileQuestion(id, event) {
+      if (event) event.stopPropagation();
+      showToast(i18n[currentLang].compiling, 'info');
+      try {
+        const body = { force: true };
+        const mp = collectModuleParams();
+        if (mp) body.module_params = mp;
+        const response = await fetch(`${API_BASE}/compile/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const result = await response.json();
+        if (result.success && result.pdf_path) {
+          const pdfUrl = result.pdf_path.replace('./cache/', '/cache/');
+          const questionIndex = allQuestions.findIndex(q => q.id === id);
+          if (questionIndex !== -1) { allQuestions[questionIndex].pdf_url = pdfUrl; }
+          displayQuestions(allQuestions);
+          if (currentQuestion && currentQuestion.id === id) {
+            currentQuestion.pdf_url = pdfUrl;
+            const previewContainer = document.getElementById('previewContainer');
+            if (previewContainer) {
+              previewContainer.innerHTML = '<canvas id="pdfCanvas" style="width: 100%; height: auto;"></canvas>';
+              setTimeout(async () => {
+                const success = await renderPDF(pdfUrl);
+                if (success) {
+                  showToast(i18n[currentLang].compileSuccess, 'success');
+                } else {
+                  previewContainer.innerHTML = `
+                    <div class="no-compile-hint">
+                      <i class="bi bi-check-circle text-success"></i>
+                      <p>${i18n[currentLang].compileSuccess}</p>
+                    </div>
+                  `;
+                }
+              }, 500);
+            }
+          } else {
+            showToast(i18n[currentLang].compileSuccess, 'success');
+          }
+        } else {
+          showToast(result.error || i18n[currentLang].compileFailed, 'error');
+        }
+      } catch (error) {
+        console.error('编译失败:', error);
+        showToast(i18n[currentLang].compileFailed, 'error');
+      }
+    }
+
+    function compileCurrentQuestion() {
+      if (currentQuestion) { compileQuestion(currentQuestion.id); }
+    }
+
+    async function compileSelected() {
+      if (selectedQuestions.size === 0) { showToast(i18n[currentLang].selectQuestionsFirst, 'error'); return; }
+      showToast(i18n[currentLang].compiling, 'info');
+      try {
+        const body = { question_ids: Array.from(selectedQuestions) };
+        const mp = collectModuleParams();
+        if (mp) body.module_params = mp;
+        const response = await fetch(`${API_BASE}/compile`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const result = await response.json();
+        if (response.ok) { showToast(result.message, 'success'); loadQuestions(); }
+        else { showToast(result.error || i18n[currentLang].compileFailed, 'error'); }
+      } catch (error) { console.error('编译失败:', error); showToast(i18n[currentLang].compileFailed, 'error'); }
+    }
+
+    // ===== Export =====
+    let exportQuestionOrder = [];
+    let dragSrcIdx = null;
+
+    function collectModuleParams() {
+      // Mode: collect all checked checkboxes into a comma-separated string
+      const modeChecked = Array.from(document.querySelectorAll('#exportModeCheckboxes input[type=checkbox]:checked'))
+        .map(cb => cb.value);
+      return {
+        papersize: document.getElementById('exportPapersize')?.value || 'A4',
+        layout: document.getElementById('exportLayout')?.value || 'moderate',
+        textcount: parseInt(document.getElementById('exportTextcount')?.value) || 40,
+        heightcount: parseInt(document.getElementById('exportHeightcount')?.value) || 40,
+        margincount: parseInt(document.getElementById('exportMargincount')?.value) || 0,
+        doublesided: document.getElementById('exportDoublesided')?.value || 'no',
+        bodyfont: document.getElementById('exportBodyfont')?.value || 'adobehans',
+        fontsize: document.getElementById('exportFontsize')?.value || '11pt',
+        fontstyle: document.getElementById('exportFontstyle')?.value || 'rm',
+        themecolor: document.getElementById('exportThemecolor')?.value || '',
+        hdrstyle: document.getElementById('exportHdrstyle')?.value || '',
+        lineheight: document.getElementById('exportLineheight')?.value || '',
+        mode: modeChecked.join(','),
+      };
+    }
+
+    function updateExportSelectOptions() {
+      // Options keep their original values (no translation needed)
+      // Only labels for form fields are translated via updateUILanguage
+      toggleHermesFields();
+    }
+
+    function toggleHermesFields() {
+      const layout = document.getElementById('exportLayout');
+      const hermesFields = document.getElementById('exportHermesFields');
+      if (layout && hermesFields) {
+        hermesFields.style.display = layout.value === 'hermes' ? '' : 'none';
+      }
+    }
+
+    function resetExportDefaults() {
+      document.getElementById('exportPapersize').value = 'A4';
+      document.getElementById('exportLayout').value = 'moderate';
+      document.getElementById('exportTextcount').value = '40';
+      document.getElementById('exportHeightcount').value = '40';
+      document.getElementById('exportMargincount').value = '0';
+      document.getElementById('exportDoublesided').value = 'no';
+      document.getElementById('exportBodyfont').value = 'adobehans';
+      document.getElementById('exportFontsize').value = '11pt';
+      document.getElementById('exportFontstyle').value = 'rm';
+      document.getElementById('exportThemecolor').value = '';
+      document.getElementById('exportHdrstyle').value = '';
+      document.getElementById('exportLineheight').value = '';
+      // Mode checkboxes - uncheck all
+      document.querySelectorAll('#exportModeCheckboxes input[type=checkbox]').forEach(cb => cb.checked = false);
+      document.getElementById('showAnswer').checked = true;
+      document.getElementById('showMore').checked = true;
+      document.getElementById('exportFormatTex').checked = true;
+      document.getElementById('exportFormatPdf').checked = false;
+      toggleHermesFields();
+    }
+
+    function renderExportQuestionList() {
+      const list = document.getElementById('exportQuestionList');
+      if (exportQuestionOrder.length === 0) {
+        list.innerHTML = `<div class="export-q-empty">${i18n[currentLang].noQuestionsSelected}</div>`;
+        return;
+      }
+      list.innerHTML = exportQuestionOrder.map((id, idx) => {
+        const q = allQuestions.find(q => q.id === id);
+        const summary = q ? (q.content || '').substring(0, 40) : '';
+        return `
+          <div class="export-q-item" draggable="true" data-id="${id}" data-idx="${idx}">
+            <span class="drag-handle"><i class="bi bi-grip-vertical"></i></span>
+            <span class="q-order">${idx + 1}</span>
+            <span class="q-summary">#${id} ${escapeHtml(summary)}${summary.length >= 40 ? '…' : ''}</span>
+            <div class="q-move-btns">
+              <button class="btn btn-ghost" onclick="moveExportItem(${idx}, -1)" title="${i18n[currentLang].moveUp}"><i class="bi bi-chevron-up"></i></button>
+              <button class="btn btn-ghost" onclick="moveExportItem(${idx}, 1)" title="${i18n[currentLang].moveDown}"><i class="bi bi-chevron-down"></i></button>
+            </div>
+          </div>`;
+      }).join('');
+      bindDragEvents(list);
+    }
+
+    function bindDragEvents(list) {
+      const items = list.querySelectorAll('.export-q-item');
+      items.forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+          dragSrcIdx = parseInt(item.dataset.idx);
+          item.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        item.addEventListener('dragend', () => {
+          item.classList.remove('dragging');
+          dragSrcIdx = null;
+        });
+        item.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+        });
+        item.addEventListener('drop', (e) => {
+          e.preventDefault();
+          const targetIdx = parseInt(item.dataset.idx);
+          if (dragSrcIdx !== null && dragSrcIdx !== targetIdx) {
+            const [moved] = exportQuestionOrder.splice(dragSrcIdx, 1);
+            exportQuestionOrder.splice(targetIdx, 0, moved);
+            renderExportQuestionList();
+          }
+        });
+      });
+    }
+
+    function moveExportItem(idx, direction) {
+      const newIdx = idx + direction;
+      if (newIdx < 0 || newIdx >= exportQuestionOrder.length) return;
+      [exportQuestionOrder[idx], exportQuestionOrder[newIdx]] =
+        [exportQuestionOrder[newIdx], exportQuestionOrder[idx]];
+      renderExportQuestionList();
+    }
+
+    function openExportModal() {
+      if (selectedQuestions.size === 0) { showToast(i18n[currentLang].selectQuestionsFirst, 'error'); return; }
+      exportQuestionOrder = Array.from(selectedQuestions);
+      resetExportDefaults();
+      renderExportQuestionList();
+      // Bind layout change to toggle Hermes fields
+      const layoutSelect = document.getElementById('exportLayout');
+      if (layoutSelect && !layoutSelect._hermesBound) {
+        layoutSelect.addEventListener('change', toggleHermesFields);
+        layoutSelect._hermesBound = true;
+      }
+      // Switch to first tab (Order)
+      const firstTab = new bootstrap.Tab(document.getElementById('exportOrderTab'));
+      firstTab.show();
+      const modal = new bootstrap.Modal(document.getElementById('exportModal'));
+      modal.show();
+    }
+
+    async function exportSelectedWithOptions() {
+      const wantTex = document.getElementById('exportFormatTex').checked;
+      const wantPdf = document.getElementById('exportFormatPdf').checked;
+      if (!wantTex && !wantPdf) { showToast(i18n[currentLang].exportFailed, 'error'); return; }
+
+      const params = {
+        question_ids: exportQuestionOrder,
+        show_answer: document.getElementById('showAnswer').checked,
+        show_more: document.getElementById('showMore').checked,
+        ...collectModuleParams()
+      };
+
+      bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
+      showToast(i18n[currentLang].exporting, 'info');
+
+      // Helper to download one format
+      async function downloadFormat(endpoint, fallbackExt) {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(params)
+        });
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          const disposition = response.headers.get('Content-Disposition') || '';
+          const filename = disposition.split('filename=')[1]?.replace(/"/g, '') || `export.${fallbackExt}`;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+          return true;
+        } else {
+          const result = await response.json();
+          showToast(result.error || i18n[currentLang].exportFailed, 'error');
+          return false;
+        }
+      }
+
+      try {
+        if (wantTex) {
+          await downloadFormat(`${API_BASE}/export`, 'tex');
+        }
+        if (wantPdf) {
+          await downloadFormat(`${API_BASE}/export/pdf`, 'pdf');
+        }
+        if (wantTex || wantPdf) {
+          showToast(i18n[currentLang].exportSuccess, 'success');
+        }
+      } catch (error) { console.error('导出失败:', error); showToast(i18n[currentLang].exportFailed, 'error'); }
+    }
+
+    // ===== Delete =====
+    async function deleteSelected() {
+      if (selectedQuestions.size === 0) { showToast(i18n[currentLang].selectQuestionsFirst, 'error'); return; }
+      if (!confirm(i18n[currentLang].confirmDelete)) return;
+      try {
+        for (const id of selectedQuestions) { await fetch(`${API_BASE}/questions/${id}`, { method: 'DELETE' }); }
+        showToast(i18n[currentLang].deleteSuccess, 'success');
+        selectedQuestions.clear();
+        currentQuestion = null;
+        showRightPanelEmpty();
+        loadQuestions();
+      } catch (error) { console.error('删除失败:', error); showToast('Error', 'error'); }
+    }
+
+    // ===== Init =====
+    document.addEventListener('DOMContentLoaded', () => {
+      updateUILanguage();
+      loadQuestions();
+      showRightPanelEmpty();
+      updateBackdrop();
+      initPreviewModalReset();
+      // Re-evaluate backdrop on resize
+      window.addEventListener('resize', updateBackdrop);
+    });
+  </script>
+</body>
+
+</html>

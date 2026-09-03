@@ -419,9 +419,9 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 
 \startbuffer
 \definechoice[mychoice][
-  option={text,6,packed,joinedup,nowhite},
+  option={text,markcircle,packed,joinedup},
   inlinechoice=true,
-  correctsymbol={\symbol{markcirclecheck}},
+  correctsymbol=\symbol{markcirclecheck},
   inlineleft={【\nobreak},
   inlineright={\nobreak 】},
   answerstyle=\ss,

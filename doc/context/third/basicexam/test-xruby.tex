@@ -1,0 +1,334 @@
+\usemodule[memos]
+\starttext
+\setupindenting[none]
+\unprotect\hw
+
+\showframe
+
+\section{测试单字}
+
+\xruby[m]{旬}{しゆん}旬
+
+旬\xruby[g][intrusion=no]{旬}{しゆん}旬 intrusion=no
+
+旬\xruby[g][intrusion=small]{旬}{しゆん}旬 intrusion=small
+
+旬\xruby[g][intrusion=big]{旬}{しゆん}旬 intrusion=big
+
+\blackrule
+
+旬\xruby[g][stretch=yes]{旬}{しゆん}旬 stretch=yes
+
+旬\xruby[g][stretch=yes,bprotrusion=no]{旬}{しゆん}旬 bprotrusion=no
+
+旬\xruby[g][stretch=yes,aprotrusion=no]{旬}{しゆん}旬 aprotrusion=no
+
+旬\xruby[g][stretch=yes,bprotrusion=no,aprotrusion=no]{旬}{しゆん}旬 both=no
+
+\blackrule
+
+旬\xruby[g][stretch=yes]{旬}{しゆん}旬 stretch=yes
+
+旬\xruby[g][stretch=yes,bprotrusion=no,aprotrusion=yes,aintrusion=big]{旬}{しゆん}旬 bprotrusion=no
+
+旬\xruby[g][stretch=yes,bprotrusion=yes,aprotrusion=no,bintrusion=big]{旬}{しゆん}旬 aprotrusion=no
+
+旬\xruby[g][stretch=yes,bprotrusion=yes,aprotrusion=yes,intrusion=big]{旬}{しゆん}旬 both=no
+
+\section{测试多字}
+
+你会\xruby[g][intrusion=no]{你会}{你会你会你会你会你会}你会[intrusion=no]
+
+你会\xruby[g][intrusion=small]{你会}{你会你会你会你会你会}你会[intrusion=small]
+
+你会\xruby[g][intrusion=big]{你会}{你会你会你会你会你会}你会[intrusion=big]
+
+\blackrule
+
+你会\xruby[g][bintrusion=no,aintrusion=no]{你会}{你会你会你会你会你会}你会[bintrusion=no,aintrusion=no]
+
+你会\xruby[g][bintrusion=no,aintrusion=big]{你会}{你会你会你会你会你会}你会[bintrusion=no,aintrusion=big]
+
+你会\xruby[g][aintrusion=no,bintrusion=big]{你会}{你会你会你会你会你会}你会[aintrusion=no,bintrusion=big]
+
+你会\xruby[g][bintrusion=small,aintrusion=big]{你会}{你会你会你会你会你会}你会[bintrusion=small,aintrusion=big]
+
+你会\xruby[g][bintrusion=big,aintrusion=small]{你会}{你会你会你会你会你会}你会[bintrusion=big,aintrusion=small]
+
+\blackrule
+
+你会\xruby[g][stretch=yes,bintrusion=no,aintrusion=no]{你会}{你会你会你会你会你会}你会[stretch=yes,bintrusion=no,aintrusion=no]
+
+你会\xruby[g][stretch=yes,bintrusion=no,aintrusion=big]{你会}{你会你会你会你会你会}你会[stretch=yes,bintrusion=no,aintrusion=big]
+
+你会\xruby[g][stretch=yes,aintrusion=no,bintrusion=big]{你会}{你会你会你会你会你会}你会[stretch=yes,aintrusion=no,bintrusion=big]
+
+你会\xruby[g][stretch=yes,bintrusion=small,aintrusion=big]{你会}{你会你会你会你会你会}你会[stretch=yes,bintrusion=small,aintrusion=big]
+
+你会\xruby[g][stretch=yes,bintrusion=big,aintrusion=small]{你会}{你会你会你会你会你会}你会[stretch=yes,bintrusion=big,aintrusion=small]
+
+\blackrule
+
+你会\xruby[g][intrusion=no]{你会你会}{你会你会}你会
+
+你会\xruby[g][intrusion=small]{你会你会}{你会你会}你会
+
+你会\xruby[g][intrusion=big]{你会你会}{你会你会}你会
+
+\blackrule
+
+你会\xruby[g][stretch=yes,intrusion=no]{你会你会}{你会你会}你会
+
+你会\xruby[g][stretch=yes,intrusion=small]{你会你会}{你会你会}你会
+
+你会\xruby[g][stretch=yes,intrusion=big]{你会你会}{你会你会}你会
+
+\blackrule
+
+你会\xruby[g][bintrusion=no,aintrusion=no]{你会你会}{你会你会}你会
+
+你会\xruby[g][bintrusion=small,aintrusion=small]{你会你会}{你会你会}你会
+
+你会\xruby[g][bintrusion=big,aintrusion=big]{你会你会}{你会你会}你会
+
+你会\xruby[g][bintrusion=no,aintrusion=big]{你会你会}{你会你会}你会
+
+你会\xruby[g][aintrusion=no,bintrusion=big]{你会你会}{你会你会}你会
+
+你会\xruby[g][bintrusion=small,aintrusion=big]{你会你会}{你会你会}你会
+
+你会\xruby[g][bintrusion=big,aintrusion=small]{你会你会}{你会你会}你会
+
+\blackrule
+
+你会\xruby[g][stretch=yes]{你会你会}{你会你会你会你会}你会 stretch=yes
+
+你会\xruby[g][stretch=yes,bprotrusion=no]{你会你会}{你会你会你会你会}你会 bprotrusion=no
+
+你会\xruby[g][stretch=yes,aprotrusion=no]{你会你会}{你会你会你会你会}你会 aprotrusion=no
+
+你会\xruby[g][stretch=yes,bprotrusion=no,aprotrusion=no]{你会你会}{你会你会你会你会}你会 both=no
+
+\xruby{東京都}{とううきょうとう}
+
+\xruby[g][stretch=yes]{東京都}{とううきょうとう} [stretch=yes]
+
+\xruby[g][stretch=yes,bprotrusion=no]{東京都}{とううきょうとう} [stretch=yes,bprotrusion=no]
+
+\xruby[g][stretch=yes,aprotrusion=no]{東京都}{とううきょうとう} [stretch=yes,aprotrusion=no]
+
+\xruby[g][stretch=yes,bprotrusion=no,aprotrusion=no]{東京都}{とううきょうとう} [stretch=yes,bprotrusion=no,aprotrusion=no]
+
+\xruby[g][stretch=yes]{日本}{にほん}
+
+\xruby[g][stretch=yes,bprotrusion=no]{日本}{にほん}
+
+\xruby[g][stretch=yes,aprotrusion=no]{日本}{にほん}
+
+\xruby[g][stretch=yes,bprotrusion=no,aprotrusion=no]{日本}{にほん}
+
+\testfeatureonce{10}{\xruby{你会}{你会你会你会你会你会}}
+\elapsedtime
+\elapsedsteptime
+
+\testfeatureonce{10}{\xruby[m]{你会}{你会|你会你会你会你会}}
+\elapsedtime
+\elapsedsteptime
+
+\testfeatureonce{10}{\ruby{一你会}{一你你|你会你会|你会你会}}
+\elapsedtime
+\elapsedsteptime
+
+\blackrule[width=\textwidth]
+
+\subject{Location 测试}
+
+旬\xruby[g][location=top]{旬}{しゆん}旬 location=top
+
+旬\xruby[g][location=bottom]{旬}{しゆん}旬 location=bottom
+
+\blackrule
+
+\subject{多字符组合测试}
+
+\xruby{東京都}{とうきょうと}
+
+\xruby[g][intrusion=small]{東京都}{とうきょうと}
+
+\xruby[g][intrusion=big]{東京都}{とうきょうと}
+
+\blackrule
+
+\xruby[g][stretch=yes]{東京都}{とうきょうと}
+
+\xruby[g][stretch=yes,bprotrusion=no]{東京都}{とうきょうと}
+
+\xruby[g][stretch=yes,aprotrusion=no]{東京都}{とうきょうと}
+
+\blackrule
+
+\subject{Mono Ruby 测试}
+
+\xruby[m]{東京都}{とうう|きょう|とう}
+
+\xruby[m][intrusion=small]{東京都}{とうう|きょう|とう}
+
+\xruby[m][intrusion=big]{東京都}{とうう|きょう|とう}
+
+\blackrule
+
+\xruby[m]{東京都}{とうう|きょう|とう}
+
+\xruby[m][stretch=yes]{東京都}{とうう|きょう|とう} [stretch=yes]
+
+\xruby[m][stretch=yes,bprotrusion=no]{東京都}{とうう|きょう|とう} [stretch=yes,bprotrusion=no]
+
+\xruby[m][stretch=yes,aprotrusion=no]{東京都}{とうう|きょう|とう} [stretch=yes,aprotrusion=no]
+
+\xruby[m][stretch=yes,bprotrusion=no,aprotrusion=no]{東京都}{とうう|きょう|とう} [stretch=yes,bprotrusion=no,aprotrusion=no]
+
+\xruby[m]{日本本}{に|ほん|ほん}
+
+\xruby[m][stretch=yes]{日本本}{に|ほん|ほん}
+
+\xruby[m][stretch=yes,bprotrusion=no]{日本本}{に|ほん|ほん}
+
+\xruby[m][stretch=yes,aprotrusion=no]{日本本}{に|ほん|ほん}
+
+\xruby[m][stretch=yes,bprotrusion=no,aprotrusion=no]{日本本}{に|ほん|ほん}
+
+\blackrule
+
+\subject{边界情况测试}
+
+\xruby{A}{longrubytext}
+
+\xruby{ABC}{X}
+
+\xruby{ABC}{XYZ}
+
+\blackrule
+
+\subject{连续 Ruby 测试}
+
+\xruby{東}{とうう}\xruby{京}{きょう}\xruby{都}{とう}
+
+\xruby[g][intrusion=small]{東}{とうう}\xruby[g][intrusion=small]{京}{きょう}\xruby[g][intrusion=small]{都}{とう}
+
+\xruby[g][intrusion=big]{東}{とうう}\xruby[g][intrusion=big]{京}{きょう}\xruby[g][intrusion=big]{都}{とう}
+
+\blackrule
+
+\subject{Protrusion 组合测试}
+
+\xruby[g][stretch=yes,bprotrusion=no,aprotrusion=no]{汉字}{注音注音}
+
+\xruby[g][stretch=yes,bprotrusion=no,aprotrusion=no]{汉字汉字}{注音注音注音}
+
+\xruby[g][stretch=yes,bprotrusion=no,aprotrusion=no]{汉字汉字汉字}{注音注音注音注音}
+
+\section{\xruby[m]{日本国}{に|ほん|こく}\xruby[m]{憲法}{けん|ぽう}\xruby[m]{前文}{ぜん|ぶん}}
+     % ↑見出しは「引用」でないので現代かなづかいです ;-)
+
+\xruby[m]{日本}{に|ほん}\xruby[m]{国民}{こく|みん}は、\xruby[m]{正当}{せい|たう}に\xruby[m]{選挙}{せん|きよ}された\xruby[m]{国会}{こく|くわい}における\xruby[m]{代表者}{だい|へう|しや}を\xruby[m]{通}{つう}じて\xruby[m]{行動}{かう|どう}し、われらとわれらの\xruby[m]{子孫}{し|そん}のために、\xruby[m]{諸国民}{しよ|こく|みん}との\xruby[m]{協和}{けふ|わ}による\xruby[m]{成果}{せい|くわ}と、わが\xruby[m]{国}{くに}\xruby[m]{全土}{ぜん|ど}にわたって\xruby[m]{自由}{じ|いう}のもたらす\xruby[m]{恵沢}{けい|たく}を\xruby[m]{確保}{かく|ほ}し、\xruby[m]{政府}{せい|ふ}の\xruby[m]{行為}{かう|ゐ}によって\xruby[m]{再}{ふたた}び\xruby[m]{戦争}{せん|さう}の\xruby[m]{惨禍}{さん|くわ}が\xruby[m]{起}{おこ}ることのないやうにすることを\xruby[m]{決意}{けつ|い}し、ここに\xruby[m]{主権}{しゆ|けん}が\xruby[m]{国民}{こく|みん}に\xruby[m]{存}{そん}することを\xruby[m]{宣言}{せん|げん}し、この\xruby[m]{憲法}{けん|ぱふ}を\xruby[m]{確定}{かく|てい}する。そもそも\xruby[m]{国政}{こく|せい}は、\xruby[m]{国民}{こく|みん}の\xruby[m]{厳粛}{げん|しゆく}な\xruby[m]{信託}{しん|たく}によるものであって、その\xruby[m]{権威}{けん|ゐ}は\xruby[m]{国民}{こく|みん}に\xruby[m]{由来}{ゆ|らい}し、その\xruby[m]{権力}{けん|りよく}は\xruby[m]{国民}{こく|みん}の\xruby[m]{代表者}{だい|へう|しや}がこれを\xruby[m]{行使}{かう|し}し、その\xruby[m]{福利}{ふく|り}は\xruby[m]{国民}{こく|みん}がこれを\xruby[m]{享受}{きやう|じゆ}する。これは\xruby[m]{人類}{じん|るい}\xruby[m]{普遍}{ふ|へん}の\xruby[m]{原理}{げん|り}であり、この\xruby[m]{憲法}{けん|ぱふ}は、かかる\xruby[m]{原理}{げん|り}に\xruby[m]{基}{もとづ}くものである。われらは、これに\xruby[m]{反}{はん}する\xruby[m]{一切}{いつ|さい}の\xruby[m]{憲法}{けん|ぱふ}、\xruby[m]{法令}{はふ|れい}\xruby[m]{及}{およ}び\xruby[m]{詔勅}{せう|ちよく}を\xruby[m]{排除}{はい|ぢよ}する。
+
+\xruby[m]{日本}{に|ほん}\xruby[m]{国民}{こく|みん}は、\xruby[m]{恒久}{こう|きう}の\xruby[m]{平和}{へい|わ}を\xruby[m]{念願}{ねん|ぐわん}し、\xruby[m]{人間}{にん|げん}\xruby[m]{相互}{さう|ご}の\xruby[m]{関係}{くわん|けい}を\xruby[m]{支配}{し|はい}する\xruby[m]{崇高}{すう|かう}な\xruby[m]{理想}{り|さう}を\xruby[m]{深}{ふか}く\xruby[m]{自覚}{じ|かく}するのであって、\xruby[m]{平和}{へい|わ}を\xruby[m]{愛}{あい}する\xruby[m]{諸国民}{しよ|こく|みん}の\xruby[m]{公正}{こう|せい}と\xruby[m]{信義}{しん|ぎ}に\xruby[m]{信頼}{しん|らい}して、われらの\xruby[m]{安全}{あん|ぜん}と\xruby[m]{生存}{せい|ぞん}を\xruby[m]{保持}{ほ|ぢ}しようと\xruby[m]{決意}{けつ|い}した。われらは、\xruby[m]{平和}{へい|わ}を\xruby[m]{維持}{ゐ|ぢ}し、\xruby[m]{専制}{せん|せい}と\xruby[m]{隷従}{れい|じゆう}、\xruby[m]{圧迫}{あつ|ぱく}と\xruby[m]{偏狭}{へん|けふ}を\xruby[m]{地上}{ち|じやう}から\xruby[m]{永遠}{えい|えん}に\xruby[m]{除去}{ぢよ|きよ}しようと\xruby[m]{努}{つと}めてゐる\xruby[m]{国際}{こく|さい}\xruby[m]{社会}{しや|くわい}において、\xruby[m]{名誉}{めい|よ}ある\xruby[m]{地位}{ち|ゐ}を\xruby[m]{占}{し}めたいと\xruby[m]{思}{おも}ふ。われらは、\xruby[m]{全世界}{ぜん|せ|かい}の\xruby[m]{国民}{こく|みん}が、ひとしく\xruby[m]{恐怖}{きよう|ふ}と\xruby[m]{欠乏}{けつ|ぼふ}から\xruby[m]{免}{まぬが}れ、\xruby[m]{平和}{へい|わ}のうちに\xruby[m]{生存}{せい|ぞん}する\xruby[m]{権利}{けん|り}を\xruby[m]{有}{いう}することを\xruby[m]{確認}{かく|にん}する。
+
+われらは、いづれの\xruby[m]{国家}{こく|か}も、\xruby[m]{自国}{じ|こく}のことのみに\xruby[m]{専念}{せん|ねん}して\xruby[m]{他国}{た|こく}を\xruby[m]{無視}{む|し}してはならないのであって、\xruby[m]{政治}{せい|ぢ}\xruby[m]{道徳}{だう|とく}の\xruby[m]{法則}{はふ|そく}は、\xruby[m]{普遍的}{ふ|へん|てき}なものであり、この\xruby[m]{法則}{はふ|そく}に\xruby[m]{従}{したが}ふことは、\xruby[m]{自国}{じ|こく}の\xruby[m]{主権}{しゆ|けん}を\xruby[m]{維持}{ゐ|ぢ}し、\xruby[m]{他国}{た|こく}と\xruby[m]{対等}{たい|とう}\xruby[m]{関係}{くわん|けい}に\xruby[m]{立}{た}たうとする\xruby[m]{各国}{かく|こく}の\xruby[m]{責務}{せき|む}であると\xruby[m]{信}{しん}ずる。
+
+\xruby[m]{日本}{に|ほん}\xruby[m]{国民}{こく|みん}は、\xruby[m]{国家}{こく|か}の\xruby[m]{名誉}{めい|よ}にかけ、\xruby[m]{全力}{ぜん|りよく}をあげてこの\xruby[m]{崇高}{すう|かう}な\xruby[m]{理想}{り|さう}と\xruby[m]{目的}{もく|てき}を\xruby[m]{達成}{たつ|せい}することを\xruby[m]{誓}{ちか}ふ。
+
+\let\CID\relax
+\xruby{君子}{くん|し}は\xruby{和}{わ}して\xruby{同}{どう}ぜず。\par
+%%%% モノルビ(オプション=m)
+% 親文字中の \CID{7674} (〈倦〉異体字)を一文字と扱うため { } が必要
+\xruby[m]{人}{ひと}に\xruby[m]{誨}{おし}えて\xruby[m]{{\CID{7674}}}{う}まず\par
+\xruby[m]{鬼門}{き|もん}の\xruby[m]{方角}{ほう|がく}を\xruby[m]{凝視}{ぎよう|し}する。\par
+
+熟語ルビ(オプション=j)
+
+\xruby[j]{鬼門}{き|もん}の\xruby[j]{方角}{ほう|がく}を\xruby[j][protrusion=no,]{凝視}{ぎよう|し}する。\par
+\xruby[j]{茅場町}{かや|ば|ちよう}\quad
+  % 隣の文字に進入してはいけない側に〈|〉を書く
+\xruby[j|]{茅場}{かや|ば}\xruby[|j]{町}{ちよう}\par
+%%%% グループルビ(オプション=g)
+\xruby[g]{紫陽花}{あじさい}\quad \xruby[g]{坩堝}{るつぼ}\quad \xruby[g]{田舎}{いなか}\par
+%\xrubysetup{g} % 既定値をグループルビに変更
+\xruby{境界面}{インターフエース}\quad \xruby{避難所}{アジール}\quad
+\xruby{顧客}{クライアント}\quad \xruby{模型}{モデル}\par
+\xruby{編集者}{{editor}}\quad \xruby{{editor}}{エディター}\par
+%\xrubysetup{j} % 既定値を熟語ルビに戻す
+%--------------------------------------- 3.3.3節
+に\xruby{幟}{のぼり}を\quad \xruby{葦編三絶}{い|へん|さん|ぜつ}\par
+  % 三分ルビは未対応
+% 大きな文字サイズでの例
+%  \LARGE\xrubysizeratio{0.375} % 縮小割合を変更する(元は0.5)
+  \xruby{葦編三絶}{い|へん|さん|ぜつ}
+%--------------------------------------- 3.3.4節
+%%%% 両側ルビ(\truby 命令) (グループルビのみ)
+%\truby{東南}{とうなん}{たつみ}
+
+% ルビの高さは無視されるのでそのままだと次行と重なる
+%\xrubysetup{m} %------------------------- 3.3.5節
+の\xruby{葯}{やく}に\par
+%%%% 中付き(オプション=c)←これは既定
+版面の\xruby{地}{ち}に\quad
+%%%% 肩付き(オプション=h)
+版面の\xruby[h]{地}{ち}に\par
+の\xruby{砦}{とりで}に\par
+  % 〈||〉を書いた側の端が揃うようになる； 〈|〉との違いに注意
+の\xruby[||-]{旬}{しゆん}に\quad の\xruby[-||]{旬}{しゆん}又\par
+後\xruby[||-]{旬}{しゆん}に\quad 後\xruby[|-|]{旬}{しゆん}又\par
+%\xrubysetup{g} %------------------------- 3.3.6節
+は\xruby{冊子体}{コーデツクス}と\par
+%\xrubysetup{j} %------------------------- 3.3.7節
+\xruby{杞憂}{き|ゆう}\quad \xruby{畏怖}{い|ふ}\par
+\xruby[h]{杞憂}{き|ゆう}\quad \xruby[h]{畏怖}{い|ふ}\par
+の\xruby{流儀}{りゆう|ぎ}を\quad の\xruby{無常}{む|じよう}を\quad の\xruby{成就}{じよう|じゆ}を\par
+の\xruby{紋章}{もん|しよう}を\quad の\xruby{象徴}{しよう|ちよう}を\par
+% 「熟語の構成を考慮する方法」は非対応
+%  熟語ルビを行分割させるのは「難しい」……
+\end{minipage}
+\par %================================== 横組
+%--------------------------------------- 3.3.1節
+\xruby{君子}{くん|し}は\xruby{和}{わ}して\xruby{同}{どう}ぜず。\par
+\xruby[g]{編集者}{{editor}}\quad \xruby[g]{{editor}}{エディター}\par
+%\xrubysetup{m} %------------------------- 3.3.5節
+版面の\xruby{地}{ち}に\par % 横組では [h] は使用不可
+の\xruby{砦}{とりで}に\par
+%\xrubysetup{g} %------------------------- 3.3.6節
+は\xruby{冊子体}{コーデツクス}と\par
+\xruby{模型}{モデル}\quad \xruby{利用許諾}{ライセンス}\par
+{\xrubystretchprop{0}{1}{0}% 先頭・末尾を揃える方式
+\xruby{模型}{モデル}\quad \xruby{利用許諾}{ライセンス}}\par
+\xruby{なげきの聖母像}{ビエタ}\par % 自動的に調整される
+\xruby{顧客}{クライアント}\quad \xruby{境界面}{インターフエース}\par
+{\xrubystretchprop{0}{1}{0}% 先頭・末尾を揃える方式
+\xruby{顧客}{クライアント}\quad \xruby{境界面}{インターフエース}}\par
+%\xrubysetup{j} %------------------------- 3.3.7節
+\xruby[j]{杞憂}{き|ゆう}\quad \xruby[j]{畏怖}{い|ふ}\par
+
+%======================================= 縦組
+
+%--------------------------------------- 3.3.8節
+% %\xrubysetup{<->} % ルビ全角までかけるのを許すのを既定値とする
+\xruby{人}{ひと}は\xruby{死}{し}して\xruby{名}{な}を\xruby{残}{のこ}す\par
+漢字の部首には\xruby{偏}{へん}・\xruby{冠}{かんむり}・\xruby{脚}{きやく}・\xruby{旁}{つくり}がある\par
+漢字の部首には\xruby{偏}{へん}、\xruby{冠}{かんむり}、\xruby{脚}{きやく}、\xruby{旁}{つくり}がある\par
+%\newcommand*{\噂}{\CID{7642}} % \CID{...} をマクロにすると { } が不要になる
+この\xruby{\噂}{うわさ}の好きな人は\xruby{懐}{ふところ}ぐあいもよく、\xruby{檜}{ひのき}を\par
+漢字の部首には「\xruby{偏}{へん}」「\xruby{冠}{かんむり}」「\xruby{脚}{きやく}」「\xruby{旁}{つくり}」が\par
+この\xruby[-|]{\噂}{うわさ}好きな人は\xruby[-|]{懐}{ふところ}具合もよく、\xruby[-|]{檜}{ひのき}材を\par
+%\xrubysetup{(-)} % ルビ半角までかけるのを許すのを既定値とする
+この\xruby{\噂}{うわさ}の好きな人は\xruby{懐}{ふところ}ぐあいもよく、\xruby{檜}{ひのき}を\par
+この\xruby{\噂}{うわさ}好きな人は\xruby{懐}{ふところ}具合もよく、\xruby{檜}{ひのき}材を\par
+%\xrubysetup{<->} % ルビ全角までに戻す
+\xruby{径}{こみち}を３４５６７８９０１２３４５６７８９
+１２３４５６（８。）１２３４５６７８９\xruby{径}{こみち}１２３……\par
+%{\gtfamily 注 $\downarrow$ は少しインチキしています}\par
+  % つまり予め行頭・行末に来ることを見越して入力を変えている
+\xruby[||g|]{飾り}{アクセサリー}等５６７８９０１２３４５６７８９０
+１２３４５６７８９０１２３４５６共\xruby[|g||]{飾り}{アクセサリー}１２３……\par
+\protect
+
+\stoptext

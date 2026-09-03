@@ -1,15 +1,10 @@
-\usemodule[memos][fontsize=16pt,fontstyle=ss]
-\usemodule[poriginal]
+\usemodule[memos][fontstyle=ss]
 
 \starttext
 
-\TitlePage[title=这是文章标题,subtitle=这是副标题,author=\moduleparameter{poriginal}{color},]{}
+\chapter{双栏标题框组件测试}
 
-\Topics{这是篇章目录页}
-
-\Topic{双栏标题框组件测试}
-
-\Subject{基础功能测试}
+\section{基础功能测试}
 
 \subsection{完整双栏标题框（默认）}
 
@@ -35,7 +30,7 @@
 当编号和标题都为空时，不显示标题栏。需要手动调整 toffset 参数。
 \stopDualHeaderText
 
-\Subject{背景样式测试}
+\section{背景样式测试}
 
 \subsection{simple 样式（默认）}
 
@@ -110,7 +105,7 @@ shadowbox 样式会在右下角显示阴影效果。
 barbox 样式会在左侧显示一个色条。
 \stopDualHeaderText
 
-\Subject{边框控制测试}
+\section{边框控制测试}
 
 \subsection{仅左边框}
 
@@ -153,7 +148,7 @@ barbox 样式会在左侧显示一个色条。
 不显示任何边框。
 \stopDualHeaderText
 
-\Subject{宽度比例测试}
+\section{宽度比例测试}
 
 \subsection{1:2 比例}
 
@@ -175,7 +170,7 @@ barbox 样式会在左侧显示一个色条。
 标题的宽度是编号的三倍。
 \stopDualHeaderText
 
-\Subject{圆角测试}
+\section{圆角测试}
 
 \subsection{圆角效果}
 
@@ -197,7 +192,7 @@ barbox 样式会在左侧显示一个色条。
 更大的圆角半径。
 \stopDualHeaderText
 
-\Subject{标题栏边框控制测试}
+\section{标题栏边框控制测试}
 
 \subsection{隐藏 number 边框}
 
@@ -245,7 +240,7 @@ barbox 样式会在左侧显示一个色条。
 number 边框红色，title 边框蓝色。
 \stopDualHeaderText
 
-\Subject{分隔线控制测试}
+\section{分隔线控制测试}
 
 \subsection{隐藏分隔线}
 
@@ -278,7 +273,7 @@ number 边框红色，title 边框蓝色。
 当有圆角时，分隔线会自动隐藏（避免视觉冲突）。
 \stopDualHeaderText
 
-\Subject{titlepos=1 对齐控制测试}
+\section{titlepos=1 对齐控制测试}
 
 \subsection{number 左对齐，title 右对齐}
 
@@ -348,7 +343,7 @@ number 和 title 都居中。
 只有 title 时，title 左对齐。
 \stopDualHeaderText
 
-\Subject{titlepos=0（顶部标题）测试}
+\section{titlepos=0（顶部标题）测试}
 
 \subsection{完整双栏标题框}
 
@@ -436,7 +431,7 @@ titlepos=0 与阴影效果的组合。
 titlepos=0 时隐藏分隔线。
 \stopDualHeaderText
 
-\Subject{组合效果测试}
+\section{组合效果测试}
 
 \subsection{阴影 + 圆角}
 

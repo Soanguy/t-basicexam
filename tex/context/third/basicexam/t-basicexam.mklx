@@ -38,6 +38,7 @@
 \setinterfaceconstant {showanswer}     {showanswer}
 \setinterfaceconstant {showpoint}      {showpoint}
 \setinterfaceconstant {showscript}     {showscript}
+\setinterfaceconstant {showsolution}   {showsolution}
 \setinterfaceconstant {answerstyle}    {answerstyle}
 \setinterfaceconstant {answercolor}    {answercolor}
 \setinterfaceconstant {answerlabel}    {answerlabel}
@@ -118,6 +119,7 @@
 \newif\ifmode_showanswer
 \newif\ifmode_showpoint
 \newif\ifmode_showscript
+\newif\ifmode_showsolution
 \newif\ifmode_check
 \newif\ifmode_showmore
 \newif\ifmode_example
@@ -583,7 +585,7 @@
 
   --[[
   获取指定 structure level 的统计信息
-  参数: 
+  参数:
     level - structure level (1=chapter, 2=section, etc.)
     number - 该层级的编号
   返回: {totalnumber, totalpoint, leafnumber, allleafnumber}
@@ -594,7 +596,7 @@
     local cached = job.datasets.getdata("UnlimitedDataset", tag)
     
     if cached and cached.totalnumber then
-      report("Retrieved structure stats from cache: %s -> totalnumber=%s, totalpoint=%s", 
+      report("Retrieved structure stats from cache: %s -> totalnumber=%s, totalpoint=%s",
         tag, cached.totalnumber, cached.totalpoint)
       return {
         totalnumber = cached.totalnumber,
@@ -654,7 +656,7 @@
     else
       stats = U.get_current_structure_stats(tonumber(level) or 1)
     end
-    report("Structure stats (level=%s, number=%s): totalnumber=%s, totalpoint=%s, leafnumber=%s, allleafnumber=%s", 
+    report("Structure stats (level=%s, number=%s): totalnumber=%s, totalpoint=%s, leafnumber=%s, allleafnumber=%s",
       level, number or "current", stats.totalnumber, stats.totalpoint, stats.leafnumber, stats.allleafnumber)
     if key == "totalnumber" then context(stats.totalnumber)
     elseif key == "totalpoint" then context(stats.totalpoint)
@@ -779,7 +781,7 @@
       end
     end
     
-    if U.answer_tree then 
+    if U.answer_tree then
       show(U.answer_tree, 0, true, "")
     end
     report("────────────────────────────────────────────────────────────────────────────────")
@@ -812,9 +814,9 @@
   end
 
   function U.save_structure_stats()
-    if not U.answer_tree then 
+    if not U.answer_tree then
       report("No answer tree, skipping structure stats save")
-      return 
+      return
     end
     
     local jobname = tex.jobname or "unknown"
@@ -848,7 +850,7 @@
           allleafnumber = stats.allleafnumber,
         }
       }
-      report("Saved structure stats: %s -> totalnumber=%s, totalpoint=%s, allleafnumber=%s", 
+      report("Saved structure stats: %s -> totalnumber=%s, totalpoint=%s, allleafnumber=%s",
         tag, stats.totalnumber, stats.totalpoint, stats.allleafnumber)
     end
   end
@@ -1128,7 +1130,7 @@
 
 \setupexaminfo[frame=off,location=low,left=(,right=),offset=0pt,align=flushleft]
 
-\defineexaminfo[moreexaminfo]    [style=ttx]
+\defineexaminfo[moreexaminfo]
 \defineexaminfo[solutionexaminfo]
 \defineexaminfo[itemgroupexaminfo]
 \defineexaminfo[examitemexaminfo]
@@ -1200,11 +1202,13 @@
     \xdef\currentprevsolutionpoint{\UnlimitedCurrentPoint}%
     \xdef\currentprevsolutionanswer{\UnlimitedCurrentAnswer}%
     % moreinfo 没有设置 label 参数，
-    \ifx\currentmode\c!answer\ifmode_showmore
-      \dousestyleparameter    {\p_currentparameter{moreinfostyle}}%
-      \dousecolorparameter    {\p_currentparameter{moreinfocolor}}%
-      \startmoreexaminfo\p_currentparameter\endcsname{moreinfo}\stopmoreexaminfo
-    \fi\fi
+    \iftok{#1}{solution}\else
+      \ifx\currentmode\c!answer\ifmode_showmore
+        \dousestyleparameter    {\p_currentparameter{moreinfostyle}}%
+        \dousecolorparameter    {\p_currentparameter{moreinfocolor}}%
+        \startmoreexaminfo\p_currentparameter{moreinfo}\stopmoreexaminfo
+      \fi\fi
+    \fi
   \endgroup
   \allowbreak
   \ifdefined\currentprevpoint\else
@@ -1294,7 +1298,7 @@
     secretstyle=\ss,
     titlestyle=\ssa,
     subjectstyle=\ssb,
-    informationstyle=\ttx,
+    informationstyle=\tx,
     noticestyle=\rm\it,
     secretalign=flushleft,
     titlealign=center,
@@ -1464,8 +1468,8 @@
   %\c!showanswer=,
   %\c!point=,
   %\c!answer=,
-  \c!pointstyle=\ttx,
-  \c!answerstyle=\ttx,
+  %\c!pointstyle=,
+  %\c!answerstyle=,
   %\c!pointcolor=,
   %\c!answercolor=,
   \c!pointlabel={,\examtexts{point}},
@@ -1746,7 +1750,7 @@
                    inlineright={\nobreak ) },
                    %\c!lefttext={},
                    %\c!righttext={},
-                   \c!answerstyle=ttx,
+                   %\c!answerstyle=,
                    %\c!stopper=,
                    %\c!showanswer=,% shoule be empty before used
                    \c!separator={\removeunwantedspaces,\space},
@@ -1764,39 +1768,42 @@
 \installcommandhandler \????solutionalternative {solutionalternative} \????solutionalternative
 
 \appendtoks
-    \frozen\instance\protected\edefcsname        \currentsolution\endcsname{\solution_direct_instance}%
+    \frozen\instance\protected\edefcsname        \currentsolution\endcsname{\solution_direct_instance[\currentsolution]}%
     \frozen\protected\instance\edefcsname\e!start\currentsolution\endcsname{\solution_start_instance [\currentsolution]}%
     \frozen\protected\instance\letcsname \e!stop \currentsolution\endcsname \solution_stop_instance
 \to \everydefinesolution
 
-\tolerant\protected\def\solution_direct_instance[#S#1]#:#2%
+\tolerant\protected\def\solution_direct_instance[#S#1][#S#2]#:#3%
   {\begingroup
-  \cdef\currentsolution{#1}%
-  \edef\getsolutionbuffer{#2}%
-  \doiftrue\s!solution\c!showanswer\mode_showanswertrue
-  \doiftrue\s!solution\c!showpoint \mode_showpointtrue
-  \doiftrue\s!solution\c!showscript\mode_showscripttrue
-  \ifmode_showscript \donetrue\fi
-  \ifmode_showanswer \donetrue\fi
-  \ifmode_showpoint  \donetrue\fi
-  \ifdone
-    \solutionparameter\c!before
-    \begingroup
-    \language[\solutionparameter\c!language]%
-    \usesolutionstyleandcolor\c!style\c!color
-    \usealignparameter\solutionparameter
-    \edef\currentsolutionalternative{\solutionparameter\c!alternative}%
-    \ifcsname\currentsolutionalternativehash\s!parent\endcsname \else
-      \let\currentsolutionalternative\s!default
+    \cdef\currentsolution{#1}%
+    \edef\getsolutionbuffer{#3}%
+    \setupcurrentsolution[#2]%
+    \doiftrue\s!solution\c!showanswer  \mode_showanswertrue
+    \doiftrue\s!solution\c!showpoint   \mode_showpointtrue
+    \doiftrue\s!solution\c!showscript  \mode_showscripttrue
+    \doiftrue\s!solution\c!showsolution\mode_showsolutiontrue
+    \ifmode_showscript  \donetrue\fi
+    \ifmode_showanswer  \donetrue\fi
+    \ifmode_showpoint   \donetrue\fi
+    \ifmode_showsolution\donetrue\fi
+    \ifdone
+      \solutionparameter\c!before
+      \begingroup
+      \language[\solutionparameter\c!language]%
+      \usesolutionstyleandcolor\c!style\c!color
+      \usealignparameter\solutionparameter
+      \edef\currentsolutionalternative{\solutionparameter\c!alternative}%
+      \ifcsname\currentsolutionalternativehash\s!parent\endcsname \else
+        \let\currentsolutionalternative\s!default
+      \fi
+      \usesetupsparameter\solutionparameter
+      \edef\p_renderingsetup{\solutionalternativeparameter\c!renderingsetup}%
+      \edef\currentpointforsolution{\currentprevsolutionpoint}%
+      \directsetup\p_renderingsetup
+      \endgroup
+      \solutionparameter\c!after
     \fi
-    \usesetupsparameter\solutionparameter
-    \edef\p_renderingsetup{\solutionalternativeparameter\c!renderingsetup}%
-    \edef\currentpointforsolution{\currentprevsolutionpoint}%
-    \directsetup\p_renderingsetup
-    \endgroup
-    \solutionparameter\c!after
-  \fi
-  \xdef\getsolutioncontent{\getsolutionbuffer}%
+    \xdef\getsolutioncontent{\getsolutionbuffer}%
   \endgroup}
 
 \protected\tolerant\def\solution_start_instance[#S#1]#*[#S#2]#*%
@@ -1809,12 +1816,14 @@
     {\e!stop \currentsolution}}
 
 \permanent\protected\def\solution_stop_instance{%
-  \doiftrue\s!solution\c!showanswer\mode_showanswertrue
-  \doiftrue\s!solution\c!showpoint \mode_showpointtrue
-  \doiftrue\s!solution\c!showscript\mode_showscripttrue
-  \ifmode_showscript\donetrue\fi
-  \ifmode_showanswer\donetrue\fi
-  \ifmode_showpoint \donetrue\fi
+  \doiftrue\s!solution\c!showanswer  \mode_showanswertrue
+  \doiftrue\s!solution\c!showpoint   \mode_showpointtrue
+  \doiftrue\s!solution\c!showscript  \mode_showscripttrue
+  \doiftrue\s!solution\c!showsolution\mode_showsolutiontrue
+  \ifmode_showscript  \donetrue\fi
+  \ifmode_showanswer  \donetrue\fi
+  \ifmode_showpoint   \donetrue\fi
+  \ifmode_showsolution\donetrue\fi
   \ifdone
     \leftskip0pt\relax\rightskip\leftskip\relax
     \solutionparameter\c!before
@@ -1863,8 +1872,10 @@
       \noindent
       \showpointoranswer[solution][answer]%
       \showpointoranswer[solution][point]%
-      \solutionparameter\c!inbetween
-      \getsolutionbuffer
+      \ifmode_showsolution
+        \solutionparameter\c!inbetween
+        \getsolutionbuffer
+      \fi
     \fi
   \fi
   \stoptextbackground
@@ -1891,12 +1902,13 @@
   \c!pointcolor=\solutionparameter\c!color,
   \c!answerstyle=\solutionparameter\c!style,
   \c!answercolor=\solutionparameter\c!color,
-  \c!style=\ss\it,
+  \c!style=,
   \c!before=\blank[halfline]\startnarrower,
   \c!after=\blank[halfline]\stopnarrower,
   % \c!align=,
   \c!inbetween={\par},
   %\c!showscript=true,
+  \c!showsolution=\ifmode_showanswer true\fi,
   scriptcontent={\noindent\ssx\gray Write solution Here},
   \c!alternative=\s!default,
   \c!language=\currentlanguage,
@@ -1930,13 +1942,13 @@
 
 \setuppitem    [%showpoint=,
                 %point=,
-                pointstyle=\ttx,
+                %pointstyle=,
                 %pointcolor=,
                 pointlabel={,\examtexts{point}},
                 answerlabel={\examtexts{answer},},
                 %showanswer=,
                 %answer=,
-                answerstyle=ttx,
+                %answerstyle=,
                 %answerstyle=,
                 %reference=,
                 ]
@@ -2024,8 +2036,7 @@
       \else
         \bgroup
         \ifmode_showanswer\applychoicestyleandcolor
-          \sym{\ifempty\p_correctsymbol\symbol{marksquarecheck}\else
-                      \p_correctsymbol\fi}% correct inline choice
+          \strc_itemgroups_extra_symbol{{\ifempty\p_correctsymbol\symbol{marksquarecheck}\else\p_correctsymbol\fi}}% correct inline choice
         \fi
         #2\collectanswer{#2}%
         \egroup
@@ -2608,8 +2619,8 @@
 \installcommandhandler \????close     {close}     \????close
 
 \setupclose[reset=false,
-            answerstyle=ttx,
-            pointstyle=ttx,
+            %answerstyle=,
+            %pointstyle=,
             n=8,
             width=1.5em,
             answerwidth=4em,
@@ -2711,7 +2722,7 @@
   \doiftrue\s!close\c!showpoint \mode_showpointtrue
   \dorecurse{\number\scratchcounter}{%
     \hbox{\hsize\textwidth
-      \ifmode_showanswer 
+      \ifmode_showanswer
         \scratchdimen=\closeparameter{answerwidth}\relax
       \else\ifmode_showpoint
         \scratchdimen=\closeparameter{answerwidth}\relax
@@ -2817,10 +2828,10 @@
   \c!pointlabel={,\examtexts{point}},
   \c!answerlabel={{\examtexts{answer}},},
   %\c!answerstyle=,
-  \c!pointcolor=red,
-  \c!answercolor=red,
-  \c!pointstyle=ttx,
-  \c!answerstyle=ttx,
+  \c!pointcolor=,
+  \c!answercolor=,
+  %\c!pointstyle=,
+  %\c!answerstyle=,
 ]
 
 \tolerant\protected\def\startoptclose[#1]{\begingroup
@@ -3388,16 +3399,16 @@
 \startMPdefinitions
   def markdrawpath(expr p, w, handdrawn, color) =
     if handdrawn = 1 :
-      draw p 
-        withpen pencircle scaled (w * 0.7) 
+      draw p
+        withpen pencircle scaled (w * 0.7)
         withcolor color ;
-      draw p 
+      draw p
         shifted (0.02BodyFontSize, 0.02BodyFontSize)
-        withpen pencircle scaled (w * 0.7) 
+        withpen pencircle scaled (w * 0.7)
         withcolor color ;
-      draw p 
+      draw p
         shifted (-0.02BodyFontSize, -0.02BodyFontSize)
-        withpen pencircle scaled (w * 0.7) 
+        withpen pencircle scaled (w * 0.7)
         withcolor color ;
     else :
       draw p withpen pencircle scaled w withcolor color ;
@@ -3480,7 +3491,7 @@
 %D These symbols are drawn using MetaFun (no font dependency).
 %D Use \type{\setupmarkstyle[handdrawn]} for hand-drawn style,
 %D or \type{\setupmarkstyle[formal]} for formal style (default).
-%D 
+%D
 %D \starttabulate[|l|r|l|r|]
 %D \NC \type{\symbol{marksquare}}           \NC \symbol{marksquare}
 %D \VL \type{\symbol{markcircle}}           \NC \symbol{markcircle}          \NC\NR\HL
@@ -3571,15 +3582,14 @@
                   color=black, % change font color
                   radius=0.5,% if = 0 will be square,if = 0.5 will be circle
                   effect=normal,
-                  scaled=.8,
-                  yoffset=0pt,
+                  scaled=.78,
                   style=\switchtobodyfont[small],
                   dashskipwidth=.08BodyFontSize,% if = 0 ,will be undashed
                   ]
 
 \startuseMPgraphic{circlednum}%
                   {frametype,framecolor,fillcolor,color,dashcolor,
-                   radius,scale,fontsize,dashlinewidth,dashskipwidth}
+                   radius,scale,fontsize,dashlinewidth,dashskipwidth,yoffset}
   path square  ; square := roundedsquare(1,1,\MPvar{radius}) scaled BodyFontSize ;
   picture p    ; p      := dashpattern(on    \MPvar{dashskipwidth}  off  \MPvar{dashskipwidth}) ;
   path ti      ; ti     := (.50BodyFontSize,0              )--(.50BodyFontSize,   BodyFontSize) ;
@@ -3600,7 +3610,6 @@
      label("\MPvar{style}\effect[\MPvar{effect}]{\MPtext{framednum}}",\MPvar{frametype})
                               withcolor \MPvar{color}      ;
                      );
-  %ftxt := ftxt shifted (0,\MPvar{yoffset}) ;
   draw ftxt scaled \MPvar{scaled};
 \stopuseMPgraphic
 
@@ -3610,10 +3619,10 @@
   \circledtext[#1]{\scale[maxwidth=1em]{#2}}\endgroup}
 
 \tolerant\protected\def\circledtext[#1]#:#2%
- {\begingroup% for circled number graphic(CNG)
+ {\begingroup
  \iffirstargument\setupMPvariables[circlednum][#1]\fi
     \setMPtext{framednum}{#2}% for framed number in CNG
-    \dontleavehmode\vbox{\useMPgraphic{circlednum}}%
+    \dontleavehmode\hbox{\strut\useMPgraphic{circlednum}}%
     \endgroup}
 
 \def\negativecircledconversion#1{{%
@@ -3753,7 +3762,7 @@
   % \frozen\instance\protected\edefcsname        \currentlexicalentry\endcsname{\namedlexicalentry}%
   \frozen\protected\instance\edefcsname\e!start\currentlexicalentry\endcsname{\startnamedlexicalentry[\currentlexicalentry]}%
   \frozen\protected\instance\letcsname \e!stop \currentlexicalentry\endcsname \stopnamedlexicalentry
-  \registerlexicalentrycounter{\currentlexicalentry}
+  \registerlexicalentrycounter{\currentlexicalentry}%
   \definecounter[\currentlexicalentry]%
 \to \everydefinelexicalentry
 
@@ -3770,7 +3779,7 @@
   \resetcounter[lexicalcomparing]%
   \resetcounter[itemgroup:env!question]%
   \def\hantext#1{{\language[hans]\hwx\kern -.5em ｜ #1}}%
-  \def\lexicalemph#1{{\ss\underbar{#1}}}
+  \def\lexicalemph#1{{\ss\underbar{#1}}}%
 \to \everylexicalentry
 
 \setuplexicalentry[
@@ -3825,10 +3834,10 @@
         \functionindex{\lexicalentryparameter{function}+#3}%
       \else\entryindex{#3}\fi
     \else\lexicalentryparameter{indexcommand}{#3}\fi
-    \textreference[#3]{#3}
+    \textreference[#3]{#3}\dontleavehmode
     \ifhastok={#2}\bgroup
       \processcommacommand[\p_class]{\penalty0\thinspace\lexicaltagframe}%
-      \processcommacommand[\p_accent]{\penalty0\thinspace\lexicaltagframe[width=\bodyfontsize]}\egroup
+      \processcommacommand[\p_accent]{\penalty0\thinspace\lexicaltagframe[width=1.5\bodyfontsize]}\egroup
     \else\bgroup
       \processcommacommand[#2]{\penalty0\thinspace\lexicaltagframe}\egroup
     \fi
@@ -3906,7 +3915,7 @@
 %       \item 元気なうちに、世界一周旅行がしたい。
 %     \stoplexicallists
 %   \stoplexicaljunction/\stoplexicalcomparing/\stoplexicalsummary
-%   
+%
 % \stoplexicalgrammar
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -3933,347 +3942,20 @@
 \def\showanswer{\mode_showanswertrue \setupanswer[showscript=false]}
 \def\hideanswer{\mode_showanswerfalse\setupanswer[showscript=true]}
 
-\def\showpoint        {\mode_showpointtrue}
-\def\hidepoint        {\mode_showpointfalse}
+\let\showpoint\mode_showpointtrue
+\let\hidepoint\mode_showpointfalse
+\let\showmore \mode_showmoretrue
+\let\hidemore \mode_showmorefalse
 
-\def\enableshowanswer {\mode_showanswertrue}
-\def\disableshowanswer{\mode_showanswerfalse}
-
-\def\enableshowpoint  {\mode_showpointtrue}
-\def\disableshowpoint {\mode_showpointfalse}
+\let\enableshowanswer \mode_showanswertrue
+\let\disableshowanswer\mode_showanswerfalse
+\let\enableshowpoint  \mode_showpointtrue
+\let\disableshowpoint \mode_showpointfalse
+\let\enableshowmore   \mode_showmoretrue
+\let\disableshowmore  \mode_showmorefalse
 
 \initcollectanswer
 \doifmodeelse{student}{\setupfillin[n=8]}{\setupfillin[n=4]}
-
-\definextable
-  [xtable:questions]
-  [option={stretch,width},split=yes,
-   frame=off,
-   header=repeat]
-
-\startsetups xcell:header
-  \bf \tt
-\stopsetups
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%D \section{數據庫接口 / Database Interface}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\startluacode
-    require("m-basicexamsql")
-    local basicexam_sql = thirddata.basicexam_sql
-    
-    local current_db = nil
-    local current_db_path = nil
-    
-    function thirddata.basicexam.opendb(path)
-        if current_db_path == path and current_db then
-            return current_db
-        end
-        if current_db then
-            basicexam_sql.close_database(current_db)
-        end
-        current_db_path = path
-        current_db = basicexam_sql.open_database(path)
-        return current_db
-    end
-    
-    function thirddata.basicexam.closedb()
-        if current_db then
-            basicexam_sql.close_database(current_db)
-            current_db = nil
-            current_db_path = nil
-        end
-    end
-    
-    function thirddata.basicexam.getdb()
-        return current_db
-    end
-    
-    function thirddata.basicexam.search_questions_lua(filters, options)
-        if not current_db then
-            context("Error: database not opened")
-            return
-        end
-        basicexam_sql.reset_material_shown()
-        local questions = basicexam_sql.search_questions(current_db, filters)
-        if questions then
-            for i, q in ipairs(questions) do
-                basicexam_sql.render_question(current_db, q, options)
-            end
-        end
-    end
-    
-    function thirddata.basicexam.add_material_lua(title, content, author, source)
-        if not current_db then
-            return nil
-        end
-        return basicexam_sql.add_material(current_db, {
-            title = title or "",
-            content = content or "",
-            author = author or "",
-            source = source or ""
-        })
-    end
-    
-    function thirddata.basicexam.get_material_id_by_title(title)
-        if not current_db then
-            return nil
-        end
-        local m = basicexam_sql.get_material_by_title(current_db, title)
-        return m and m.id
-    end
-    
-    function thirddata.basicexam.add_question_lua(qtype, content, point, answer, explanation, source, year, material_id)
-        if not current_db then
-            return nil
-        end
-        return basicexam_sql.add_question(current_db, {
-            type = qtype,
-            content = content,
-            point = point or 1,
-            answer = answer or "",
-            explanation = explanation or "",
-            source = source or "",
-            year = year,
-            material_id = material_id and tonumber(material_id) or nil
-        })
-    end
-    
-    function thirddata.basicexam.add_tag_lua(qid, tag)
-        if not current_db or not qid or not tag then
-            return nil
-        end
-        for t in string.gmatch(tag, "[^,]+") do
-            local trimmed = t:gsub("^%s*(.-)%s*$", "%1")
-            if trimmed ~= "" then
-                basicexam_sql.add_question_tag(current_db, qid, trimmed)
-            end
-        end
-    end
-    
-    function thirddata.basicexam.add_choice_lua(qid, content, is_correct)
-        if not current_db or not qid then
-            return nil
-        end
-        return basicexam_sql.add_answer(current_db, qid, content, is_correct, 0)
-    end
-    
-    function thirddata.basicexam.add_qitem_lua(qid, content, answer, explanation)
-        if not current_db or not qid then
-            return nil
-        end
-        return basicexam_sql.add_answer(current_db, qid, content, false, 0, answer, explanation)
-    end
-    
-    function thirddata.basicexam.render_material_by_id(id, options)
-        if not current_db then
-            return
-        end
-        local m = basicexam_sql.get_material(current_db, id)
-        if m then
-            basicexam_sql.render_material_with_questions(current_db, m, options or {showanswer=true, showpoint=true})
-        end
-    end
-    
-    function thirddata.basicexam.render_material_by_title(title, options)
-        if not current_db then
-            return
-        end
-        local m = basicexam_sql.get_material_by_title(current_db, title)
-        if m then
-            basicexam_sql.render_material_with_questions(current_db, m, options or {showanswer=true, showpoint=true})
-        end
-    end
-    
-    function thirddata.basicexam.render_all_questions(options)
-        if not current_db then
-            context("Error: database not opened")
-            return
-        end
-        options = options or {}
-        basicexam_sql.reset_material_shown()
-        local questions = basicexam_sql.get_all_questions(current_db)
-        if questions then
-            if options.showrawinfo then
-                basicexam_sql.render_questions_table(current_db, questions)
-            else
-                for i, q in ipairs(questions) do
-                    basicexam_sql.render_question(current_db, q, {showanswer=true, showpoint=true})
-                end
-            end
-        end
-    end
-    
-    function thirddata.basicexam.get_question_count_by_type(qtype)
-        if not current_db then
-            return 0
-        end
-        local questions = basicexam_sql.search_questions(current_db, {type=qtype})
-        return questions and #questions or 0
-    end
-\stopluacode
-
-\installnamespace {dbquestion}
-
-\installcommandhandler \????dbquestion {dbquestion} \????dbquestion
-
-\setupdbquestion
-  [database=,
-   id=,
-   tag=,
-   type=,
-   showanswer=true,
-   showpoint=true]
-
-\unexpanded\def\opendatabase{\dosingleempty\do_opendatabase}
-
-\def\do_opendatabase[#1]{%
-    \begingroup
-    \getdummyparameters[#1]%
-    \ctxlua{thirddata.basicexam.opendb("\dummyparameter{path}")}%
-    \endgroup
-}
-
-\unexpanded\def\closedatabase{%
-    \ctxlua{thirddata.basicexam.closedb()}%
-}
-
-\newcount\c_db_material_id
-\newcount\c_db_question_id
-
-\unexpanded\def\addquestion{\dosingleempty\do_addquestion}
-
-\def\do_addquestion[#1]#2{%
-    \begingroup
-    \getdummyparameters[#1]%
-    \ctxlua{%
-        local qtype = "\dummyparameter{type}"
-        if qtype == "material" then
-            local mid = thirddata.basicexam.add_material_lua(
-                "\dummyparameter{title}",
-                "\luaescapestring{#2}",
-                "\dummyparameter{author}",
-                "\dummyparameter{source}")
-            tex.setcount("global", "c_db_material_id", mid or 0)
-        else
-            local material = "\dummyparameter{material}"
-            local material_id = nil
-            if material ~= "" then
-                material_id = tonumber(material) or thirddata.basicexam.get_material_id_by_title(material)
-            end
-            local point = "\dummyparameter{point}"
-            local year = "\dummyparameter{year}"
-            local qid = thirddata.basicexam.add_question_lua(
-                qtype,
-                "\luaescapestring{#2}",
-                point ~= "" and point or nil,
-                "\dummyparameter{answer}",
-                "\dummyparameter{explanation}",
-                "\dummyparameter{source}",
-                year ~= "" and year or nil,
-                material_id)
-            tex.setcount("global", "c_db_question_id", qid or 0)
-            local tag = "\dummyparameter{tag}"
-            if tag ~= "" and qid then
-                thirddata.basicexam.add_tag_lua(qid, tag)
-            end
-        end
-    }%
-    \endgroup
-}
-
-\unexpanded\def\addchoice{\dosingleempty\do_addchoice}
-
-\def\do_addchoice[#1]#2{%
-    \begingroup
-    \ctxlua{thirddata.basicexam.add_choice_lua(
-        \the\c_db_question_id,
-        "\luaescapestring{#2}",
-        "#1" == "*")}%
-    \endgroup
-}
-
-\unexpanded\def\addqitem{\dosingleempty\do_addqitem}
-
-\def\do_addqitem[#1]#2{%
-    \begingroup
-    \getdummyparameters[#1]%
-    \ctxlua{thirddata.basicexam.add_qitem_lua(
-        \the\c_db_question_id,
-        "\luaescapestring{#2}",
-        "\dummyparameter{answer}",
-        "\dummyparameter{explanation}")}%
-    \endgroup
-}
-
-\unexpanded\def\initdatabase{\dosingleempty\do_initdatabase}
-
-\def\do_initdatabase[#1]{%
-    \begingroup
-    \getdummyparameters[#1]%
-    \ctxlua{os.remove("\dummyparameter{path}")}%
-    \ctxlua{thirddata.basicexam.opendb("\dummyparameter{path}")}%
-    \endgroup
-}
-
-\unexpanded\def\getallquestions{\dosingleempty\do_getallquestions}
-
-\def\do_getallquestions[#1]{%
-    \begingroup
-    \getdummyparameters[#1]%
-    \ctxlua{thirddata.basicexam.render_all_questions({showrawinfo="\dummyparameter{showrawinfo}"=="yes"})}%
-    \endgroup
-}
-
-\unexpanded\def\getquestioncount#1{%
-    \ctxlua{context(tostring(thirddata.basicexam.get_question_count_by_type("#1")))}%
-}
-
-\unexpanded\def\getmaterial{\dosingleempty\do_getmaterial}
-
-\def\do_getmaterial[#1]{%
-    \begingroup
-    \getdummyparameters[#1]%
-    \ctxlua{%
-        local mid = "\dummyparameter{id}"
-        local title = "\dummyparameter{title}"
-        if mid ~= "" then
-            thirddata.basicexam.render_material_by_id(mid)
-        elseif title ~= "" then
-            thirddata.basicexam.render_material_by_title(title)
-        end
-    }%
-    \endgroup
-}
-
-\unexpanded\def\searchquestions{\dosingleempty\do_searchquestions}
-
-\def\do_searchquestions[#1]{%
-    \begingroup
-    \getdummyparameters[#1]%
-    \ctxlua{%
-        local filters = {}
-        local id = "\dummyparameter{id}"
-        local tag = "\dummyparameter{tag}"
-        local year = "\dummyparameter{year}"
-        local source = "\dummyparameter{source}"
-        local qtype = "\dummyparameter{type}"
-        local showanswer = "\dummyparameter{showanswer}"
-        local qitemid = "\dummyparameter{qitemid}"
-        if id ~= "" then filters.id = id end
-        if tag ~= "" then filters.tag = tag end
-        if year ~= "" then filters.year = year end
-        if source ~= "" then filters.source = source end
-        if qtype ~= "" then filters.type = qtype end
-        local options = {
-            showanswer = showanswer == "yes",
-            qitemid = qitemid ~= "" and tonumber(qitemid) or nil
-        }
-        thirddata.basicexam.search_questions_lua(filters, options)
-    }%
-    \endgroup
-}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   EXAM MODULE   %%%%%%%%%%%%%%%%%

@@ -27,7 +27,7 @@
 \definemode[blue]  [keep]
 \definemode[green] [keep]
 \definemode[gray]  [keep]
-\definemode[purple]  [keep]
+\definemode[purple][keep]
 
 \processaction[\currentmoduleparameter{color}]%
    [       red=>{\enablemode[red]},
@@ -58,28 +58,33 @@
 \definecolor [PORI:RED:3] [.5(white,PORI:RED)]
 \definecolor [PORI:RED:4] [.3(white,PORI:RED)]
 \definecolor [PORI:RED:5] [.1(white,PORI:RED)]
+\definecolor [PORI:RED:6] [.01(white,PORI:RED)]
 
 \definecolor [PORI:BLUE:1] [.9(white,PORI:BLUE)]
 \definecolor [PORI:BLUE:2] [.7(white,PORI:BLUE)]
 \definecolor [PORI:BLUE:3] [.5(white,PORI:BLUE)]
 \definecolor [PORI:BLUE:4] [.3(white,PORI:BLUE)]
 \definecolor [PORI:BLUE:5] [.1(white,PORI:BLUE)]
+\definecolor [PORI:BLUE:6] [.01(white,PORI:BLUE)]
 
 \definecolor [PORI:GREEN:1] [.9(white,PORI:GREEN)]
 \definecolor [PORI:GREEN:2] [.7(white,PORI:GREEN)]
 \definecolor [PORI:GREEN:3] [.5(white,PORI:GREEN)]
 \definecolor [PORI:GREEN:4] [.3(white,PORI:GREEN)]
 \definecolor [PORI:GREEN:5] [.1(white,PORI:GREEN)]
+\definecolor [PORI:GREEN:6] [.01(white,PORI:GREEN)]
 
 \definecolor [PORI:PURPLE:1] [.9(white,PORI:PURPLE)]
 \definecolor [PORI:PURPLE:2] [.7(white,PORI:PURPLE)]
 \definecolor [PORI:PURPLE:3] [.5(white,PORI:PURPLE)]
 \definecolor [PORI:PURPLE:4] [.3(white,PORI:PURPLE)]
 \definecolor [PORI:PURPLE:5] [.1(white,PORI:PURPLE)]
+\definecolor [PORI:PURPLE:6] [.01(white,PORI:PURPLE)]
 
 \startmode[red]
 \definecolor [PrimaryColor]       [PORI:RED:1]
 \definecolor [SecondaryColor]     [PORI:RED:4]
+\definecolor [BackgroundColor:0]  [PORI:RED:6]
 \definecolor [BackgroundColor:1]  [PORI:RED:5]
 \definecolor [BackgroundColor:2]  [PORI:RED:4]
 \definecolor [BackgroundColor:3]  [PORI:RED:3]
@@ -92,6 +97,7 @@
 \startmode[blue]
 \definecolor [PrimaryColor]       [PORI:BLUE:1]
 \definecolor [SecondaryColor]     [PORI:BLUE:4]
+\definecolor [BackgroundColor:0]  [PORI:BLUE:6]
 \definecolor [BackgroundColor:1]  [PORI:BLUE:5]
 \definecolor [BackgroundColor:2]  [PORI:BLUE:4]
 \definecolor [BackgroundColor:3]  [PORI:BLUE:3]
@@ -104,6 +110,7 @@
 \startmode[green]
 \definecolor [PrimaryColor]       [PORI:GREEN:1]
 \definecolor [SecondaryColor]     [PORI:GREEN:4]
+\definecolor [BackgroundColor:0]  [PORI:GREEN:6]
 \definecolor [BackgroundColor:1]  [PORI:GREEN:5]
 \definecolor [BackgroundColor:2]  [PORI:GREEN:4]
 \definecolor [BackgroundColor:3]  [PORI:GREEN:3]
@@ -116,6 +123,7 @@
 \startmode[purple]
 \definecolor [PrimaryColor]       [PORI:PURPLE:1]
 \definecolor [SecondaryColor]     [PORI:PURPLE:4]
+\definecolor [BackgroundColor:0]  [PORI:PURPLE:6]
 \definecolor [BackgroundColor:1]  [PORI:PURPLE:5]
 \definecolor [BackgroundColor:2]  [PORI:PURPLE:4]
 \definecolor [BackgroundColor:3]  [PORI:PURPLE:3]
@@ -231,8 +239,8 @@
     numeric Shifts ; Shifts := -TextHeight - FooterDistance - FooterHeight - BottomDistance - BottomHeight - HeaderHeight;
     fill Page
       withshademethod "circular"
-      withshadevector (0.5,2.55)
-      withshadecolors (\MPcolor{BackgroundColor:1},\MPcolor{BackgroundColor:2}) ;
+      withshadevector (0.1,0.5)
+      withshadecolors (\MPcolor{BackgroundColor:0},\MPcolor{BackgroundColor:1}) ;
     fill Page leftenlarged    Shift withcolor "ContrastColor" ;
     fill Page bottomenlarged Shifts withcolor "ContrastColor" ;
     if RealPageNumber > 1 :
@@ -240,7 +248,7 @@
       clip Right to boundingbox Right shifted ( bbwidth(Right)/2,0)  ;
       clip Left  to boundingbox Left  shifted (-bbwidth(Left) /2,0)  ;
       draw Left  shifted (-Shift,1.25cm) withcolor "ContrastColor"   ;
-      draw Right shifted (-Shift,1.25cm) withcolor "BackgroundColor:1" ;
+      draw Right shifted (-Shift,1.25cm) withcolor "BackgroundColor:0" ;
     fi ;
 \stopuseMPgraphic
 
@@ -249,8 +257,8 @@
 \startuniqueMPgraphic{LinearShade}
   fill fullsquare xyscaled (PaperWidth,PaperHeight)
     withshademethod "circular"
-    withshadevector (0.5,0.75)
-    withshadecolors (\MPcolor{BackgroundColor:1},\MPcolor{BackgroundColor:2}) ;
+    withshadevector (0.1,0.5)
+    withshadecolors (\MPcolor{BackgroundColor:0},\MPcolor{BackgroundColor:1}) ;
 \stopuniqueMPgraphic
 
 \defineoverlay[LinearShade][\useMPgraphic{LinearShade}]
@@ -556,10 +564,10 @@
   \ifempty{#1}\page
     \framed[frame=off,
       align=flushleft,]{
-      \definedfont[playfairhairlinebolditalic at 40pt]%
+      \definedfont[Serif at 40pt]%
       \color[darkgray]{Table of}
       \blank[halfline]
-      \definedfont[playfairhairlinebolditalic at 60pt]
+      \definedfont[SerifBold at 60pt]
       \color[themecolor]{Contents}}
       \vskip 2\baselineskip\relax
       \writetolist[MyTopics]{\labeltext{content}}{}%

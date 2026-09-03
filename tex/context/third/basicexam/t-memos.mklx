@@ -32,7 +32,8 @@
               themecolor=,
               chapterstyle=default,
               hdrstyle=,
-              tocstyle=,]
+              tocstyle=,
+              doublesided=no,]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \def\errorparameter#1{%
     \writestatus{module error}{!! Something Wrong happened at #1}
@@ -73,16 +74,22 @@
            none=>\relax,
      \v!default=>\hdr_sty_fctexttrue,
      \v!unknown=>\errorparameter{hdrstyle},]
+     
+\processaction[\currentmoduleparameter{doublesided}]%
+   [        yes=>{\setuppagenumbering[alternative=doublesided,]},
+             no=>\relax,
+     \v!default=>\relax,
+     \v!unknown=>\errorparameter{doublesided},]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usesymbols             [fontawesome]%
 \setupcolors            [state=start,pagecolormodel=auto,textcolor=textcolor,]
 \setupinteraction       [state=start,
-                         author={商無辛・Soanguy},
+                         % author={商無辛・Soanguy},
                          style=\tt,
                          color=linkcolor,
                          contrastcolor=themecolor]
-\setupurl               [color=linkcolor,style={\tt}]
-\setupcombinedlist      [content] [interaction=all,color=toclinkcolor]
+\setupurl               [color=linkcolor,style=\tt]
+\setupcombinedlist      [content] [interaction=all,color=toccolor]
 \setupinteractionscreen [option=bookmark]
 \placebookmarks         [part,chapter,section][chapter]
 \setupexternalfigures   [order={pdf,png,jpg},]
@@ -164,7 +171,6 @@
 \stopmode
 
 \definebodyfontenvironment [default] [em=italicface]
-\definefont       [notefont][Handwriting at 9bp]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                             本地化設置                              %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -196,19 +202,28 @@
 \definefilesynonym [type-imp-genryutw.mkiv]         [type-imp-source.mkiv]
 \definefilesynonym [type-imp-genryutc.mkiv]         [type-imp-source.mkiv]
 \definefilesynonym [type-imp-shanggu.mkiv]          [type-imp-source.mkiv]
-\definefilesynonym [type-imp-ipaexhans.mkiv]        [type-imp-source.mkiv]
-\definefilesynonym [type-imp-ipaexhant.mkiv]        [type-imp-source.mkiv]
-\definefilesynonym [type-imp-ipaexnihon.mkiv]       [type-imp-source.mkiv]
-\definefilesynonym [type-imp-huiwen.mkiv]           [type-imp-source.mkiv]
-\definefilesynonym [type-imp-ibmplexsc.mkiv]        [type-imp-source.mkiv]
-\definefilesynonym [type-imp-ibmplexjp.mkiv]        [type-imp-source.mkiv]
-\definefilesynonym [type-imp-ibmplextc.mkiv]        [type-imp-source.mkiv]
+
+\definefilesynonym [type-imp-ipaexhans.mkiv]        [type-imp-lxgw.mkiv]
+\definefilesynonym [type-imp-ipaexhant.mkiv]        [type-imp-lxgw.mkiv]
+\definefilesynonym [type-imp-ipaexnihon.mkiv]       [type-imp-lxgw.mkiv]
+\definefilesynonym [type-imp-freehans.mkiv]         [type-imp-lxgw.mkiv]
+\definefilesynonym [type-imp-freehant.mkiv]         [type-imp-lxgw.mkiv]
+\definefilesynonym [type-imp-huiwen.mkiv]           [type-imp-lxgw.mkiv]
+\definefilesynonym [type-imp-ibmplexsc.mkiv]        [type-imp-lxgw.mkiv]
+\definefilesynonym [type-imp-ibmplexjp.mkiv]        [type-imp-lxgw.mkiv]
+\definefilesynonym [type-imp-ibmplextc.mkiv]        [type-imp-lxgw.mkiv]
 
 \definefilesynonym [type-imp-sinohans.mkiv]         [type-imp-macos.mkiv]
 \definefilesynonym [type-imp-sinohant.mkiv]         [type-imp-macos.mkiv]
 \definefilesynonym [type-imp-lihant.mkiv]           [type-imp-macos.mkiv]
 \definefilesynonym [type-imp-jiyou.mkiv]            [type-imp-macos.mkiv]
 \definefilesynonym [type-imp-hiragino.mkiv]         [type-imp-macos.mkiv]
+
+\definefilesynonym [type-imp-sourcehansvf.mkiv]     [type-imp-sourcevf.mkiv]
+\definefilesynonym [type-imp-sourcehantvf.mkiv]     [type-imp-sourcevf.mkiv]
+\definefilesynonym [type-imp-sourcenihonvf.mkiv]    [type-imp-sourcevf.mkiv]
+\definefilesynonym [type-imp-shangguvf.mkiv]        [type-imp-sourcevf.mkiv]
+\definefilesynonym [type-imp-wenyuanhansvf.mkiv]    [type-imp-sourcevf.mkiv]
 
 %%%%%%%% \section {設置 語言 字體 行高等}
 \startsetups fallbacks:reset
@@ -268,7 +283,8 @@
             leftsentence=——,       rightsentence=——,
          leftsubsentence=——,    rightsubsentence=——,
            leftquotation=「,      rightquotation=」,
-               leftquote=『,          rightquote=』,]
+               leftquote=『,          rightquote=』,
+             leftnotemark=〔,       rightnotemark=〕,]
 \setuplabeltext [hans]
                 [content={目录},            page={第,\ 页},
                    index={索引},        appendix={附录},
@@ -303,7 +319,8 @@
             leftsentence=——,      rightsentence=——,
          leftsubsentence=——,   rightsubsentence=——,
            leftquotation=「,     rightquotation=」,
-               leftquote=『,         rightquote=』,]
+               leftquote=『,         rightquote=』,
+            leftnotemark=〔,      rightnotemark=〕,]
 \setuplabeltext [hant]
                 [content={目錄},            page={第,\ 頁},
                    index={索引},        appendix={附錄},
@@ -338,7 +355,8 @@
                   leftsentence=——,    rightsentence=——,
                leftsubsentence=——, rightsubsentence=——,
                  leftquotation=「,   rightquotation=」,
-                     leftquote=『,       rightquote=』,]
+                     leftquote=『,       rightquote=』,
+                  leftnotemark=〔,    rightnotemark=〕,]
 \setuplabeltext [ja]  [content={目次},         page={第,\ ページ},
                          index={索引},     appendix={付録},
                          table={表 },        tables={表 },
@@ -375,6 +393,27 @@
 %% 但是需要注意必须要预先定义好字体才可以正常切换。
 %% 因为修改了 language 的 setups，导致会修改全局的字体设置，因此 basicexam 应该放在 最开始加载
 %% 这样后续如果使用 修改字体的 模块的话，才会生效
+\setupfontexpansion[conservative]
+                   [stretch=1, shrink=1, step=0.25, factor=1]
+\definefontfeature[default][default][expansion=conservative, protrusion=quality]
+
+\startluacode
+  scripts.installdataset {
+    method  = "hanzi",
+    name    = "tight",
+    dataset = {
+      inter_char_shrink_factor          = 0.10, -- 字符间距最大收缩量（quad 的比例）
+      inter_char_stretch_factor         = 0.15, -- 字符间距最大拉伸量（quad 的比例）
+      inter_char_half_shrink_factor     = 0.10, -- 半角字符间距收缩量
+      inter_char_half_stretch_factor    = 0.15, -- 半角字符间距拉伸量
+      inter_char_quarter_shrink_factor  = 0.05, -- 四分之一角字符间距收缩量
+      inter_char_quarter_stretch_factor = 0.05, -- 四分之一角字符间距拉伸量
+      inter_char_hangul_penalty         = 50,   -- 韩文断行惩罚值
+    }
+  }
+\stopluacode
+
+\definescript [tight] [method=hanzi, preset=tight]
 
 \def\lang_set_if_provided#1#2#3{%
   \ifcsname lang:#1#2\endcsname
@@ -397,29 +436,39 @@
 
 \let\setupuserlanguage\defineuserlanguage
 
+\setupuserlanguage[en][
+  bodyfont=modern,
+  fallbackfont=modern,
+  patterns=en,
+  script=,
+  interlinespace=2.8ex,
+  whitespace=none,
+  align={height,hanging,justified},
+  indenting={first,always,1em},]
+
 \setupuserlanguage[cn][
-  bodyfont=adobehans,
-  fallbackfont=none,
+  bodyfont=ipaexhans,
+  fallbackfont=modern,
   patterns={zh,en},
   script=hanzi,
   interlinespace=1.5em,
   whitespace=none,
-  align={height,hanging,justified},
+  align={hanging,justified,morehyphenation,granular},
   indenting={first,always,2em},]
 
 \setupuserlanguage[hans][
-  bodyfont=adobehans,
-  fallbackfont=cormorant,
+  bodyfont=ipaexhans,
+  fallbackfont=modern,
   patterns={zh,en},
-  script=hanzi,
+  script=tight,
   interlinespace=1.5em,
   whitespace=none,
-  align={height,hanging,justified},
+  align={height,hanging,justified,morehyphenation,granular},
   indenting={first,always,2em},]
 
 \setupuserlanguage[hant][
-  bodyfont=adobehant,
-  fallbackfont=cormorant,
+  bodyfont=ipaexhant,
+  fallbackfont=modern,
   patterns={zh,en},
   script=hanzi,
   interlinespace=1.5em,
@@ -428,8 +477,8 @@
   indenting={first,always,2em},]
 
 \setupuserlanguage[ja][
-  bodyfont=adobenihon,
-  fallbackfont=ibmplex,
+  bodyfont=ipaexnihon,
+  fallbackfont=modern,
   patterns={ja,en},
   script=nihongo,
   interlinespace=1.5em,
@@ -459,6 +508,7 @@
 \setupdelimitedtext  [paren:1]     [left={\,(\nobreak}, right={\nobreak)\,}]
 \setupdelimitedtext  [paren:2]     [left={\,[\nobreak}, right={\nobreak]\,}]
 \setupdelimitedtext  [paren:3]     [left={\,\{\nobreak}, right={\nobreak\}\,}]
+
 \setupdelimitedtext  [quotation]   [language=local,repeat=yes,location=paragraph]
 \setupdelimitedtext  [quotation:1] [left=\penalty0\symbol[leftquotation]\nobreak,
                                     middle=\symbol[leftquotation]\nobreak,
@@ -467,6 +517,13 @@
                                     middle=\symbol[leftquotation]\nobreak,
                                     right=\nobreak\symbol[rightquote]]
 
+\definedelimitedtext [book]        [location=text,language=local,repeat=yes]
+\setupdelimitedtext  [book:1]      [left=\penalty0《\nobreak,
+                                    middle=《\nobreak,
+                                    right=\nobreak》]
+\setupdelimitedtext  [book:2]      [left=\penalty0〈\nobreak,
+                                    middle=〈\nobreak,
+                                    right=\nobreak〉]
 
 % 链接断行规则
 \enabledirectives[hyphenators.urls.packslashes] % 避免连续斜杠分到不同行
@@ -634,168 +691,347 @@
 \def\debugpangu       {\ctxluacode{thirddata.memos.setdebugpangu(true)}}
 \def\nodebugpangu     {\ctxluacode{thirddata.memos.setdebugpangu(false)}}
 
-\definebreakpoint [compound] [、] [nleft=1,nright=1,type=1]
-\definebreakpoint [compound] [（] [nleft=3,nright=3,type=1]
-\definebreakpoint [compound] [）] [nleft=2,nright=2,type=1]
-\setbreakpoints   [compound]
+% \definebreakpoint [compound] [、] [nleft=1,nright=1,type=1]
+% \definebreakpoint [compound] [（] [nleft=3,nright=3,type=1]%% 会导致禁则失效
+% \definebreakpoint [compound] [）] [nleft=2,nright=2,type=1]
+% \setbreakpoints   [compound]
 
 \startprotectedcolors
   \definecolor [transparentcolor] [r=0,g=1,b=1,t=0,a=normal]
-  \definecolor [softred]     [x=F7CDBC]  \definecolor [softpink]    [x=F5CEBE]
-  \definecolor [lightred]    [x=F9906F]  \definecolor [lightpink]   [x=EDC3AE]
-  \definecolor [red]         [x=D70C19]  \definecolor [pink]        [x=F9906F]
-  \definecolor [darkred]     [x=B1000F]  \definecolor [darkpink]    [x=F35336]
-  \definecolor [deepred]     [x=5C1E19]  \definecolor [deeppink]    [x=4D1919]
-  \definecolor [blackred]    [x=2D0C13]  \definecolor [blackpink]   [x=1C0909]
 
-  \definecolor [softblue]    [x=81D4FA]  \definecolor [softpurple]  [x=4CC3FF]
-  \definecolor [lightblue]   [x=2983BB]  \definecolor [lightpurple] [x=D294D3]
-  \definecolor [blue]        [x=2D69AF]  \definecolor [purple]      [x=4A4266]
-  \definecolor [darkblue]    [x=15559A]  \definecolor [darkpurple]  [x=37314C]
-  \definecolor [deepblue]    [x=1C2938]  \definecolor [deeppurple]  [x=152637]
-  \definecolor [blackblue]   [x=012030]  \definecolor [blackpurple] [x=1C0D1A]
+  % 红色系
+  \definecolor [palered]     [x=fef0ed]
+  \definecolor [softred]     [x=fad1c4]
+  \definecolor [lightred]    [x=f99b8c]
+  \definecolor [red]         [x=d70c19]
+  \definecolor [darkred]     [x=b1000f]
+  \definecolor [deepred]     [x=5c1e19]
+  \definecolor [blackred]    [x=2d0c13]
+  
+  % 粉色系
+  \definecolor [palepink]    [x=fff2f5]
+  \definecolor [softpink]    [x=fce4ec]
+  \definecolor [lightpink]   [x=f8bbd9]
+  \definecolor [pink]        [x=e6709a]
+  \definecolor [darkpink]    [x=ba456c]
+  \definecolor [deeppink]    [x=862a4a]
+  \definecolor [blackpink]   [x=4f142b]
+  
+  % 蓝色系
+  \definecolor [paleblue]    [x=eff9ff]
+  \definecolor [softblue]    [x=b9e6ff]
+  \definecolor [lightblue]   [x=6cc3f0]
+  \definecolor [blue]        [x=2d69af]
+  \definecolor [darkblue]    [x=15559a]
+  \definecolor [deepblue]    [x=1c2938]
+  \definecolor [blackblue]   [x=012030]
+  
+  % 紫色系
+  \definecolor [palepurple]  [x=f3effc]
+  \definecolor [softpurple]  [x=d9c8f0]
+  \definecolor [lightpurple] [x=c5a3e6]
+  \definecolor [purple]      [x=6f4c9e]
+  \definecolor [darkpurple]  [x=4a366b]
+  \definecolor [deeppurple]  [x=2e1e40]
+  \definecolor [blackpurple] [x=1c0f26]
 
-  \definecolor [softyellow]  [x=F7DA94]  \definecolor [softorange]  [x=FFF4E5]
-  \definecolor [lightyellow] [x=FFC773]  \definecolor [lightorange] [x=FFD699]
-  \definecolor [yellow]      [x=FBB612]  \definecolor [orange]      [x=FBA414]
-  \definecolor [darkyellow]  [x=F28E16]  \definecolor [darkorange]  [x=CC8410]
-  \definecolor [deepyellow]  [x=60281E]  \definecolor [deeporange]  [x=7F5500]
-  \definecolor [blackyellow] [x=241D00]  \definecolor [blackorange] [x=140D00]
+  % 黄色系
+  \definecolor [paleyellow]  [x=fff8e0]
+  \definecolor [softyellow]  [x=fef0c0]
+  \definecolor [lightyellow] [x=ffe08c]
+  \definecolor [yellow]      [x=e5a00d]
+  \definecolor [darkyellow]  [x=c17f0a]
+  \definecolor [deepyellow]  [x=8e5806]
+  \definecolor [blackyellow] [x=452900]
 
-  \definecolor [softgreen]   [x=BFD8A5]  \definecolor [softcyan]    [x=B9DEC9]
-  \definecolor [lightgreen]  [x=96C24E]  \definecolor [lightcyan]   [x=55BB8A]
-  \definecolor [green]       [x=7FB24C]  \definecolor [cyan]        [x=3C9566]
-  \definecolor [darkgreen]   [x=4C6B2D]  \definecolor [darkcyan]    [x=497568]
-  \definecolor [deepgreen]   [x=2B312C]  \definecolor [deepcyan]    [x=1A3B32]
-  \definecolor [blackgreen]  [x=141E1B]  \definecolor [blackcyan]   [x=061711]
+  % 橙色系
+  \definecolor [paleorange]  [x=fff4e8]
+  \definecolor [softorange]  [x=ffe4c2]
+  \definecolor [lightorange] [x=ffc28a]
+  \definecolor [orange]      [x=e68615]
+  \definecolor [darkorange]  [x=b56f0c]
+  \definecolor [deeporange]  [x=7a4700]
+  \definecolor [blackorange] [x=3b1f00]
 
-  \definecolor [softgray]    [x=F0F0F0]
-  \definecolor [lightgray]   [x=C3C3C3]
-  \definecolor [gray]        [x=A4A4A4]
-  \definecolor [darkgray]    [x=7B7B7B]
+  % 绿色系
+  \definecolor [palegreen]   [x=f0f8e6]
+  \definecolor [softgreen]   [x=e0f0cd]
+  \definecolor [lightgreen]  [x=b2d97c]
+  \definecolor [green]       [x=6ba82e]
+  \definecolor [darkgreen]   [x=4a7a1e]
+  \definecolor [deepgreen]   [x=2f4f10]
+  \definecolor [blackgreen]  [x=172a07]
+    
+  % 青色系
+  \definecolor [palecyan]    [x=eaf9f2]
+  \definecolor [softcyan]    [x=b9dec9]
+  \definecolor [lightcyan]   [x=55bb8a]
+  \definecolor [cyan]        [x=3c9566]
+  \definecolor [darkcyan]    [x=497568]
+  \definecolor [deepcyan]    [x=1a3b32]
+  \definecolor [blackcyan]   [x=061711]
+  
+  % 灰色系
+  \definecolor [palegray]    [x=f8f8f8]
+  \definecolor [softgray]    [x=f0f0f0]
+  \definecolor [lightgray]   [x=c3c3c3]
+  \definecolor [gray]        [x=a4a4a4]
+  \definecolor [darkgray]    [x=7b7b7b]
   \definecolor [deepgray]    [x=535353]
-  \definecolor [blackgray]   [x=2A2A2A]
-
-  \definecolor [softwhite]   [x=FFFFFF]  \definecolor [softblack]   [x=758A99]
-  \definecolor [lightwhite]  [x=FFFFFF]  \definecolor [lightblack]  [x=3D3B4F]
-  \definecolor [white]       [x=FFFFFF]  \definecolor [black]       [x=000000]
-  \definecolor [darkwhite]   [x=F3F9F1]  \definecolor [darkblack]   [x=000000]
-  \definecolor [deepwhite]   [x=F2ECDE]  \definecolor [deepblack]   [x=000000]
-  \definecolor [blackwhite]  [x=DBD6CA]  \definecolor [blackblack]  [x=000000]
+  \definecolor [blackgray]   [x=2a2a2a]
+  
+  % 白色系
+  \definecolor [palewhite]   [x=fefefc]
+  \definecolor [softwhite]   [x=fdfcf8]
+  \definecolor [lightwhite]  [x=f9f7f0]
+  \definecolor [white]       [x=ffffff]
+  \definecolor [darkwhite]   [x=f3f9f1]
+  \definecolor [deepwhite]   [x=f2ecde]
+  \definecolor [blackwhite]  [x=ebe3d5]
+  
+  % 黑色系
+  \definecolor [paleblack]   [x=f2f2f2]
+  \definecolor [softblack]   [x=6a6a6a]
+  \definecolor [lightblack]  [x=404040]
+  \definecolor [black]       [x=000000]
+  \definecolor [darkblack]   [x=1f1f1f]
+  \definecolor [deepblack]   [x=0f0f0f]
+  \definecolor [blackblack]  [x=050505]
+  
+  % 通用页面背景
+  \definecolor [pagebg]      [x=fcfaf5]
 \stopprotectedcolors
 
-\definepalet [serene]    [themecolor=blue,% bluetheme 1
-                      softthemecolor=softblue,     lightthemecolor=lightblue,
-                      darkthemecolor=darkblue,      deepthemecolor=deepblue,
-                       lightoptcolor=lightred,            optcolor=red,
-                      softbackground=softblue,      darkbackground=darkwhite,
-                          titlecolor=blue,               textcolor=black,
-                           codecolor=deepblue,        captioncolor=deepblue,
-                       sidenotecolor=deepblue,       footnotecolor=deepblue,
-                           linkcolor=blue,            toclinkcolor=blue,
-                          framecolor=lightblue,     referencecolor=blue,]
-\definepalet [harmony]   [themecolor=green,% greentheme 2
-                      softthemecolor=softgreen,    lightthemecolor=lightgreen,
-                      darkthemecolor=darkgreen,     deepthemecolor=deepgreen,
-                       lightoptcolor=lightblue,           optcolor=blue,
-                      softbackground=softgreen,     darkbackground=darkwhite,
-                          titlecolor=green,              textcolor=black,
-                           codecolor=deepgreen,       captioncolor=deepgreen,
-                       sidenotecolor=deepgreen,      footnotecolor=deepgreen,
-                           linkcolor=green,           toclinkcolor=green,
-                          framecolor=lightgreen,    referencecolor=green,]
-\definepalet [passion]   [themecolor=red,%redtheme 3
-                      softthemecolor=softred,      lightthemecolor=lightred,
-                      darkthemecolor=darkred,       deepthemecolor=deepred,
-                       lightoptcolor=lightgreen,          optcolor=green,
-                      softbackground=softred,       darkbackground=darkwhite,
-                          titlecolor=red,                textcolor=black,
-                           codecolor=deepred,         captioncolor=deepred,
-                       sidenotecolor=deepred,        footnotecolor=deepred,
-                           linkcolor=red,             toclinkcolor=red,
-                          framecolor=lightred,      referencecolor=red,]
-\definepalet [adventure] [themecolor=orange,%orange 4
-                      softthemecolor=softorange,   lightthemecolor=lightorange,
-                      darkthemecolor=darkorange,    deepthemecolor=deeporange,
-                       lightoptcolor=lightcyan,           optcolor=cyan,
-                      softbackground=softorange,    darkbackground=darkwhite,
-                          titlecolor=orange,             textcolor=black,
-                           codecolor=deeporange,      captioncolor=deeporange,
-                       sidenotecolor=deeporange,     footnotecolor=deeporange,
-                           linkcolor=orange,          toclinkcolor=orange,
-                          framecolor=lightorange,   referencecolor=orange,]
-\definepalet [optimism]  [themecolor=yellow,%yellow 5
-                      softthemecolor=softyellow,   lightthemecolor=lightyellow,
-                      darkthemecolor=darkyellow,    deepthemecolor=deepyellow,
-                       lightoptcolor=lightorange,         optcolor=orange,
-                      softbackground=softyellow,     darkbackground=darkwhite,
-                          titlecolor=yellow,              textcolor=black,
-                           codecolor=deepyellow,       captioncolor=deepyellow,
-                       sidenotecolor=deepyellow,      footnotecolor=deepyellow,
-                           linkcolor=yellow,           toclinkcolor=yellow,
-                          framecolor=lightyellow,    referencecolor=yellow,]
-\definepalet[creativity] [themecolor=cyan,% cyan 6
-                      softthemecolor=softcyan,    lightthemecolor=lightcyan,
-                      darkthemecolor=darkcyan,     deepthemecolor=deepcyan,
-                       lightoptcolor=lightyellow,        optcolor=yellow,
-                      softbackground=softcyan,     darkbackground=darkwhite,
-                          titlecolor=cyan,              textcolor=black,
-                           codecolor=deepcyan,       captioncolor=deepcyan,
-                       sidenotecolor=deepcyan,      footnotecolor=deepcyan,
-                           linkcolor=cyan,           toclinkcolor=cyan,
-                          framecolor=lightcyan,    referencecolor=cyan,]
-\definepalet [magic]     [themecolor=purple,% purple 7
-                      softthemecolor=softpurple,    lightthemecolor=lightpurple,
-                      darkthemecolor=darkpurple,     deepthemecolor=deeppurple,
-                       lightoptcolor=lightpink,            optcolor=pink,
-                      softbackground=softpurple,     darkbackground=darkwhite,
-                          titlecolor=purple,              textcolor=black,
-                           codecolor=deeppurple,       captioncolor=deeppurple,
-                       sidenotecolor=deeppurple,      footnotecolor=deeppurple,
-                           linkcolor=purple,           toclinkcolor=purple,
-                          framecolor=lightpurple,    referencecolor=purple,]
-\definepalet [romance]   [themecolor=pink,% pink 8
-                      softthemecolor=softpink,    lightthemecolor=lightpink,
-                      darkthemecolor=darkpink,     deepthemecolor=deeppink,
-                       lightoptcolor=lightgray,          optcolor=gray,
-                      softbackground=softpink,     darkbackground=darkwhite,
-                          titlecolor=pink,              textcolor=black,
-                           codecolor=deeppink,       captioncolor=deeppink,
-                       sidenotecolor=deeppink,      footnotecolor=deeppink,
-                           linkcolor=pink,           toclinkcolor=pink,
-                          framecolor=lightpink,    referencecolor=pink,]
-\definepalet [reliable]  [themecolor=gray,% gray 9
-                     softthemecolor=softgray, lightthemecolor=lightgray,
-                       darkthemecolor=darkgray,deepthemecolor=deepgray,
-                      lightoptcolor=lightpurple,        optcolor=purple,
-                         softbackground=softgray,     darkbackground=darkwhite,
-                          titlecolor=gray,         textcolor=black,
-                          codecolor=deepgray,      captioncolor=deepgray,
-                          sidenotecolor=deepgray,  footnotecolor=deepgray,
-                          linkcolor=gray,          toclinkcolor=gray,
-                          framecolor=lightgray,    referencecolor=gray,]
-\definepalet [formality] [themecolor=pink,% black 10
-                     softthemecolor=softred, lightthemecolor=softblue,
-                       darkthemecolor=softyellow,deepthemecolor=softgreen,
-                      lightoptcolor=softpurple,     optcolor=softorange,
-                         softbackground=softcyan,     darkbackground=softgray,
-                          titlecolor=black,        textcolor=black,
-                          codecolor=deeppink,      captioncolor=deeppink,
-                          sidenotecolor=deeppink,  footnotecolor=deeppink,
-                          linkcolor=pink,          toclinkcolor=pink,
-                          framecolor=lightgray,    referencecolor=pink,]
-\definepalet [innocence] [themecolor=blue,% white 11
-                     softthemecolor=lightred, lightthemecolor=lightblue,
-                       darkthemecolor=lightyellow,deepthemecolor=lightgreen,
-                      lightoptcolor=lightpurple,     optcolor=lightorange,
-                         softbackground=deepwhite,     darkbackground=darkwhite,
-                          titlecolor=black,        textcolor=black,
-                          codecolor=deepgray,      captioncolor=deepgray,
-                          sidenotecolor=deepgray,  footnotecolor=deepgray,
-                          linkcolor=blue,          toclinkcolor=blue,
-                          framecolor=deepwhite,    referencecolor=blue,]
+\definepalet [serene]    [
+  themecolor=blue,
+  palethemecolor=paleblue,
+  softthemecolor=softblue,
+  lightthemecolor=lightblue,
+  darkthemecolor=darkblue,
+  deepthemecolor=deepblue,
+  lightoptcolor=lightred,
+  optcolor=red,
+  softbackground=softblue,
+  darkbackground=deepblue,
+  titlecolor=blue,
+  textcolor=black,
+  codecolor=deepblue,
+  captioncolor=deepblue,
+  footnotecolor=blackblue,
+  linkcolor=blue,
+  toccolor=blackblue,
+  referencecolor=darkblue,
+]
 
-\definecolor [covercolor] [softbackground]
+\definepalet [harmony]   [
+  themecolor=green,
+  palethemecolor=palegreen,
+  softthemecolor=softgreen,
+  lightthemecolor=lightgreen,
+  darkthemecolor=darkgreen,
+  deepthemecolor=deepgreen,
+  lightoptcolor=lightblue,
+  optcolor=blue,
+  softbackground=softgreen,
+  darkbackground=deepgreen,
+  titlecolor=green,
+  textcolor=black,
+  codecolor=deepgreen,
+  captioncolor=deepgreen,
+  footnotecolor=blackgreen,
+  linkcolor=green,
+  toccolor=blackgreen,
+  referencecolor=darkgreen,
+]
+
+\definepalet [passion]   [
+  themecolor=red,
+  palethemecolor=palered,
+  softthemecolor=softred,
+  lightthemecolor=lightred,
+  darkthemecolor=darkred,
+  deepthemecolor=deepred,
+  lightoptcolor=lightgreen,
+  optcolor=green,
+  softbackground=softred,
+  darkbackground=deepred,
+  titlecolor=red,
+  textcolor=black,
+  codecolor=deepred,
+  captioncolor=deepred,
+  footnotecolor=blackred,
+  linkcolor=red,
+  toccolor=blackred,
+  referencecolor=darkred,
+]
+
+\definepalet [adventure] [
+  themecolor=orange,
+  palethemecolor=paleorange,
+  softthemecolor=softorange,
+  lightthemecolor=lightorange,
+  darkthemecolor=darkorange,
+  deepthemecolor=deeporange,
+  lightoptcolor=lightcyan,
+  optcolor=cyan,
+  softbackground=softorange,
+  darkbackground=deeporange,
+  titlecolor=orange,
+  textcolor=black,
+  codecolor=deeporange,
+  captioncolor=deeporange,
+  footnotecolor=blackorange,
+  linkcolor=orange,
+  toccolor=blackorange,
+  referencecolor=darkorange,
+]
+
+\definepalet [optimism]  [
+  themecolor=yellow,
+  palethemecolor=paleyellow,
+  softthemecolor=softyellow,
+  lightthemecolor=lightyellow,
+  darkthemecolor=darkyellow,
+  deepthemecolor=deepyellow,
+  lightoptcolor=lightorange,
+  optcolor=orange,
+  softbackground=softyellow,
+  darkbackground=deepyellow,
+  titlecolor=yellow,
+  textcolor=black,
+  codecolor=deepyellow,
+  captioncolor=deepyellow,
+  footnotecolor=blackyellow,
+  linkcolor=yellow,
+  toccolor=blackyellow,
+  referencecolor=darkyellow,
+]
+
+\definepalet [creativity] [
+  themecolor=cyan,
+  palethemecolor=palecyan,
+  softthemecolor=softcyan,
+  lightthemecolor=lightcyan,
+  darkthemecolor=darkcyan,
+  deepthemecolor=deepcyan,
+  lightoptcolor=lightyellow,
+  optcolor=yellow,
+  softbackground=softcyan,
+  darkbackground=deepcyan,
+  titlecolor=cyan,
+  textcolor=black,
+  codecolor=deepcyan,
+  captioncolor=deepcyan,
+  footnotecolor=blackcyan,
+  linkcolor=cyan,
+  toccolor=blackcyan,
+  referencecolor=darkcyan,
+]
+
+\definepalet [magic]     [
+  themecolor=purple,
+  palethemecolor=palepurple,
+  softthemecolor=softpurple,
+  lightthemecolor=lightpurple,
+  darkthemecolor=darkpurple,
+  deepthemecolor=deeppurple,
+  lightoptcolor=softpink,
+  optcolor=pink,
+  softbackground=softpurple,
+  darkbackground=deeppurple,
+  titlecolor=purple,
+  textcolor=black,
+  codecolor=deeppurple,
+  captioncolor=deeppurple,
+  footnotecolor=blackpurple,
+  linkcolor=purple,
+  toccolor=blackpurple,
+  referencecolor=darkpurple,
+]
+
+\definepalet [romance]   [
+  themecolor=pink,
+  palethemecolor=palepink,
+  softthemecolor=softpink,
+  lightthemecolor=lightpink,
+  darkthemecolor=darkpink,
+  deepthemecolor=deeppink,
+  lightoptcolor=lightcyan,
+  optcolor=cyan,
+  softbackground=softpink,
+  darkbackground=deeppink,
+  titlecolor=pink,
+  textcolor=black,
+  codecolor=deeppink,
+  captioncolor=deeppink,
+  footnotecolor=blackpink,
+  linkcolor=pink,
+  toccolor=blackpink,
+  referencecolor=darkpink,
+]
+
+\definepalet [reliable]  [
+  themecolor=gray,
+  palethemecolor=palegray,
+  softthemecolor=softgray,
+  lightthemecolor=lightgray,
+  darkthemecolor=darkgray,
+  deepthemecolor=deepgray,
+  lightoptcolor=lightpurple,
+  optcolor=purple,
+  softbackground=softgray,
+  darkbackground=deepgray,
+  titlecolor=gray,
+  textcolor=black,
+  codecolor=deepgray,
+  captioncolor=deepgray,
+  footnotecolor=blackgray,
+  linkcolor=gray,
+  toccolor=blackgray,
+  referencecolor=darkgray,
+]
+
+\definepalet [formality] [
+  themecolor=pink,
+  palethemecolor=palepink,
+  softthemecolor=softpink,
+  lightthemecolor=lightpink,
+  darkthemecolor=darkpink,
+  deepthemecolor=deeppink,
+  lightoptcolor=lightcyan,
+  optcolor=cyan,
+  softbackground=softpink,
+  darkbackground=deeppink,
+  titlecolor=pink,
+  textcolor=black,
+  codecolor=deeppink,
+  captioncolor=deeppink,
+  footnotecolor=blackpink,
+  linkcolor=pink,
+  toccolor=blackpink,
+  referencecolor=darkpink,
+]
+
+\definepalet [innocence] [
+  themecolor=blue,
+  palethemecolor=paleblue,
+  softthemecolor=softblue,
+  lightthemecolor=lightblue,
+  darkthemecolor=darkblue,
+  deepthemecolor=deepblue,
+  lightoptcolor=lightorange,
+  optcolor=orange,
+  softbackground=softblue,
+  darkbackground=deepblue,
+  titlecolor=blue,
+  textcolor=black,
+  codecolor=deepblue,
+  captioncolor=deepblue,
+  footnotecolor=blackblue,
+  linkcolor=blue,
+  toccolor=blackblue,
+  referencecolor=darkblue,
+]
 
 %% 注意，一旦启用 palet ， lib dum 会失效，因为他设定了自己的 palet
 
@@ -925,6 +1161,106 @@
                 footer=70.00mm,    footerdistance=0mm,
                      width=fit,            height=fit,]
 
+\definelayout[graaf][
+  % 水平：严格保留 1:2 边距，正文宽度占 6/9
+  backspace=\dimexpr 1\paperwidth/9\relax,
+   cutspace=\dimexpr 2\paperwidth/9\relax,
+      width=\dimexpr 1\paperwidth -\layoutparameter\c!backspace -\layoutparameter\c!cutspace\relax, 
+  % 垂直：从页眉顶部到页脚底部总高度占 6/9
+   topspace=0mm,bottomspace=0mm,headerdistance=0mm,footerdistance=0mm,
+     header=\dimexpr 1\paperheight/9 -\layoutparameter\c!topspace    -\layoutparameter\c!headerdistance\relax,   % 页眉顶部定位在 H/9
+     height=\dimexpr 1\paperheight   -\layoutparameter\c!topspace    -\layoutparameter\c!bottomspace\relax,
+     footer=\dimexpr 2\paperheight/9 -\layoutparameter\c!bottomspace -\layoutparameter\c!footerdistance\relax,   % 页脚底部定位在 7H/9
+]
+
+\definelayout[vdhnew][
+  vdhnumber=9,
+  rightedgewidth=5mm,rightedgedistance=5mm,rightmargindistance=5mm,
+        topspace=5mm,bottomspace=5mm,headerdistance=5mm,footerdistance=5mm,
+       backspace=\dimexpr 1\paperwidth/(\layoutparameter{vdhnumber} + 3)\relax,
+        cutspace=\dimexpr 2\paperwidth/(\layoutparameter{vdhnumber} + 3)\relax,
+           width=\dimexpr 1\paperwidth -\layoutparameter\c!backspace -\layoutparameter\c!cutspace\relax,
+          header=\dimexpr 3\paperwidth/(\layoutparameter{vdhnumber} + 3)/2 -\layoutparameter\c!topspace    -\layoutparameter\c!headerdistance\relax,
+          height=\dimexpr 1\paperheight                   -\layoutparameter\c!topspace    -\layoutparameter\c!bottomspace\relax, 
+          footer=\dimexpr 3\paperwidth/(\layoutparameter{vdhnumber} + 3)   -\layoutparameter\c!bottomspace -\layoutparameter\c!footerdistance\relax, 
+]
+
+\definelayout[vdh][
+  vdhnumber=9,
+  rightedgewidth=5mm,rightedgedistance=5mm,rightmargindistance=5mm,
+        topspace=5mm,bottomspace=5mm,headerdistance=5mm,footerdistance=5mm,
+       backspace=\dimexpr 1\paperwidth/(\layoutparameter{vdhnumber} + 3)\relax,
+        cutspace=\dimexpr 2\paperwidth/(\layoutparameter{vdhnumber} + 3)\relax,
+           width=\dimexpr 1\paperwidth -\layoutparameter\c!backspace -\layoutparameter\c!cutspace\relax,
+          header=\dimexpr 1\paperheight/(\layoutparameter{vdhnumber} + 3) -\layoutparameter\c!topspace    -\layoutparameter\c!headerdistance\relax,
+          height=\dimexpr 1\paperheight                  -\layoutparameter\c!topspace    -\layoutparameter\c!bottomspace\relax, 
+          footer=\dimexpr 2\paperheight/(\layoutparameter{vdhnumber} + 3) -\layoutparameter\c!bottomspace -\layoutparameter\c!footerdistance\relax, 
+]
+
+\definelayout[grids][
+      grids=12,
+   topgrids=1,
+bottomgrids=1,
+ innergrids=1,
+ outergrids=3,
+ gridsdistance=5mm,
+ widthgrids=\numexpr\layoutparameter{grids}-\layoutparameter{innergrids}-\layoutparameter{outergrids}\relax,
+  gridwidth=\dimexpr\paperwidth /\layoutparameter{grids}\relax,
+ gridheight=\dimexpr\paperheight/\layoutparameter{grids}\relax,
+  backspace=\dimexpr\layoutparameter{gridwidth}*\layoutparameter{innergrids}\relax,
+   cutspace=\dimexpr\layoutparameter{gridwidth}*\layoutparameter{outergrids}\relax,
+rightmargin=\dimexpr\layoutparameter{gridwidth}*\layoutparameter{outergrids}-\layoutparameter{gridsdistance}\relax,
+      width=\dimexpr\layoutparameter{gridwidth}*\ifnum\layoutparameter{widthgrids}<\plusone\relax\plusone\else\layoutparameter{widthgrids}\fi-\layoutparameter{gridsdistance}\relax, 
+   topspace=0mm,bottomspace=0mm,headerdistance=\layoutparameter{gridsdistance},footerdistance=\layoutparameter{gridsdistance},
+     header=\dimexpr\layoutparameter{gridheight}*\layoutparameter{topgrids}    -\layoutparameter\c!topspace    -\layoutparameter\c!headerdistance\relax, 
+     height=\dimexpr 1\paperheight                                             -\layoutparameter\c!topspace    -\layoutparameter\c!bottomspace\relax,
+     footer=\dimexpr\layoutparameter{gridheight}*\layoutparameter{bottomgrids} -\layoutparameter\c!bottomspace -\layoutparameter\c!footerdistance\relax,
+]
+
+\startuseMPgraphic{gridvisual}
+  numeric n, gd, pw, ph, gw, gh ;
+  numeric innerg, outerg, topg, bottomg ;
+
+  n       := \the\numexpr\layoutparameter{grids}\relax ;
+  gd      := \the\dimexpr\layoutparameter{gridsdistance}\relax ;
+  pw      := \the\paperwidth ;
+  ph      := \the\paperheight ;
+  gw      := \the\dimexpr\layoutparameter{gridwidth}\relax ;
+  gh      := \the\dimexpr\layoutparameter{gridheight}\relax ;
+  innerg  := \the\numexpr\layoutparameter{innergrids}\relax ;
+  outerg  := \the\numexpr\layoutparameter{outergrids}\relax ;
+  topg    := \the\numexpr\layoutparameter{topgrids}\relax ;
+  bottomg := \the\numexpr\layoutparameter{bottomgrids}\relax ;
+
+  % 1. 所有格子的外框（浅灰色细线）
+  drawoptions(withcolor (0.8,0.8,0.8) withpen pencircle scaled .2pt) ;
+  for i = 0 upto n-1 :
+    for j = 0 upto n-1 :
+      numeric x, y ;
+      x := i*gw ;
+      y := j*gh ;
+      draw (x, y) -- (x+gw, y) -- (x+gw, y+gh) -- (x, y+gh) -- cycle ;
+    endfor ;
+  endfor ;
+
+  % 2. 间距边界线（虚线，贯穿整个格子）
+  drawoptions(withcolor (0.6,0.6,0.6) withpen pencircle scaled .3pt dashed evenly) ;
+  for i = 0 upto n-1 :
+    for j = 0 upto n-1 :
+      numeric x, y ;
+      x := i*gw ;
+      y := j*gh ;
+      % 右侧间距的左边界线（从格子顶部到底部）
+      draw (x+gw-gd, y) -- (x+gw-gd, y+gh) ;
+      % 底部间距的上边界线（从格子左侧到右侧）
+      draw (x, y+gd) -- (x+gw, y+gd) ;
+    endfor ;
+  endfor ;
+\stopuseMPgraphic
+
+\defineoverlay[gridvisual][\useMPgraphic{gridvisual}]
+%\setupbackgrounds[page][background=gridvisual]
+
 \setuppapersize  [\moduleparameter{memos}{papersize}]
 %% 因为 hermes 需要页面大小， 所以必须先设置页面尺寸。
 %% must load font first,then can get real text fontsize(1em)
@@ -939,7 +1275,7 @@
 \newdimen\d_textlineheight\d_textlineheight=
          \dimexpr\lineheight*\c_heightcount-\lineheight+
          \ifdim\topskip<\ht\strutbox\topskip\else\ht\strutbox\fi\relax
-         
+
 \startluacode
   local todimen
   local thr
@@ -989,7 +1325,7 @@
 
   local textwidth  = tostring(twr/65536) .. "pt"
   local theight    = ph - Het - Fob        -- textheight 是 頁面 - 頂部 - 尾部
-  local textheight       = tostring(theight/65536) .. "pt"
+  local textheight = tostring(theight/65536) .. "pt"
 
   local backspace           = tostring(Lm/65536)  .. "pt"
   local rightmargin         = tostring(Rmm/65536) .. "pt"
@@ -1052,19 +1388,36 @@ context.definelayout(
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \defineconversionset  [frontpart:pagenumber] [] [Romannumerals]
 \defineconversionset  [bodypart:pagenumber]  [] [n]
-\setupsectionblock    [frontpart] [\c!number=\v!yes,before=\setcounter [userpage] [1]]
-\setupsectionblock    [bodypart]  [\c!number=\v!yes,before=\setcounter [userpage] [1]]
-\setupsectionblock    [appendix]  [before=\setuphead[part][number=no,numbercommand=]]
+\setupsectionblock    [frontpart] [page=right,\c!number=\v!yes,before=\setcounter [userpage] [1]]
+\setupsectionblock    [bodypart]  [page=right,\c!number=\v!yes,before=\setcounter [userpage] [1]]
+\setupsectionblock    [appendix]  [page=right,before={\setuphead[part][number=no,numbercommand=,placehead=yes,]}]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%                            標題相關設置                             %%%%%
+%%%%%%                            標題相關設置                               %%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definepagebreak[emptyright][yes,header,footer,right]
 \setupheads
            [part,chapter,section,subsection,subsubsection,
             subsubsubsection,subsubsubsubsection]
-           [indentnext=yes,interlinespace=auto,%textcommand={\setcharactercasing[Words]},
-            before={\vskip.5\baselineskip\relax}, after={\vskip.5\baselineskip\relax},]
-\setuphead [part,chapter,title]  [color=titlecolor]
+           [indentnext=yes,
+            interlinespace=auto,
+            %textcommand={\setcharactercasing[Words]},
+            before={\vskip.5\baselineskip\relax},
+            after={\vskip.5\baselineskip\relax},]
+\setuphead [part,chapter]        [footer=empty]
+\setuphead [part,chapter,title]  [page=emptyright,header=empty,color=titlecolor]
 \setuphead [title,subject]       [incrementnumber=list]
+\setuphead [part]                [placehead=yes,
+                                  numbercommand=\groupedcommand{\feature[+][f:caps] Part\ }{},
+                                  commandbefore=\blank,
+                                  before={\null\vfill},
+                                  after={\vfill}]
+\setuphead [chapter]             [frontpartlabel=preface,
+                                  bodypartlabel=chapter,
+                                  appendixlabel=appendix,
+                                  backpartlabel=backpart,
+                                  interlinespace=3\bodyfontsize,
+                                  before={\null\vskip3\baselineskip\relax},
+                                  after={\vskip\baselineskip\relax}]
 \setuphead [part]                [style=\definedfont[Sans sa 2.488]]
 \setuphead [chapter]             [style=\ssd]
 \setuphead [section]             [style=\rm\bfb]
@@ -1072,20 +1425,6 @@ context.definelayout(
 \setuphead [subsubsection]       [style=\rm\bf]
 \setuphead [subsubsubsection]    [style=\rm\bf]
 \setuphead [subsubsubsubsection] [style=\rm\bf]
-\setuphead [part]                [placehead=yes,
-                                  numbercommand=\groupedcommand{\feature[+][f:caps] Part\ }{},
-                                  commandbefore=\blank,
-                                  before={\null\vfill},
-                                  after={\vfill}]
-\setuphead [part,title]          [header=empty,]
-\setuphead [chapter]             [header=empty,
-                                  frontpartlabel=preface,
-                                  bodypartlabel=chapter,
-                                  appendixlabel=appendix,
-                                  backpartlabel=backpart,
-                                  interlinespace=3\bodyfontsize,
-                                  before={\null\vskip3\baselineskip\relax},
-                                  after={\vskip\baselineskip\relax}]
 \setuphead [chapter]             [sectionsegments=chapter]
 \setuphead [section]             [sectionsegments=section]
 \setuphead [subsection]          [sectionsegments=subsection]
@@ -1096,6 +1435,21 @@ context.definelayout(
 %%%%%%                          標題相關設置                               %%%%%%
 %%%%%%                           數字式標籤                                %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definelayout [part] [moderate]
+\definemakeup [part] [doublesided=yes%
+                     ,pagestate=start%
+                     ,page=right%
+                     ,headerstate=stop%
+                     ,footerstate=stop%
+                     ,topstate=stop%
+                     ,bottomstate=stop%
+                     ,textstate=stop%
+                     ,top=\pseudostrut\ignorespaces%
+                     ,bottom=\obeydepth\vss%
+                     ,height=\paperheight%
+                     ,align=flushright%
+                     ,after=]
+
 %characters(a),romannumerals(i),numbers(1),
 %chinesenumerals(四十二) chinesecapnumerals(肆拾二) chineseallnumerals(廿二)
 %% 1          --- chapter
@@ -1118,47 +1472,106 @@ context.definelayout(
 %% 1.1 XXXX         --- subsection
 %% 1.1.1 XXXX       --- subsubsection
 %% 1.1.1.1 XXXX       --- subsubsubsection
+
+\define[2]\part_default_framed{%
+  \vbox to 1th{\localheadsetup
+  \dontleavehmode
+  \ifconditional\headshownumber
+    \vbox{\hbox to 6em{%
+          \framed[frame=off,corner=rounded,width=4em,
+            background=color,backgroundcolor=themecolor,
+            ]{#1}\hfil}}%
+            #2\par\vfill%
+    \hfill\vbox {\hsize .55tw\vfill\hw
+    \setuplist[chapter][margin=0pt,width=fit,frame=off,distance=.5em,
+                        align=flushleft,numbercommand=,
+                        style=\setuplocalinterlinespace[line=1em]\hw,]%
+    \placecontent[list=chapter]}%
+  \fi
+}}
+
 \startsetups memos:chap:default
-    \edef\currentchapterstyle{default}
-    \setupheads[chapter]
-               [align=center,
-                distance=\widthofstring{\ssd 章}]
-    \setupheads[section,
-                subsection,
-                subsubsection,
-                subsubsubsection,
-                subsubsubsubsection] [sectionsegments=section:*]
-    \setupheads[subsection,
-                subsubsection,
-                subsubsubsection,
-                subsubsubsubsection] [numbercommand=,]
-    \setuplabeltext [hans]  [part={第,部},
-                             chapter={第,章},    section={第,节},
-                             subsection={},      subsubsection={},
-                             subsubsubsection={},subsubsubsubsection={}]
-    \setuplabeltext [hant]  [part={第,部},
-                             chapter={第,章},    section={第,節},
-                             subsection={},      subsubsection={},
-                             subsubsubsection={},subsubsubsubsection={}]
+  \edef\currentchapterstyle{default}
+
+  \setupmakeup[part] [before=\setupbackgrounds[page][background=color,backgroundcolor=palethemecolor],
+                       after=\setupbackgrounds[page][background=color,backgroundcolor=transparentcolor]]
+  \setuphead  [part] [placehead=yes,
+                      align=flushleft,
+                      page=no,
+                      numbercolor=white,
+                      numberstyle=ssd,
+                      numbercommand=\groupedcommand{\feature[+][f:caps] Part\ \definedfont[Sans sa 3.583]}{},
+                      command=\part_default_framed,
+                      before=\startmakeup[part],
+                      after=\stopmakeup,
+                      ]
+  \setupheads[chapter]
+              [align=center,
+              distance=\widthofstring{\ssd 章}]
+  \setupheads[section,
+              subsection,
+              subsubsection,
+              subsubsubsection,
+              subsubsubsubsection] [sectionsegments=section:*]
+  \setupheads[subsection,
+              subsubsection,
+              subsubsubsection,
+              subsubsubsubsection] [numbercommand=,]
+  \setuplabeltext [hans]  [part={第,部},        appendix=附录,
+                           chapter={第,章},     section={第,节},
+                           subsection={},      subsubsection={},
+                           subsubsubsection={},subsubsubsubsection={}]
+  \setuplabeltext [hant]  [part={第,部},        appendix=附録,
+                           chapter={第,章},     section={第,節},
+                           subsection={},      subsubsection={},
+                           subsubsubsection={},subsubsubsubsection={}]
 \stopsetups
 %%                   1.1 Subsection
 %%  1 Chapter        (1) Subsubsection
 %% ------------      (1.1) Subsubsubsection
 %% 1 Section         (1.1.1) Subsubsubsubsection
 %%%%%%
+\define[2]\partlineframe{
+  \vbox to 1th{\localheadsetup
+  \dontleavehmode
+  \ifconditional\headshownumber
+    \vfill
+    \setbox0=\hbox{%
+      \hbox to 2em{\hfill #1\hfill}\hskip .5em%
+      \setuptextrules[rulecolor=white]%
+      \vbox to 4em{\hsize\dimexpr\textwidth-2em\relax\vfill\textrule[top]{#2}\vfill}%
+    }%
+    \dp0\zeropoint\box0
+    \vfill
+  \fi
+}}
+
 \startsetups memos:chap:line
-    \setuphead [chapter]             [before=\mbox{}\vskip2\baselineskip\relax,
-                                      after=\blank[line]\hfil\blackrule[color=titlecolor,height=2pt,width=4em]\hfil\par\vskip3\baselineskip\relax,
-                                      interlinespace=medium,
-                                      align=center,
-                                      style=\definedfont[Sans sa 2.488]]
-    \setuphead [section,subsection]  [numbercolor=lightthemecolor,numberwidth=2em]
-    \setuphead [section]             [style=\ss\bfb,   numberstyle=\ss\bid,]
-    \setuphead [subsection]          [style=\ss\tfa,   numberstyle=\ss\itc]
-    \setupheads[subsection]          [numbercommand=,      sectionsegments=section:*]
-    \setupheads[subsubsection]       [numbercommand=\paren]
-    \setupheads[subsubsubsection]    [numbercommand=\paren,sectionsegments=subsubsection:*]
-    \setupheads[subsubsubsubsection] [numbercommand=\paren,sectionsegments=subsubsection:*]
+  \setupmakeup[part] [before=\setupbackgrounds[page][background=color,backgroundcolor=softthemecolor],
+                       after=\setupbackgrounds[page][background=color,backgroundcolor=transparentcolor]]
+  \setuphead  [part] [placehead=yes,
+                      align=flushright,
+                      page=no,
+                      numbercolor=white,
+                      numberstyle=\definedfont[Sans at 5em],
+                      numbercommand=,
+                      textcolor=white,
+                      textstyle=ssb,
+                      command=\partlineframe,
+                      before=\startmakeup[part],
+                      after=\stopmakeup,]
+  \setuphead [chapter]             [before=\mbox{}\vskip2\baselineskip\relax,
+                                    after=\blank[line]\hfil\blackrule[color=titlecolor,height=2pt,width=4em]\hfil\par\vskip3\baselineskip\relax,
+                                    interlinespace=medium,
+                                    align=center,
+                                    style=\definedfont[Sans sa 2.488]]
+  \setuphead [section,subsection]  [numbercolor=lightthemecolor,numberwidth=2em]
+  \setuphead [section]             [style=\ss\bfb,   numberstyle=\ss\bid,]
+  \setuphead [subsection]          [style=\ss\tfa,   numberstyle=\ss\itc]
+  \setupheads[subsection]          [numbercommand=,      sectionsegments=section:*]
+  \setupheads[subsubsection]       [numbercommand=\paren]
+  \setupheads[subsubsubsection]    [numbercommand=\paren,sectionsegments=subsubsection:*]
+  \setupheads[subsubsubsubsection] [numbercommand=\paren,sectionsegments=subsubsection:*]
 \stopsetups
 %%%%%%
 %% chapter 1 XXXX    --- chapter
@@ -1171,7 +1584,7 @@ context.definelayout(
   \headsetupspacing
   \starttabulate[|ck{0}|]
   \setuplocalinterlinespace[1pt]
-  \NC\startframed[background=color,backgroundcolor=softbackground,
+  \NC\startframed[background=color,backgroundcolor=softthemecolor,
               foreground=color,foregroundcolor=white,
               corner=03,frame=off,location=bottom,
               width=\textwidth,height=5em,align={lohi,center}]%
@@ -1218,12 +1631,51 @@ context.definelayout(
   \stoplocalheadsetup
 \stopsetups
 
+\define[2]\part_madsen_frame{%
+  \vbox xoffset 1pt to 1th{
+  \vskip 50pt\relax
+  \localheadsetup
+  \dontleavehmode
+  \ifconditional\headshownumber
+    \framed[frame=off,
+            background=color,backgroundcolor=lightthemecolor,
+            width=100pt,height=100pt,
+            corner=02,]
+    {#1}
+    #2\vfil\hw
+    \hfill\vbox xoffset -1em {\hsize .5tw\vfill
+    \setuplist[chapter][margin=0pt,width=fit,frame=on,
+                    align=flushleft,numbercommand=,
+                    style=\setuplocalinterlinespace[line=0em]\hw,]
+      \placecontent[list=chapter]}%
+  \fi
+}}
+
+\definelayer[part:madsen:left][width=\paperwidth,height=\paperheight,preset=lefttop]
+\definelayer[part:madsen:right][width=\cutspace,height=\paperheight,x=\dimexpr\paperwidth-\cutspace\relax]
+
 \startsetups memos:chap:madsen
   \definebodyfontenvironment [40pt]
   \defineoverlay[chapback][{\externalfigure[][width=0.8\paperwidth,height=6cm]}]
 
   \defineheadalternative[madsentoc][renderingsetup=memos:chap:madsentoc]
   \defineheadalternative[madsen][renderingsetup=memos:chap:madsenchapter]
+
+  \setupmakeup[part] [before=%
+                            \setlayer   [part:madsen:left] {\framed[frame=off,background=color,backgroundcolor=palethemecolor,width=1pw,height=1ph]{}}%
+                            \setlayer   [part:madsen:right]{\framed[frame=off,background=color,backgroundcolor=lightthemecolor,width=\cutspace,height=1ph]{}}%
+                            \setupbackgrounds[page][background={part:madsen:left,part:madsen:right}]]
+  \setuphead  [part] [placehead=yes,
+                      align=flushright,
+                      page=no,
+                      numbercolor=white,
+                      numberstyle=ssd,
+                      numbercommand=\groupedcommand{\feature[+][f:caps] Part\ \definedfont[Sans sa 3.583]}{},
+                      textcommand=\groupedcommand{}{\hbox to 1em{}},
+                      command=\part_madsen_frame,
+                      before=\startmakeup[part],
+                      after=\stopmakeup,]
+
   \setuphead[chapter][before=,width=\textwidth,%\spanmarginwidth,
                       alternative=madsen,
                       textstyle=\definedfont[Sans sa 2.488]]
@@ -1383,11 +1835,11 @@ context.definelayout(
 
 \define[2]\left_margin_placement{%
   \vbox{\localheadsetup
-  \begstrut\dontleavehmode
+  \dontleavehmode
   \ifconditional\headshownumber
-    \vskip\dimexpr.06\paperwidth\relax
+    \vskip\dimexpr.1\paperwidth\relax
     \rightskip = -.85\rightmarginwidth #1
-    \vskip\dimexpr.09\paperwidth\relax
+    \vskip\dimexpr3\baselineskip\relax
       #2
     \vskip2.5\baselineskip
   \fi
@@ -1396,44 +1848,31 @@ context.definelayout(
 \newdimen\shifttomargin
 \shifttomargin=\dimexpr\paperwidth-%
             2\rightedgedistance-\rightedgewidth-%
-            .5\rightmarginwidth\relax%
+           .5\rightmarginwidth\relax%
 
 \startsetups memos:chap:colorful
-  \definelayer      [lay:all]  [repeat=yes,width=\paperwidth, height=\paperheight]
-  \definelayer      [lay:chapter][width=\paperwidth, height=\paperheight]
+  \definelayer      [lay:all]     [repeat=yes,width=\paperwidth, height=\paperheight]
+  \definelayer      [lay:chapter] [width=\paperwidth, height=\paperheight]
   \defineoverlay    [olay:all]    [\useMPgraphic{MP:all}]
   \defineoverlay    [partoverlay] [\useMPgraphic{crosspart}]
   \defineoverlay    [olay:chapter][\directsetup{chapter:pagebackground}]
-  % \setupbackgrounds [page]     [background=olay:all,state=repeat]
-  \setupbackgrounds [page]     [background=olay:chapter]
-
-  \definemakeup  [part]        [doublesided=yes%
-                              ,pagestate=start%
-                              ,page={odd,}%
-                              ,headerstate=stop%
-                              ,footerstate=stop%
-                              ,topstate=stop%
-                              ,bottomstate=stop%
-                              ,textstate=stop%
-                              ,top=\pseudostrut\ignorespaces%
-                              ,bottom=\obeydepth\vss%
-                              ,height=\paperheight%
-                              ,align=flushright%
-                              ,before=\setupbackgrounds[page][background=partoverlay],
-                              ,after=]
-
-  \setuphead     [part]        [placehead=yes,align=flushright,page=no,
-                                alternative=\v!command,
-                                \c!command=\left_margin_placement,
-  %%                              alternative=paragraph,
-  %%                              location=outermargin,
-  %%                            numbercommand=\groupedcommand
-  %%                              {\vskip\dimexpr.06\paperwidth\relax}
-  %%                              {\blank},
-                              ]
+% \setupbackgrounds [page]        [background=olay:all,state=repeat]
+  \setupbackgrounds [page]        [background=olay:chapter]
+  \setupmakeup      [part]        [before=\setupbackgrounds[page][background=partoverlay],
+                                    after=\setupbackgrounds[page][background=transparentcolor]]
+  \setuphead        [part]        [placehead=yes,align=flushright,page=no,
+                                   alternative=\v!command,
+                                   \c!command=\left_margin_placement,
+                                   before=\startmakeup[part],
+                                   after=\stopmakeup,
+  %%                                 alternative=paragraph,
+  %%                                 location=outermargin,
+  %%                               numbercommand=\groupedcommand
+  %%                                 {\vskip\dimexpr.06\paperwidth\relax}
+  %%                                 {\blank},
+                                  ]
   % startpartmakeup \part{} \stoppartmakeup
   % ------------- only set for chapter
-  \setuphead[part]   [before=\startmakeup[part],after=\stopmakeup]
   \setuphead[chapter][before={\globaldisablemode[rocket:chapterpage]
                               \globaldisablemode[hexa:chapterpage]
                               \globalenablemode[colorful:chapterpage]
@@ -1502,6 +1941,81 @@ context.definelayout(
   }
 \stopsetups
 
+\newcount\totalparts
+\totalparts=3
+\defineoverlay[archedbackground][\useMPgraphic{background:arched}]
+
+\startuseMPgraphic{background:arched}
+  StartPage;
+
+  numeric arch_radius, arch_depth, split_position;
+  arch_radius := PaperWidth/6;
+  arch_depth := 60pt;
+  split_position := 0.65 * PaperHeight;
+
+  path bottom_layer, top_layer, arch_path;
+
+  bottom_layer := (0, 0) -- (PaperWidth, 0) -- (PaperWidth, PaperHeight)
+                  -- (0, PaperHeight) -- cycle;
+
+  top_layer := (0, 0) -- (PaperWidth, 0) -- (PaperWidth, split_position)
+               -- (PaperWidth/2 + arch_radius, split_position)
+               .. (PaperWidth/2, split_position - arch_depth) ..
+               (PaperWidth/2 - arch_radius, split_position)
+               -- (0, split_position) -- cycle;
+
+  arch_path := (0, split_position)
+               -- (PaperWidth/2 - arch_radius, split_position)
+               .. (PaperWidth/2, split_position - arch_depth) ..
+               (PaperWidth/2 + arch_radius, split_position)
+               -- (PaperWidth, split_position);
+
+  fill bottom_layer withcolor \MPcolor{themecolor};
+  fill top_layer withcolor \MPcolor{softthemecolor};
+
+  draw arch_path withcolor white withpen pencircle scaled 4pt;
+
+  numeric current_part, total_parts, progress;
+  current_part := \the\numexpr\somenamedheadnumber{part}{current}\relax;
+  total_parts := \the\totalparts;
+  
+  if current_part > 0:
+    progress := current_part / total_parts;
+  else:
+    progress := 0;
+  fi;
+
+  path progress_path;
+  progress_path := subpath (0, progress * length(arch_path)) of arch_path;
+
+  draw progress_path withcolor \MPcolor{optcolor} withpen pencircle scaled 4pt;
+
+  StopPage;
+\stopuseMPgraphic
+
+\define[2]\part_rocket_frame{%
+  \vbox to 1th{
+  \vskip 50pt\relax
+  \localheadsetup
+  \dontleavehmode
+  \ifconditional\headshownumber
+    {\strc_rendering_initialize_style_and_color\relax\c!numbercolor
+     \feature[+][f:caps] Part}\par
+    #1\blank[2*line]
+    #2
+    \vfill
+    \setuplist[chapter]
+              [margin=0pt,width=fit,frame=on,
+              align=flushleft,numbercommand=,
+              style=\ss,color=darkthemecolor]
+    \setuplocalinterlinespace[line=0em]%
+    \raggedright
+      \color[optcolor]{\ssd\labeltext{content}\vskip 4pt
+      \hrule width \hsize height 0pt depth 1pt}
+    \hw\placecontent[list=chapter]
+  \fi
+}}
+
 \startsetups memos:chap:rocket
   \definelayer  [layer:chapter:rocket:number]
                 [x=0mm, y=0mm,width=\paperwidth,height=\paperheight]
@@ -1515,6 +2029,20 @@ context.definelayout(
   \setuplabeltext[en]  [chapter=Chapter,preface=Preface,appendix=Appendix]
   \setuplabeltext[hans][chapter=Chapter,preface=Preface,appendix=Appendix]
   \setuplabeltext[hant][chapter=Chapter,preface=Preface,appendix=Appendix]
+
+  \setupmakeup[part][before=\setupbackgrounds[page][background=archedbackground],
+                      after=\setupbackgrounds[page][background=color,backgroundcolor=transparentcolor]]
+  \setuphead  [part] [placehead=yes,
+                      align=center,
+                      page=no,
+                      numbercolor=white,
+                      numberstyle=\definedfont[Sans at 4em],
+                      numbercommand=,
+                      textcolor=optcolor,
+                      textcommand=,
+                      command=\part_rocket_frame,
+                      before=\startmakeup[part],
+                      after=\stopmakeup,]
   \setuphead[chapter][alternative=rocketdown,
                       numberstyle=\it,
                       textstyle=\definedfont[Sans sa 2.488],]
@@ -1536,7 +2064,7 @@ context.definelayout(
           scaled 60pt
           withshademethod "linear"
           withshadevector (10,-5)
-          withcolor green shadedinto blue
+          withcolor \MPcolor{optcolor} shadedinto \MPcolor{themecolor}
           withtransparency (1,.5) ;
     label("\definedfont[SansBold at 30pt]%
             \somenamedheadnumber{chapter}{current}",
@@ -1682,6 +2210,7 @@ context.definelayout(
       {\structureuservariable{dateafter}}{}
     }
   \stopsetups
+
   \setuphead[title][alternative=article]
 \stopsetups
 
@@ -1736,7 +2265,7 @@ context.definelayout(
     before=,
     align=center,
     background=color,
-    backgroundcolor=lightred,
+    backgroundcolor=softthemecolor,
     issue=第 8 號,
     date=\currentdate,
     subtitle={ニュースレターの主要な語句},
@@ -1770,7 +2299,6 @@ context.definelayout(
   \endgroup}
 
 \startsetups memos:chap:kaolike
-  \setuplabeltext[hans][appendix={附录~}]
   \newdimen\d_temp_chapheight
   \d_temp_chapheight=\dimexpr\topspace
                             +\headerheight+\headerdistance
@@ -1792,10 +2320,8 @@ context.definelayout(
                               color=themecolor]}
                     \placelayer[chapvrule],
             after=\vskip2\baselineskip\relax
-                    \marginlist[dy=-\baselineskip],]
-  \startsectionblockenvironment[appendix]
-    \setuphead[chapter][numberstyle=\definedfont[SansBold at 42pt]]
-  \stopsectionblockenvironment
+                    \marginlist[dy=-\baselineskip],
+                    ]
   \setupheads[section][sectionsegments=chapter:*]
   \setupheads[subsection,subsubsection,
               subsubsubsection,subsubsubsubsection]
@@ -1815,10 +2341,10 @@ context.definelayout(
 \setuplist  [title,subject,subsubject,subsubsubject,
              part,chapter,section,subsection,subsubsection,
              subsubsection,subsubsubsection,subsubsubsubsection]
-            [color=black,style={\feature[+][tabularnumbers]}]
+            [color=toccolor,style={\feature[+][tabularnumbers]}]
 \setuphead  [title,subject][incrementnumber=list]
 \definehead [tochead]      [title]
-            [placehead=yes,page=odd,incrementnumber=no,
+            [placehead=yes,page=right,incrementnumber=no,
              before=\null\vskip2\baselineskip\relax,
              after=\vskip\baselineskip\relax,
              header=stop,]
@@ -2337,7 +2863,6 @@ context.definelayout(
   \setupfootertexts[margin] []
                   [\setups[hdr:left:pagenumber]]
                   [\setups[hdr:right:pagenumber]][]
-  \setuppagenumbering [alternative=doublesided,]
 \fi
 %%%%%%%%%%%%%%%%%%%
 \ifhdr_sty_foemargin% doublesided page : page number in outermargin
@@ -2345,7 +2870,6 @@ context.definelayout(
   \setupfootertexts[margin] []
                    [\setups[hdr:right:pagenumber]]
                    [\setups[hdr:left:pagenumber]][]
-  \setuppagenumbering [alternative=doublesided,]
 \fi
 %%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%
@@ -2377,7 +2901,6 @@ context.definelayout(
        \kern-\rightmarginwidth\relax
        \stopalignment
   \stopsetups
-  \setuppagenumbering [alternative=doublesided,]
   \setupheadertexts[]
   \setupheadertexts[text]
        [] [\directsetup{header:rightpage}]
@@ -2385,7 +2908,6 @@ context.definelayout(
 \fi
 
 \ifhdr_sty_madsen
-  \setuppagenumbering [alternative=doublesided]
   \setupheadertexts  []
   \setupheadertexts  [\donetrue\setups [hdr:even:chaptermark]][][]
                      [\donetrue\setups [hdr:odd:sectionmark]]
@@ -2435,9 +2957,7 @@ context.definelayout(
      [backgroundcolor=optcolor,framecolor=optcolor,]{\vfil
         \hdrmarginhigh{Section\ \getmarking[chapternumber].\,}%
         \tfd\getmarking[sectionnumber]}][]
-        
-  \setuppagenumbering [alternative=doublesided,]
-  
+
   \setupfootertexts
     [margin]
     [][\framed[frame=off,align={center,lohi},width=\hsize,height=\footerheight]{\userpagenumber}]
@@ -2645,12 +3165,12 @@ context.definelayout(
 
 \setuptextbackground [blockbox][
                       location=always,   mp=mpos:region:leftbar,
-                      frame=off,         framecolor=framecolor,
+                      frame=off,         framecolor=lightthemecolor,
                       width=broad,
                       topoffset=1ex,     bottomoffset=1ex,
                       leftoffset=2ex,    rightoffset=2ex,
                       rulethickness=4pt,
-                      background=color,  backgroundcolor=darkbackground,
+                      background=color,  backgroundcolor=palethemecolor,
                       before=\vskip.5\baselineskip\relax,
                        after=\vskip.5\baselineskip\relax]
                        
@@ -3075,38 +3595,46 @@ context.definelayout(
   headerdivider=\framedtextparameter{headerdivider}
 }]
 
-\defineframedtext[DualHeaderText][
-  background=DualHeaderBox,
-  frame=off,
-  shownumber=1,
-  showtitle=1,
-  titlepos=1,
-  titlealign=2,
-  numberalign=2,
-  numberbgcolor=lightthemecolor,
-  titlebgcolor=white,
-  bodybgcolor=white,
-  headerbgcolor=transparentcolor,
-  numbercolor=white,
-  titlecolor=lightthemecolor,
-  framecolor=lightthemecolor,
-  numberframecolor=lightthemecolor,
-  titleframecolor=lightthemecolor,
-  numberframe=1,
-  titleframe=1,
-  leftframe=1,
-  rightframe=1,
-  topframe=1,
-  bottomframe=1,
-  numberratio=1,
-  titleratio=1,
-  rulethickness=1.5pt,
-  radius=0pt,
-  bodybackground=simple,
-  headerdivider=0,
-  indenting={yes,2em},
-  toffset=2.5\bodyfontsize,
-  width=\textwidth,
+\defineframedtext   [DualHeaderText][
+    background=DualHeaderBox,
+    frame=off,
+    width=\textwidth,
+    toffset=2.5\bodyfontsize,
+    % boffset=0pt,
+    % loffset=0pt,
+    % roffset=0pt,
+    indenting={yes,2em},
+    shownumber=1,
+    showtitle=1,
+    titlepos=1,
+    titlealign=2,
+    numberalign=2,
+    numberbgcolor=lightthemecolor,
+    titlebgcolor=white,
+    bodybgcolor=white,
+    headerbgcolor=transparentcolor,
+    numbercolor=white,
+    titlecolor=lightthemecolor,
+    framecolor=lightthemecolor,
+    numberframecolor=lightthemecolor,
+    titleframecolor=lightthemecolor,
+    numberframe=1,
+    titleframe=1,
+    leftframe=1,
+    rightframe=1,
+    topframe=1,
+    bottomframe=1,
+    numberratio=1,
+    titleratio=1,
+    rulethickness=1.5pt,
+    radius=0pt,
+    bodybackground=simple,
+    headerdivider=0,
+    % symbol=,
+    % character=,
+    % shadowcolor=,
+    % number=, 
+    % title=,
 ]
 
 \startuseMPgraphic{rules:under:round}{radius}
@@ -3126,10 +3654,10 @@ context.definelayout(
    offset=0,
    order=background,
    continue=yes,
-   foregroundcolor=softgray,
+   foregroundcolor=white,
    left={\hskip .5ex\relax},
    right={\hskip .5ex\relax},
-   color=lightred]
+   color=themecolor]
 
 \definebar[bigunderdot]
   [text=\raise2\exheight\vbox to 1pt{\hsize 1em\relax\hfil\darkred\tf\cdot\hfil},repeat=no]
@@ -3230,22 +3758,66 @@ fill pc withcolor \MPcolor{lightthemecolor};
 
 \definesymbol[blankdiamond][{\tfx ⬥}]
 
+\startuseMPgraphic{circledtext}
+  % 只读取参数，不涉及文本
+  path square ; square := roundedsquare(1,1,\framedparameter{radius}) scaled OverlayWidth yshifted .15OverlayWidth;
+  picture p   ; p      := dashpattern(on    \framedparameter{dashskipwidth}  off  \framedparameter{dashskipwidth}) ;
+  % 添加虚线装饰（可选）
+  path ti ; ti := (.50OverlayWidth,0)--(.50OverlayWidth,OverlayWidth) ;
+  path it ; it := (0,.50OverlayWidth)--(OverlayWidth,.50OverlayWidth) ;
+  path xi ; xi := (.13OverlayWidth,.13OverlayWidth)--(.88OverlayWidth,.88OverlayWidth) ;
+  path ix ; ix := xi reflectedabout ((.5OverlayWidth,0),(.5OverlayWidth,5)) ;
+  draw ti withcolor \MPcolor{\framedparameter{dashcolor}} dashed p withpen pencircle scaled \framedparameter{dashlinewidth} yshifted .15OverlayWidth;
+  draw it withcolor \MPcolor{\framedparameter{dashcolor}} dashed p withpen pencircle scaled \framedparameter{dashlinewidth} yshifted .15OverlayWidth;
+  draw xi withcolor \MPcolor{\framedparameter{dashcolor}} dashed p withpen pencircle scaled \framedparameter{dashlinewidth} yshifted .15OverlayWidth;
+  draw ix withcolor \MPcolor{\framedparameter{dashcolor}} dashed p withpen pencircle scaled \framedparameter{dashlinewidth} yshifted .15OverlayWidth;
+  % 绘制框和装饰线，但不绘制文字
+  draw   \framedparameter{frametype} withcolor OverlayLineColor ;
+  fill   \framedparameter{frametype} withcolor \MPcolor{\framedparameter{fillcolor}}  ;
+\stopuseMPgraphic
+
+\defineoverlay[circledtextOL][\useMPgraphic{circledtext}]
+
+\defineframed
+ [circledtxt]
+ [    background=circledtextOL,
+        location=low,
+        align={center,lohi},
+           width=\bodyfontsize,
+           frame=off,
+          offset=0pt,
+       anchoring=normal,
+         yanchor=.00\bodyfontsize,% 0.0~0.1
+       frametype=square,
+      framecolor=themecolor,
+       fillcolor=transparentcolor,
+ foregroundcolor=themecolor, % change font color
+ foregroundstyle=tfx,
+          radius=0,% if = 0 will be square,if = 0.5 will be circle
+       dashcolor=transparentcolor,
+   dashlinewidth=.5pt,
+   dashskipwidth=.9pt,% if = 0 ,will be undashed
+  ]
+
 \defineitemgroup    [ordinals] [levels=4]
 \setupitemgroup     [ordinals] [each]
-                               [before=,after=,right=,width=1.5em,
-                               stopper=.,symalign=center]
+                               [before=,after=,right=,
+                                width=1.5em,headstyle=bf,
+                                stopper=.,symalign=center]
 \setupitemgroup     [ordinals] [1]        [n,packed,joinedup]
 \setupitemgroup     [ordinals] [2]        [i,packed,joinedup]
 \setupitemgroup     [ordinals] [3]        [a,packed,joinedup]
 \setupitemgroup     [ordinals] [4]        [i,packed,joinedup]
 \defineitemgroup    [points]   [levels=4]% [nowhite]
 \setupitemgroup     [points]   [each]     [packed,joinedup]
-                               [before=,after=,right=,width=1.5em,
+                               [before=,after=,right=,
+                                width=1.5em,headstyle=bf,
                                 stopper=,symalign=center]
 \setupitemgroup     [points]   [1]        [symbol=mp:bullet]
 \setupitemgroup     [points]   [2]        [symbol=diamond]
 \setupitemgroup     [points]   [3]        [symbol=asterisk]
 \setupitemgroup     [points]   [4]        [symbol=star]
+
 \definedescription  [hangdescr][
                      before=,  after=,  width=fit,
                      indenting={2em},indentnext=yes,margin=1em,
@@ -3260,6 +3832,12 @@ fill pc withcolor \MPcolor{lightthemecolor};
                      headstyle=bold,style=normal,
                      align={flushleft},alternative=top,
                      text={\raise 1pt \hbox to 1em{$\bullet$}},]
+\definedescription  [description][
+                     before=\vskip.25\baselineskip\relax,
+                     after=\vskip.25\baselineskip\relax,
+                     alternative=serried,width=fit,
+                     indenting=2em,indentnext=yes,
+                     headstyle=bold,align={flushleft},]
 
 \defineenumeration[theorem]     [text=\labeltext{reference:theorem},way=bychapter,prefix=yes,prefixsegments=chapter]
 \defineenumeration[lemma]       [text=\labeltext{reference:lemma},way=bychapter,prefix=yes,prefixsegments=chapter]
@@ -3269,13 +3847,7 @@ fill pc withcolor \MPcolor{lightthemecolor};
 \defineenumeration[proof]       [text=\labeltext{reference:proof},way=bychapter,prefix=yes,prefixsegments=chapter]
 \defineenumeration[remark]      [text=\labeltext{reference:remark},way=bychapter,prefix=yes,prefixsegments=chapter]
 \defineenumeration[example]     [text=\labeltext{reference:example},way=bychapter,prefix=yes,prefixsegments=chapter]
-\definedescription  [description][
-                     before=\vskip.25\baselineskip\relax,
-                     after=\vskip.25\baselineskip\relax,
-                     alternative=serried,width=fit,
-                     indenting=2em,indentnext=yes,
-                     headstyle=bold,align={flushleft},]
-\defineenumeration  [tips] [text=Tips,
+\defineenumeration[tips]   [text=Tips,
                             headcommand=\setuptextrules[color=themecolor,rulecolor=themecolor,rulethickness=1.5\linewidth]\textrule[top],
                             before=\vskip-\baselineskip\relax,
                             after=\setuptextrules[color=themecolor,rulecolor=themecolor,rulethickness=1.5\linewidth]\textrule[bottom]\empty,
@@ -3285,6 +3857,19 @@ fill pc withcolor \MPcolor{lightthemecolor};
                             prefix=yes,% or prefixsegments=chapter:section
                             prefixsegments=section]
 \setupcounter       [tips] [way=bysection]
+\defineenumeration  [mainpoint]
+\setupenumeration   [mainpoint] [text=,
+                                 title=yes,
+                                 titleleft=,titleright=,
+                                 titlestyle=sstf,
+                                 numberstyle=sstf,
+                                 numberconversion=cn,stopper=、,
+                                 indentnext=yes,
+                                 before=\blank[halfline],after=,
+                                 inbetween=\blank[halfline],
+                                 ]
+
+
 %%%%% only for compatiblility
 \let\startlists\startordinals
 \let\stoplists\stopordinals
@@ -3293,26 +3878,34 @@ fill pc withcolor \MPcolor{lightthemecolor};
 %\setupnote affects the number inside the body text,
 %\setupnotation affects the text at the bottom of the page (footnote or endnote).
 % \note[fn:notei]\notesep\note[fn:noteii]
-\newif\ifinfootnote
+
 \startsetups fn:hanzi
-  % \restoreglobalbodyfont
-  \setglobalscript [hanzi]
-  \setuplocalinterlinespace[line=.9\baselineskip]
-  \infootnotetrue
+  \setglobalscript [hanzi]%% \restoreglobalbodyfont
 \stopsetups
+
+\defineinterlinespace[footnote][line=2.8ex]
+
 \def\notesep    {{\useurlstyleandcolor\c!style\c!color\strc_notes_inject_separator}}
-\setupfootnotes [setups={fn:hanzi},spacebefore=halfline]
-\setupnote      [textseparator=\textcomma,
+\def\MMS_notecommand#1{\high{\noteparameter\c!left #1\noteparameter\c!right}}
+
+\setupnote      [setups={fn:hanzi},
+                 textseparator=\textcomma,
                  textcolor=footnotecolor,
-                 style=\resetfontsize\hwx,
-                 ]
+                 textcommand=\MMS_notecommand,
+                 textstyle=hw,
+                 left=\languageparameter{leftnotemark},
+                 right=\languageparameter{rightnotemark},
+                ]
 \setupnotation  [setups={fn:hanzi},
-                 style=\resetfontsize\hwx,
+                 style=hw,
                  color=footnotecolor,
+                 interlinespace=footnote,
                  headcolor=footnotecolor,
                  way=bypage,
-                 ]
-\newdimen\d_temp_margin\d_temp_margin=\rightmarginwidth\relax
+                 left=\languageparameter{leftnotemark},
+                 right=\languageparameter{rightnotemark},
+                ]
+
 \definenote    [marginnote]
 \setupnote     [marginnote] [location=none]
 \setupnotation [marginnote] [align=flushleft,
@@ -3320,18 +3913,18 @@ fill pc withcolor \MPcolor{lightthemecolor};
                 location=serried,]
 \setuptexttexts[margin] []  [{\framed[%
                 align={right,bottom},   frame=off,
-                height=\textheight,     width=\d_temp_margin,
+                height=\textheight,     width=\rightmarginwidth,
                ]{\setglobalscript [hanzi]%
                  \setuplocalinterlinespace[line=.9\bodyfontsize,]%
                  \placelocalnotes[marginnote][width=max]}}]
-\setupmargindata  [inoutermargin][align={inner},width=\d_temp_margin,style=\setlocalscript[hanzi]\hwx,]
-\setupmarginframed[inoutermargin][align={inner},width=\d_temp_margin,style=\setlocalscript[hanzi]\hwx,]
+\setupmargindata  [inoutermargin][align={inner},width=\rightmarginwidth,style=\setlocalscript[hanzi]\hwx,]
+\setupmarginframed[inoutermargin][align={inner},width=\rightmarginwidth,style=\setlocalscript[hanzi]\hwx,]
 \defineconversion [sidenote][%
-    \hbox to 1.5em{{\tfx\hfil\ast\hfil}},
-    \hbox to 1.5em{{\tfx\hfil\ast\ast\hfil}},
-    \hbox to 1.5em{\hbox to 0em{\raise .5em%
-    \hbox to 1.5em{{\tfx\hfil  \ast  \hfil}}}%
-    \hbox to 1.5em{{\tfx\hfil\ast\ast\hfil}}}]
+    \hbox to 1.0em{{\tfx\hfil\ast\hfil}},
+    \hbox to 1.0em{{\tfx\hfil\ast\ast\hfil}},
+    \hbox to 1.0em{\tfx\raise .5em%
+      \hbox to 1.0em{\hfil\ast\hfil}\kern-1.0em
+      \hbox to 1.0em{\hfil\ast\ast\hfil}}]
 \tolerant\def\movesidenote[#1]{\gdef\move_sidenote{\doifsomethingelse{#1}{#1}{0em}}}
 \movesidenote[0em]
 \define\PlaceFootnote%
@@ -3340,7 +3933,7 @@ fill pc withcolor \MPcolor{lightthemecolor};
         [align={width,hyphenated,morehyphenation,tight},before=,after=,]\hfill}%
   }\movesidenote[0em]}
 \definenote    [sidenote]
-\setupnote     [sidenote] [location=text,next=\PlaceFootnote]
+\setupnote     [sidenote] [location=text,next=\PlaceFootnote,]
 \setupnotation [sidenote] [numberconversion=sidenote,width=2mm,]
 %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -3377,7 +3970,7 @@ fill pc withcolor \MPcolor{lightthemecolor};
 \definetextbackground[wideframedcode][framedcode]
 \setuptextbackground [framedcode][width=local,
                       frame=on,           foregroundcolor=codecolor,
-                      background=color,   backgroundcolor=darkbackground,
+                      background=color,   backgroundcolor=palethemecolor,
                       corner=round,       radius=4pt,
                       location=always,    framecolor=themecolor,
                       leftoffset=\bodyfontsize,
@@ -3541,7 +4134,7 @@ fill pc withcolor \MPcolor{lightthemecolor};
 \setupTABLE[frame=on,framecolor=themecolor,split=yes,rulethickness=.2pt]
 \stopsetups
 \startsetups alternatecolor
-\setupTABLE[row][odd][background=color,backgroundcolor=darkbackground,]
+\setupTABLE[row][odd][background=color,backgroundcolor=softthemecolor,]
 \setupTABLE[row][even][background=color,backgroundcolor=white,]
 \stopsetups
 \startsetups nonlines
@@ -3569,11 +4162,11 @@ fill pc withcolor \MPcolor{lightthemecolor};
               [default=here,location=right]
 
 \setupcaptions [fullfig,fulltab,fullfigure,fulltable]
-               [width=\d_temp_margin,align=inner,location={bottom}]
+               [width=\rightmarginwidth,align=inner,location={bottom}]
 \setupcaptions [marginfig,margintab,marginfigure,margintable]
-               [width=\d_temp_margin,align=inner,location={bottom}]
+               [width=\rightmarginwidth,align=inner,location={bottom}]
 \setupcaptions [textfig,texttab,textfigure,texttable]
-               [width=\d_temp_margin,align=inner,location={outermargin,bottom}]
+               [width=\rightmarginwidth,align=inner,location={outermargin,bottom}]
 
 % \setupcombinedlist[listoffigures]
 %                   [marginfig,textfig,fullfig,figure,
@@ -3729,6 +4322,14 @@ suggest=\symbol[fontawesome][star]]
 \def\refsimp[#reflevel:#reference]%
    {\refsec_level_detect[#reflevel:#reference]{\space}%\setlocationattributes
     \at{(p.}{)}[#reflevel:#reference]\refsymbol}
+
+
+\setupregister  [index] [
+  textcolor=referencecolor,
+  pagecolor=referencecolor,
+  textstyle=tf,
+  pagestyle=it,
+]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 没有用了，我们可以直接使用 stretched 这个命令
 \newdimen\autojustify_width
@@ -3893,7 +4494,7 @@ suggest=\symbol[fontawesome][star]]
              series={\CONTEXT\ 模板系列示例},
                book={这是书名\vskip\baselineskip\relax{\restoreglobalbodyfont
                       \rm Here\ \ is\ \ Subtitle}},
-             author={主編 \quad Welson,Alex},
+             author={主编 \quad Welson,Alex},
           publisher={这是出版社},
        introduction={\tophalfhrule
                      \hbox to 1tw{\hfill\vbox{\hsize.8tw\relax\input gray\relax}\hfill}
@@ -4043,10 +4644,10 @@ suggest=\symbol[fontawesome][star]]
 \stopuseMPgraphic
 
 \defineoverlay [olay:ORLY]   [\useMPgraphic{MP:ORLY}]
-\setupmakeup   [ORLY][before=\setups{setup:ORLYmakeup}]
+\setupmakeup   [ORLY][before=\setups{setup:ORLYmakeup},after={\setupbackgrounds[header][text][background=color,backgroundcolor=white]}]
 \startsetups setup:ORLYmakeup
   \setupbackgrounds[page]        [background={olay:ORLY}]
-  \setupbackgrounds[header][text][background=color,backgroundcolor=themecolor,repeat=no]
+  \setupbackgrounds[header][text][background=color,backgroundcolor=themecolor]
 \stopsetups
 
 \setupcover[ORLY][
@@ -4065,7 +4666,7 @@ suggest=\symbol[fontawesome][star]]
   bookcolor=white,
   bookvspace=,
   afterbook={\hfill \ttb Up and Running\par\vskip4\baselineskip\relax},
-  author={{\bf O’RLY Cover} \hfill Robin Nixon},
+  author={{\en\bf O’RLY Cover} \hfill Robin Nixon},
   authorstyle=\ttb,
   authorcolor=darkgray,
   authoralign=flushleft,
@@ -4230,9 +4831,9 @@ suggest=\symbol[fontawesome][star]]
 \installnamespace          {xruby}
 \installcommandhandler    \????xruby  {xruby}  \????xruby
 
-\setupxruby[mono] [style=\switchtobodyfont[5pt],color=red,bodycolor=blue,yoffset=0pt,location=top,intrusion=no]%
-\setupxruby[group][style=\switchtobodyfont[5pt],color=red,bodycolor=blue,yoffset=0pt,location=top,intrusion=no]%
-\setupxruby[jyuku][style=\switchtobodyfont[5pt],color=red,bodycolor=blue,yoffset=0pt,location=top,intrusion=big,bprotrusion=no]%
+\setupxruby[mono] [style=\switchtobodyfont[5pt],yoffset=0pt,location=top,intrusion=no]%
+\setupxruby[group][style=\switchtobodyfont[5pt],yoffset=0pt,location=top,intrusion=no]%
+\setupxruby[jyuku][style=\switchtobodyfont[5pt],yoffset=0pt,location=top,intrusion=big,bprotrusion=no]%
 
 \protected\tolerant\def\xruby#*[#S#1]#*[#S#2]#:#3#4{
   \begingroup\edef\currentxruby{mono}%
@@ -4618,12 +5219,14 @@ suggest=\symbol[fontawesome][star]]
   \newbox\pinyinbox
   \newbox\hanzibox
 
+  \definefont[pinyinfont][name:lmroman10regular]
+
   \def\pinyinannotate#1#2#3%
     {\dontleavehmode
     \begingroup
     \setbox\hanzibox\hbox{#1}%
     \setbox\pinyinbox\hbox{%
-      \tf
+      \pinyinfont
       \doif{#3}{true}{}%
       #2%
     }%

@@ -15,53 +15,107 @@
              ]
 
 \protected\def\colorshowtemp#1{%
-  \framed[foregroundcolor=#1,width=6em,frame=off]{#1}}
+  \framed[foregroundcolor=#1,frame=off,align={lohi},foregroundstyle=\ttx]{#1}}
 
 \protected\def\bgcolorshowtemp#1{%
   \framed[foregroundcolor=white,background=color,backgroundcolor=#1,
-           width=6em,frame=off]{#1}}
+           frame=off,align={lohi},foregroundstyle=\ttx]{#1}}
 
-\def\showcolorrow#1{%
-  \startxrow
-    \startxcell {#1}                    \stopxcell
-    \startxcell \colorshowtemp{soft#1}  \stopxcell
-    \startxcell \colorshowtemp{light#1} \stopxcell
-    \startxcell \colorshowtemp{#1}      \stopxcell
-    \startxcell \colorshowtemp{dark#1}  \stopxcell
-    \startxcell \colorshowtemp{deep#1}  \stopxcell
-  \stopxrow}
+\def\showcolorlevels{%
+  \starttabulate[|lw(.15\textwidth)|cw(.15\textwidth)|cw(.15\textwidth)|cw(.15\textwidth)|cw(.15\textwidth)|cw(.15\textwidth)|]
+  \HL
+  \NC \NC \ttx red \NC \ttx blue \NC \ttx green \NC \ttx yellow \NC \ttx cyan \NC\NR
+  \HL
+  \NC \ttx pale   \NC \colorshowtemp{palered}   \NC \colorshowtemp{paleblue}   \NC \colorshowtemp{palegreen}   \NC \colorshowtemp{paleyellow}   \NC \colorshowtemp{palecyan}   \NC\NR
+  \NC \ttx soft   \NC \colorshowtemp{softred}   \NC \colorshowtemp{softblue}   \NC \colorshowtemp{softgreen}   \NC \colorshowtemp{softyellow}   \NC \colorshowtemp{softcyan}   \NC\NR
+  \NC \ttx light  \NC \colorshowtemp{lightred}  \NC \colorshowtemp{lightblue}  \NC \colorshowtemp{lightgreen}  \NC \colorshowtemp{lightyellow}  \NC \colorshowtemp{lightcyan}  \NC\NR
+  \NC \ttx normal \NC \colorshowtemp{red}       \NC \colorshowtemp{blue}       \NC \colorshowtemp{green}       \NC \colorshowtemp{yellow}       \NC \colorshowtemp{cyan}       \NC\NR
+  \NC \ttx dark   \NC \colorshowtemp{darkred}   \NC \colorshowtemp{darkblue}   \NC \colorshowtemp{darkgreen}   \NC \colorshowtemp{darkyellow}   \NC \colorshowtemp{darkcyan}   \NC\NR
+  \NC \ttx deep   \NC \colorshowtemp{deepred}   \NC \colorshowtemp{deepblue}   \NC \colorshowtemp{deepgreen}   \NC \colorshowtemp{deepyellow}   \NC \colorshowtemp{deepcyan}   \NC\NR
+  \NC \ttx black  \NC \colorshowtemp{blackred}  \NC \colorshowtemp{blackblue}  \NC \colorshowtemp{blackgreen}  \NC \colorshowtemp{blackyellow}  \NC \colorshowtemp{blackcyan}  \NC\NR
+  \HL
+  \stoptabulate
+  \starttabulate[|lw(.19\textwidth)|cw(.19\textwidth)|cw(.19\textwidth)|cw(.19\textwidth)|cw(.19\textwidth)|]
+  \HL
+  \NC              \NC \ttx orange \NC \ttx purple \NC \ttx pink \NC \ttx gray \NC\NR
+  \HL
+  \NC \ttx pale   \NC \colorshowtemp{paleorange}   \NC \colorshowtemp{palepurple}   \NC \colorshowtemp{palepink}   \NC \colorshowtemp{palegray}   \NC\NR
+  \NC \ttx soft   \NC \colorshowtemp{softorange}   \NC \colorshowtemp{softpurple}   \NC \colorshowtemp{softpink}   \NC \colorshowtemp{softgray}   \NC\NR
+  \NC \ttx light  \NC \colorshowtemp{lightorange}  \NC \colorshowtemp{lightpurple}  \NC \colorshowtemp{lightpink}  \NC \colorshowtemp{lightgray}  \NC\NR
+  \NC \ttx normal \NC \colorshowtemp{orange}       \NC \colorshowtemp{purple}      \NC \colorshowtemp{pink}       \NC \colorshowtemp{gray}       \NC\NR
+  \NC \ttx dark   \NC \colorshowtemp{darkorange}   \NC \colorshowtemp{darkpurple}   \NC \colorshowtemp{darkpink}   \NC \colorshowtemp{darkgray}   \NC\NR
+  \NC \ttx deep   \NC \colorshowtemp{deeporange}   \NC \colorshowtemp{deeppurple}   \NC \colorshowtemp{deeppink}   \NC \colorshowtemp{deepgray}   \NC\NR
+  \NC \ttx black  \NC \colorshowtemp{blackorange}  \NC \colorshowtemp{blackpurple}  \NC \colorshowtemp{blackpink}  \NC \colorshowtemp{blackgray}  \NC\NR
+  \HL
+  \stoptabulate
+  }
 
-\def\showbgcolorrow#1{%
-  \startxrow
-    \startxcell {#1}                      \stopxcell
-    \startxcell \bgcolorshowtemp{soft#1}  \stopxcell
-    \startxcell \bgcolorshowtemp{light#1} \stopxcell
-    \startxcell \bgcolorshowtemp{#1}      \stopxcell
-    \startxcell \bgcolorshowtemp{dark#1}  \stopxcell
-    \startxcell \bgcolorshowtemp{deep#1}  \stopxcell
-  \stopxrow}
+\def\showbgcolorlevels{%
+  \starttabulate[|lw(.15\textwidth)|cw(.15\textwidth)|cw(.15\textwidth)|cw(.15\textwidth)|cw(.15\textwidth)|cw(.15\textwidth)|]
+  \HL
+  \NC \NC \ttx red \NC \ttx blue \NC \ttx green \NC \ttx yellow \NC \ttx cyan \NC\NR
+  \HL
+  \NC \ttx pale   \NC \bgcolorshowtemp{palered}   \NC \bgcolorshowtemp{paleblue}   \NC \bgcolorshowtemp{palegreen}   \NC \bgcolorshowtemp{paleyellow}   \NC \bgcolorshowtemp{palecyan}  \NC\NR
+  \NC \ttx soft   \NC \bgcolorshowtemp{softred}   \NC \bgcolorshowtemp{softblue}   \NC \bgcolorshowtemp{softgreen}   \NC \bgcolorshowtemp{softyellow}   \NC \bgcolorshowtemp{softcyan}  \NC\NR
+  \NC \ttx light  \NC \bgcolorshowtemp{lightred}  \NC \bgcolorshowtemp{lightblue}  \NC \bgcolorshowtemp{lightgreen}  \NC \bgcolorshowtemp{lightyellow}  \NC \bgcolorshowtemp{lightcyan} \NC\NR
+  \NC \ttx normal \NC \bgcolorshowtemp{red}       \NC \bgcolorshowtemp{blue}       \NC \bgcolorshowtemp{green}       \NC \bgcolorshowtemp{yellow}       \NC \bgcolorshowtemp{cyan}      \NC\NR
+  \NC \ttx dark   \NC \bgcolorshowtemp{darkred}   \NC \bgcolorshowtemp{darkblue}   \NC \bgcolorshowtemp{darkgreen}   \NC \bgcolorshowtemp{darkyellow}   \NC \bgcolorshowtemp{darkcyan}  \NC\NR
+  \NC \ttx deep   \NC \bgcolorshowtemp{deepred}   \NC \bgcolorshowtemp{deepblue}   \NC \bgcolorshowtemp{deepgreen}   \NC \bgcolorshowtemp{deepyellow}   \NC \bgcolorshowtemp{deepcyan}  \NC\NR
+  \NC \ttx black  \NC \bgcolorshowtemp{blackred}  \NC \bgcolorshowtemp{blackblue}  \NC \bgcolorshowtemp{blackgreen}  \NC \bgcolorshowtemp{blackyellow}  \NC \bgcolorshowtemp{blackcyan} \NC\NR
+  \HL
+  \stoptabulate
+  \starttabulate[|lw(.19\textwidth)|cw(.19\textwidth)|cw(.19\textwidth)|cw(.19\textwidth)|cw(.19\textwidth)|]
+  \HL
+  \NC              \NC \ttx orange \NC \ttx purple \NC \ttx pink \NC \ttx gray \NC\NR
+  \HL
+  \NC \ttx pale   \NC \bgcolorshowtemp{paleorange}   \NC \bgcolorshowtemp{palepurple}   \NC \bgcolorshowtemp{palepink}   \NC \bgcolorshowtemp{palegray}   \NC\NR
+  \NC \ttx soft   \NC \bgcolorshowtemp{softorange}   \NC \bgcolorshowtemp{softpurple}   \NC \bgcolorshowtemp{softpink}   \NC \bgcolorshowtemp{softgray}   \NC\NR
+  \NC \ttx light  \NC \colorshowtemp{lightorange}    \NC \colorshowtemp{lightpurple}    \NC \colorshowtemp{lightpink}    \NC \colorshowtemp{lightgray}    \NC\NR
+  \NC \ttx normal \NC \bgcolorshowtemp{orange}       \NC \bgcolorshowtemp{purple}       \NC \bgcolorshowtemp{pink}       \NC \bgcolorshowtemp{gray}       \NC\NR
+  \NC \ttx dark   \NC \bgcolorshowtemp{darkorange}   \NC \bgcolorshowtemp{darkpurple}   \NC \bgcolorshowtemp{darkpink}   \NC \bgcolorshowtemp{darkgray}   \NC\NR
+  \NC \ttx deep   \NC \bgcolorshowtemp{deeporange}   \NC \bgcolorshowtemp{deeppurple}   \NC \bgcolorshowtemp{deeppink}   \NC \bgcolorshowtemp{deepgray}   \NC\NR
+  \NC \ttx black  \NC \bgcolorshowtemp{blackorange}  \NC \bgcolorshowtemp{blackpurple}  \NC \bgcolorshowtemp{blackpink}  \NC \bgcolorshowtemp{blackgray}  \NC\NR
+  \HL
+  \stoptabulate
+  }
 
 \def\showpaletcolors{%
-  \starttabulate[|c|c|c|c|c|]
-  \NC \colorshowtemp{themecolor} \NC
-      \colorshowtemp{softthemecolor} \NC
-      \colorshowtemp{lightthemecolor} \NC
-      \colorshowtemp{darkthemecolor} \NC
-      \colorshowtemp{deepthemecolor} \NC\NR
-  \NC \bgcolorshowtemp{themecolor} \NC
-      \bgcolorshowtemp{softthemecolor} \NC
-      \bgcolorshowtemp{lightthemecolor} \NC
-      \bgcolorshowtemp{darkthemecolor} \NC
-      \bgcolorshowtemp{deepthemecolor} \NC\NR
+  \starttabulate[|lw(.24\textwidth)|lw(.24\textwidth)|lw(.24\textwidth)|lw(.24\textwidth)|]
+  \HL
+  \NC Color Name \NC Example \NC Color Name \NC Example \NC\NR
+  \HL
+  \NC \ttx titlecolor \NC \colorshowtemp{titlecolor} \NC
+      \ttx textcolor \NC \colorshowtemp{textcolor} \NC\NR
+  \NC \ttx codecolor \NC \colorshowtemp{codecolor} \NC
+      \ttx captioncolor \NC \colorshowtemp{captioncolor} \NC\NR
+  \NC \ttx footnotecolor \NC \colorshowtemp{footnotecolor} \NC
+      \ttx linkcolor \NC \colorshowtemp{linkcolor} \NC\NR
+  \NC \ttx toccolor \NC \colorshowtemp{toccolor} \NC
+      \ttx referencecolor \NC \colorshowtemp{referencecolor} \NC\NR
+  \NC \ttx optcolor \NC \colorshowtemp{optcolor} \NC
+      \ttx lightoptcolor \NC \colorshowtemp{lightoptcolor} \NC\NR
+  \NC \ttx softbackground \NC \bgcolorshowtemp{softbackground} \NC
+      \ttx darkbackground \NC \bgcolorshowtemp{darkbackground} \NC\NR
+  \NC \ttx palethemecolor \NC \bgcolorshowtemp{palethemecolor} \NC
+      \ttx softthemecolor \NC \bgcolorshowtemp{softthemecolor} \NC\NR
+  \NC \ttx lightthemecolor \NC \bgcolorshowtemp{lightthemecolor} \NC
+      \ttx themecolor \NC \bgcolorshowtemp{themecolor} \NC\NR
+  \NC \ttx darkthemecolor \NC \bgcolorshowtemp{darkthemecolor} \NC
+      \ttx deepthemecolor \NC \bgcolorshowtemp{deepthemecolor} \NC\NR
+  \HL
   \stoptabulate}
+
+\def\showallpalettes{%
+  \doloopoverlist
+    {serene, harmony, passion, adventure, optimism, creativity, magic, romance, reliable, formality, innocence}
+    {\subject{\recursestring}\par\setuppalet[\recursestring]\showpaletcolors\blank[medium]}}
 
 \starttext
 
 \startfrontmatter
 \title{memos Module User Manual}
 
-\blank[big]
-
+\setuplist[content][list={part,title,chapter,section,subsection}]
 \placecontent
 
 \stopfrontmatter
@@ -129,6 +183,17 @@ The following parameters can be set when loading the module:
 \NC tocstyle \NC \NC TOC style \NC\NR
 \HL
 \stoptabulate
+
+For detailed descriptions and demonstrations of each parameter, see the corresponding chapters:
+
+\startitemize[packed]
+\item Paper size and page layout: \goto{Chapter 5 Page Layout}[page:layout]
+\item Font settings: \goto{Chapter 4 Font System}[page:font]
+\item Theme color: \goto{Chapter 6 Color System}[page:color]
+\item Chapter title style: \goto{Chapter 7 Chapter Style}[page:chapter]
+\item Header/footer style: \goto{Chapter 8 Header/Footer}[page:headerfooter]
+\item TOC style: \goto{Chapter 9 Table of Contents}[page:toc]
+\stopitemize
 
 \subsection{Paper Size (papersize)}
 
@@ -345,6 +410,8 @@ Use \type{\defineuserlanguage} or \type{\setupuserlanguage} to define new langua
 
 \chapter{Font System}
 
+\pagereference[page:font]
+
 \section{Font Sets}
 
 The memos module predefines multiple font sets for quick switching.
@@ -448,6 +515,8 @@ After enabling \type{moresize} mode, more font size options are available:
 
 \chapter{Page Layout}
 
+\pagereference[page:layout]
+
 \section{Layout Styles}
 
 The module provides multiple predefined page layout styles:
@@ -525,59 +594,20 @@ Each layout can be customized through parameters:
 
 \chapter{Color System}
 
+\pagereference[page:color]
+\setuplayout[narrow]
+
 \section{Base Color Set}
 
-The module predefines 11 base colors, each with 5 levels (soft/light/normal/dark/deep):
+The module predefines 11 base colors, each with 7 levels (pale/soft/light/normal/dark/deep/black):
 
 \subsection{Text Color Display}
 
-\start
-\startxtable[split=yes]
-\startxrow
-  \startxcell Color \stopxcell
-  \startxcell soft \stopxcell
-  \startxcell light \stopxcell
-  \startxcell normal \stopxcell
-  \startxcell dark \stopxcell
-  \startxcell deep \stopxcell
-\stopxrow
-\showcolorrow{red}
-\showcolorrow{blue}
-\showcolorrow{yellow}
-\showcolorrow{green}
-\showcolorrow{cyan}
-\showcolorrow{orange}
-\showcolorrow{purple}
-\showcolorrow{pink}
-\showcolorrow{gray}
-\showcolorrow{black}
-\showcolorrow{white}
-\stopxtable
-\stop
+\showcolorlevels
 
 \subsection{Background Color Display}
 
-\start
-\startxtable[split=yes]
-\startxrow
-  \startxcell Color \stopxcell
-  \startxcell soft \stopxcell
-  \startxcell light \stopxcell
-  \startxcell normal \stopxcell
-  \startxcell dark \stopxcell
-  \startxcell deep \stopxcell
-\stopxrow
-\showbgcolorrow{red}
-\showbgcolorrow{blue}
-\showbgcolorrow{yellow}
-\showbgcolorrow{green}
-\showbgcolorrow{cyan}
-\showbgcolorrow{orange}
-\showbgcolorrow{purple}
-\showbgcolorrow{pink}
-\showbgcolorrow{gray}
-\stopxtable
-\stop
+\showbgcolorlevels
 
 \section{Theme Color Palettes}
 
@@ -603,12 +633,7 @@ The module presets 11 theme color palettes, each containing a complete color sys
 
 \section{Palette Color Display}
 
-\start
-\doloopoverlist
-  {serene, harmony, passion, adventure, optimism, creativity, magic, romance, reliable, formality, innocence}
-  {{\red\ssd\recursestring}\par
-    \setuppalet[\recursestring]\showpaletcolors}
-\stop
+\showallpalettes
 
 \section{Using Palettes}
 
@@ -625,18 +650,20 @@ The module presets 11 theme color palettes, each containing a complete color sys
 
 \section{Color Variants}
 
-Each theme color has multiple variants forming a complete color system:
+Each theme color has 7 level variants forming a complete color system:
 
 \starttabulate[|l|p|]
 \HL
 \NC Color Variant \NC Description \NC\NR
 \HL
-\NC themecolor \NC Theme color \NC\NR
+\NC palethemecolor \NC Pale theme color \NC\NR
 \NC softthemecolor \NC Soft theme color \NC\NR
 \NC lightthemecolor \NC Light theme color \NC\NR
+\NC themecolor \NC Theme color \NC\NR
 \NC darkthemecolor \NC Dark theme color \NC\NR
 \NC deepthemecolor \NC Deep theme color \NC\NR
-\NC softthemecolorv \NC Soft vertical gradient \NC\NR
+\NC blackthemecolor \NC Black theme color \NC\NR
+\HL
 \NC optcolor \NC Option color \NC\NR
 \NC lightoptcolor \NC Light option color \NC\NR
 \HL
@@ -650,22 +677,25 @@ The module defines multiple semantic colors for different document elements:
 \HL
 \NC Color Name \NC Description \NC\NR
 \HL
+\NC titlecolor \NC Title color \NC\NR
 \NC textcolor \NC Text color \NC\NR
 \NC codecolor \NC Code color \NC\NR
 \NC captioncolor \NC Caption color \NC\NR
-\NC sidenotecolor \NC Sidenote color \NC\NR
 \NC footnotecolor \NC Footnote color \NC\NR
 \NC linkcolor \NC Link color \NC\NR
-\NC toclinkcolor \NC TOC link color \NC\NR
-\NC framecolor \NC Frame color \NC\NR
+\NC toccolor \NC TOC color \NC\NR
 \NC referencecolor \NC Reference color \NC\NR
-\NC titlecolor \NC Title color \NC\NR
+\NC optcolor \NC Option color \NC\NR
+\NC lightoptcolor \NC Light option color \NC\NR
 \NC softbackground \NC Soft background color \NC\NR
 \NC darkbackground \NC Dark background color \NC\NR
 \HL
 \stoptabulate
+\page\setuplayout[default]
 
 \chapter{Header/Footer}
+
+\pagereference[page:headerfooter]
 
 \section{Header/Footer Styles}
 
@@ -708,6 +738,8 @@ The module provides multiple header/footer styles:
 \stoptyping
 
 \chapter{Table of Contents}
+
+\pagereference[page:toc]
 
 \section{TOC Styles}
 
@@ -1348,6 +1380,8 @@ xtable uses \type{\startxtable} environment with the following preset row types:
 \getbuffer[xtable-demo]
 
 \chapter{Chapter Styles}
+
+\pagereference[page:chapter]
 
 \section{Available Chapter Styles}
 

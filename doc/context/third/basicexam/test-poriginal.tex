@@ -1,6 +1,6 @@
 \usemodule[memos][fontsize=16pt,fontstyle=ss]
 \usemodule[basicexam]
-\usemodule[poriginal][color=red]
+\usemodule[poriginal][color=blue]
 \starttext
 
 \TitlePage[title=这是文章标题,subtitle=这是副标题,author=\moduleparameter{poriginal}{color},]{}
@@ -174,9 +174,13 @@
 
 \typebuffer\blank
 
+\page
+
 \startcolumns[n=3]
 \getbuffer
 \stopcolumns
+
+
 
 \Subject{表格环境}
 
