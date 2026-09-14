@@ -1,13 +1,14 @@
 \usemodule[memos][extra=pinyin]
-
 \starttext
 
 \title{拼音注音测试}
 
 \section{自动注音环境测试}
 
-\startpinyinscope
-汉语拼音自动注音测试。
+\startpinyinscope[color=blue]
+汉语拼音自动注音测试。123
+
+\dontleavehmode\inframed[foregroundcolor=blue]{测试其他命令是否会被影响}汉语拼音自动注音测试。
 
 \color[red]{汉语拼音自动注音测试。}
 
@@ -18,8 +19,9 @@ Lorem Ipsum，也称乱数假文或者哑元文本，是印
 字体从而造出一本字体样品书，Lorem Ipsum 从西元 15 世纪起就被作为此领域的
 标准文本使用。它不仅延续了五个世纪，还通过了电子排版的挑战，其雏形却依然
 保存至今。在 1960 年代，『Leatraset』公司发布了印刷着 Lorem Ipsum 段落的纸
-张，从而广泛普及了它的使用。最近，计算机桌面出版软件『Aldus PageMaker』
+张，从而广泛普及了它的使用。最近，计算机桌面出版软件『Al\-dus PageMaker』
 也通过同样的方式使 Lorem Ipsum 落入大众的视野。
+
 恰恰与流行观念相反，Lorem Ipsum 并不是简简单单的随机文本。它追溯于
 一篇公元前 45 年的经典拉丁著作，从而使它有着两千多年的岁数。弗吉尼亚州
 Hampden­Sydney 大学拉丁系教授 Richard McClintock 曾在 Lorem Ipsum 段落中
@@ -37,7 +39,16 @@ amet..』节选于 1.10.32 章节。
 
 \section{拼音输出测试}
 
-手动注音：\xpinyin[hàn]{\bf \color[red]{汉}}
+{\setuppinyin[style=ss,color=blue,bodystyle=tt,bodycolor=red]
+手动注音：\xpinyin[hàn]{汉}}
+
+\xpinyin{1你好}
+
+\xpinyin[ni4,hao1]{2你好}
+
+\xpinyin[bodycolor=red]{3你好}
+
+\xpinyin[ni4,hao1][bodycolor=red]{4你好}
 
 \pinyin{han4yu3pin1yin1}
 
@@ -49,11 +60,11 @@ amet..』节选于 1.10.32 章节。
 
 默认 (0.4): \xpinyin{汉}
 
-ratio=6 (0.6): \xpinyin[ratio=6]{汉}
+ratio=0.6 (0.6): \xpinyin[ratio=0.6]{汉}
 
-ratio=3 (0.3): \xpinyin[ratio=3]{汉}
+ratio=0.3 (0.3): \xpinyin[ratio=0.3]{汉}
 
-ratio=8 (0.8): \xpinyin[ratio=8]{汉}
+ratio=0.8 (0.8): \xpinyin[ratio=0.8]{汉}
 
 \subsection{vsep 参数（拼音汉字垂直间距）}
 
@@ -92,7 +103,7 @@ hsep=0pt: \xpinyin[hsep=0pt]{汉字}
 
 \section{标记多音字模式}
 
-\startpinyinscope[markpolyphone=yes]
+\startpinyinscope[markpolyphone=yes,multiple=yes]
 汉语拼音自动注音测试。\xpinyin[chong2]{重}庆是一座美丽的城市。
 \stoppinyinscope
 

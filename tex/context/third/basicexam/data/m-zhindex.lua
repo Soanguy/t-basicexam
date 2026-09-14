@@ -1,323 +1,359 @@
-local sorters           = sorters or { }
-local definitions       = sorters.definitions or { }
+-- m-zhindex.lua
+-- 中文索引排序器：zh-pinyin / zh-alpha / zh-stroke
+-- 数据源：
+--   pinyin-data.lua   由 m-pinyin.lua 生成
+--   stroke-data.lua   由 make_stroke_data.py 生成
+--
+-- 关于扩展 B 区汉字与 ConTeXt numify 的冲突：
+--   ConTeXt 的 sort-ini.lua 在数字排序时把 "0" 变成 utfchar(0x20000+n)，
+--   0x20000-0x2A6DF 恰好是 CJK 扩展 B 区码点。若 entries 表包含扩展 B 区
+--   汉字，numify 后的数字会误命中这些条目，被错误归类。
+--   本模块在加载时过滤掉扩展 B 区汉字，避免冲突。
+--
+-- 优化 1：build_pinyin 和 build_alpha 合并为一次遍历、一次排序。
+-- 优化 2：load_stroke_data 的过滤合并进 build_stroke，只遍历一次。
+-- 优化 3：remove_tone 加缓存，重复拼音不重复转换。
+-- 优化 4：load_pinyin_data 与构建合并，只遍历一次原始数据。
 
-local pinyin_data = nil
-local stroke_data = nil
+local sorters     = sorters     or { }
+local definitions = sorters.definitions or { }
+local thirddata   = thirddata   or { }
 
-local pinyin_file = resolvers and resolvers.findfile("pinyin.txt") or "data-index/pinyin.txt"
-local stroke_file = resolvers and resolvers.findfile("sunwb_strokeorder.txt") or "data-index/sunwb_strokeorder.txt"
+-- ============================================================
+-- 声调去除（带缓存）
+-- ============================================================
 
-local digitsoffset      = 0x20000 -- frozen
-local digitsmaximum     = 0xFFFFF -- frozen
+local tone_map = {
+    ["ā"]="a", ["á"]="a", ["ǎ"]="a", ["à"]="a",
+    ["ē"]="e", ["é"]="e", ["ě"]="e", ["è"]="e",
+    ["ī"]="i", ["í"]="i", ["ǐ"]="i", ["ì"]="i",
+    ["ō"]="o", ["ó"]="o", ["ǒ"]="o", ["ò"]="o",
+    ["ū"]="u", ["ú"]="u", ["ǔ"]="u", ["ù"]="u",
+    ["ǖ"]="v", ["ǘ"]="v", ["ǚ"]="v", ["ǜ"]="v", ["ü"]="v",
+    ["ń"]="n", ["ň"]="n", ["ǹ"]="n",
+    ["ḿ"]="m",
+}
+
+local tone_cache = { }
+
+local function remove_tone(s)
+    if not s or s == "" then
+        return s
+    end
+    local cached = tone_cache[s]
+    if cached then
+        return cached
+    end
+    local result = s:gsub("[%z\1-\127\194-\244][\128-\191]*", function(c)
+        return tone_map[c] or c
+    end)
+    tone_cache[s] = result
+    return result
+end
+
+-- ============================================================
+-- 数据过滤
+-- ============================================================
+
+-- 保留：基本区 + 扩展 A + 兼容汉字区
+local function is_index_hanzi(cp)
+    return (cp >= 0x3400 and cp <= 0x4DBF)     -- 扩展 A
+        or (cp >= 0x4E00 and cp <= 0x9FFF)     -- 基本区
+        or (cp >= 0xF900 and cp <= 0xFAFF)     -- 兼容汉字
+end
 
 local function is_digit_char(c)
-    local byte = utf.byte(c, 1)
-    if byte and byte >= digitsoffset and byte <= digitsmaximum then
-        return true
-    end
-    if c:match("^[0-9]$") then
-        return true
+    if not c or c == "" then
+        return false
     end
     if c:match("^[0-9]+$") then
+        return true
+    end
+    -- numify 后的数字字符：U+20000-U+FFFFF，UTF-8 4 字节首字节 0xF0-0xF3
+    local b = c:byte(1)
+    if b and b >= 0xF0 and b <= 0xF3 then
         return true
     end
     return false
 end
 
-local function load_stroke_data()
-    if stroke_data then
-        return stroke_data
+-- ============================================================
+-- 原始数据读取（只读，不做处理）
+-- ============================================================
+
+local function load_pinyin_raw()
+    if thirddata.pinyin_raw then
+        return thirddata.pinyin_raw
     end
-    
-    local file = io.open(stroke_file, "r")
-    if not file then
-        return nil
-    end
-    
-    stroke_data = {}
-    
-    for line in file:lines() do
-        if not line:match("^#") then
-            local char, stroke_code = line:match("^(%S+)%s*(%d+)")
-            if char and stroke_code then
-                local stroke_count = #tostring(stroke_code)
-                stroke_data[char] = {
-                    count = stroke_count,
-                    code = stroke_code
-                }
-            end
-        end
-    end
-    
-    file:close()
-    return stroke_data
+    local f = resolvers and resolvers.findfile("pinyin-data.lua")
+    if not f then return nil end
+    local chunk = loadfile(f)
+    if not chunk then return nil end
+    local ok, raw = pcall(chunk)
+    if not ok or type(raw) ~= "table" then return nil end
+    thirddata.pinyin_raw = raw
+    return raw
 end
 
-local function load_pinyin_data()
-    if pinyin_data then
-        return pinyin_data
-    end
-    
-    local file = io.open(pinyin_file, "r")
-    if not file then
-        return nil
-    end
-    
-    pinyin_data = {}
-    
-    for line in file:lines() do
-        if not line:match("^#") then
-            local pinyin_raw, char = line:match("U%+[0-9A-Fa-f]+:%s*([^#]+)#%s*(%S+)")
-            if pinyin_raw and char then
-                pinyin_raw = pinyin_raw:gsub("^%s+", ""):gsub("%s+$", "")
-                local pinyin = pinyin_raw:match("^([^,]+)")
-                if pinyin then
-                    pinyin = pinyin:gsub("^%s+", ""):gsub("%s+$", "")
-                    pinyin_data[char] = pinyin
-                end
-            end
-        end
-    end
-    
-    file:close()
-    return pinyin_data
+local function load_stroke_raw()
+    local f = resolvers and resolvers.findfile("stroke-data.lua")
+    if not f then return nil end
+    local chunk = loadfile(f)
+    if not chunk then return nil end
+    local ok, raw = pcall(chunk)
+    if not ok or type(raw) ~= "table" then return nil end
+    return raw
 end
 
-local function remove_tone(s)
-    local tone_map = {
-        ["ā"] = "a", ["á"] = "a", ["ǎ"] = "a", ["à"] = "a",
-        ["ē"] = "e", ["é"] = "e", ["ě"] = "e", ["è"] = "e",
-        ["ī"] = "i", ["í"] = "i", ["ǐ"] = "i", ["ì"] = "i",
-        ["ō"] = "o", ["ó"] = "o", ["ǒ"] = "o", ["ò"] = "o",
-        ["ū"] = "u", ["ú"] = "u", ["ǔ"] = "u", ["ù"] = "u",
-        ["ǖ"] = "v", ["ǘ"] = "v", ["ǚ"] = "v", ["ǜ"] = "v", ["ü"] = "v",
-        ["ń"] = "n", ["ň"] = "n", ["ǹ"] = "n",
-        ["ḿ"] = "m",
-    }
-    return s:gsub("[%z\1-\127\194-\244][\128-\191]*", function(c)
-        return tone_map[c] or c
-    end)
+-- ============================================================
+-- 数字转汉字（笔画标题用）
+-- ============================================================
+
+local HANZI_DIGITS = { "零", "一", "二", "三", "四", "五", "六", "七", "八", "九" }
+
+local function num_to_hanzi(n)
+    if not n or n < 1 or n > 99 then
+        return tostring(n)
+    end
+    if n < 10 then
+        return HANZI_DIGITS[n + 1]
+    end
+    if n == 10 then
+        return "十"
+    end
+    if n < 20 then
+        return "十" .. HANZI_DIGITS[n - 10 + 1]
+    end
+    local tens = math.floor(n / 10)
+    local ones = n % 10
+    if ones == 0 then
+        return HANZI_DIGITS[tens + 1] .. "十"
+    end
+    return HANZI_DIGITS[tens + 1] .. "十" .. HANZI_DIGITS[ones + 1]
 end
 
-local function build_pinyin()
-    local data = load_pinyin_data()
-    if not data then
-        return { entries = {}, orders = {} }
-    end
-    
-    local sorted = {}
-    for char, pinyin in pairs(data) do
-        sorted[#sorted + 1] = { char, remove_tone(pinyin) }
-    end
-    
-    table.sort(sorted, function(a, b)
-        if a[2] ~= b[2] then
-            return a[2] < b[2]
-        end
-        return a[1] < b[1]
-    end)
-    
-    local entries = {}
-    local orders = {}
-    
-    for i, entry in ipairs(sorted) do
-        orders[#orders + 1] = entry[1]
-        entries[entry[1]] = entry[2]
-    end
-    
-    local digits = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" }
+-- ============================================================
+-- 公共常量
+-- ============================================================
+
+local DIGITS = { "0","1","2","3","4","5","6","7","8","9" }
+
+local WESTERN_LOWER = {
+    "a","b","c","d","e","f","g","h","i","j","k","l","m",
+    "n","o","p","q","r","s","t","u","v","w","x","y","z",
+}
+
+local WESTERN_BOTH = {
+    "a","b","c","d","e","f","g","h","i","j","k","l","m",
+    "n","o","p","q","r","s","t","u","v","w","x","y","z",
+    "A","B","C","D","E","F","G","H","I","J","K","L","M",
+    "N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
+}
+
+-- 追加 number 分组到 orders / entries
+local function append_number(orders, entries)
     orders[#orders + 1] = "number"
     entries["number"] = "99999"
-    for _, digit in ipairs(digits) do
-        orders[#orders + 1] = digit
-        entries[digit] = "number"
+    for i = 1, #DIGITS do
+        local d = DIGITS[i]
+        orders[#orders + 1] = d
+        entries[d] = "number"
     end
-    
-    local western = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-                     "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" }
+end
+
+-- 追加 alpha 分组（含大小写字母）到 orders / entries
+local function append_alpha_both(orders, entries)
     orders[#orders + 1] = "alpha"
     entries["alpha"] = "99998"
-    for _, letter in ipairs(western) do
-        orders[#orders + 1] = letter
-        entries[letter] = "alpha"
+    for i = 1, #WESTERN_BOTH do
+        local l = WESTERN_BOTH[i]
+        orders[#orders + 1] = l
+        entries[l] = "alpha"
     end
-    
-    return { entries = entries, orders = orders }
 end
 
-local function build_alpha()
-    local data = load_pinyin_data()
-    if not data then
-        return { entries = {}, orders = {} }
+-- ============================================================
+-- 拼音排序数据：一次遍历、一次排序，同时产出 pinyin 和 alpha
+-- ============================================================
+
+local function build_pinyin_and_alpha()
+    local raw = load_pinyin_raw()
+    if not raw then
+        return { entries = { }, orders = { } },
+               { entries = { }, orders = { } }
     end
-    
-    local sorted = {}
-    for char, pinyin in pairs(data) do
-        sorted[#sorted + 1] = { char, remove_tone(pinyin) }
+
+    -- 过滤 + 去调 + 收集
+    local utf_char = utf.char
+    local sorted = { }
+    local n = 0
+    for cp, pinyins in pairs(raw) do
+        if is_index_hanzi(cp) then
+            local first = pinyins[1]
+            if first then
+                n = n + 1
+                sorted[n] = { utf_char(cp), remove_tone(first) }
+            end
+        end
     end
-    
+
+    -- 一次排序，pinyin 和 alpha 共用
     table.sort(sorted, function(a, b)
         if a[2] ~= b[2] then
             return a[2] < b[2]
         end
         return a[1] < b[1]
     end)
-    
-    local entries = {}
-    local orders = {}
-    
-    local western = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" }
-    
-    local by_letter = {}
-    for _, letter in ipairs(western) do
-        by_letter[letter] = {}
+
+    -- ---------------- zh-pinyin ----------------
+    local p_entries, p_orders = { }, { }
+    for i = 1, n do
+        local e = sorted[i]
+        p_orders[#p_orders + 1] = e[1]
+        p_entries[e[1]] = e[2]
     end
-    
-    for _, entry in ipairs(sorted) do
-        local first = entry[2]:sub(1, 1)
-        local first_lower = first:lower()
-        if by_letter[first_lower] then
-            table.insert(by_letter[first_lower], entry)
+    append_number(p_orders, p_entries)
+    append_alpha_both(p_orders, p_entries)
+
+    -- ---------------- zh-alpha ----------------
+    local a_entries, a_orders = { }, { }
+
+    local by_letter = { }
+    for i = 1, #WESTERN_LOWER do
+        by_letter[WESTERN_LOWER[i]] = { }
+    end
+
+    for i = 1, n do
+        local e = sorted[i]
+        local first = e[2]:sub(1, 1):lower()
+        local bucket = by_letter[first]
+        if bucket then
+            bucket[#bucket + 1] = e
         end
     end
-    
-    for _, letter in ipairs(western) do
-        table.sort(by_letter[letter], function(a, b)
-            if a[2] ~= b[2] then
-                return a[2] < b[2]
-            end
-            return a[1] < b[1]
-        end)
-    end
-    
-    for _, letter in ipairs(western) do
-        orders[#orders + 1] = letter
-        entries[letter] = letter
-        entries[letter:upper()] = letter
-        
-        for _, entry in ipairs(by_letter[letter]) do
-            orders[#orders + 1] = entry[1]
-            entries[entry[1]] = letter
+
+    -- 每个字母下的条目已因 sorted 全局有序而保持拼音顺序，无需再次排序
+    for i = 1, #WESTERN_LOWER do
+        local letter = WESTERN_LOWER[i]
+        a_orders[#a_orders + 1] = letter
+        a_entries[letter] = letter
+        a_entries[letter:upper()] = letter
+        local bucket = by_letter[letter]
+        for j = 1, #bucket do
+            local e = bucket[j]
+            a_orders[#a_orders + 1] = e[1]
+            a_entries[e[1]] = letter
         end
     end
-    
-    local digits = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" }
-    orders[#orders + 1] = "number"
-    entries["number"] = "99999"
-    for _, digit in ipairs(digits) do
-        orders[#orders + 1] = digit
-        entries[digit] = "number"
-    end
-    
-    return { entries = entries, orders = orders }
+    append_number(a_orders, a_entries)
+
+    return
+        { entries = p_entries, orders = p_orders },
+        { entries = a_entries, orders = a_orders }
 end
 
+-- ============================================================
+-- 笔画排序数据：过滤 + 分组一次完成
+-- ============================================================
+
 local function build_stroke()
-    local data = load_stroke_data()
-    if not data then
-        return { entries = {}, orders = {} }
+    local raw = load_stroke_raw()
+    if not raw then
+        return { entries = { }, orders = { } }
     end
-    
-    local entries = {}
-    local orders = {}
-    
-    local by_stroke = {}
-    for char, stroke_info in pairs(data) do
-        -- Skip Unicode offset characters (0x20000-0xFFFFF) as they should be treated as numbers
-        local byte = utf.byte(char, 1)
-        if byte and byte >= digitsoffset and byte <= digitsmaximum then
-            -- Skip this character
-        else
-            if not by_stroke[stroke_info.count] then
-                by_stroke[stroke_info.count] = {}
+
+    -- 过滤扩展 B 区（首字节 0xF0-0xF3）并按笔画数分组
+    local by_stroke = { }
+    for char, code in pairs(raw) do
+        local b = char:byte(1)
+        if b and b < 0xF0 then
+            local cnt = #code
+            local bucket = by_stroke[cnt]
+            if not bucket then
+                bucket = { }
+                by_stroke[cnt] = bucket
             end
-            table.insert(by_stroke[stroke_info.count], char)
+            -- 直接存 { char, code }，后面比较用 e[2]，不再回查 raw
+            bucket[#bucket + 1] = { char, code }
         end
     end
-    
-    local stroke_numbers = {}
+
+    -- 笔画数排序
+    local stroke_numbers = { }
     for strokes in pairs(by_stroke) do
-        table.insert(stroke_numbers, strokes)
+        stroke_numbers[#stroke_numbers + 1] = strokes
     end
     table.sort(stroke_numbers, function(a, b)
         return tonumber(a) < tonumber(b)
     end)
-    
-    for _, strokes in ipairs(stroke_numbers) do
-        local stroke_name = strokes .. "画"
+
+    -- 组装
+    local entries, orders = { }, { }
+    for i = 1, #stroke_numbers do
+        local strokes = stroke_numbers[i]
+        local stroke_name = num_to_hanzi(tonumber(strokes)) .. "画"
         local sort_key = string.format("%05d", strokes)
         orders[#orders + 1] = stroke_name
         entries[stroke_name] = sort_key
-        
-        table.sort(by_stroke[strokes], function(a, b)
-            return data[a].code < data[b].code
+
+        local bucket = by_stroke[strokes]
+        table.sort(bucket, function(a, b)
+            return a[2] < b[2]
         end)
-        for _, char in ipairs(by_stroke[strokes]) do
-            orders[#orders + 1] = char
-            entries[char] = stroke_name
+        for j = 1, #bucket do
+            local e = bucket[j]
+            orders[#orders + 1] = e[1]
+            entries[e[1]] = stroke_name
         end
     end
-    
-    local digits = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" }
-    orders[#orders + 1] = "number"
-    entries["number"] = "99999"
-    for _, digit in ipairs(digits) do
-        orders[#orders + 1] = digit
-        entries[digit] = "number"
-    end
-    
-    local western = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-                     "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" }
-    orders[#orders + 1] = "alpha"
-    entries["alpha"] = "99998"
-    for _, letter in ipairs(western) do
-        orders[#orders + 1] = letter
-        entries[letter] = "alpha"
-    end
-    
+
+    append_number(orders, entries)
+    append_alpha_both(orders, entries)
+
     return { entries = entries, orders = orders }
 end
 
-local pinyin_def = build_pinyin()
-local alpha_def = build_alpha()
+-- ============================================================
+-- 注册定义
+-- ============================================================
+
+local pinyin_def, alpha_def = build_pinyin_and_alpha()
 local stroke_def = build_stroke()
 
 definitions["zh-pinyin"] = {
     entries = pinyin_def.entries,
-    orders = pinyin_def.orders,
+    orders  = pinyin_def.orders,
     firstofsplit = function(first, data, entry)
         if is_digit_char(first) then
-            return first, "number"
+            return "number", "number"
         end
         return first, pinyin_def.entries[first] or "\000"
-    end
+    end,
 }
 
 definitions["zh-alpha"] = {
     entries = alpha_def.entries,
-    orders = alpha_def.orders,
+    orders  = alpha_def.orders,
     firstofsplit = function(first, data, entry)
         if is_digit_char(first) then
-            return first, "number"
+            return "number", "number"
         end
         return first, alpha_def.entries[first] or "\000"
-    end
+    end,
 }
 
 definitions["zh-stroke"] = {
     entries = stroke_def.entries,
-    orders = stroke_def.orders,
+    orders  = stroke_def.orders,
     firstofsplit = function(first, data, entry)
         local result_key, result_entry
         if is_digit_char(first) then
-            result_key = "99999"
-            result_entry = "number"
+            result_key, result_entry = "number", "number"
         elseif first:match("画$") then
             local strokes = tonumber(first:match("^(%d+)画"))
             if strokes then
                 local sort_key = string.format("%05d", strokes)
-                result_key = sort_key
-                result_entry = sort_key
+                result_key, result_entry = sort_key, sort_key
             else
                 result_key = first
                 result_entry = stroke_def.entries[first] or "\000"
@@ -327,5 +363,5 @@ definitions["zh-stroke"] = {
             result_entry = stroke_def.entries[first] or "\000"
         end
         return result_key, result_entry
-    end
+    end,
 }

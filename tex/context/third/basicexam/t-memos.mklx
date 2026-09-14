@@ -33,7 +33,8 @@
               chapterstyle=default,
               hdrstyle=,
               tocstyle=,
-              doublesided=no,]
+              doublesided=no,
+              metaauthor=,]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \def\errorparameter#1{%
     \writestatus{module error}{!! Something Wrong happened at #1}
@@ -84,7 +85,7 @@
 \usesymbols             [fontawesome]%
 \setupcolors            [state=start,pagecolormodel=auto,textcolor=textcolor,]
 \setupinteraction       [state=start,
-                         % author={商無辛・Soanguy},
+                         author=\moduleparameter{memos}{metaauthor},
                          style=\tt,
                          color=linkcolor,
                          contrastcolor=themecolor]
@@ -395,14 +396,14 @@
 %% 这样后续如果使用 修改字体的 模块的话，才会生效
 \setupfontexpansion[conservative]
                    [stretch=1, shrink=1, step=0.25, factor=1]
-\definefontfeature[default][default][expansion=conservative, protrusion=quality]
+\definefontfeature [default][default][expansion=conservative, protrusion=quality]
 
 \startluacode
   scripts.installdataset {
     method  = "hanzi",
     name    = "tight",
     dataset = {
-      inter_char_shrink_factor          = 0.10, -- 字符间距最大收缩量（quad 的比例）
+      inter_char_shrink_factor          = 0.01, -- 字符间距最大收缩量（quad 的比例）
       inter_char_stretch_factor         = 0.15, -- 字符间距最大拉伸量（quad 的比例）
       inter_char_half_shrink_factor     = 0.10, -- 半角字符间距收缩量
       inter_char_half_stretch_factor    = 0.15, -- 半角字符间距拉伸量
@@ -551,73 +552,17 @@
 %%  ！！！ 應該只考慮 英數 和 漢字 之間的空間插入，符號 和 漢字 之間的間距不應該由這個程式控制
 %% 这段代码来自黄复雄，有细微修改。
 %% https://mailman.ntg.nl/archives/list/ntg-context@ntg.nl/thread/CIE43VW6Z4PCMBE2AJZJWFIDTCSLCJ76/#WA7SJQGHHXHWHVA6UAIMVZCHNZLLLL5O
+\newskip\kanjiskip
+\kanjiskip = 0em plus 0em minus 0em   % 根据需求设置默认值
+
+\newskip\xkanjiskip
+\xkanjiskip = 0.25em plus 1pt minus 1pt
+% 可以手动调整该值来增减汉字与英数之间的距离
+
 \startluacode
   thirddata = thirddata or {}
   thirddata.memos = thirddata.memos or {}
   local memos = thirddata.memos
-
-  local glyph_id = nodes.nodecodes.glyph
-  local node_insertbefore = node.insertbefore
-  local node_insertafter = node.insertafter
-  local node_new = node.new
-  local tex_sp = tex.sp
-
-  local function ischinesechar(c)
-      -- cjk汉字，不含符号
-      -- for more ranges:
-      -- https://wiki.contextgarden.net/List_of_Unicode_blocks
-      -- 按常用程度排列
-      return (c >= 0x04E00 and c <= 0x09FFF)    --CJK Unified Ideographs;
-          or (c >= 0x03040 and c <= 0x0309F)    --Hiragana
-          or (c >= 0x030A0 and c <= 0x030FF)    --Katakana
-          or (c >= 0x0F900 and c <= 0x0FAFF)    --CJK Compatibility Ideographs;
-          or (c >= 0x02E80 and c <= 0x02EFF)    --CJK Radicals Supplement;
-          or (c >= 0x02F00 and c <= 0x02FDF)    --Kangxi Radicals
-          or (c >= 0x02FF0 and c <= 0x02FFF)    --Ideographic Description Characters
-          or c == 0x03007                       -- 〇
-          or (c >= 0x03100 and c <= 0x0312F)    --Bopomofo
-          or (c >= 0x03190 and c <= 0x0319F)    --Kanbun
-          or (c >= 0x031A0 and c <= 0x031BF)    --Bopomofo Extended
-          or (c >= 0x031C0 and c <= 0x031EF)    --CJK Strokes; cjkstrokes
-          or (c >= 0x031F0 and c <= 0x031FF)    --Katakana Phonetic Extensions
-          or (c >= 0x03200 and c <= 0x032FF)    --Enclosed CJK Letters and Months
-          or (c >= 0x03400 and c <= 0x04DBF)    --CJK Unified Ideographs Extension A;
-          or (c >= 0x20000 and c <= 0x2A6DF)    --CJK Unified Ideographs Extension B;
-          or (c >= 0x2A700 and c <= 0x2B73F)    --CJK Unified Ideographs Extension C;
-          or (c >= 0x2B740 and c <= 0x2B81F)    --CJK Unified Ideographs Extension D;
-          or (c >= 0x2B820 and c <= 0x2CEAF)    --CJK Unified Ideographs Extension E;
-          or (c >= 0x2CEB0 and c <= 0x2EBEF)    --CJK Unified Ideographs Extension F;
-          or (c >= 0x2F800 and c <= 0x2FA1F)    --CJK Compatibility Ideographs Supplement;
-  end
-
-  local function ischinesepunctuation(c)
-      return (c >= 0x3000 and c <= 0x303F)      --CJK Symbols and Punctuation
-          or (c >= 0xFF00 and c <= 0xFFEF)      --Halfwidth and Fullwidth Forms
-  end
-
-  local function ispunctuation(c)
-      return (c >= 0x0000 and c <= 0x002F)      --ASCII punctuation
-          or (c >= 0x003A and c <= 0x003F)      --ASCII punctuation
-          or (c >= 0x005B and c <= 0x0060)      --ASCII punctuation
-          or (c >= 0x007B and c <= 0x007F)      --ASCII punctuation
-          or (c >= 0x2000 and c <= 0x206F)      --General Punctuation
-          or ischinesepunctuation(c)
-  end
-
-  local function isdigit(c)
-      return (c >= 0x0030 and c <= 0x0039)      --ASCII digits
-          or (c >= 0xFF10 and c <= 0xFF19)      --Fullwidth digits
-  end
-
-  local legalsymbolinchinese = {
-      [0x00b7] = true, -- ·   MIDDLE DOT
-      [0x002D] = true, -- -  Hyphen-Minus
-      [0x002F] = true, -- /  Solidus
-  }
-
-  local function islegalsymbolinchinese(c)
-      return legalsymbolinchinese[c]
-  end
 
   local debug_pangu = false
 
@@ -625,76 +570,353 @@
       debug_pangu = flag
   end
 
-  function thirddata.memos.processmystuff(head)
+  local glyph_id          = nodes.nodecodes.glyph
+  local node_insertbefore = node.insertbefore
+  local node_new          = node.new
+  local node_copy         = node.copy
+  local tex_sp            = tex.sp
+
+  -- 字符分类缓存
+  local char_type_cache = {}
+
+  local function get_kanjiskip()
+      local width, stretch, shrink = tex.getglue("kanjiskip")
+      if width == 0 and stretch == 0 and shrink == 0 then
+          return tex.sp("0em"), tex.sp("0em"), tex.sp("0em")
+      end
+      return width, stretch, shrink
+  end
+
+  local function get_xkanjiskip()
+      local width, stretch, shrink = tex.getglue("xkanjiskip")
+      if width == 0 and stretch == 0 and shrink == 0 then
+          return tex.sp("0.25em"), tex.sp("0.05em"), tex.sp("0.05em")
+      end
+      return width, stretch, shrink
+  end
+
+  local KANJISKIP_SUBTYPE  = 999
+  local XKANJISKIP_SUBTYPE = 998
+
+  local subtype_names = {
+      [KANJISKIP_SUBTYPE]  = "kanjiskip",
+      [XKANJISKIP_SUBTYPE] = "xkanjiskip",
+  }
+
+  local function make_glue(width, stretch, shrink, subtype)
+      local g = node_new("glue")
+      g.width   = width
+      g.stretch = stretch
+      g.shrink  = shrink
+      g.subtype = subtype
+      return g
+  end
+
+  -- 获取 glue 的可读名称（优先查自定义表，其次查 ConTeXt 内置表）
+  local function glue_name(g)
+      return subtype_names[g.subtype]
+          or nodes.gluecodes[g.subtype]
+          or ("subtype=" .. tostring(g.subtype))
+  end
+
+  -- 获取 glue 的非零度量描述
+  local function glue_metrics(g)
+      local parts = {}
+      if g.width   ~= 0 then parts[#parts+1] = "w=" .. g.width   end
+      if g.stretch ~= 0 then parts[#parts+1] = "s=" .. g.stretch end
+      if g.shrink  ~= 0 then parts[#parts+1] = "h=" .. g.shrink  end
+      return (#parts > 0) and table.concat(parts, " ") or "0"
+  end
+
+  -- 判断是否为 CJK 汉字（包括中文、日文汉字、韩文汉字等）
+  local function ischinesechar(c)
+      return (c >= 0x04E00 and c <= 0x09FFF)    -- CJK 统一表意文字基本区
+          or (c >= 0x03040 and c <= 0x0309F)    -- 平假名
+          or (c >= 0x030A0 and c <= 0x030FF)    -- 片假名
+          or (c >= 0x0F900 and c <= 0x0FAFF)    -- CJK 兼容表意文字
+          or (c >= 0x02E80 and c <= 0x02EFF)    -- CJK 部首补充
+          or (c >= 0x02F00 and c <= 0x02FDF)    -- 康熙部首
+          or (c >= 0x02FF0 and c <= 0x02FFF)    -- 表意文字描述符
+          or  c == 0x03007                      -- 〇（汉字零）
+          or (c >= 0x03100 and c <= 0x0312F)    -- 注音符号
+          or (c >= 0x03190 and c <= 0x0319F)    -- 汉文训读符号
+          or (c >= 0x031A0 and c <= 0x031BF)    -- 注音符号扩展
+          or (c >= 0x031C0 and c <= 0x031EF)    -- CJK 笔画
+          or (c >= 0x031F0 and c <= 0x031FF)    -- 片假名语音扩展
+          or (c >= 0x03200 and c <= 0x032FF)    -- 带圈 CJK 字母及月份
+          or (c >= 0x03400 and c <= 0x04DBF)    -- CJK 扩展 A 区
+          or (c >= 0x20000 and c <= 0x2A6DF)    -- CJK 扩展 B 区
+          or (c >= 0x2A700 and c <= 0x2B73F)    -- CJK 扩展 C 区
+          or (c >= 0x2B740 and c <= 0x2B81F)    -- CJK 扩展 D 区
+          or (c >= 0x2B820 and c <= 0x2CEAF)    -- CJK 扩展 E 区
+          or (c >= 0x2CEB0 and c <= 0x2EBEF)    -- CJK 扩展 F 区
+          or (c >= 0x2F800 and c <= 0x2FA1F)    -- CJK 兼容表意文字补充
+  end
+
+  -- 判断是否为中文标点符号（含全角标点）
+  local function ischinesepunctuation(c)
+      return (c >= 0x3000 and c <= 0x303F)      -- CJK 符号和标点
+          or (c >= 0xFF00 and c <= 0xFFEF)      -- 半角及全角形式
+  end
+
+  -- 判断是否为西文标点或其他标点符号
+  local function ispunctuation(c)
+      return (c >= 0x0000 and c <= 0x002F)      -- ASCII 控制字符及部分标点
+          or (c >= 0x003A and c <= 0x003F)      -- : ; < = > ? @
+          or (c >= 0x005B and c <= 0x0060)      -- [ \ ] ^ _ `
+          or (c >= 0x007B and c <= 0x007F)      -- { | } ~ DEL
+          or (c >= 0x2000 and c <= 0x206F)      -- 通用标点（各种空格、破折号、引号等）
+          or ischinesepunctuation(c)            -- 中文标点也视为标点
+  end
+
+  -- 判断是否为数字或者其他应该处理的西文（阿拉伯数字）
+  local function isdigit(c)
+      return (c >= 0x0030 and c <= 0x0039)      -- ASCII 数字 0-9
+          or c == 0x0025
+  end
+
+  -- 分类函数：返回类型字符串
+  local function classify_char(c)
+      local t = char_type_cache[c]
+      if not t then
+          if ischinesechar(c) then
+              t = "cjk"
+          elseif isdigit(c) then
+              t = "digit"
+          elseif ispunctuation(c) then
+              t = "punct"
+          else
+              t = "other"
+          end
+          char_type_cache[c] = t
+      end
+      return t
+  end
+
+  -- 判断是否需要在两个字符间插入 glue
+  local function should_insert(prev_type, cur_type)
+      if prev_type == "cjk" then
+          if cur_type == "cjk" then
+              return "kanji"       -- 中-中 → kanjiskip
+          elseif cur_type ~= "punct" then
+              return "xkanji"      -- 中-西(含数字、其他) → xkanjiskip
+          end
+      elseif cur_type == "cjk" then
+          if prev_type ~= "cjkpunct" and prev_type ~= "punct" then
+              return "xkanji"      -- 西-中 → xkanjiskip
+          end
+      end
+      return nil
+  end
+
+  -- 与已有 glue 协商：返回 should_insert, new_head
+  local function decide_existing(head, last_node, glue_template, prev_char, cur_char)
+      if not last_node or last_node.id ~= nodes.nodecodes.glue then
+          return true, head
+      end
+
+      -- ConTeXt 自己插的零宽 intercharacterskip，不能删
+      if last_node.subtype == 17 and last_node.width == 0 then
+          return true, head
+      end
+
+      local existing = last_node.width + last_node.stretch
+      local wanted   = glue_template.width + glue_template.stretch
+
+      if existing >= wanted then
+          if debug_pangu then
+              print(string.format("[Pangu] Keep %s (%s) between '%s'(U+%04X) and '%s'(U+%04X)",
+                  glue_name(last_node), glue_metrics(last_node),
+                  utf8.char(prev_char), prev_char,
+                  utf8.char(cur_char), cur_char))
+          end
+          return false, head
+      end
+
+      if debug_pangu then
+          print(string.format("[Pangu] Replace %s (%s) -> %s (%s) between '%s'(U+%04X) and '%s'(U+%04X)",
+              glue_name(last_node), glue_metrics(last_node),
+              glue_name(glue_template), glue_metrics(glue_template),
+              utf8.char(prev_char), prev_char,
+              utf8.char(cur_char), cur_char))
+      end
+      return true, node.remove(head, last_node)
+  end
+
+  -- 处理单个 glyph，返回 new_head, new_prev_type, new_prev_char
+  local function process_glyph(head, n, last_node, prev_type, prev_char, templates)
+      local cur_char = n.char
+      local cur_type = classify_char(cur_char)
+
+      if not prev_type then
+          return head, cur_type, cur_char
+      end
+
+      local glue_kind = should_insert(prev_type, cur_type)
+      local glue_template = glue_kind and templates[glue_kind] or nil
+      if not glue_template then
+          return head, cur_type, cur_char
+      end
+
+      local should_insert_glue, new_head = decide_existing(
+          head, last_node, glue_template, prev_char, cur_char)
+      head = new_head
+
+      if should_insert_glue then
+          local glue = node_copy(glue_template)
+          head = node_insertbefore(head, n, glue)
+          if debug_pangu then
+              print(string.format("[Pangu] Insert %s (%s) between '%s'(U+%04X) and '%s'(U+%04X)",
+                  glue_name(glue), glue_metrics(glue),
+                  utf8.char(prev_char), prev_char,
+                  utf8.char(cur_char), cur_char))
+          end
+      end
+
+      return head, cur_type, cur_char
+  end
+
+  function thirddata.memos.insertxkanjiskip(head)
+      local kanji_w, kanji_st, kanji_sh    = get_kanjiskip()
+      local xkanji_w, xkanji_st, xkanji_sh = get_xkanjiskip()
+
+      local kanji_glue  = (kanji_w ~= 0)
+          and make_glue(kanji_w, kanji_st, kanji_sh, KANJISKIP_SUBTYPE) or nil
+      local xkanji_glue = ((xkanji_w ~= 0) or (xkanji_st ~= 0) or (xkanji_sh ~= 0))
+          and make_glue(xkanji_w, xkanji_st, xkanji_sh, XKANJISKIP_SUBTYPE) or nil
+
+      local templates = {
+          kanji  = kanji_glue,
+          xkanji = xkanji_glue,
+      }
+
+      local prev_type, prev_char = nil, nil
+      local last_node = nil
+
       local n = head
       while n do
           if n.id == glyph_id then
-              if ischinesechar(n.char) then
-                  local n_prev = n.prev
-                  if n_prev and n_prev.id == glyph_id then
-                      if ischinesechar(n_prev.char) then
-                      elseif ischinesepunctuation(n_prev.char) then
-                      elseif ispunctuation(n_prev.char) then
-                      elseif isdigit(n_prev.char) then
-                          local glue = node_new("glue")
-                          glue.width = tex_sp("0.25em")
-                          glue.stretch = tex_sp("0.25em")
-                          if debug_pangu then
-                              print(string.format("[Pangu] Insert space BEFORE: '%s' (U+%04X) <- '%s' (U+%04X)",
-                                  utf8.char(n.char), n.char,
-                                  utf8.char(n_prev.char), n_prev.char))
-                          end
-                          head, glue = node_insertbefore(head, n, glue)
-                      else
-                          local glue = node_new("glue")
-                          glue.width = tex_sp("0.25em")
-                          glue.stretch = tex_sp("0.25em")
-                          if debug_pangu then
-                              print(string.format("[Pangu] Insert space BEFORE: '%s' (U+%04X) <- '%s' (U+%04X)",
-                                  utf8.char(n.char), n.char,
-                                  utf8.char(n_prev.char), n_prev.char))
-                          end
-                          head, glue = node_insertbefore(head, n, glue)
-                      end
-                  end
-
-                  local n_next = n.next
-                  if n_next
-                  and n_next.id == glyph_id
-                  and not ischinesechar(n_next.char)
-                  and not ischinesepunctuation(n_next.char)
-                  and not ispunctuation(n_next.char)
-                  then
-                      local glue = node_new("glue")
-                      glue.width = tex_sp("0.25em")
-                      glue.stretch = tex_sp("0.25em")
-                      if debug_pangu then
-                          print(string.format("[Pangu] Insert space AFTER: '%s' (U+%04X) -> '%s' (U+%04X)",
-                              utf8.char(n.char), n.char,
-                              utf8.char(n_next.char), n_next.char))
-                      end
-                      head, glue = node_insertafter(head, n, glue)
-                      n = glue.next
-                  end
-              end
+              head, prev_type, prev_char = process_glyph(
+                  head, n, last_node, prev_type, prev_char, templates)
           end
+          last_node = n
           n = n.next
       end
+
       return head, true
   end
 
-  nodes.tasks.appendaction("processors", "after", "thirddata.memos.processmystuff")
+  nodes.tasks.appendaction("processors", "after", "thirddata.memos.insertxkanjiskip")
 \stopluacode
 
-\def\disablepanguspace{\ctxluacode{nodes.tasks.disableaction("processors","thirddata.memos.processmystuff")}}
-\def\enablepanguspace {\ctxluacode{nodes.tasks.enableaction ("processors","thirddata.memos.processmystuff")}}
-\def\debugpangu       {\ctxluacode{thirddata.memos.setdebugpangu(true)}}
-\def\nodebugpangu     {\ctxluacode{thirddata.memos.setdebugpangu(false)}}
+\def\disablepangu {\ctxluacode{nodes.tasks.disableaction("processors","thirddata.memos.insertxkanjiskip")}}
+\def\enablepangu  {\ctxluacode{nodes.tasks.enableaction ("processors","thirddata.memos.insertxkanjiskip")}}
+\def\debugpangu   {\ctxluacode{thirddata.memos.setdebugpangu(true)}}
+\def\nodebugpangu {\ctxluacode{thirddata.memos.setdebugpangu(false)}}
 
 % \definebreakpoint [compound] [、] [nleft=1,nright=1,type=1]
 % \definebreakpoint [compound] [（] [nleft=3,nright=3,type=1]%% 会导致禁则失效
 % \definebreakpoint [compound] [）] [nleft=2,nright=2,type=1]
 % \setbreakpoints   [compound]
+
+% 1. 定义 dimension 寄存器 可以移动西文字符，用来平衡中西文基线
+\newdimen\ybaselineshift
+\ybaselineshift=0pt
+
+% 2. Lua 回调
+\startluacode
+  thirddata = thirddata or {}
+  thirddata.memos = thirddata.memos or {}
+  local memos = thirddata.memos
+
+  local glyph_id = nodes.nodecodes.glyph
+
+  -- 调试开关：想看清每个字符的处理过程就设为 true
+  local debug_shift = true
+
+  -- 西文字母（拉丁字母及扩展）
+  local function is_latin_letter(c)
+      return (c >= 0x41 and c <= 0x5A)       -- A-Z
+          or (c >= 0x61 and c <= 0x7A)       -- a-z
+          or (c >= 0xC0 and c <= 0x24F)      -- 拉丁扩展 A/B
+          or (c >= 0x1E00 and c <= 0x1EFF)   -- 拉丁扩展附加
+  end
+
+  -- 数字（ASCII 0-9）
+  local function is_digit(c)
+      return c >= 0x30 and c <= 0x39
+          or (c >= 0xF63A and c <= 0xF641)   -- PUA 映射的 2-9。开启 pnum 之后就被映射到了这里。
+          or c == 0xF6DC                     -- PUA 映射的 1  。不知道为什么要这么映射。
+  end
+
+  -- 常见西文标点
+  local function is_latin_punct(c)
+      return (c >= 0x21 and c <= 0x2F)       -- ! " # $ % & ' ( ) * + , - . /
+          or (c >= 0x3A and c <= 0x40)       -- : ; < = > ? @
+          or (c >= 0x5B and c <= 0x60)       -- [ \ ] ^ _ `
+          or (c >= 0x7B and c <= 0x7E)       -- { | } ~
+          or c == 0x2018 or c == 0x2019       -- ' '
+          or c == 0x201C or c == 0x201D       -- " "
+          or c == 0x2013 or c == 0x2014       -- – —
+          or c == 0x2026                     -- …
+  end
+
+  -- 合并判断
+  local function should_shift(c)
+      return is_latin_letter(c) or is_digit(c) or is_latin_punct(c)
+  end
+
+  -- 主回调
+  function memos.shift_baseline(head)
+      local amount = tex.dimen["ybaselineshift"]
+      if not amount or amount == 0 then
+          return head, true
+      end
+
+      local count_letter, count_digit, count_punct = 0, 0, 0
+      local n = head
+      while n do
+          if n.id == glyph_id then
+              texio.write_nl(string.format("GLYPH: U+%04X '%s' font=%s",
+                n.char, utf8.char(n.char), tostring(n.font)))
+              local c = n.char
+              if is_latin_letter(c) then
+                  n.yoffset = (n.yoffset or 0) + amount
+                  count_letter = count_letter + 1
+                  if debug_shift then
+                      texio.write_nl(string.format(
+                          "SHIFT letter '%s' U+%04X yoffset=%d",
+                          utf8.char(c), c, n.yoffset))
+                  end
+              elseif is_digit(c) then
+                  n.yoffset = (n.yoffset or 0) + amount
+                  count_digit = count_digit + 1
+                  if debug_shift then
+                      texio.write_nl(string.format(
+                          "SHIFT digit '%s' U+%04X yoffset=%d",
+                          utf8.char(c), c, n.yoffset))
+                  end
+              elseif is_latin_punct(c) then
+                  n.yoffset = (n.yoffset or 0) + amount
+                  count_punct = count_punct + 1
+                  if debug_shift then
+                      texio.write_nl(string.format(
+                          "SHIFT punct '%s' U+%04X yoffset=%d",
+                          utf8.char(c), c, n.yoffset))
+                  end
+              end
+          end
+          n = n.next
+      end
+
+      texio.write_nl(string.format(
+          "SHIFT SUMMARY: letters=%d digits=%d puncts=%d amount=%d sp",
+          count_letter, count_digit, count_punct, amount))
+      return head, true
+  end
+
+  nodes.tasks.appendaction("processors", "after", "thirddata.memos.shift_baseline")
+\stopluacode
 
 \startprotectedcolors
   \definecolor [transparentcolor] [r=0,g=1,b=1,t=0,a=normal]
@@ -1377,6 +1599,65 @@ context.definelayout(
 \setuplayout         [\moduleparameter{memos}{layout}]
 \definelayout        [default][\moduleparameter{memos}{layout}]
 
+\newdimen\gridxoffset  \gridxoffset =2.8pt\relax
+\newdimen\gridyoffset  \gridyoffset =\dimexpr0pt\relax
+
+\startuseMPgraphic{chargrid}%
+  picture pc ; pc := textext("永") ;
+  numeric cw, bl, fh, fd, hs, ds, n, k, i, yb, yt, yd, xo, yo;
+  cw := \the\dimexpr\bodyfontsize\relax ;% 正文字体宽度
+  bl := \the\dimexpr\lineheight\relax   ;% 行间距
+  fh := + ypart urcorner pc ;      % 字形顶到基线
+  fd := - ypart lrcorner pc ;      % 基线到字形底
+  hs := \the\dimexpr\ht\strutbox\relax ;   % 页首基线到文区顶
+  ds := \the\dimexpr\dp\strutbox\relax ;   % 末行基线到文区底
+  xo := \the\dimexpr\gridxoffset\relax ;   % 绘线下偏移距离
+  yo := \the\dimexpr\gridyoffset\relax ;   % 绘线下偏移距离
+
+  color cell, edge ;
+  cell := .75[white,(.2,.7,.2)] ;
+  edge := .50[white,blue] ;
+  pickup pencircle scaled .2pt ;
+
+  n := round((OverlayHeight - hs - ds)/bl)  ;
+  if n < 1 : n := 1 ; fi ;
+
+  for k = 0 upto n :
+    yb := OverlayHeight  + fd - hs  - k*bl ;   % 第 k 行基线
+    yt := yb + fh ;                     % 字格顶
+    yd := yb - fd ;                     % 字格底
+    draw (0,yt) -- (OverlayWidth,yt) withcolor cell ;
+    draw (0,yd) -- (OverlayWidth,yd) withcolor cell ;
+    i := 0 ;
+    forever :
+      exitif i - 1 > OverlayWidth ;
+      draw (i,yd) -- (i,yt) withcolor cell ;
+      i := i + cw ;
+    endfor ;
+  endfor ;
+
+  pickup pencircle scaled .5pt ;
+  draw unitsquare xscaled OverlayWidth yscaled OverlayHeight withcolor edge ;
+
+  numeric nl ; nl := round((OverlayHeight - hs - ds)/bl) + 1 ;
+  numeric nc ; nc := round(OverlayWidth/cw) ;
+  label.bot(textext("\ssxx " & decimal nc & "Char × " & decimal nl & "Lines"),
+           (OverlayWidth, -ds)) withcolor edge ;
+
+  % 关键：把边界盒裁回文区，任何多余墨迹都不许影响背景定位
+  setbounds currentpicture to
+    (xo,yo) -- (OverlayWidth+xo,yo) -- (OverlayWidth+xo,OverlayHeight) -- (xo,OverlayHeight) -- cycle ;
+    
+\stopuseMPgraphic
+
+\defineoverlay   [grid][\useMPgraphic{chargrid}]%
+
+\tolerant\def\showchargrids[#1]{%
+  \iffirstargument\getparameters[chargrids][xoffset=,yoffset=,#1]\fi%
+  \gridxoffset =\dimexpr\ifx\chargridsxoffset\empty 2.8pt\else-\chargridsxoffset\fi\relax
+  \gridyoffset =\dimexpr\ifx\chargridsyoffset\empty   0pt\else\chargridsyoffset\fi\relax
+  \setupbackgrounds[text][background=grid]}
+
 %%% 此處定義了默認的頁面佈局， 可以通過 \setuplayout[default] 來設置
 % \doloopoverlist
 %   {exotic, kaolike, ipad, kindle, sidemirror,
@@ -1394,6 +1675,41 @@ context.definelayout(
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                            標題相關設置                               %%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 定义一个命令 \addvspace，它接受一个长度作为参数
+\def\addvspace[#1]{%
+  % \par 确保我们处于垂直模式，这样 \lastskip 才有效
+  \par
+  % 检查上一个垂直间距是否为零
+  \ifdim\lastskip=\z@
+    % 如果为零，直接添加指定的间距
+    \vskip#1\relax
+  \else
+    % 如果已有间距不为零，则进入更复杂的判断
+    \@xaddvskip{#1}%
+  \fi
+}
+
+% 辅助命令，实现核心的“取最大值”逻辑
+\def\@xaddvskip#1{%
+  % 如果已有间距小于指定的新间距
+  \ifdim\lastskip<#1\relax
+    % 则先移除已有间距，再添加新间距
+    \vskip-\lastskip
+    \vskip#1\relax
+  \else
+    % 如果已有间距大于或等于新间距
+    % 并且新间距是负数，而旧间距是非负数
+    \ifdim#1<\z@
+      \ifdim\lastskip<\z@
+      \else
+        % 则直接添加这个负间距（实现减少空间的效果）
+        \vskip#1\relax
+      \fi
+    \fi
+  \fi
+}
+
+
 \definepagebreak[emptyright][yes,header,footer,right]
 \setupheads
            [part,chapter,section,subsection,subsubsection,
@@ -1420,11 +1736,11 @@ context.definelayout(
                                   after={\vskip\baselineskip\relax}]
 \setuphead [part]                [style=\definedfont[Sans sa 2.488]]
 \setuphead [chapter]             [style=\ssd]
-\setuphead [section]             [style=\rm\bfb]
-\setuphead [subsection]          [style=\rma\bf]
-\setuphead [subsubsection]       [style=\rm\bf]
-\setuphead [subsubsubsection]    [style=\rm\bf]
-\setuphead [subsubsubsubsection] [style=\rm\bf]
+\setuphead [section]             [grid=none,before=\vskip1.\lineheight,after=\vskip1.\lineheight,style=\rm\bfb]
+\setuphead [subsection]          [grid=none,before=\vskip.7\lineheight,after=\vskip.3\lineheight,style=\rm\bfa]
+\setuphead [subsubsection]       [grid=none,before=\vskip.7\lineheight,after=\vskip.3\lineheight,style=\rm\bf]
+\setuphead [subsubsubsection]    [grid=none,before=\vskip.7\lineheight,after=\vskip.3\lineheight,style=\rm\bf]
+\setuphead [subsubsubsubsection] [grid=none,before=\vskip.7\lineheight,after=\vskip.3\lineheight,style=\rm\bf]
 \setuphead [chapter]             [sectionsegments=chapter]
 \setuphead [section]             [sectionsegments=section]
 \setuphead [subsection]          [sectionsegments=subsection]
@@ -1560,15 +1876,15 @@ context.definelayout(
                       command=\partlineframe,
                       before=\startmakeup[part],
                       after=\stopmakeup,]
-  \setuphead [chapter]             [before=\mbox{}\vskip2\baselineskip\relax,
-                                    after=\blank[line]\hfil\blackrule[color=titlecolor,height=2pt,width=4em]\hfil\par\vskip3\baselineskip\relax,
+  \setuphead [chapter]             [before=\mbox{}\vskip2\lineheight\relax,
+                                    after=\lineheight\hfil\blackrule[color=titlecolor,height=2pt,width=4em]\hfil\par\vskip3\lineheight\relax,
                                     interlinespace=medium,
                                     align=center,
                                     style=\definedfont[Sans sa 2.488]]
   \setuphead [section,subsection]  [numbercolor=lightthemecolor,numberwidth=2em]
   \setuphead [section]             [style=\ss\bfb,   numberstyle=\ss\bid,]
-  \setuphead [subsection]          [style=\ss\tfa,   numberstyle=\ss\itc]
-  \setupheads[subsection]          [numbercommand=,      sectionsegments=section:*]
+  \setuphead [subsection]          [style=\ss\tfa,   numberstyle=\ss\itc,]
+  \setupheads[subsection]          [numbercommand=,  sectionsegments=section:*]
   \setupheads[subsubsection]       [numbercommand=\paren]
   \setupheads[subsubsubsection]    [numbercommand=\paren,sectionsegments=subsubsection:*]
   \setupheads[subsubsubsubsection] [numbercommand=\paren,sectionsegments=subsubsection:*]
@@ -1699,7 +2015,7 @@ context.definelayout(
   \defineheadalternative[classicnovel]
                         [alternative=vertical,
                         renderingsetup=classicnovel]
-  \newdimen\HeadNumberWidth
+
   \setwidthof{\headnumbercontent}\to\HeadNumberWidth
   \newdimen\MaxHeadNumberWidth
   \MaxHeadNumberWidth=82pt
@@ -2493,7 +2809,7 @@ context.definelayout(
 \startsetups memos:toc:classicnovel
   \edef\currenttocstyle{classicnovel}
   \setupcombinedlist[content][list={part,title,chapter}]
-  \setuplist        [part,chapter,title,][label=yes,after=,style=ss]
+  \setuplist        [part,chapter,title,][label=yes,after=,style=]
   \setuplist        [chapter][before=,]
   \setuplist        [title]  [margin=5em]
 \stopsetups
@@ -2780,13 +3096,13 @@ context.definelayout(
   \framed[frame=off,bottomframe=on,
           align=low,
           height=\headerheight,width=max]
-         {\let\\\quad\getmarking[chapter]\quad\userpagenumber \par}
+         {\let\\\quad\hfill\getmarking[chapter]\quad\userpagenumber\par}
 \stopsetups
 \startsetups hdr:even:novelchaptermark
   \framed[frame=off,bottomframe=on,
-          align={flushright,low},
+          align=low,
           height=\headerheight,width=max]
-         {\let\\\quad\getmarking[chapter]\quad\userpagenumber \par}
+         {\userpagenumber\let\\\quad \quad\getmarking[chapter] \hfill\par}
 \stopsetups
 % Pair 3 ：hdr:edge:structuremark
 \startsetups hdr:odd:edgesectionmark
@@ -3758,6 +4074,75 @@ fill pc withcolor \MPcolor{lightthemecolor};
 
 \definesymbol[blankdiamond][{\tfx ⬥}]
 
+\startuseMPgraphic{RotatedSquares}
+  % ---- 读取 framed 参数 ----
+  numeric Iterate;
+  Iterate   := \framedparameter{iterate};
+  numeric Angle;
+  Angle     := \framedparameter{angle};
+  numeric lineWidth;
+  lineWidth := \framedparameter{rulethickness};
+  numeric perturb;
+  perturb := \framedparameter{perturbation};
+  color lineColor;
+  lineColor := \MPcolor{\framedparameter{framecolor}};
+  color squareFill;
+  squareFill := \MPcolor{\framedparameter{squarecolor}};
+  
+
+  % ---- Overlay 区域尺寸 ----
+  numeric w, h, cx, cy;
+  w := OverlayWidth;
+  h := OverlayHeight;
+  cx := w / 2;
+  cy := h / 2;
+  
+  fill unitsquare xyscaled (w, h) withcolor OverlayColor;
+
+  % ---- 以行高为基准的正方形边长 ----
+  numeric side;
+  side := \framedparameter{size} * BodyFontSize;
+
+  % ---- 基本正方形路径（以中心为旋转中心） ----
+  path baseSquare;
+  baseSquare := unitsquare
+                xyscaled (side, side)
+                shifted (-side/2, -side/2)
+                shifted (cx, cy);
+
+  % ---- 绘制 Iterate + 1 次旋转(Angle 角度)图案 ----
+  pickup pencircle scaled lineWidth;
+  drawoptions(withcolor lineColor);
+
+  for i = 0 upto Iterate:
+    path p;
+    p := baseSquare randomized perturb;
+    fill p rotatedaround((cx, cy), i * Angle) withcolor squareFill;
+    draw p rotatedaround((cx, cy), i * Angle);
+  endfor;
+
+  drawoptions();
+  setbounds currentpicture to OverlayBox ;
+\stopuseMPgraphic
+
+\defineoverlay[RotatedSquares][\useMPgraphic{RotatedSquares}]
+
+\defineframed[RotatedFrame][
+  background=RotatedSquares,
+  backgroundcolor=white,
+  location=low,
+  foregroundstyle=tfx,
+  foregroundcolor=white,
+  frame=off,
+  framecolor=darkblue,
+  rulethickness=0.6pt,
+  squarecolor=lightyellow,
+  perturbation=0pt,
+  iterate=3,
+  angle=30,
+  size=1,
+]
+
 \startuseMPgraphic{circledtext}
   % 只读取参数，不涉及文本
   path square ; square := roundedsquare(1,1,\framedparameter{radius}) scaled OverlayWidth yshifted .15OverlayWidth;
@@ -3933,8 +4318,8 @@ fill pc withcolor \MPcolor{lightthemecolor};
         [align={width,hyphenated,morehyphenation,tight},before=,after=,]\hfill}%
   }\movesidenote[0em]}
 \definenote    [sidenote]
-\setupnote     [sidenote] [location=text,next=\PlaceFootnote,]
-\setupnotation [sidenote] [numberconversion=sidenote,width=2mm,]
+\setupnote     [sidenote] [location=text,next=\PlaceFootnote,left=,right=,]
+\setupnotation [sidenote] [numberconversion=sidenote,width=2mm,left=,right=,]
 %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%
 \def\centerfloat{% it seem not work on doublesided page(even page)
@@ -4101,24 +4486,26 @@ fill pc withcolor \MPcolor{lightthemecolor};
 \setupxtable [footer] [topframe=off,   rulethickness=1pt]
 \setupxtable [lastrow][topframe=off,   rulethickness=1pt]
 
-\setupfloats[freeregion=no]
+\setupfloats [freeregion=no]
 \setupfloats [table]
              [%default={here,split,top,bottom,page},
               before=,after=,indentnext=yes,
               setups={fn:hanzi},
-              spacebefore=\vskip.5\baselineskip\relax,
-              spaceafter=\vskip.5\baselineskip\relax,]
+              margin=1em,
+              spacebefore=,spaceafter=,
+              ]
 \setupfloat  [figure]
              [%default={here,split,top,bottom,page},%it seems to influences location,bette to comment
-              before=\vskip.5\baselineskip,
-              after=\vskip.5\baselineskip,
-              indentnext=yes,
-              setups={fn:hanzi},]
-\setupcaption[style=\hwx,
-              headstyle=\hwx,% 图 1.1
+              before=,after=,indentnext=yes,
+              setups={fn:hanzi},
+              margin=1em,
+              spacebefore=,spaceafter=,
+              ]
+\setupcaption[textstyle=\setuplocalinterlinespace[line=1.3em]\hwx,
+              headstyle=\setuplocalinterlinespace[line=1.3em]\ssx,% 图 1.1
+              color=captioncolor,
              % width=max,
              % width=\rightmarginwidth,
-              color=captioncolor,
              % hang=yes,% 将使标题不居中且悬挂
              % align={last,width,hanging},
              % inbetween={},
@@ -4155,18 +4542,18 @@ fill pc withcolor \MPcolor{lightthemecolor};
 \definefloat  [texttable]    [texttables]    [table]
 
 \setupfloat   [fullfig,fulltab,fullfigure,fulltable]%%\availablefloatwidth
-              [default=here,location=outermargin,availablewidth=\spanmarginwidth]
+              [location=inner,availablewidth=\spanmarginwidth]
 \setupfloat   [marginfig,margintab,marginfigure,margintable]
-              [default={margin,bottom}]
+              [location={margin,bottom}]
 \setupfloat   [textfig,texttab,textfigure,texttable]
-              [default=here,location=right]
+              [location=center]
 
 \setupcaptions [fullfig,fulltab,fullfigure,fulltable]
-               [width=\rightmarginwidth,align=inner,location={bottom}]
+               [width=\rightmarginwidth,align=inner, location=outermargin,spacebefore=\figureheight]
 \setupcaptions [marginfig,margintab,marginfigure,margintable]
-               [width=\rightmarginwidth,align=inner,location={bottom}]
+               [width=\rightmarginwidth,align=inner, location=bottom,spacebefore=.3em]
 \setupcaptions [textfig,texttab,textfigure,texttable]
-               [width=\rightmarginwidth,align=inner,location={outermargin,bottom}]
+               [width=\textwidth,       align=center,location=bottom,spacebefore=.3em]
 
 % \setupcombinedlist[listoffigures]
 %                   [marginfig,textfig,fullfig,figure,
@@ -4336,7 +4723,6 @@ suggest=\symbol[fontawesome][star]]
 \def\addhfil#1{#1\hfill}
 \tolerant\def\autojustify[#1]#:#2{%
  \doifsomethingelse{#1}{\autojustify_width=#1}{\autojustify_width=3em}\relax
-% \simplealignedbox{\autojustify_width}{flushleft}
        {\processisolatedchars{#2}\addhfil\unskip}%
 }
 
@@ -5149,42 +5535,41 @@ suggest=\symbol[fontawesome][star]]
 \startmode[memos:extra:pinyin]
   \registerctxluafile{m-pinyin}{}
 
-  \newdimen\pinyinvsep
-  \newskip\pinyinhsep
-  \newskip\pinyinpysep
-  \newcount\pinyinratio
-
-  \pinyinvsep=1em
-  \pinyinhsep=0pt
-  \pinyinpysep=\spaceskip
-  \pinyinratio=4
+  \newdimen\pinyinvsep \pinyinvsep=1em
+  \newskip\pinyinhsep  \pinyinhsep=0pt
+  \newskip\pinyinpysep \pinyinpysep=\spaceskip
 
   \def\pinyinpysepstr{\hskip\pinyinpysep}
-
+  
   \installnamespace{pinyin}
+  \installsimplecommandhandler \????pinyin {pinyin} \????pinyin
 
-  \tolerant\def\setuppinyin#*[#S#1]{%
-    \getparameters[\????pinyin][#1]%
-    \pinyinvsep   =\csname\????pinyin vsep\endcsname
-    \pinyinhsep   =\csname\????pinyin hsep\endcsname
-    \pinyinpysep  =\csname\????pinyin pysep\endcsname
-    \pinyinratio  =\csname\????pinyin ratio\endcsname
+  \let\memos_pinyin_normal_setup\setuppinyin
+
+  \overloaded\tolerant\def\setuppinyin#*[#S#1]{%
+    \memos_pinyin_normal_setup[#1]%
+    \pinyinvsep     =\pinyinparameter{vsep}%
+    \pinyinhsep     =\pinyinparameter{hsep}%
+    \pinyinpysep    =\pinyinparameter{pysep}%
+    \def\pinyinratio{\pinyinparameter{ratio}}%
     \ctxlua{thirddata.pinyin.setup{%
-      multiple=[[\csname\????pinyin multiple\endcsname]],%
-      markpolyphone=[[\csname\????pinyin markpolyphone\endcsname]]%
+           multiple=[[\pinyinparameter{multiple}]],%
+      markpolyphone=[[\pinyinparameter{markpolyphone}]]%
     }}%
   }
 
-  \setuppinyin[vsep=0pt,hsep=2pt plus 1pt minus 2pt,pysep=\spaceskip,ratio=6,multiple=no,markpolyphone=no]
+  \setuppinyin[vsep=0pt,
+               hsep=0pt plus 1pt minus 1pt,
+               pysep=\spaceskip,
+               ratio=0.6,
+               multiple=no,
+               markpolyphone=no]
 
   \tolerant\def\startpinyinscope#*[#1]%
-    {\begingroup
-    \doifnotempty{#1}{\setuppinyin[#1]}%
-    \grabbufferdata[pinyinscope][pinyinscope][startpinyinscope][stoppinyinscope]}
+    {\begingroup\doifnotempty{#1}{\setuppinyin[#1]}%
+     \grabbufferdata[pinyinscope][pinyinscope][startpinyinscope][stoppinyinscope]}
 
-  \def\stoppinyinscope
-    {\ctxlua{thirddata.pinyin.process_buffer()}%
-    \endgroup}
+  \def\stoppinyinscope{\ctxlua{thirddata.pinyin.process_buffer()}\endgroup}
 
   \tolerant\def\pinyin#*[#S#1]#:#2%
     {\begingroup
@@ -5193,23 +5578,25 @@ suggest=\symbol[fontawesome][star]]
     \endgroup}
 
   \tolerant\def\xpinyin#*[#S#1]#*[#S#2]#:#3%
-    {\begingroup
-    \ifparameters
-      \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])}%
-      \ctxlua{thirddata.pinyin.process_buffer("xpinyinbuf")}%
-    \or
-      \ifhastok={#1}%
-        \setuppinyin[#1]%
-        \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])}%
-        \ctxlua{thirddata.pinyin.process_buffer("xpinyinbuf")}%
-      \else
-        \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])}%
-        \ctxlua{thirddata.pinyin.process_buffer("xpinyinbuf",[==[#1]==])}%
-      \fi
-    \or
+  {\begingroup
+    \ifparameter#2\or
       \setuppinyin[#2]%
-      \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])}%
-      \ctxlua{thirddata.pinyin.process_buffer("xpinyinbuf",[==[#1]==])}%
+      \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])
+              thirddata.pinyin.process_buffer("xpinyinbuf",[==[#1]==])}%
+    \else
+      \ifparameter#1\or
+        \ifhastok={#1}
+          \setuppinyin[#1]%
+          \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])
+                  thirddata.pinyin.process_buffer("xpinyinbuf")}%
+        \else
+          \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])
+                  thirddata.pinyin.process_buffer("xpinyinbuf",[==[#1]==])}%
+        \fi
+      \else
+        \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])
+                thirddata.pinyin.process_buffer("xpinyinbuf")}%
+      \fi
     \fi
     \endgroup}
 
@@ -5219,35 +5606,21 @@ suggest=\symbol[fontawesome][star]]
   \newbox\pinyinbox
   \newbox\hanzibox
 
-  \definefont[pinyinfont][name:lmroman10regular]
-
   \def\pinyinannotate#1#2#3%
     {\dontleavehmode
     \begingroup
-    \setbox\hanzibox\hbox{#1}%
-    \setbox\pinyinbox\hbox{%
-      \pinyinfont
-      \doif{#3}{true}{}%
-      #2%
-    }%
-    \dimen1=\wd\pinyinbox
-    \multiply\dimen1 by \pinyinratio
-    \divide\dimen1 by 10
-    \setbox\pinyinbox\hbox{%
-      \scale[width=\dimen1]{\box\pinyinbox}%
-    }%
-    \dp\pinyinbox\z@
+    \setbox\hanzibox =\hbox{\usepinyinstyleandcolor{bodystyle}{bodycolor}#1}%
+    \setbox\pinyinbox=\hbox{\doif{#3}{true}{}\usepinyinstyleandcolor{style}{color}#2}%
     \dimen0=\wd\hanzibox
-    \ifdim\wd\pinyinbox>\dimen0
-      \dimen0=\wd\pinyinbox
-    \fi
-    \vbox{%
-      \lineskip\z@
-      \hbox to \dimen0{\hss\vrule width0pt height0pt depth\pinyinvsep\box\pinyinbox\hss}%
+    \dimen1=\pinyinratio\dimexpr\wd\pinyinbox\relax
+    \ifdim\dimen1>\dimen0 \dimen0=\dimen1\fi
+    \vbox{\hsize\dimen0
+      \lineskip\zeropoint
+      \dp\pinyinbox\zeropoint
+      \hbox to \dimen0{\hss\vrule width0pt height0pt depth\pinyinvsep\relax\scale[width=\dimen1]{\box\pinyinbox}\hss}%
       \nointerlineskip
       \hbox to \dimen0{\hss\strut\box\hanzibox\hss}%
-    }%
-    \hskip\pinyinhsep\relax
+    }\hskip\pinyinhsep\relax
     \endgroup}
 \stopmode
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -5482,3 +5855,109 @@ suggest=\symbol[fontawesome][star]]
 \protect
 \stopmodule
 \endinput
+
+% 可以探查节点之间的 glue, 启用最后的 nodes.tasks.appendaction即可
+\startluacode
+  userdata.debug = userdata.debug or {}
+
+  local my_glue_names = {
+      [999] = "kanjiskip",
+      [998] = "xkanjiskip",
+  }
+
+  local function glue_name(n)
+      return my_glue_names[n.subtype]
+          or nodes.gluecodes[n.subtype]
+          or ("subtype=" .. tostring(n.subtype))
+  end
+
+  -- 单个节点的紧凑描述
+  local function short(n)
+      local id = n.id
+
+      if id == node.id"glyph" then
+          -- 处理 ligature：一个 glyph 可能由多个字符组成
+          if n.components then
+              local s = {}
+              for comp in node.traverse(n.components) do
+                  if comp.id == node.id"glyph" then
+                      s[#s+1] = utf.char(comp.char)
+                  end
+              end
+              return "【" .. table.concat(s) .. "】"
+          end
+          return "【" .. (utf.char(n.char) or "?") .. "】"
+
+      elseif id == node.id"glue" then
+          local gc = glue_name(n) or "?"
+          local parts = {}
+          if n.width   ~= 0 then parts[#parts+1] = "w=" .. tex.sp(n.width)   end
+          if n.stretch ~= 0 then parts[#parts+1] = "s=" .. tex.sp(n.stretch) end
+          if n.shrink  ~= 0 then parts[#parts+1] = "h=" .. tex.sp(n.shrink)  end
+          local metrics = (#parts > 0) and table.concat(parts, " ") or "0"
+          return "<" .. gc .. " " .. metrics .. ">"
+
+      elseif id == node.id"kern" then
+          return "<kern " .. tex.sp(n.kern) .. ">"
+
+      elseif id == node.id"penalty" then
+          return "<pen " .. tostring(n.penalty or 0) .. ">"
+
+      elseif id == node.id"disc" then
+          return "<disc>"
+
+      elseif id == node.id"local_par" then
+          return "<par>"
+
+      elseif id == node.id"hlist" then
+          return "<hlist>"
+
+      elseif id == node.id"vlist" then
+          return "<vlist>"
+
+      elseif id == node.id"whatsit" then
+          return "<whatsit>"
+
+      elseif id == node.id"boundary" then
+          return "<boundary>"
+
+      elseif id == node.id"dir" then
+          return "<dir>"
+
+      elseif id == node.id"adjust" then
+          return "<adjust>"
+
+      else
+          return "<id=" .. tostring(id) .. ">"
+      end
+  end
+
+  -- 遍历整条列表，一行流式输出
+  local function dump(list, indent)
+      indent = indent or ""
+      local out = {}
+      for n in node.traverse(list) do
+          out[#out+1] = short(n)
+      end
+      print(indent .. table.concat(out, " "))
+  end
+
+  function userdata.debug.glues(head)
+      print("========== NODE STREAM ==========")
+      for n in node.traverse(head) do
+          if n.id == node.id"hlist" then
+              print("--- hlist ---")
+              if n.head then dump(n.head, "  ") end
+          elseif n.id == node.id"vlist" then
+              print("--- vlist ---")
+              if n.head then dump(n.head, "  ") end
+          else
+              print("  " .. short(n))
+          end
+      end
+      print("=================================")
+      return head
+  end
+
+  -- nodes.tasks.appendaction("finalizers", "after", "userdata.debug.glues")
+\stopluacode

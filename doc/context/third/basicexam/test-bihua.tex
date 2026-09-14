@@ -1,4 +1,4 @@
- \usemodule[memos][extra=all]
+ \usemodule[memos][extra=bihua]
 
 \starttext
 
@@ -417,7 +417,7 @@
 \HL
 \NC \bf 参数 \NC \bf 说明 \NC \bf 默认值 \NC\NR
 \HL
-\NC font \NC 字体名称 \NC SimSun \NC\NR
+\NC font \NC 字体名称 \NC SimKai \NC\NR
 \NC fontsize \NC 字体大小 \NC (自动计算) \NC\NR
 \NC charcolor \NC 字符颜色 \NC black \NC\NR
 \NC charopacity \NC 字符透明度 \NC 1 \NC\NR
@@ -430,20 +430,6 @@
 \NC charyoffset \NC 垂直偏移 \NC 0pt \NC\NR
 \HL
 \stoptabulate
-
-\subject{单字测试}
-
-\subsubject{不同字体}
-\startcolumns[n=3]
-\midaligned{SimKai}
-\midaligned{\zitiefont[width=1.5cm,frame=tian,font=SimKai]{永}}
-
-\midaligned{SimHei}
-\midaligned{\zitiefont[width=1.5cm,frame=tian,font=SimHei]{永}}
-
-\midaligned{SimSun}
-\midaligned{\zitiefont[width=1.5cm,frame=tian,font=SimSun]{永}}
-\stopcolumns
 
 \subsubject{不同边框}
 \startcolumns[n=4]
@@ -465,22 +451,22 @@
 \subsubject{两种模式}
 \startcolumns[n=2]
 \midaligned{fillstroke (填充+描边)}
-\midaligned{\zitiefont[width=1.5cm,frame=outer,font=SimHei,charmode=fillstroke,charcolor=blue,charstrokecolor=red,charstrokewidth=0.5pt]{书}}
+\midaligned{\zitiefont[width=1.5cm,frame=outer,font=SimKai,charmode=fillstroke,charcolor=blue,charstrokecolor=red,charstrokewidth=0.5pt]{书}}
 
 \midaligned{outline (空心描边)}
-\midaligned{\zitiefont[width=1.5cm,frame=outer,font=SimHei,charmode=outline,charstrokecolor=red,charstrokewidth=0.5pt]{书}}
+\midaligned{\zitiefont[width=1.5cm,frame=outer,font=SimKai,charmode=outline,charstrokecolor=red,charstrokewidth=0.5pt]{书}}
 \stopcolumns
 
 \subsubject{fillstroke 变体}
 \startcolumns[n=3]
 \midaligned{纯填充 (描边宽度=0)}
-\midaligned{\zitiefont[width=1.5cm,frame=outer,font=SimHei,charmode=fillstroke,charcolor=blue,charstrokewidth=0pt]{书}}
+\midaligned{\zitiefont[width=1.5cm,frame=outer,font=SimKai,charmode=fillstroke,charcolor=blue,charstrokewidth=0pt]{书}}
 
 \midaligned{填充+细描边}
-\midaligned{\zitiefont[width=1.5cm,frame=outer,font=SimHei,charmode=fillstroke,charcolor=blue,charstrokecolor=red,charstrokewidth=0.3pt]{书}}
+\midaligned{\zitiefont[width=1.5cm,frame=outer,font=SimKai,charmode=fillstroke,charcolor=blue,charstrokecolor=red,charstrokewidth=0.3pt]{书}}
 
 \midaligned{填充+粗描边}
-\midaligned{\zitiefont[width=1.5cm,frame=outer,font=SimHei,charmode=fillstroke,charcolor=blue,charstrokecolor=red,charstrokewidth=1pt]{书}}
+\midaligned{\zitiefont[width=1.5cm,frame=outer,font=SimKai,charmode=fillstroke,charcolor=blue,charstrokecolor=red,charstrokewidth=1pt]{书}}
 \stopcolumns
 
 \subject{多字测试}
@@ -491,10 +477,10 @@
 \subsubject{不同边框}
 \startcolumns[n=2]
 \midaligned{田字格}
-\midaligned{\zitiefonts[width=1.2cm,spacing=0.2cm,frame=tian,font=SimHei]{春夏秋冬}}
+\midaligned{\zitiefonts[width=1.2cm,spacing=0.2cm,frame=tian,font=SimKai]{春夏秋冬}}
 
 \midaligned{米字格}
-\midaligned{\zitiefonts[width=1.2cm,spacing=0.2cm,frame=mi,font=SimHei]{东南西北}}
+\midaligned{\zitiefonts[width=1.2cm,spacing=0.2cm,frame=mi,font=SimKai]{东南西北}}
 \stopcolumns
 
 \subject{自动换行测试}
@@ -506,7 +492,7 @@
 
 \subsubject{更窄的文本框 (hsize=4cm)}
 \hsize=4cm
-\noindent\zitiefonts[width=1cm,spacing=0.15cm,frame=mi,font=SimHei]{春华秋实夏雨冬雪东南西北上下左右金木水火土}
+\noindent\zitiefonts[width=1cm,spacing=0.15cm,frame=mi,font=SimKai]{春华秋实夏雨冬雪东南西北上下左右金木水火土}
 \hsize=\textwidth
 
 \subject{重复测试}
@@ -516,7 +502,7 @@
 \midaligned{\zitiefonts[width=1.2cm,spacing=0.2cm,frame=mi,font=SimKai]{永永永永}}
 
 \midaligned{书 重复 6 次}
-\midaligned{\zitiefonts[width=1cm,spacing=0.15cm,frame=tian,font=SimHei]{书书书书书书}}
+\midaligned{\zitiefonts[width=1cm,spacing=0.15cm,frame=tian,font=SimKai]{书书书书书书}}
 \stopcolumns
 
 \stoptext

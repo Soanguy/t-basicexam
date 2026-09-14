@@ -14,7 +14,7 @@
 \startmodule[basicexam]
 \unprotect
 
-\setupmodule[mode=student,layout=default,footer=none,libpath=/opt/homebrew/opt/sqlite/lib/libsqlite3.dylib]
+\setupmodule[mode=student,layout=default,footer=none]
 \doifnot\contextmark{LMTX}{\writestatus{modules         }{This module requires ConTeXt LMTX (LuaMetaTeX). Please upgrade your ConTeXt installation or use the LMTX version to run this module.}\wait\end}% check context version
 
 %D 定义关键词
@@ -219,15 +219,26 @@
   U.current_node = nil
   U.level_stack = {}
   U.chapter_counters = {}
+  U.node_index = {}
+  U.dirty_nodes = {}
+
+  local cached_chapter = nil
+  local cached_sectiondata = nil
 
   local function get_current_chapter()
     local sectiondata = structures.sections.current()
+    if sectiondata == cached_sectiondata then
+      return cached_chapter or 0
+    end
+    cached_sectiondata = sectiondata
     if sectiondata and sectiondata.numberdata and sectiondata.numberdata.numbers then
       local numbers = sectiondata.numberdata.numbers
       local chapter = numbers[2] or numbers[1]
-      if chapter then return tonumber(chapter) or 0 end
+      cached_chapter = tonumber(chapter) or 0
+    else
+      cached_chapter = 0
     end
-    return 0
+    return cached_chapter
   end
 
   local function get_chapter_counter(chapter)
@@ -254,22 +265,36 @@
   返回: 新创建的节点表
   ]]
   local function create_node(id, env_type, depth, parent)
-    return {
-      id = id or "unknown", env_type = env_type or "unknown", depth = depth, parent = parent,
-      children = {}, totalnumber = 0, totalpoint = 0, currentpoint = 0,
-      answer = "", order = "", is_leaf = false, child_counter = 0,
+    local node = {
+      id = id or "unknown", 
+      env_type = env_type or "unknown", 
+      depth = depth, parent = parent,
+      children = {}, 
+      totalnumber = 0, 
+      totalpoint = 0, 
+      currentpoint = 0,
+      answer = "", 
+      order = "", 
+      is_leaf = false, 
+      child_counter = 0,
       extra_data = {},
+      cached_answer = nil,  -- 新增：缓存叶子答案汇总
     }
+    if id then U.node_index[id] = node end
+    return node
   end
 
   --[[
   初始化答案树: 创建根节点并设置当前节点为根
   ]]
   function U.init_tree()
+    U.node_index = {}
+    U.dirty_nodes = {}
     U.answer_tree = create_node("root", "root", 0, nil)
     U.answer_tree.is_leaf = false
     U.current_node = U.answer_tree
     U.level_stack = {U.answer_tree}
+    U.chapter_counters = {}
     report("Tree initialized")
   end
 
@@ -379,7 +404,7 @@
   返回: 数据值（当前编译中的数据）
   ]]
   function U.get_current_extra_data(key)
-    if U.current_node and U.current_node.extra_data[key] then
+    if U.current_node and U.current_node.extra_data[key] ~= nil then
       context(tostring(U.current_node.extra_data[key]))
     end
   end
@@ -393,6 +418,20 @@
   function U.push_level(env_type)
     if not U.answer_tree then U.init_tree() end
     local parent = U.current_node
+
+    if parent.is_leaf then
+      local pt = parent.currentpoint
+      parent.is_leaf = false
+      parent.currentpoint = 0
+      parent.answer = ""
+      -- 祖先中移除该叶子的旧贡献
+      if parent.parent then
+        update_ancestors(parent.parent, -pt, -1)
+      end
+      parent.totalpoint = 0
+      parent.totalnumber = 0
+    end
+
     local new_node = create_node(generate_level_id(), env_type, parent.depth + 1, parent)
     new_node.order = generate_order(parent)
     table.insert(parent.children, new_node)
@@ -411,7 +450,12 @@
   ]]
   function U.add_scored_answer(answer, point)
     if not U.current_node or #U.current_node.children > 0 then return end
-    
+    if U.current_node.depth == 0 then
+      report("ERROR: 不能在根节点添加答案")
+      return
+    end
+    if #U.current_node.children > 0 then return end
+
     local is_first_time = not U.current_node.is_leaf
     
     if U.current_node.is_leaf then
@@ -428,6 +472,31 @@
     update_ancestors(U.current_node, pt, is_first_time and 1 or 0)
     save_to_dataset(U.current_node)
     report("Added answer: %s, point=%.1f, order=%s", answer, pt, U.current_node.order)
+  end
+
+  --[[
+  统计节点的核心逻辑（内部函数）
+  参数:
+    node - 要统计的节点
+    stats - 统计结果表
+    prefix - 章节前缀（可选）
+  ]]
+  local function count_node_stats(node, stats, prefix)
+    if prefix and node.id and not node.id:find(prefix, 1, true) then
+      return
+    end
+    
+    if node.is_leaf then
+      stats.allleafnumber = stats.allleafnumber + 1
+    end
+    
+    if node.parent and node.parent.id == "root" then
+      stats.totalnumber = stats.totalnumber + 1
+      stats.totalpoint = stats.totalpoint + node.totalpoint
+      if node.is_leaf then
+        stats.leafnumber = stats.leafnumber + 1
+      end
+    end
   end
 
   --[[
@@ -472,9 +541,13 @@
       node.totalpoint = new_total
       node.totalnumber = new_num
       
+      -- if node.parent then
+        -- node.parent.totalpoint = node.parent.totalpoint - pt + new_total
+        -- node.parent.totalnumber = node.parent.totalnumber - (pt > 0 and 1 or 0) + new_num
+      -- end
+
       if node.parent then
-        node.parent.totalpoint = node.parent.totalpoint - pt + new_total
-        node.parent.totalnumber = node.parent.totalnumber - (pt > 0 and 1 or 0) + new_num
+        update_ancestors(node.parent, -pt, -1)
       end
       report("Node recalculated: %.1f -> %.1f", pt, new_total)
     end
@@ -507,18 +580,7 @@
   返回: 节点表或nil
   ]]
   function U.find_node_by_id(id)
-    if not U.answer_tree then return nil end
-    
-    local function find(node)
-      if node.id == id then return node end
-      for _, child in ipairs(node.children) do
-        local found = find(child)
-        if found then return found end
-      end
-      return nil
-    end
-    
-    return find(U.answer_tree)
+    return U.node_index and U.node_index[id]
   end
 
   --[[
@@ -529,15 +591,16 @@
   ]]
   function U.get_display(id)
     local node = U.find_node_by_id(id)
-    if not node then return {point = 0, answer = "", is_leaf = false} end
+    if not node then return {point = 0, answer = "", is_leaf = false, order = ""} end
     if node.is_leaf then
-      return {point = node.currentpoint, answer = node.answer, is_leaf = true}
+      return {point = node.currentpoint, answer = node.answer, is_leaf = true, order = node.order or ""}
     end
     return {
       point = node.totalpoint,
       answer = collect_leaf_answers(node),
       is_leaf = false,
-      totalnumber = node.totalnumber
+      totalnumber = node.totalnumber,
+      order = node.order or ""
     }
   end
 
@@ -559,31 +622,6 @@
   end
 
   --[[
-  统计节点的核心逻辑（内部函数）
-  参数:
-    node - 要统计的节点
-    stats - 统计结果表
-    prefix - 章节前缀（可选）
-  ]]
-  local function count_node_stats(node, stats, prefix)
-    if prefix and node.id and not node.id:find(prefix, 1, true) then
-      return
-    end
-    
-    if node.is_leaf then
-      stats.allleafnumber = stats.allleafnumber + 1
-    end
-    
-    if node.parent and node.parent.id == "root" then
-      stats.totalnumber = stats.totalnumber + 1
-      stats.totalpoint = stats.totalpoint + node.totalpoint
-      if node.is_leaf then
-        stats.leafnumber = stats.leafnumber + 1
-      end
-    end
-  end
-
-  --[[
   获取指定 structure level 的统计信息
   参数:
     level - structure level (1=chapter, 2=section, etc.)
@@ -592,7 +630,7 @@
   ]]
   function U.get_structure_stats(level, number)
     local jobname = tex.jobname or "unknown"
-    local tag = string.format("StructureStats-%s-%d", jobname, number)
+    local tag = string.format("StructureStats-%s-L%d-%d", jobname, level, number)
     local cached = job.datasets.getdata("UnlimitedDataset", tag)
     
     if cached and cached.totalnumber then
@@ -837,8 +875,8 @@
     collect_chapters(U.answer_tree)
     
     for chapter_num, stats in pairs(chapter_stats) do
-      local tag = string.format("StructureStats-%s-%d", jobname, chapter_num)
-      job.datasets.setdata {
+        local tag = string.format("StructureStats-%s-L%d-%d", jobname, 1, chapter_num)      
+        job.datasets.setdata {
         name = "UnlimitedDataset",
         tag = tag,
         data = {
@@ -1458,7 +1496,7 @@
 %\setupquestion[option=ExampleNumberI,width=3em,stopper=,]
 
 \definequestion[question]
-\definequestion[subquestion]
+\definequestion[subquestion][question]
 
 \setupquestion
   [\c!class=question,
@@ -1482,6 +1520,19 @@
   \c!option={n,packed,joinedup,continue},]
 
 \setupquestion[question][2,3]
+  [\c!left=(,\c!lefttext=(,
+   \c!right=),\c!righttext=),
+   \c!stopper=,
+   \c!distance=.5em,
+   \c!option={n,packed,joinedup,continue},
+  ]
+
+\setupquestion[subquestion]
+  [\c!way=bychapter,
+  \c!numberconversion=tnum,
+  \c!option={n,packed,joinedup,continue},]
+
+\setupquestion[subquestion][2,3]
   [\c!left=(,\c!lefttext=(,
    \c!right=),\c!righttext=),
    \c!stopper=,
@@ -1684,7 +1735,15 @@
         \edef\p_option{\choiceparameter\c!option,#2}\fi
         \setupcurrentchoice[#3]%
   \fi
-  \BasicExamPushLevel\s!choice\s!choice
+  % =====================================
+  % 我们暂时停止了 push 和 pop choice 的层级
+  % 因为我们发现他会额外造成一个独立的子题目分支
+  % 这污染了整体的流程样式。所以直接抽离了关键命令出来
+  % 如果有任何意外情况，可以返回
+  % \BasicExamPushLevel\s!choice\s!choice
+  \c_currentitemnumber = 0\relax
+  \initcollectanswer
+  % ====================================
   \doifelsesomething{\UnlimitedGetExtraData{\UnlimitedCurrentID}{totalitemnumber}}%
      {\scratchcounter\UnlimitedGetExtraData{\UnlimitedCurrentID}{totalitemnumber}}%
      {\scratchcounter\zerocount}%
@@ -1722,13 +1781,11 @@
       \ifdefined\currentprevanswer
         \currentprevanswer\fi
     \else\collectedanswer\fi}%
-  \ifdefined\currentprevpoint\else
-    \def\currentprevpoint{}%
-  \fi
+  \def\currentprevpoint{\currentpoint}%
   \UnlimitedAddScoredAnswer{\currentanswer}{\currentprevpoint}%
   \choiceparameter\c!inlineright
   \stopitemgroup
-  \BasicExamPopLevel
+  % \BasicExamPopLevel
   \endgroup}
 
 \definechoice[choice]
