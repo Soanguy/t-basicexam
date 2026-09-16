@@ -1,10 +1,39 @@
-\usemodule[memos][extra=all]
+\usemodule[memos][extra=zhnumber]
 
 \starttext
 
+\setuphead[chapter][conversion=zhnumber]
+
 \title{ConTeXt 中文数字扩展功能测试}
 
-\section{整数转换}
+% ---------------------------------------------------------------
+% 1. 转换器（\convertnumber）测试
+% ---------------------------------------------------------------
+\section{转换器测试}
+
+\startitemize[n,horizontal,columns][n=2]
+\item zhnumber:    \convertnumber{zhnumber}{2024}        % 二千零二十四
+\item zhnumbercap: \convertnumber{zhnumbercap}{2024}     % 贰仟零贰拾肆
+\item zhnumberall: \convertnumber{zhnumberall}{30}       % 卅
+
+\item zhdigit:      \convertnumber{zhdigit}{2024}       % 二〇二四
+\item zhdigitcap:   \convertnumber{zhdigitcap}{2024}    % 贰零贰肆
+\item zhdigitphone: \convertnumber{zhdigitphone}{110}   % 幺幺洞
+
+\item zhdate:    \convertnumber{zhdate}{2024/1/1}        % 二零二四年一月一日
+\item zhtime:    \convertnumber{zhtime}{12:05}           % 十二点零五分
+\item zhweekday: \convertnumber{zhweekday}{2024/1/1}     % 星期一
+
+\item zhtiangan:    \convertnumber{zhtiangan}{1}         % 甲
+\item zhdizhi:      \convertnumber{zhdizhi}{1}           % 子
+\item zhganzhi:     \convertnumber{zhganzhi}{1}          % 甲子
+\item zhganzhinian: \convertnumber{zhganzhinian}{2024}   % 甲辰
+\stopitemize
+
+% ---------------------------------------------------------------
+% 2. 整数转换
+% ---------------------------------------------------------------
+\section{整数转换（普通数词读法 \type{\zhnumber}）}
 
 \startitemize[n,horizontal,columns][n=3]
 \item 0: \zhnumber{0}
@@ -18,87 +47,266 @@
 \item 110: \zhnumber{110}
 \item 111: \zhnumber{111}
 \item 1000: \zhnumber{1000}
+\item 1001: \zhnumber{1001}
 \item 10000: \zhnumber{10000}
+\item 10001: \zhnumber{10001}
 \item 100000000: \zhnumber{100000000}
 \item 12345: \zhnumber{12345}
 \item 10203: \zhnumber{10203}
 \item 10020304: \zhnumber{10020304}
+\item -1: \zhnumber{-1}
+\item -12: \zhnumber{-12}
 \item -123: \zhnumber{-123}
 \stopitemize
 
+\section{整数转换（逐位读法 \type{\zhdigit}）}
+
+\startitemize[n,horizontal,columns][n=3]
+\item 0: \zhdigit{0}
+\item 1: \zhdigit{1}
+\item 10: \zhdigit{10}
+\item 11: \zhdigit{11}
+\item 20: \zhdigit{20}
+\item 21: \zhdigit{21}
+\item 100: \zhdigit{100}
+\item 101: \zhdigit{101}
+\item 110: \zhdigit{110}
+\item 111: \zhdigit{111}
+\item 1000: \zhdigit{1000}
+\item 10000: \zhdigit{10000}
+\item 100000000: \zhdigit{100000000}
+\item 12345: \zhdigit{12345}
+\item 10203: \zhdigit{10203}
+\item 10020304: \zhdigit{10020304}
+\item -1: \zhdigit{-1}
+\item -12: \zhdigit{-12}
+\item -123: \zhdigit{-123}
+\stopitemize
+
+% ---------------------------------------------------------------
+% 3. 小数转换
+% ---------------------------------------------------------------
 \section{小数转换}
 
 \startitemize[n,horizontal,columns][n=2]
-\item 0.123: \zhnumber{0.123}
-\item 123.45: \zhnumber{123.45}
-\item 3.14159: \zhnumber{3.14159}
+\item 0.123:    \zhnumber{0.123}
+\item 123.45:   \zhnumber{123.45}
+\item 3.14159:  \zhnumber{3.14159}
+\item 0.0:      \zhnumber{0.0}
+\item 0.007:    \zhnumber{0.007}
+\item -3.14:    \zhnumber{-3.14}
+\item 12345.6789: \zhnumber{12345.6789}
 \stopitemize
 
+% ---------------------------------------------------------------
+% 4. 分数转换
+% ---------------------------------------------------------------
 \section{分数转换}
 
 \startitemize[n,horizontal,columns][n=2]
-\item 1/2: \zhnumber{1/2}
-\item 1/3: \zhnumber{1/3}
-\item 3/4: \zhnumber{3/4}
+\item 1/2:   \zhnumber{1/2}
+\item 1/3:   \zhnumber{1/3}
+\item 3/4:   \zhnumber{3/4}
 \item 123/45: \zhnumber{123/45}
+\item 0/5:   \zhnumber{0/5}
+\item -1/2:  \zhnumber{-1/2}
+\item 7/10:  \zhnumber{7/10}
 \stopitemize
 
+% ---------------------------------------------------------------
+% 5. 日期时间
+% ---------------------------------------------------------------
 \section{日期时间}
+
+\subsection{完整日期}
 
 \startitemize[n,horizontal,columns][n=2]
 \item \zhdate{2024/1/1}
 \item \zhdate{2024/12/31}
-\item \zhtime{0:00}
-\item \zhtime{14:30}
-\item \zhweekday{2024/1/1}
-\item \zhtoday
+\item \zhdate{2024/2/29}   % 闰年
+\item \zhdate{2023/2/28}   % 非闰年
+\item \zhdate{2000/2/29}   % 整百年且能被 400 整除
+\item \zhdate{1900/2/28}   % 整百年但不能被 400 整除
 \item \zhcurrtime
+\item \zhtoday
 \stopitemize
 
+\subsection{分隔符兼容性}
+
+\startitemize[n,horizontal,columns][n=2]
+\item 2024/1/1:   \zhdate{2024/1/1}
+\item 2024-1-1:   \zhdate{2024-1-1}
+\item 2024.1.1:   \zhdate{2024.1.1}
+\item 2024年1月1日: \zhdate{2024年1月1日}
+\stopitemize
+
+\subsection{两数字歧义}
+
+\startitemize[n,horizontal,columns][n=2]
+\item 2024/1（>12 → 年/月）: \zhdate{2024/1}
+\item 3/15（≤12 → 月/日，年默认今年）: \zhdate{3/15}
+\item 12/31（≤12 → 月/日，年默认今年）: \zhdate{12/31}
+\stopitemize
+
+\subsection{单数字歧义}
+
+\startitemize[n,horizontal,columns][n=2]
+\item 15（日，年、月默认）: \zhdate{15}
+\item 1（日，年、月默认）: \zhdate{1}
+\stopitemize
+
+\subsection{无效日期}
+
+\startitemize[n,horizontal,columns][n=2]
+\item 2024/2/30: \zhdate{2024/2/30}
+\item 2023/2/29: \zhdate{2023/2/29}
+\item 2024/4/31: \zhdate{2024/4/31}
+\item 2024/0/1:  \zhdate{2024/0/1}
+\item 2024/1/0:  \zhdate{2024/1/0}
+\item 2024/13/1: \zhdate{2024/13/1}
+\item 2024/1/1 12:30（数字过多）: \zhdate{2024/1/1 12:30}
+\stopitemize
+
+\subsection{时间}
+
+\startitemize[n,horizontal,columns][n=2]
+\item 0:00:  \zhtime{0:00}
+\item 12:00: \zhtime{12:00}
+\item 12:    \zhtime{12}         % 无冒号
+\item 14:05: \zhtime{14:05}
+\item 14:30: \zhtime{14:30}
+\item 23:59: \zhtime{23:59}
+\stopitemize
+
+\subsection{星期}
+
+\startitemize[n,horizontal,columns][n=2]
+\item \zhweekday{2024/1/1}
+\item \zhweekday{2024/2/29}
+\item \zhweekday{2023/2/28}
+\item \zhweekday{2000/1/1}
+\item \zhweekday{1900/1/1}
+\item \zhweekday{2024/1}      % 年/月，日默认为 1
+\item \zhweekday{3/15}        % 月/日，年默认今年
+\stopitemize
+
+% ---------------------------------------------------------------
+% 6. 天干地支
+% ---------------------------------------------------------------
 \section{天干地支}
 
 \startitemize[n,horizontal,columns][n=2]
-\item 天干: \dorecurse{10}{\convertnumber{tiangan}{#1},}
-\item 地支: \dorecurse{12}{\convertnumber{dizhi}{#1},}
-\item 干支: \dorecurse{60}{\convertnumber{ganzhi}{#1},}
-\item 天干: \dorecurse{10}{\zhtiangan{#1},}
-\item 地支: \dorecurse{12}{\zhdizhi{#1},}
-\item 干支: \dorecurse{60}{\zhganzhi{#1},}
-\item 2024: \zhganzhinian{2024}
+\item 天干（转换器）: \dorecurse{10}{\convertnumber{zhtiangan}{#1},}
+\item 地支（转换器）: \dorecurse{12}{\convertnumber{zhdizhi}{#1},}
+\item 干支（转换器）: \dorecurse{60}{\convertnumber{zhganzhi}{#1},}
+\item 天干（命令）:   \dorecurse{10}{\zhtiangan{#1},}
+\item 地支（命令）:   \dorecurse{12}{\zhdizhi{#1},}
+\item 干支（命令）:   \dorecurse{60}{\zhganzhi{#1},}
+\item 2024 年干支:    \zhganzhinian{2024}
+\item 1984 年干支:    \zhganzhinian{1984}
+\item 4 年干支:       \zhganzhinian{4}
 \stopitemize
 
+\subsection{越界输入}
+
+\startitemize[n,horizontal,columns][n=2]
+\item 天干 0:  \zhtiangan{0}    % 空
+\item 天干 11: \zhtiangan{11}   % 空
+\item 地支 0:  \zhdizhi{0}      % 空
+\item 地支 13: \zhdizhi{13}     % 空
+\item 干支 0:  \zhganzhi{0}     % 空
+\item 干支 61: \zhganzhi{61}    % 空
+\stopitemize
+
+% ---------------------------------------------------------------
+% 7. 样式
+% ---------------------------------------------------------------
 \section{样式}
+
+\subsection{普通数词读法}
 
 \startitemize[n,horizontal,columns][n=2]
 \item normal: \zhnumber[normal]{12345}
-\item cap: \zhnumber[cap]{12345}
-\item all: \zhnumber[all]{23}
+\item cap:    \zhnumber[cap]{12345}
+\item all:    \zhnumber[all]{23}
+\item all:    \zhnumber[all]{30}     % 卅
+\item all:    \zhnumber[all]{31}     % 卅一
+\item all:    \zhnumber[all]{110}    % 一百一十
+\item all:    \zhnumber[all]{120}    % 一百廿
 \stopitemize
 
+\subsection{逐位读法}
+
+\startitemize[n,horizontal,columns][n=2]
+\item normal: \zhdigit[normal]{12345}
+\item cap:    \zhdigit[cap]{12345}
+\item phone:  \zhdigit[phone]{110}
+\item phone:  \zhdigit[phone]{270}
+\stopitemize
+
+% ---------------------------------------------------------------
+% 8. 零的设置
+% ---------------------------------------------------------------
 \section{零的设置}
 
-默认使用〇：
+\subsection{默认使用〇}
+
 \startitemize[n,horizontal,columns][n=2]
-\item 101: \zhnumber{101}
-\item 2024年: \zhdate{2024/1/1}
+\item 101（普通）: \zhnumber{101}
+\item 101（逐位）: \zhdigit{101}
+\item 2024/1/1（日期）: \zhdate{2024/1/1}
+\item 12:05（时间）: \zhtime{12:05}
 \stopitemize
 
-\setupzhnumber[zero=零]
+\blank
+  \setupzhnumber[zero=零]
 
-切换为零：
+\subsection{切换为零}
+
 \startitemize[n,horizontal,columns][n=2]
-\item 101: \zhnumber{101}
-\item 2024年: \zhdate{2024/1/1}
+\item 101（普通）: \zhnumber{101}
+\item 101（逐位）: \zhdigit{101}
+\item 2024/1/1（日期）: \zhdate{2024/1/1}
+\item 12:05（时间）: \zhtime{12:05}
 \stopitemize
 
-\setupzhnumber[zero=〇]
+\blank
+  \setupzhnumber[zero=〇]
 
-切换回〇：
+\subsection{切换回〇}
+
 \startitemize[n,horizontal,columns][n=2]
-\item 101: \zhnumber{101}
-\item 2024年: \zhdate{2024/1/1}
+\item 101（普通）: \zhnumber{101}
+\item 101（逐位）: \zhdigit{101}
+\item 2024/1/1（日期）: \zhdate{2024/1/1}
+\item 12:05（时间）: \zhtime{12:05}
 \stopitemize
 
+\subsection{大写与电话风格不受影响}
 
+即使设置 \type{\setupzhnumber[zero=零]}，大写风格仍固定用“零”，电话风格固定用“洞”：
+
+\startitemize[n,horizontal,columns][n=2]
+\item cap 零:     \zhdigit[cap]{101}
+\item phone 零:   \zhdigit[phone]{101}
+\item cap 普通:   \zhnumber[cap]{101}
+\stopitemize
+
+\blank
+  \setupzhnumber[zero=〇]
+
+% ---------------------------------------------------------------
+% 9. 边界与异常输入
+% ---------------------------------------------------------------
+\section{边界与异常输入}
+
+\startitemize[n,horizontal,columns][n=2]
+\item 空字符串: 「\zhnumber{}」
+\item 非数字:   「\zhnumber{abc}」
+\item 混合:     「\zhnumber{12ab34}」
+\item 负零:     「\zhnumber{-0}」
+\item 多小数点: 「\zhnumber{1.2.3}」
+\item 多斜杠:   「\zhnumber{1/2/3}」
+\stopitemize
 
 \stoptext

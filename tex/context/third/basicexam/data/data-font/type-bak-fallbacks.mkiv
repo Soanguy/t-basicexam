@@ -583,6 +583,16 @@
 \definefontfallback [fallback-serifcaps]       [texgyrepagellaregular*fbk-smallcaps]      [\pagellafallback][force=yes]
 \stopsetups
 
+\startsetups fallback:serif:libertinus
+\definefontfallback [fallback-sans]            [libertinusserif-regular*fbk-default]       [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback [fallback-sansbold]        [libertinusserif-bold*fbk-default]          [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback [fallback-sansitalic]      [libertinusserif-italic*fbk-default]        [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback [fallback-sansbolditalic]  [libertinusserif-italic*fbk-default]        [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback [fallback-sansslanted]     [libertinusserif-regular*fbk-slanted]       [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback [fallback-sansboldslanted] [libertinusserif-bold*fbk-slanted]          [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback [fallback-sanscaps]        [libertinusserif-regular*fbk-smallcaps]     [\fallbackrange][force=yes,rscale=1.05]
+\stopsetups
+
 \startsetups fallback:sans:libertinus
 \definefontfallback [fallback-sans]            [libertinussans-regular*fbk-default]       [\fallbackrange][force=yes,rscale=1.05]
 \definefontfallback [fallback-sansbold]        [libertinussans-bold*fbk-default]          [\fallbackrange][force=yes,rscale=1.05]
@@ -606,43 +616,43 @@
 %%%%%%%%%%%%%%%%%%%%
 
 \startsetups fallback:serif:modern
-\definefontfallback [fallback-serif]           [lmroman10regular*fbk-default]    [\fallbackrange][force=yes]
-\definefontfallback [fallback-serifbold]       [lmroman10bold*fbk-default]       [\fallbackrange][force=yes]
-\definefontfallback [fallback-serifitalic]     [lmroman10italic*fbk-default]     [\fallbackrange][force=yes]
-\definefontfallback [fallback-serifbolditalic] [lmroman10bolditalic*fbk-default] [\fallbackrange][force=yes]
-\definefontfallback [fallback-serifslanted]    [lmromanslant10regular]           [\fallbackrange][force=yes]
-\definefontfallback [fallback-serifboldslanted][lmromanslant10bold]              [\fallbackrange][force=yes]
-\definefontfallback [fallback-serifcaps]       [lmromancaps10regular]            [\fallbackrange][force=yes]
+\definefontfallback [fallback-serif]           [name:lmroman10regular*fbk-default]    [\fallbackrange][force=yes]
+\definefontfallback [fallback-serifbold]       [name:lmroman10bold*fbk-default]       [\fallbackrange][force=yes]
+\definefontfallback [fallback-serifitalic]     [name:lmroman10italic*fbk-default]     [\fallbackrange][force=yes]
+\definefontfallback [fallback-serifbolditalic] [name:lmroman10bolditalic*fbk-default] [\fallbackrange][force=yes]
+\definefontfallback [fallback-serifslanted]    [name:lmromanslant10regular]           [\fallbackrange][force=yes]
+\definefontfallback [fallback-serifboldslanted][name:lmromanslant10bold]              [\fallbackrange][force=yes]
+\definefontfallback [fallback-serifcaps]       [name:lmromancaps10regular]            [\fallbackrange][force=yes]
 \stopsetups
 
 \startsetups fallback:sans:modern
-\definefontfallback [fallback-sans]            [lmsans10regular*fbk-default]         [\fallbackrange][force=yes,rscale=1.05]
-\definefontfallback [fallback-sansbold]        [lmsans10bold*fbk-default]            [\fallbackrange][force=yes,rscale=1.05]
-\definefontfallback [fallback-sansitalic]      [lmsans10oblique*fbk-default]         [\fallbackrange][force=yes,rscale=1.05]
-\definefontfallback [fallback-sansbolditalic]  [lmsans10boldoblique*fbk-default]     [\fallbackrange][force=yes,rscale=1.05]
-\definefontfallback [fallback-sansslanted]     [lmsans10oblique]                     [\fallbackrange][force=yes,rscale=1.05]
-\definefontfallback [fallback-sansboldslanted] [lmsans10boldoblique]                 [\fallbackrange][force=yes,rscale=1.05]
-\definefontfallback [fallback-sanscaps]        [lmsans10regular*fbk-smallcaps]       [\fallbackrange][force=yes,rscale=1.05]
+\definefontfallback [fallback-sans]            [name:lmsans10regular*fbk-default]     [\fallbackrange][force=yes]
+\definefontfallback [fallback-sansbold]        [name:lmsans10bold*fbk-default]        [\fallbackrange][force=yes]
+\definefontfallback [fallback-sansitalic]      [name:lmsans10oblique*fbk-default]     [\fallbackrange][force=yes]
+\definefontfallback [fallback-sansbolditalic]  [name:lmsans10boldoblique*fbk-default] [\fallbackrange][force=yes]
+\definefontfallback [fallback-sansslanted]     [name:lmsans10oblique]                 [\fallbackrange][force=yes]
+\definefontfallback [fallback-sansboldslanted] [name:lmsans10boldoblique]             [\fallbackrange][force=yes]
+\definefontfallback [fallback-sanscaps]        [name:lmsans10regular*fbk-smallcaps]   [\fallbackrange][force=yes]
 \stopsetups
 
 \startsetups fallback:mono:modern
-\definefontfallback [fallback-mono]            [name:lmmono10regular]                                [\fallbackrange][force=yes,rscale=1.00]
-\definefontfallback [fallback-monobold]        [name:lmmonolt10bold]                                 [\fallbackrange][force=yes,rscale=1.00]
-\definefontfallback [fallback-monoitalic]      [name:lmmonoslant10regular]                           [\fallbackrange][force=yes,rscale=1.00]
-\definefontfallback [fallback-monobolditalic]  [name:lmmonolt10boldoblique]                          [\fallbackrange][force=yes,rscale=1.00]
-\definefontfallback [fallback-monoslanted]     [name:lmmonoslant10regular]                           [\fallbackrange][force=yes,rscale=1.00]
-\definefontfallback [fallback-monoboldslanted] [name:lmmonolt10boldoblique]                          [\fallbackrange][force=yes,rscale=1.00]
-\definefontfallback [fallback-monocaps]        [name:lmmonocaps10]                                   [\fallbackrange][force=yes,rscale=1.00]
+\definefontfallback [fallback-mono]            [name:lmmono10regular]                 [\fallbackrange][force=yes]
+\definefontfallback [fallback-monobold]        [name:lmmonolt10bold]                  [\fallbackrange][force=yes]
+\definefontfallback [fallback-monoitalic]      [name:lmmonoslant10regular]            [\fallbackrange][force=yes]
+\definefontfallback [fallback-monobolditalic]  [name:lmmonolt10boldoblique]           [\fallbackrange][force=yes]
+\definefontfallback [fallback-monoslanted]     [name:lmmonoslant10regular]            [\fallbackrange][force=yes]
+\definefontfallback [fallback-monoboldslanted] [name:lmmonolt10boldoblique]           [\fallbackrange][force=yes]
+\definefontfallback [fallback-monocaps]        [name:lmmonocaps10]                    [\fallbackrange][force=yes]
 \stopsetups
 
 \startsetups fallback:handw:modern
-\definefontfallback [fallback-handw]           [name:lmroman10regular*fbk-default]        [\fallbackrange][force=yes]
-\definefontfallback [fallback-handwbold]       [name:lmroman10bold*fbk-default]           [\fallbackrange][force=yes]
-\definefontfallback [fallback-handwitalic]     [name:lmroman10italic*fbk-default]         [\fallbackrange][force=yes]
-\definefontfallback [fallback-handwbolditalic] [name:lmroman10bolditalic*fbk-default]     [\fallbackrange][force=yes]
-\definefontfallback [fallback-handwslanted]    [name:lmromanslant10regular]               [\fallbackrange][force=yes]
-\definefontfallback [fallback-handwboldslanted][name:lmromanslant10bold]                  [\fallbackrange][force=yes]
-\definefontfallback [fallback-handwcaps]       [name:lmromancaps10regular]                [\fallbackrange][force=yes]
+\definefontfallback [fallback-handw]           [name:lmroman10regular*fbk-default]    [\fallbackrange][force=yes]
+\definefontfallback [fallback-handwbold]       [name:lmroman10bold*fbk-default]       [\fallbackrange][force=yes]
+\definefontfallback [fallback-handwitalic]     [name:lmroman10italic*fbk-default]     [\fallbackrange][force=yes]
+\definefontfallback [fallback-handwbolditalic] [name:lmroman10bolditalic*fbk-default] [\fallbackrange][force=yes]
+\definefontfallback [fallback-handwslanted]    [name:lmromanslant10regular]           [\fallbackrange][force=yes]
+\definefontfallback [fallback-handwboldslanted][name:lmromanslant10bold]              [\fallbackrange][force=yes]
+\definefontfallback [fallback-handwcaps]       [name:lmromancaps10regular]            [\fallbackrange][force=yes]
 \stopsetups
 
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -870,6 +880,13 @@
   \setups{fallback:handw:pagella}
 \stopsetups
 
+\startsetups fallback:libertinus
+  \setups{fallback:serif:libertinus}
+  \setups{fallback:sans:libertinus}
+  \setups{fallback:mono:ibmplexvar}
+  \setups{fallback:handw:pagella}
+\stopsetups
+
 \startsetups fallback:ysabeau
   \setups{fallback:serif:pagella}
   \setups{fallback:sans:ysabeau}
@@ -1028,231 +1045,232 @@
 
 \definefontfeature [f@k-slanted]            []
 
+
 \startsetups fallback:serif:playfair8pt
-\definefontfallback [fallback-seriflight]        [file:PlayfairRomanVF.ttf*w-300-8]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-seriflightitalic]  [file:PlayfairItalicVF.ttf*w-300-8]             [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serif]             [file:PlayfairRomanVF.ttf*w-400-8]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifitalic]       [file:PlayfairItalicVF.ttf*w-400-8]             [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifbold]         [file:PlayfairRomanVF.ttf*w-700-8]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifbolditalic]   [file:PlayfairItalicVF.ttf*w-700-8]             [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifmedium]       [file:PlayfairRomanVF.ttf*w-500-8]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifmediumitalic] [file:PlayfairItalicVF.ttf*w-500-8]             [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifslanted]      [file:PlayfairRomanVF.ttf*w-400-8,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifboldslanted]  [file:PlayfairRomanVF.ttf*w-700-8,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifcaps]         [file:PlayfairRomanVF.ttf*w-400-8,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-seriflight]        [file:PlayfairRomanVF.ttf*w-300-8]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-seriflightitalic]  [file:PlayfairItalicVF.ttf*w-300-8]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serif]             [file:PlayfairRomanVF.ttf*w-400-8]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifitalic]       [file:PlayfairItalicVF.ttf*w-400-8]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifbold]         [file:PlayfairRomanVF.ttf*w-700-8]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifbolditalic]   [file:PlayfairItalicVF.ttf*w-700-8]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifmedium]       [file:PlayfairRomanVF.ttf*w-500-8]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifmediumitalic] [file:PlayfairItalicVF.ttf*w-500-8]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifslanted]      [file:PlayfairRomanVF.ttf*w-400-8,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifboldslanted]  [file:PlayfairRomanVF.ttf*w-700-8,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifcaps]         [file:PlayfairRomanVF.ttf*w-400-8,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.00]
 \stopsetups
 
 \startsetups fallback:handw:playfair8pt
-\definefontfallback [fallback-handwlight]        [file:PlayfairRomanVF.ttf*w-300-8]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwlightitalic]  [file:PlayfairItalicVF.ttf*w-300-8]             [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handw]             [file:PlayfairRomanVF.ttf*w-400-8]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwitalic]       [file:PlayfairItalicVF.ttf*w-400-8]             [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwbold]         [file:PlayfairRomanVF.ttf*w-700-8]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwbolditalic]   [file:PlayfairItalicVF.ttf*w-700-8]             [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwmedium]       [file:PlayfairRomanVF.ttf*w-500-8]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwmediumitalic] [file:PlayfairItalicVF.ttf*w-500-8]             [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwslanted]      [file:PlayfairRomanVF.ttf*w-400-8,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwboldslanted]  [file:PlayfairRomanVF.ttf*w-700-8,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwcaps]         [file:PlayfairRomanVF.ttf*w-400-8,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwlight]        [file:PlayfairRomanVF.ttf*w-300-8]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwlightitalic]  [file:PlayfairItalicVF.ttf*w-300-8]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handw]             [file:PlayfairRomanVF.ttf*w-400-8]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwitalic]       [file:PlayfairItalicVF.ttf*w-400-8]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbold]         [file:PlayfairRomanVF.ttf*w-700-8]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbolditalic]   [file:PlayfairItalicVF.ttf*w-700-8]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwmedium]       [file:PlayfairRomanVF.ttf*w-500-8]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwmediumitalic] [file:PlayfairItalicVF.ttf*w-500-8]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwslanted]      [file:PlayfairRomanVF.ttf*w-400-8,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwboldslanted]  [file:PlayfairRomanVF.ttf*w-700-8,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwcaps]         [file:PlayfairRomanVF.ttf*w-400-8,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.00]
 \stopsetups
 
 \startsetups fallback:handw:playfair12pt
-\definefontfallback [fallback-handwlight]        [file:PlayfairRomanVF.ttf*w-300-12]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwlightitalic]  [file:PlayfairItalicVF.ttf*w-300-12]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handw]             [file:PlayfairRomanVF.ttf*w-400-12]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwitalic]       [file:PlayfairItalicVF.ttf*w-400-12]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwbold]         [file:PlayfairRomanVF.ttf*w-700-12]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwbolditalic]   [file:PlayfairItalicVF.ttf*w-700-12]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwmedium]       [file:PlayfairRomanVF.ttf*w-500-12]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwmediumitalic] [file:PlayfairItalicVF.ttf*w-500-12]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwslanted]      [file:PlayfairRomanVF.ttf*w-400-12,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwboldslanted]  [file:PlayfairRomanVF.ttf*w-700-12,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwcaps]         [file:PlayfairRomanVF.ttf*w-400-12,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.15]
+\definefontfallback [fallback-handwlight]        [file:PlayfairRomanVF.ttf*w-300-12]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwlightitalic]  [file:PlayfairItalicVF.ttf*w-300-12]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handw]             [file:PlayfairRomanVF.ttf*w-400-12]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwitalic]       [file:PlayfairItalicVF.ttf*w-400-12]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbold]         [file:PlayfairRomanVF.ttf*w-700-12]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbolditalic]   [file:PlayfairItalicVF.ttf*w-700-12]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwmedium]       [file:PlayfairRomanVF.ttf*w-500-12]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwmediumitalic] [file:PlayfairItalicVF.ttf*w-500-12]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwslanted]      [file:PlayfairRomanVF.ttf*w-400-12,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwboldslanted]  [file:PlayfairRomanVF.ttf*w-700-12,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwcaps]         [file:PlayfairRomanVF.ttf*w-400-12,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.00]
 \stopsetups
 
 \startsetups fallback:serif:playfair12pt
-\definefontfallback [fallback-seriflight]        [file:PlayfairRomanVF.ttf*w-300-12]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-seriflightitalic]  [file:PlayfairItalicVF.ttf*w-300-12]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serif]             [file:PlayfairRomanVF.ttf*w-400-12]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifitalic]       [file:PlayfairItalicVF.ttf*w-400-12]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifbold]         [file:PlayfairRomanVF.ttf*w-700-12]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifbolditalic]   [file:PlayfairItalicVF.ttf*w-700-12]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifmedium]       [file:PlayfairRomanVF.ttf*w-500-12]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifmediumitalic] [file:PlayfairItalicVF.ttf*w-500-12]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifslanted]      [file:PlayfairRomanVF.ttf*w-400-12,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifboldslanted]  [file:PlayfairRomanVF.ttf*w-700-12,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifcaps]         [file:PlayfairRomanVF.ttf*w-400-12,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.2]
+\definefontfallback [fallback-seriflight]        [file:PlayfairRomanVF.ttf*w-300-12]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-seriflightitalic]  [file:PlayfairItalicVF.ttf*w-300-12]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serif]             [file:PlayfairRomanVF.ttf*w-400-12]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifitalic]       [file:PlayfairItalicVF.ttf*w-400-12]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifbold]         [file:PlayfairRomanVF.ttf*w-700-12]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifbolditalic]   [file:PlayfairItalicVF.ttf*w-700-12]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifmedium]       [file:PlayfairRomanVF.ttf*w-500-12]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifmediumitalic] [file:PlayfairItalicVF.ttf*w-500-12]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifslanted]      [file:PlayfairRomanVF.ttf*w-400-12,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifboldslanted]  [file:PlayfairRomanVF.ttf*w-700-12,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifcaps]         [file:PlayfairRomanVF.ttf*w-400-12,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.00]
 \stopsetups
 
 
 \startsetups fallback:handw:playfair16pt
-\definefontfallback [fallback-handwlight]        [file:PlayfairRomanVF.ttf*w-300-16]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwlightitalic]  [file:PlayfairItalicVF.ttf*w-300-16]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handw]             [file:PlayfairRomanVF.ttf*w-400-16]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwitalic]       [file:PlayfairItalicVF.ttf*w-400-16]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwbold]         [file:PlayfairRomanVF.ttf*w-700-16]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwbolditalic]   [file:PlayfairItalicVF.ttf*w-700-16]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwmedium]       [file:PlayfairRomanVF.ttf*w-500-16]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwmediumitalic] [file:PlayfairItalicVF.ttf*w-500-16]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwslanted]      [file:PlayfairRomanVF.ttf*w-400-16,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwboldslanted]  [file:PlayfairRomanVF.ttf*w-700-16,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwcaps]         [file:PlayfairRomanVF.ttf*w-400-16,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.15]
+\definefontfallback [fallback-handwlight]        [file:PlayfairRomanVF.ttf*w-300-16]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwlightitalic]  [file:PlayfairItalicVF.ttf*w-300-16]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handw]             [file:PlayfairRomanVF.ttf*w-400-16]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwitalic]       [file:PlayfairItalicVF.ttf*w-400-16]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbold]         [file:PlayfairRomanVF.ttf*w-700-16]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbolditalic]   [file:PlayfairItalicVF.ttf*w-700-16]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwmedium]       [file:PlayfairRomanVF.ttf*w-500-16]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwmediumitalic] [file:PlayfairItalicVF.ttf*w-500-16]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwslanted]      [file:PlayfairRomanVF.ttf*w-400-16,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwboldslanted]  [file:PlayfairRomanVF.ttf*w-700-16,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwcaps]         [file:PlayfairRomanVF.ttf*w-400-16,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.00]
 \stopsetups
 
 \startsetups fallback:serif:playfair16pt
-\definefontfallback [fallback-seriflight]        [file:PlayfairRomanVF.ttf*w-300-16]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-seriflightitalic]  [file:PlayfairItalicVF.ttf*w-300-16]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serif]             [file:PlayfairRomanVF.ttf*w-400-16]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifitalic]       [file:PlayfairItalicVF.ttf*w-400-16]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifbold]         [file:PlayfairRomanVF.ttf*w-700-16]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifbolditalic]   [file:PlayfairItalicVF.ttf*w-700-16]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifmedium]       [file:PlayfairRomanVF.ttf*w-500-16]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifmediumitalic] [file:PlayfairItalicVF.ttf*w-500-16]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifslanted]      [file:PlayfairRomanVF.ttf*w-400-16,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifboldslanted]  [file:PlayfairRomanVF.ttf*w-700-16,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifcaps]         [file:PlayfairRomanVF.ttf*w-400-16,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.2]
+\definefontfallback [fallback-seriflight]        [file:PlayfairRomanVF.ttf*w-300-16]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-seriflightitalic]  [file:PlayfairItalicVF.ttf*w-300-16]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serif]             [file:PlayfairRomanVF.ttf*w-400-16]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifitalic]       [file:PlayfairItalicVF.ttf*w-400-16]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifbold]         [file:PlayfairRomanVF.ttf*w-700-16]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifbolditalic]   [file:PlayfairItalicVF.ttf*w-700-16]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifmedium]       [file:PlayfairRomanVF.ttf*w-500-16]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifmediumitalic] [file:PlayfairItalicVF.ttf*w-500-16]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifslanted]      [file:PlayfairRomanVF.ttf*w-400-16,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifboldslanted]  [file:PlayfairRomanVF.ttf*w-700-16,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifcaps]         [file:PlayfairRomanVF.ttf*w-400-16,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.00]
 \stopsetups
 
 
 \startsetups fallback:handw:playfair21pt
-\definefontfallback [fallback-handwlight]        [file:PlayfairRomanVF.ttf*w-300-21]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwlightitalic]  [file:PlayfairItalicVF.ttf*w-300-21]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handw]             [file:PlayfairRomanVF.ttf*w-400-21]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwitalic]       [file:PlayfairItalicVF.ttf*w-400-21]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwbold]         [file:PlayfairRomanVF.ttf*w-700-21]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwbolditalic]   [file:PlayfairItalicVF.ttf*w-700-21]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwmedium]       [file:PlayfairRomanVF.ttf*w-500-21]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwmediumitalic] [file:PlayfairItalicVF.ttf*w-500-21]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwslanted]      [file:PlayfairRomanVF.ttf*w-400-21,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwboldslanted]  [file:PlayfairRomanVF.ttf*w-700-21,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwcaps]         [file:PlayfairRomanVF.ttf*w-400-21,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.15]
+\definefontfallback [fallback-handwlight]        [file:PlayfairRomanVF.ttf*w-300-21]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwlightitalic]  [file:PlayfairItalicVF.ttf*w-300-21]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handw]             [file:PlayfairRomanVF.ttf*w-400-21]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwitalic]       [file:PlayfairItalicVF.ttf*w-400-21]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbold]         [file:PlayfairRomanVF.ttf*w-700-21]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbolditalic]   [file:PlayfairItalicVF.ttf*w-700-21]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwmedium]       [file:PlayfairRomanVF.ttf*w-500-21]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwmediumitalic] [file:PlayfairItalicVF.ttf*w-500-21]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwslanted]      [file:PlayfairRomanVF.ttf*w-400-21,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwboldslanted]  [file:PlayfairRomanVF.ttf*w-700-21,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwcaps]         [file:PlayfairRomanVF.ttf*w-400-21,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.00]
 \stopsetups
 
 \startsetups fallback:serif:playfair21pt
-\definefontfallback [fallback-seriflight]        [file:PlayfairRomanVF.ttf*w-300-21]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-seriflightitalic]  [file:PlayfairItalicVF.ttf*w-300-21]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serif]             [file:PlayfairRomanVF.ttf*w-400-21]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifitalic]       [file:PlayfairItalicVF.ttf*w-400-21]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifbold]         [file:PlayfairRomanVF.ttf*w-700-21]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifbolditalic]   [file:PlayfairItalicVF.ttf*w-700-21]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifmedium]       [file:PlayfairRomanVF.ttf*w-500-21]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifmediumitalic] [file:PlayfairItalicVF.ttf*w-500-21]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifslanted]      [file:PlayfairRomanVF.ttf*w-400-21,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifboldslanted]  [file:PlayfairRomanVF.ttf*w-700-21,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifcaps]         [file:PlayfairRomanVF.ttf*w-400-21,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.2]
+\definefontfallback [fallback-seriflight]        [file:PlayfairRomanVF.ttf*w-300-21]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-seriflightitalic]  [file:PlayfairItalicVF.ttf*w-300-21]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serif]             [file:PlayfairRomanVF.ttf*w-400-21]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifitalic]       [file:PlayfairItalicVF.ttf*w-400-21]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifbold]         [file:PlayfairRomanVF.ttf*w-700-21]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifbolditalic]   [file:PlayfairItalicVF.ttf*w-700-21]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifmedium]       [file:PlayfairRomanVF.ttf*w-500-21]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifmediumitalic] [file:PlayfairItalicVF.ttf*w-500-21]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifslanted]      [file:PlayfairRomanVF.ttf*w-400-21,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifboldslanted]  [file:PlayfairRomanVF.ttf*w-700-21,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifcaps]         [file:PlayfairRomanVF.ttf*w-400-21,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.00]
 \stopsetups
 
 \startsetups fallback:handw:playfair32pt
-\definefontfallback [fallback-handwlight]        [file:PlayfairRomanVF.ttf*w-300-32]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwlightitalic]  [file:PlayfairItalicVF.ttf*w-300-32]             [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handw]             [file:PlayfairRomanVF.ttf*w-400-32]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwitalic]       [file:PlayfairItalicVF.ttf*w-400-32]             [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwbold]         [file:PlayfairRomanVF.ttf*w-700-32]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwbolditalic]   [file:PlayfairItalicVF.ttf*w-700-32]             [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwmedium]       [file:PlayfairRomanVF.ttf*w-500-32]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwmediumitalic] [file:PlayfairItalicVF.ttf*w-500-32]             [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwslanted]      [file:PlayfairRomanVF.ttf*w-400-32,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwboldslanted]  [file:PlayfairRomanVF.ttf*w-700-32,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwcaps]         [file:PlayfairRomanVF.ttf*w-400-32,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwlight]        [file:PlayfairRomanVF.ttf*w-300-32]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwlightitalic]  [file:PlayfairItalicVF.ttf*w-300-32]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handw]             [file:PlayfairRomanVF.ttf*w-400-32]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwitalic]       [file:PlayfairItalicVF.ttf*w-400-32]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbold]         [file:PlayfairRomanVF.ttf*w-700-32]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbolditalic]   [file:PlayfairItalicVF.ttf*w-700-32]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwmedium]       [file:PlayfairRomanVF.ttf*w-500-32]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwmediumitalic] [file:PlayfairItalicVF.ttf*w-500-32]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwslanted]      [file:PlayfairRomanVF.ttf*w-400-32,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwboldslanted]  [file:PlayfairRomanVF.ttf*w-700-32,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwcaps]         [file:PlayfairRomanVF.ttf*w-400-32,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.00]
 \stopsetups
 
 \startsetups fallback:serif:playfair32pt
-\definefontfallback [fallback-seriflight]        [file:PlayfairRomanVF.ttf*w-300-32]               [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-seriflightitalic]  [file:PlayfairItalicVF.ttf*w-300-32]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serif]             [file:PlayfairRomanVF.ttf*w-400-32]               [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifitalic]       [file:PlayfairItalicVF.ttf*w-400-32]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifbold]         [file:PlayfairRomanVF.ttf*w-700-32]               [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifbolditalic]   [file:PlayfairItalicVF.ttf*w-700-32]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifmedium]       [file:PlayfairRomanVF.ttf*w-500-32]               [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifmediumitalic] [file:PlayfairItalicVF.ttf*w-500-32]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifslanted]      [file:PlayfairRomanVF.ttf*w-400-32,f@k-slanted]   [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifboldslanted]  [file:PlayfairRomanVF.ttf*w-700-32,f@k-slanted]   [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifcaps]         [file:PlayfairRomanVF.ttf*w-400-32,fbk-smallcaps] [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-seriflight]        [file:PlayfairRomanVF.ttf*w-300-32]               [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-seriflightitalic]  [file:PlayfairItalicVF.ttf*w-300-32]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serif]             [file:PlayfairRomanVF.ttf*w-400-32]               [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifitalic]       [file:PlayfairItalicVF.ttf*w-400-32]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifbold]         [file:PlayfairRomanVF.ttf*w-700-32]               [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifbolditalic]   [file:PlayfairItalicVF.ttf*w-700-32]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifmedium]       [file:PlayfairRomanVF.ttf*w-500-32]               [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifmediumitalic] [file:PlayfairItalicVF.ttf*w-500-32]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifslanted]      [file:PlayfairRomanVF.ttf*w-400-32,f@k-slanted]   [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifboldslanted]  [file:PlayfairRomanVF.ttf*w-700-32,f@k-slanted]   [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifcaps]         [file:PlayfairRomanVF.ttf*w-400-32,fbk-smallcaps] [\fallbackrange] [force=yes,rscale=1.00]
 \stopsetups
 
 \startsetups fallback:handw:playfair48pt
-\definefontfallback [fallback-handwlight]        [file:PlayfairRomanVF.ttf*w-300-48]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwlightitalic]  [file:PlayfairItalicVF.ttf*w-300-48]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handw]             [file:PlayfairRomanVF.ttf*w-400-48]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwitalic]       [file:PlayfairItalicVF.ttf*w-400-48]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwbold]         [file:PlayfairRomanVF.ttf*w-700-48]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwbolditalic]   [file:PlayfairItalicVF.ttf*w-700-48]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwmedium]       [file:PlayfairRomanVF.ttf*w-500-48]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwmediumitalic] [file:PlayfairItalicVF.ttf*w-500-48]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwslanted]      [file:PlayfairRomanVF.ttf*w-400-48,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwboldslanted]  [file:PlayfairRomanVF.ttf*w-700-48,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwcaps]         [file:PlayfairRomanVF.ttf*w-400-48,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.15]
+\definefontfallback [fallback-handwlight]        [file:PlayfairRomanVF.ttf*w-300-48]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwlightitalic]  [file:PlayfairItalicVF.ttf*w-300-48]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handw]             [file:PlayfairRomanVF.ttf*w-400-48]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwitalic]       [file:PlayfairItalicVF.ttf*w-400-48]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbold]         [file:PlayfairRomanVF.ttf*w-700-48]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbolditalic]   [file:PlayfairItalicVF.ttf*w-700-48]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwmedium]       [file:PlayfairRomanVF.ttf*w-500-48]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwmediumitalic] [file:PlayfairItalicVF.ttf*w-500-48]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwslanted]      [file:PlayfairRomanVF.ttf*w-400-48,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwboldslanted]  [file:PlayfairRomanVF.ttf*w-700-48,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwcaps]         [file:PlayfairRomanVF.ttf*w-400-48,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.00]
 \stopsetups
 
 \startsetups fallback:serif:playfair48pt
-\definefontfallback [fallback-seriflight]        [file:PlayfairRomanVF.ttf*w-300-48]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-seriflightitalic]  [file:PlayfairItalicVF.ttf*w-300-48]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serif]             [file:PlayfairRomanVF.ttf*w-400-48]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifitalic]       [file:PlayfairItalicVF.ttf*w-400-48]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifbold]         [file:PlayfairRomanVF.ttf*w-700-48]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifbolditalic]   [file:PlayfairItalicVF.ttf*w-700-48]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifmedium]       [file:PlayfairRomanVF.ttf*w-500-48]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifmediumitalic] [file:PlayfairItalicVF.ttf*w-500-48]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifslanted]      [file:PlayfairRomanVF.ttf*w-400-48,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifboldslanted]  [file:PlayfairRomanVF.ttf*w-700-48,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifcaps]         [file:PlayfairRomanVF.ttf*w-400-48,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.2]
+\definefontfallback [fallback-seriflight]        [file:PlayfairRomanVF.ttf*w-300-48]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-seriflightitalic]  [file:PlayfairItalicVF.ttf*w-300-48]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serif]             [file:PlayfairRomanVF.ttf*w-400-48]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifitalic]       [file:PlayfairItalicVF.ttf*w-400-48]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifbold]         [file:PlayfairRomanVF.ttf*w-700-48]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifbolditalic]   [file:PlayfairItalicVF.ttf*w-700-48]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifmedium]       [file:PlayfairRomanVF.ttf*w-500-48]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifmediumitalic] [file:PlayfairItalicVF.ttf*w-500-48]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifslanted]      [file:PlayfairRomanVF.ttf*w-400-48,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifboldslanted]  [file:PlayfairRomanVF.ttf*w-700-48,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifcaps]         [file:PlayfairRomanVF.ttf*w-400-48,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.00]
 \stopsetups
 
 \startsetups fallback:handw:playfair72pt
-\definefontfallback [fallback-handwlight]        [file:PlayfairRomanVF.ttf*w-300-72]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwlightitalic]  [file:PlayfairItalicVF.ttf*w-300-72]             [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handw]             [file:PlayfairRomanVF.ttf*w-400-72]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwitalic]       [file:PlayfairItalicVF.ttf*w-400-72]             [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwbold]         [file:PlayfairRomanVF.ttf*w-700-72]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwbolditalic]   [file:PlayfairItalicVF.ttf*w-700-72]             [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwmedium]       [file:PlayfairRomanVF.ttf*w-500-72]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwmediumitalic] [file:PlayfairItalicVF.ttf*w-500-72]             [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwslanted]      [file:PlayfairRomanVF.ttf*w-400-72,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwboldslanted]  [file:PlayfairRomanVF.ttf*w-700-72,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-handwcaps]         [file:PlayfairRomanVF.ttf*w-400-72,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-handwlight]        [file:PlayfairRomanVF.ttf*w-300-72]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwlightitalic]  [file:PlayfairItalicVF.ttf*w-300-72]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handw]             [file:PlayfairRomanVF.ttf*w-400-72]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwitalic]       [file:PlayfairItalicVF.ttf*w-400-72]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbold]         [file:PlayfairRomanVF.ttf*w-700-72]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbolditalic]   [file:PlayfairItalicVF.ttf*w-700-72]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwmedium]       [file:PlayfairRomanVF.ttf*w-500-72]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwmediumitalic] [file:PlayfairItalicVF.ttf*w-500-72]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwslanted]      [file:PlayfairRomanVF.ttf*w-400-72,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwboldslanted]  [file:PlayfairRomanVF.ttf*w-700-72,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwcaps]         [file:PlayfairRomanVF.ttf*w-400-72,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.00]
 \stopsetups
 
 \startsetups fallback:serif:playfair72pt
-\definefontfallback [fallback-seriflight]        [file:PlayfairRomanVF.ttf*w-300-72]               [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-seriflightitalic]  [file:PlayfairItalicVF.ttf*w-300-72]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serif]             [file:PlayfairRomanVF.ttf*w-400-72]               [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifitalic]       [file:PlayfairItalicVF.ttf*w-400-72]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifbold]         [file:PlayfairRomanVF.ttf*w-700-72]               [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifbolditalic]   [file:PlayfairItalicVF.ttf*w-700-72]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifmedium]       [file:PlayfairRomanVF.ttf*w-500-72]               [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifmediumitalic] [file:PlayfairItalicVF.ttf*w-500-72]              [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifslanted]      [file:PlayfairRomanVF.ttf*w-400-72,f@k-slanted]   [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifboldslanted]  [file:PlayfairRomanVF.ttf*w-700-72,f@k-slanted]   [\fallbackrange] [force=yes,rscale=1.095]
-\definefontfallback [fallback-serifcaps]         [file:PlayfairRomanVF.ttf*w-400-72,fbk-smallcaps] [\fallbackrange] [force=yes,rscale=1.095]
+\definefontfallback [fallback-seriflight]        [file:PlayfairRomanVF.ttf*w-300-72]               [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-seriflightitalic]  [file:PlayfairItalicVF.ttf*w-300-72]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serif]             [file:PlayfairRomanVF.ttf*w-400-72]               [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifitalic]       [file:PlayfairItalicVF.ttf*w-400-72]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifbold]         [file:PlayfairRomanVF.ttf*w-700-72]               [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifbolditalic]   [file:PlayfairItalicVF.ttf*w-700-72]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifmedium]       [file:PlayfairRomanVF.ttf*w-500-72]               [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifmediumitalic] [file:PlayfairItalicVF.ttf*w-500-72]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifslanted]      [file:PlayfairRomanVF.ttf*w-400-72,f@k-slanted]   [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifboldslanted]  [file:PlayfairRomanVF.ttf*w-700-72,f@k-slanted]   [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifcaps]         [file:PlayfairRomanVF.ttf*w-400-72,fbk-smallcaps] [\fallbackrange] [force=yes,rscale=1.00]
 \stopsetups
 
 
 \startsetups fallback:handw:playfair96pt
-\definefontfallback [fallback-handwlight]        [file:PlayfairRomanVF.ttf*w-300-96]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwlightitalic]  [file:PlayfairItalicVF.ttf*w-300-96]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handw]             [file:PlayfairRomanVF.ttf*w-400-96]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwitalic]       [file:PlayfairItalicVF.ttf*w-400-96]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwbold]         [file:PlayfairRomanVF.ttf*w-700-96]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwbolditalic]   [file:PlayfairItalicVF.ttf*w-700-96]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwmedium]       [file:PlayfairRomanVF.ttf*w-500-96]              [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwmediumitalic] [file:PlayfairItalicVF.ttf*w-500-96]             [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwslanted]      [file:PlayfairRomanVF.ttf*w-400-96,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwboldslanted]  [file:PlayfairRomanVF.ttf*w-700-96,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.15]
-\definefontfallback [fallback-handwcaps]         [file:PlayfairRomanVF.ttf*w-400-96,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.15]
+\definefontfallback [fallback-handwlight]        [file:PlayfairRomanVF.ttf*w-300-96]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwlightitalic]  [file:PlayfairItalicVF.ttf*w-300-96]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handw]             [file:PlayfairRomanVF.ttf*w-400-96]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwitalic]       [file:PlayfairItalicVF.ttf*w-400-96]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbold]         [file:PlayfairRomanVF.ttf*w-700-96]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwbolditalic]   [file:PlayfairItalicVF.ttf*w-700-96]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwmedium]       [file:PlayfairRomanVF.ttf*w-500-96]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwmediumitalic] [file:PlayfairItalicVF.ttf*w-500-96]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwslanted]      [file:PlayfairRomanVF.ttf*w-400-96,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwboldslanted]  [file:PlayfairRomanVF.ttf*w-700-96,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-handwcaps]         [file:PlayfairRomanVF.ttf*w-400-96,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.00]
 \stopsetups
 
 \startsetups fallback:serif:playfair96pt
-\definefontfallback [fallback-seriflight]        [file:PlayfairRomanVF.ttf*w-300-96]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-seriflightitalic]  [file:PlayfairItalicVF.ttf*w-300-96]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serif]             [file:PlayfairRomanVF.ttf*w-400-96]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifitalic]       [file:PlayfairItalicVF.ttf*w-400-96]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifbold]         [file:PlayfairRomanVF.ttf*w-700-96]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifbolditalic]   [file:PlayfairItalicVF.ttf*w-700-96]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifmedium]       [file:PlayfairRomanVF.ttf*w-500-96]              [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifmediumitalic] [file:PlayfairItalicVF.ttf*w-500-96]             [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifslanted]      [file:PlayfairRomanVF.ttf*w-400-96,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifboldslanted]  [file:PlayfairRomanVF.ttf*w-700-96,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.2]
-\definefontfallback [fallback-serifcaps]         [file:PlayfairRomanVF.ttf*w-400-96,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.2]
+\definefontfallback [fallback-seriflight]        [file:PlayfairRomanVF.ttf*w-300-96]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-seriflightitalic]  [file:PlayfairItalicVF.ttf*w-300-96]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serif]             [file:PlayfairRomanVF.ttf*w-400-96]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifitalic]       [file:PlayfairItalicVF.ttf*w-400-96]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifbold]         [file:PlayfairRomanVF.ttf*w-700-96]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifbolditalic]   [file:PlayfairItalicVF.ttf*w-700-96]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifmedium]       [file:PlayfairRomanVF.ttf*w-500-96]              [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifmediumitalic] [file:PlayfairItalicVF.ttf*w-500-96]             [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifslanted]      [file:PlayfairRomanVF.ttf*w-400-96,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifboldslanted]  [file:PlayfairRomanVF.ttf*w-700-96,f@k-slanted]  [\fallbackrange] [force=yes,rscale=1.00]
+\definefontfallback [fallback-serifcaps]         [file:PlayfairRomanVF.ttf*w-400-96,fbk-smallcaps][\fallbackrange] [force=yes,rscale=1.00]
 \stopsetups
 
 \startsetups fallback:playfair8pt
@@ -1281,6 +1299,13 @@
   \setups{fallback:sans:prozalibre}
   \setups{fallback:mono:ibmplexvar}
   \setups{fallback:handw:playfair16pt}
+\stopsetups
+
+\startsetups fallback:playfair21pt
+  \setups{fallback:serif:playfair21pt}
+  \setups{fallback:sans:prozalibre}
+  \setups{fallback:mono:ibmplexvar}
+  \setups{fallback:handw:playfair21pt}
 \stopsetups
 
 \startsetups fallback:playfair32pt
@@ -1495,8 +1520,6 @@
 \definefontfallback [fallback-monoboldslanted]       [name:monasansmonovfextralightbold*fbk-slanted-mono]      [\fallbackrange] [force=yes,rscale=0.90]
 \definefontfallback [fallback-monocaps]              [name:monasansmonovfextralightregular*fbk-smallcaps-mono] [\fallbackrange] [force=yes,rscale=0.90]
 \stopsetups
-
-
 
 % \setups{fallback:serif:josefinslab}
 % \setups{fallback:sans:recursive}

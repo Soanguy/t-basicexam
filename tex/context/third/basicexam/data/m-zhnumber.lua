@@ -4,8 +4,8 @@ if not modules then modules = { } end modules ['zhnumber'] = {
     author    = "Based on zhnumber package by Qing Lee",
 }
 
-local format, match, gmatch, concat, tonumber, floor, ceil, abs = 
-      string.format, string.match, string.gmatch, table.concat, tonumber, math.floor, math.ceil, math.abs
+local match, gmatch, concat, tonumber, floor, abs = 
+      string.match, string.gmatch, table.concat, tonumber, math.floor, math.abs
 
 local context = context
 
@@ -17,43 +17,39 @@ zhnumber.settings = {
     zero = "〇",  -- 默认使用〇，可选"零"
 }
 
--- 设置零的显示方式
-function zhnumber.setzero(char)
-    if char == "零" or char == "〇" then
-        zhnumber.settings.zero = char
-    end
-end
-
 -- 数字映射表
+-- [200] = "皕" 已经删除了， 几乎没有使用案例
 local digits_base = {
     normal = {
+        [0] = "〇",
         [1] = "一", [2] = "二", [3] = "三", [4] = "四",
         [5] = "五", [6] = "六", [7] = "七", [8] = "八", [9] = "九",
         [10] = "十", [100] = "百", [1000] = "千", [10000] = "万", [100000000] = "亿"
     },
     cap = {
+        [0] = "零",
         [1] = "壹", [2] = "贰", [3] = "叁", [4] = "肆",
         [5] = "伍", [6] = "陆", [7] = "柒", [8] = "捌", [9] = "玖",
         [10] = "拾", [100] = "佰", [1000] = "仟", [10000] = "萬", [100000000] = "亿"
     },
     all = {
+        [0] = "〇",
         [1] = "一", [2] = "二", [3] = "三", [4] = "四",
         [5] = "五", [6] = "六", [7] = "七", [8] = "八", [9] = "九",
         [10] = "十", [20] = "廿", [30] = "卅", [40] = "卌",
-        [100] = "百", [200] = "皕", [1000] = "千", [10000] = "万", [100000000] = "亿"
+        [100] = "百", [1000] = "千", [10000] = "万", [100000000] = "亿"
     }
 }
 
--- 获取数字映射表（根据设置选择零）
-local function getdigits(style)
-    local base = digits_base[style] or digits_base.normal
-    local result = {}
-    for k, v in pairs(base) do
-        result[k] = v
-    end
-    result[0] = zhnumber.settings.zero
-    return result
-end
+-- 逐位读法字符映射
+local digit_chars = {
+    normal = { [0]="〇", [1]="一", [2]="二", [3]="三", [4]="四",
+               [5]="五", [6]="六", [7]="七", [8]="八", [9]="九" },
+    cap    = { [0]="零", [1]="壹", [2]="贰", [3]="叁", [4]="肆",
+               [5]="伍", [6]="陆", [7]="柒", [8]="捌", [9]="玖" },
+    phone  = { [0]="洞", [1]="幺", [2]="两", [3]="三", [4]="四",
+               [5]="五", [6]="六", [7]="拐", [8]="八", [9]="勾" },
+}
 
 -- 天干地支
 local tiangan = { "甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸" }
@@ -62,24 +58,39 @@ local dizhi = { "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "
 -- 星期
 local weekdays = { "日", "一", "二", "三", "四", "五", "六" }
 
+-- 设置零的显示方式
+function zhnumber.setzero(char)
+    if char ~= "零" and char ~= "〇" then
+        return
+    end
+    zhnumber.settings.zero = char
+    digits_base.normal[0] = char
+    digits_base.all[0]    = char
+    digit_chars.normal[0] = char
+    -- cap 和 phone 的零固定为"零"和"洞"，不修改
+end
+
+-- 获取数字映射表（根据设置选择零）
+local function getdigits(style)
+    return digits_base[style] or digits_base.normal
+end
+
 -- 中文数字转换函数
 local function tochinese(n, style)
     style = style or "normal"
     local vector = getdigits(style)
     local result, r = {}, 0
+    local negative = false
     
     if n == 0 then
         return vector[0]
     end
     
-    -- 处理负数
     if n < 0 then
-        r = r + 1
-        result[r] = "负"
+        negative = true
         n = abs(n)
     end
     
-    -- 转换整数部分
     while n > 0 do
         if n >= 100000000 then
             local m = floor(n / 100000000)
@@ -115,7 +126,7 @@ local function tochinese(n, style)
             end
         elseif n >= 10 then
             local m = floor(n / 10)
-            if style == "all" and vector[m * 10] then
+            if style == "all" and m > 1 and vector[m * 10] then
                 r = r + 1; result[r] = vector[m * 10]
             else
                 if m > 1 then
@@ -137,7 +148,11 @@ local function tochinese(n, style)
         result[1] = ""
     end
     
-    return concat(result)
+    local str = concat(result)
+    if negative then
+        str = "负" .. str
+    end
+    return str
 end
 
 -- 小数转换
@@ -179,13 +194,71 @@ local function tofraction(num, den, style)
     return concat(result)
 end
 
+-- 内部辅助函数：解析日期参数，返回 year, month, day
+-- 解析失败返回 nil
+-- 两个数字：第一个 > 12 视为“年/月”，否则视为“月/日”
+-- 单数字：按“日”解释，年、月默认为今年本月
+local function parsedate(...)
+    local args = { ... }
+    local nums = {}
+    
+    for _, v in ipairs(args) do
+        for num in gmatch(tostring(v), "%d+") do
+            nums[#nums + 1] = tonumber(num)
+        end
+    end
+    
+    if #nums == 0 or #nums > 3 then
+        return nil
+    end
+    
+    local year, month, day
+    if #nums == 3 then
+        year, month, day = nums[1], nums[2], nums[3]
+    else
+        local now = os.date("*t")   -- 只在需要默认值时调用
+        if #nums == 2 then
+            if nums[1] > 12 then
+                year, month, day = nums[1], nums[2], 1
+            else
+                year, month, day = now.year, nums[1], nums[2]
+            end
+        else
+            year, month, day = now.year, now.month, nums[1]
+        end
+    end
+    
+    if month < 1 or month > 12 then
+        return nil
+    end
+    
+    local mdays = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
+    local max_day = mdays[month]
+    if month == 2 then
+        local is_leap = (year % 4 == 0 and year % 100 ~= 0) or (year % 400 == 0)
+        if is_leap then
+            max_day = 29
+        end
+    end
+    if day < 1 or day > max_day then
+        return nil
+    end
+    
+    return year, month, day
+end
+
 -- 主转换函数
 function zhnumber.convert(str, style)
     style = style or "normal"
+    str = tostring(str or "")
     
-    -- 检查是否为空
-    if not str or str == "" then
+    if str == "" then
         return ""
+    end
+    
+    -- 统一处理负号（支持负数整数、小数、分数）
+    if str:sub(1, 1) == "-" then
+        return "负" .. zhnumber.convert(str:sub(2), style)
     end
     
     -- 检查是否为分数
@@ -198,20 +271,13 @@ function zhnumber.convert(str, style)
     local int_part, dec_part = match(str, "^(%d*)%.(%d+)$")
     if int_part or dec_part then
         local result = {}
-        
-        -- 整数部分
         if int_part and int_part ~= "" then
             result[#result + 1] = tochinese(tonumber(int_part), style)
         else
             result[#result + 1] = getdigits(style)[0]
         end
-        
-        -- 小数点
         result[#result + 1] = "点"
-        
-        -- 小数部分
         result[#result + 1] = todecimal(dec_part, style)
-        
         return concat(result)
     end
     
@@ -225,15 +291,39 @@ function zhnumber.convert(str, style)
     return str
 end
 
--- 日期转换
-function zhnumber.date(year, month, day)
-    -- 支持单字符串参数或三个参数
-    if not month and not day then
-        local str = year
-        year, month, day = match(str, "^(%d+)/(%d+)/(%d+)$")
+-- 逐位读法：直接按字符逐位转换
+function zhnumber.digits(str, style)
+    style = style or "normal"
+    str = tostring(str or "")
+    local map = digit_chars[style] or digit_chars.normal
+    local result = {}
+    local negative = false
+
+    if str:sub(1, 1) == "-" then
+        negative = true
+        str = str:sub(2)
     end
-    
-    if not year or not month or not day then
+
+    for char in gmatch(str, ".") do
+        local d = tonumber(char)
+        if d then
+            result[#result + 1] = map[d]
+        else
+            result[#result + 1] = char
+        end
+    end
+
+    local out = concat(result)
+    if negative then
+        out = "负" .. out
+    end
+    return out
+end
+
+-- 日期转换
+function zhnumber.date(...)
+    local year, month, day = parsedate(...)
+    if not year then
         return ""
     end
     
@@ -250,11 +340,11 @@ function zhnumber.date(year, month, day)
     result[#result + 1] = "年"
     
     -- 月份
-    result[#result + 1] = tochinese(tonumber(month), "normal")
+    result[#result + 1] = tochinese(month, "normal")
     result[#result + 1] = "月"
     
     -- 日期
-    result[#result + 1] = tochinese(tonumber(day), "normal")
+    result[#result + 1] = tochinese(day, "normal")
     result[#result + 1] = "日"
     
     return concat(result)
@@ -262,25 +352,29 @@ end
 
 -- 时间转换
 function zhnumber.time(hour, minute)
-    -- 支持单字符串参数或两个参数
-    if not minute then
-        local str = hour
-        hour, minute = match(str, "^(%d+):(%d+)$")
+    local h, m
+    if minute ~= nil then
+        h = tonumber(tostring(hour):match("%d+") or "")
+        m = tonumber(tostring(minute):match("%d+") or "") or 0
+    else
+        local hs, ms = tostring(hour):match("^(%d+):?(%d*)$")
+        h = tonumber(hs)
+        m = tonumber(ms) or 0
     end
     
-    if not hour then
+    if not h then
         return ""
     end
     
     local result = {}
-    
-    -- 小时
-    result[#result + 1] = tochinese(tonumber(hour), "normal")
+    result[#result + 1] = tochinese(h, "normal")
     result[#result + 1] = "点"
     
-    -- 分钟
-    if minute and tonumber(minute) > 0 then
-        result[#result + 1] = tochinese(tonumber(minute), "normal")
+    if m > 0 then
+        if m < 10 then
+            result[#result + 1] = zhnumber.settings.zero
+        end
+        result[#result + 1] = tochinese(m, "normal")
         result[#result + 1] = "分"
     end
     
@@ -288,20 +382,14 @@ function zhnumber.time(hour, minute)
 end
 
 -- 星期转换
-function zhnumber.weekday(year, month, day)
-    -- 支持单字符串参数或三个参数
-    if not month and not day then
-        local str = year
-        year, month, day = match(str, "^(%d+)/(%d+)/(%d+)$")
-    end
-    
-    if not year or not month or not day then
+function zhnumber.weekday(...)
+    local year, month, day = parsedate(...)
+    if not year then
         return ""
     end
     
-    -- Zeller公式计算星期
-    local y, m, d = tonumber(year), tonumber(month), tonumber(day)
-    
+    -- Zeller 公式计算星期
+    local y, m, d = year, month, day
     if m < 3 then
         y = y - 1
         m = m + 12
@@ -311,6 +399,7 @@ function zhnumber.weekday(year, month, day)
     y = y % 100
     
     local w = (d + floor((m + 1) * 2.6) + y + floor(y / 4) + floor(c / 4) - 2 * c) % 7
+    if w == 0 then w = 7 end
     
     return "星期" .. weekdays[w]
 end
@@ -370,6 +459,12 @@ interfaces.implement {
 }
 
 interfaces.implement {
+    name = "zhdigits",
+    actions = { zhnumber.digits, context },
+    arguments = { "string", "string" }
+}
+
+interfaces.implement {
     name = "zhdate",
     actions = { zhnumber.date, context },
     arguments = { "string" }
@@ -417,12 +512,40 @@ interfaces.implement {
     arguments = { "integer" }
 }
 
--- 注册转换器
-converters.zhnumber = zhnumber.convert
-converters.zhdate = zhnumber.date
-converters.zhtime = zhnumber.time
-converters.zhweekday = zhnumber.weekday
-converters.zhtiangan = zhnumber.tiangan
-converters.zhdizhi = zhnumber.dizhi
-converters.zhganzhi = zhnumber.ganzhi
-converters.zhganzhinian = zhnumber.ganzhinian
+-- ============================================================
+-- 新增：供 \defineconversion 使用的单参数接口
+-- ============================================================
+
+-- zhnumber.convert 的多种风格
+interfaces.implement {
+    name    = "zhnumber_normal",
+    actions = function(s) context(zhnumber.convert(s, "normal")) end,
+    arguments = "string",
+}
+interfaces.implement {
+    name    = "zhnumber_cap",
+    actions = function(s) context(zhnumber.convert(s, "cap")) end,
+    arguments = "string",
+}
+interfaces.implement {
+    name    = "zhnumber_all",
+    actions = function(s) context(zhnumber.convert(s, "all")) end,
+    arguments = "string",
+}
+
+-- zhnumber.digits 的多种风格（逐位读法）
+interfaces.implement {
+    name    = "zhdigits_normal",
+    actions = function(s) context(zhnumber.digits(s, "normal")) end,
+    arguments = "string",
+}
+interfaces.implement {
+    name    = "zhdigits_cap",
+    actions = function(s) context(zhnumber.digits(s, "cap")) end,
+    arguments = "string",
+}
+interfaces.implement {
+    name    = "zhdigits_phone",
+    actions = function(s) context(zhnumber.digits(s, "phone")) end,
+    arguments = "string",
+}
