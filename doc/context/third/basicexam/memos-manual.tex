@@ -1,14 +1,14 @@
-\usemodule[memos][extra=all]
+\usemodule[memos][fallbackfont=pagella,extra=all]
+\usemodule[zhpunc]
 \usemodule[setups]
 
 \enablemode[no-setup-main]
 
-\setupinteraction[state=start]
 \setuptextrules[style=\tf\ss,before=,after=,rulethickness=.5pt]
 
-\setuptyping[style=\ttxx\setuplocalinterlinespace[line=2ex],
+\setuptyping[style=\ttx\setuplocalinterlinespace[line=2ex],
              option={context},
-             before={\vbox{\hrule height .5pt\par
+             before={\blank[halfline]\vbox{\hrule height .5pt\par
                      \textrule{代码示例}%
                      \hrule height .5pt\vrule width0pt depth 4pt}\par},
               after={\vbox{\hrule height .5pt\strut}},
@@ -19,7 +19,7 @@
 
 \protected\def\bgcolorshowtemp#1{%
   \framed[foregroundcolor=white,background=color,backgroundcolor=#1,
-           frame=off,align={lohi},foregroundstyle=\ttx]{#1}}
+           frame=off,align={center,lohi},foregroundstyle=\ttx, width=\widthofstring{bbblackyellow}]{#1}}
 
 \def\showcolorlevels{%
   \starttabulate[|lw(.15\textwidth)|cw(.15\textwidth)|cw(.15\textwidth)|cw(.15\textwidth)|cw(.15\textwidth)|cw(.15\textwidth)|]
@@ -80,6 +80,9 @@
   }
 
 \def\showpaletcolors{%
+  \protected\def\bgcolorshowtemp##1{%
+  \framed[foregroundcolor=white,background=color,backgroundcolor=##1,
+           frame=off,align={center,lohi},foregroundstyle=\ttx, width=\widthofstring{bbsoftbackground}]{##1}}
   \starttabulate[|lw(.24\textwidth)|lw(.24\textwidth)|lw(.24\textwidth)|lw(.24\textwidth)|]
   \HL
   \NC 颜色名称 \NC 示例 \NC 颜色名称 \NC 示例 \NC\NR
@@ -113,7 +116,7 @@
 \starttext
 
 \startfrontmatter
-\title{memos 模块使用说明书}
+\title{memos 模块使用说明}
 
 \setuplist[content][list={part,title,chapter,section,subsection}]
 \placecontent
@@ -130,7 +133,7 @@ memos 是一个为 ConTeXt LMTX 设计的综合排版模块，提供了完整的
 
 \section{主要特性}
 
-\startitemize[packed]
+\startpoints
 \item 多语言支持：简体中文、繁体中文、日语等
 \item 丰富的字体集：Adobe、Source、macOS 等字体方案
 \item 多种页面布局：moderate、kindle、ipad、kaolike 等布局样式
@@ -142,11 +145,11 @@ memos 是一个为 ConTeXt LMTX 设计的综合排版模块，提供了完整的
 \item 边注系统：脚注、边注、侧注等
 \item 卡片样式：Metro、Fluent、macOS、Modern、DualHeader 风格
 \item 封面系统：5 种预设封面样式
-\stopitemize
+\stoppoints
 
 \section{系统要求}
 
-该模块需要 {\bf ConTeXt LMTX (LuaMetaTeX)} 环境，不支持 MkIV 版本。
+该模块需要 \emph{ConTeXt LMTX (LuaMetaTeX)} 环境，不支持 MkIV 版本。
 建议使用最新版本的 ConTeXt LMTX 以获得最佳体验。
 
 \chapter{模块加载与参数}
@@ -163,39 +166,39 @@ memos 是一个为 ConTeXt LMTX 设计的综合排版模块，提供了完整的
 
 \starttabulate[|l|l|p|]
 \HL
-\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\NC 参数         \NC 默认值   \NC 说明 \NC\NR
 \HL
-\NC papersize \NC A4 \NC 纸张大小（A4/A5/kindle/ipad/B5/letter/legal） \NC\NR
-\NC layout \NC moderate \NC 页面布局样式 \NC\NR
-\NC mainlanguage \NC hans \NC 主语言 \NC\NR
-\NC language \NC hans \NC 当前语言 \NC\NR
-\NC lineheight \NC 1.5em \NC 行高 \NC\NR
-\NC fallbackfont \NC \NC 回退字体 \NC\NR
-\NC bodyfont \NC \NC 正文字体 \NC\NR
-\NC fontstyle \NC rm \NC 字体风格 \NC\NR
-\NC fontsize \NC 11pt \NC 字号 \NC\NR
-\NC textcount \NC 40 \NC 文本区字符数 \NC\NR
-\NC heightcount \NC 40 \NC 文本区行数 \NC\NR
-\NC margincount \NC 0 \NC 边注区字符数 \NC\NR
-\NC mode \NC \NC 运行模式 \NC\NR
-\NC ratio \NC 1.414 \NC 版心比例 \NC\NR
-\NC themecolor \NC cyan \NC 主题颜色 \NC\NR
-\NC chapterstyle \NC default \NC 章节标题样式 \NC\NR
-\NC hdrstyle \NC fctext \NC 页眉页脚样式 \NC\NR
-\NC tocstyle \NC \NC 目录样式 \NC\NR
+\NC papersize    \NC A4       \NC 纸张大小（A4/A5/kindle/ipad/B5/letter/legal） \NC\NR
+\NC layout       \NC moderate \NC 页面布局样式 \NC\NR
+\NC mainlanguage \NC hans     \NC 主语言 \NC\NR
+\NC language     \NC hans     \NC 当前语言 \NC\NR
+\NC lineheight   \NC 1.5em    \NC 行高 \NC\NR
+\NC fallbackfont \NC          \NC 回退字体 \NC\NR
+\NC bodyfont     \NC          \NC 正文字体 \NC\NR
+\NC fontstyle    \NC rm       \NC 字体风格 \NC\NR
+\NC fontsize     \NC 11pt     \NC 字号 \NC\NR
+\NC mode         \NC          \NC 运行模式 \NC\NR
+\NC themecolor   \NC cyan     \NC 主题颜色 \NC\NR
+\NC chapterstyle \NC default  \NC 章节标题样式 \NC\NR
+\NC hdrstyle     \NC fctext   \NC 页眉页脚样式 \NC\NR
+\NC tocstyle     \NC          \NC 目录样式 \NC\NR
+\NC textcount    \NC 40       \NC 文本区字符数，当layout是hermes时生效 \NC\NR
+\NC heightcount  \NC 40       \NC 文本区\null\quad行数，当layout是hermes时生效 \NC\NR
+\NC margincount  \NC 0        \NC 边注区字符数，当layout是hermes时生效 \NC\NR
+\NC ratio        \NC 1.414    \NC 布局分配比率，当layout是hermes时生效\NC\NR
 \HL
 \stoptabulate
 
 各参数的详细说明和展示请参见对应章节：
 
-\startitemize[packed]
-\item 纸张大小和页面布局：\goto{第五章 页面布局}[page:layout]
-\item 字体设置：\goto{第四章 字体系统}[page:font]
-\item 主题颜色：\goto{第六章 颜色系统}[page:color]
-\item 章节标题样式：\goto{第七章 章节标题}[page:chapter]
-\item 页眉页脚样式：\goto{第八章 页眉页脚}[page:headerfooter]
-\item 目录样式：\goto{第九章 目录系统}[page:toc]
-\stopitemize
+\startpoints
+\item 字体设置：\reftext[page:font]
+\item 页面布局：\reftext[page:layout]
+\item 主题颜色：\reftext[page:color]
+\item 页眉页脚：\reftext[page:headerfooter]
+\item 目录样式：\reftext[page:toc]
+\item 章节样式：\reftext[page:chapter]
+\stoppoints
 
 \subsection{纸张大小（papersize）}
 
@@ -203,13 +206,10 @@ memos 是一个为 ConTeXt LMTX 设计的综合排版模块，提供了完整的
 \HL
 \NC 选项 \NC 说明 \NC\NR
 \HL
-\NC A4 \NC A4 纸张（默认） \NC\NR
-\NC A5 \NC A5 纸张 \NC\NR
-\NC B5 \NC B5 纸张 \NC\NR
-\NC letter \NC 信纸 \NC\NR
-\NC legal \NC 法律用纸 \NC\NR
+\NC A4     \NC A4 纸张（默认） \NC\NR
 \NC kindle \NC Kindle 电子书尺寸 \NC\NR
-\NC ipad \NC iPad 平板尺寸 \NC\NR
+\NC ipad   \NC iPad 平板尺寸 \NC\NR
+\NC        \NC 其他任何\CONTEXT{}支持的尺寸 \NC\NR
 \HL
 \stoptabulate
 
@@ -219,19 +219,31 @@ memos 是一个为 ConTeXt LMTX 设计的综合排版模块，提供了完整的
 \HL
 \NC 选项 \NC 说明 \NC\NR
 \HL
-\NC moderate \NC 适中布局（默认） \NC\NR
-\NC narrow \NC 窄边距布局 \NC\NR
-\NC wide \NC 宽边距布局 \NC\NR
-\NC extrawide \NC 超宽边距布局 \NC\NR
-\NC kindle \NC Kindle 电子书布局 \NC\NR
-\NC ipad \NC iPad 平板布局 \NC\NR
-\NC kaolike \NC 考理科布局 \NC\NR
-\NC exotic \NC 异域风格布局 \NC\NR
-\NC sidemirror \NC 侧边镜像布局 \NC\NR
-\NC propiorroot \NC Propiorroot 布局 \NC\NR
+\NC moderate      \NC 适中布局（默认） \NC\NR
+\NC narrow        \NC 窄边距布局 \NC\NR
+\NC wide          \NC 宽边距布局 \NC\NR
+\NC extrawide     \NC 超宽边距布局 \NC\NR
+\NC kindle        \NC Kindle 电子书布局 \NC\NR
+\NC ipad          \NC iPad 平板布局 \NC\NR
+\NC kaolike       \NC kaolike 布局 \NC\NR
+\NC exotic        \NC 异域风格布局 \NC\NR
+\NC sidemirror    \NC 侧边镜像布局 \NC\NR
+\NC propiorroot   \NC Propiorroot 布局 \NC\NR
 \NC propiorgolden \NC 黄金比例布局 \NC\NR
+\NC hermes        \NC 字符比例布局 \NC\NR
+\NC graaf         \NC Van de Graaf Canon 布局 \NC\NR
+\NC vdh           \NC Villard Diagram 布局    \NC\NR
+\NC optvdh        \NC Villard Diagram 布局    \NC\NR
 \HL
 \stoptabulate
+
+可以通过 \type{vdhnumber} 以及下面的参数来设计 vdh、optvdh 分割的数量：
+
+\starttyping
+\setuplayout [vdh]    [vdhnumber=9] 
+\setuplayout [optvdh] [vdhnumber=9]
+\stoptyping
+
 
 \subsection{语言设置（mainlanguage）}
 
@@ -266,10 +278,9 @@ memos 是一个为 ConTeXt LMTX 设计的综合排版模块，提供了完整的
 \HL
 \NC 选项 \NC 说明 \NC\NR
 \HL
-\NC print \NC 打印模式，优化输出用于打印 \NC\NR
-\NC kindle \NC 电子书模式，针对电子阅读器优化 \NC\NR
-\NC draft \NC 草稿模式，快速预览 \NC\NR
-\NC moresize \NC 扩展字号模式，启用更多字号选项 \NC\NR
+\NC print    \NC 打印模式，优化输出用于打印 \NC\NR
+\NC kindle   \NC 电子书模式，针对电子阅读器优化 \NC\NR
+\NC draft    \NC 草稿模式，快速预览 \NC\NR
 \HL
 \stoptabulate
 
@@ -279,17 +290,17 @@ memos 是一个为 ConTeXt LMTX 设计的综合排版模块，提供了完整的
 \HL
 \NC 选项 \NC 说明 \NC\NR
 \HL
-\NC cyan \NC 青色（默认） \NC\NR
-\NC red \NC 红色 \NC\NR
-\NC blue \NC 蓝色 \NC\NR
-\NC green \NC 绿色 \NC\NR
+\NC cyan   \NC 青色（默认） \NC\NR
+\NC red    \NC 红色 \NC\NR
+\NC blue   \NC 蓝色 \NC\NR
+\NC green  \NC 绿色 \NC\NR
 \NC yellow \NC 黄色 \NC\NR
 \NC orange \NC 橙色 \NC\NR
 \NC purple \NC 紫色 \NC\NR
-\NC pink \NC 粉色 \NC\NR
-\NC gray \NC 灰色 \NC\NR
-\NC black \NC 黑色 \NC\NR
-\NC white \NC 白色 \NC\NR
+\NC pink   \NC 粉色 \NC\NR
+\NC gray   \NC 灰色 \NC\NR
+\NC black  \NC 黑色 \NC\NR
+\NC white  \NC 白色 \NC\NR
 \HL
 \stoptabulate
 
@@ -309,7 +320,7 @@ memos 是一个为 ConTeXt LMTX 设计的综合排版模块，提供了完整的
 \NC foemargin \NC 页脚外边距页码 \NC\NR
 \NC foemarginalt \NC 页脚外边距页码（靠近文本区） \NC\NR
 \NC hoemargin \NC 页眉外边距样式 \NC\NR
-\NC kaolike \NC 考理科风格 \NC\NR
+\NC kaolike \NC kaolike 风格 \NC\NR
 \NC none \NC 无页眉页脚 \NC\NR
 \HL
 \stoptabulate
@@ -338,9 +349,6 @@ memos 是一个为 ConTeXt LMTX 设计的综合排版模块，提供了完整的
 
 % 草稿模式
 \usemodule[memos][mode=draft]
-
-% 更多字号选项
-\usemodule[memos][mode=moresize]
 \stoptyping
 
 \chapter{多语言支持}
@@ -357,11 +365,11 @@ memos 模块提供了完善的多语言支持，特别是对中文排版的优�
 \HL
 \NC 语言代码 \NC 语言名称 \NC 说明 \NC\NR
 \HL
-\NC hans \NC 简体中文 \NC 使用 Adobe 简体中文字体 \NC\NR
-\NC hant \NC 繁体中文 \NC 使用 Adobe 繁体中文字体 \NC\NR
-\NC ja \NC 日语 \NC 使用日语字体 \NC\NR
-\NC cn \NC 中文 \NC 简体中文别名 \NC\NR
-\NC en \NC 英语 \NC 英语环境 \NC\NR
+\NC hans \NC 简体中文 \NC 使用中文字体 \NC\NR
+\NC hant \NC 繁体中文 \NC 使用中文字体 \NC\NR
+\NC ja   \NC 日语     \NC 使用日语字体 \NC\NR
+\NC cn   \NC 中文     \NC 简体中文别名 \NC\NR
+\NC en   \NC 英语     \NC 英语环境 \NC\NR
 \HL
 \stoptabulate
 
@@ -376,12 +384,22 @@ memos 模块提供了完善的多语言支持，特别是对中文排版的优�
 \language[en]    % 切换到英语
 \stoptyping
 
-\section{自定义语言环境}
-
-使用 \type{\defineuserlanguage} 或 \type{\setupuserlanguage} 定义新的语言环境：
+更简单的：
 
 \starttyping
-\defineuserlanguage[mylang][
+\hans  % 切换到简体中文
+\hant  % 切换到繁体中文
+\ja    % 切换到日语
+\en    % 切换到英语
+\stoptyping
+
+\section{自定义语言环境}
+
+如果想要调整某个语言的一些设置，比如，字体、行高、对齐、缩进等，可以使用
+\type{\setupuserlanguage} 调整语言环境：
+
+\starttyping
+\setupuserlanguage[hans][
   bodyfont=adobehans,
   fallbackfont=fallback:cormorant,
   patterns={zh,en},
@@ -399,20 +417,42 @@ memos 模块提供了完善的多语言支持，特别是对中文排版的优�
 \HL
 \NC 参数 \NC 说明 \NC\NR
 \HL
-\NC bodyfont \NC 正文字体 \NC\NR
-\NC fallbackfont \NC 回退字体 \NC\NR
-\NC patterns \NC 断字模式 \NC\NR
-\NC script \NC 脚本（hanzi/latin等） \NC\NR
-\NC interlinespace \NC 行距 \NC\NR
-\NC whitespace \NC 空白处理 \NC\NR
-\NC align \NC 对齐方式 \NC\NR
-\NC indenting \NC 缩进设置 \NC\NR
+\NC bodyfont       \NC 正文字体，参数和\type{\setupbodyfont}相同 \NC\NR
+\NC fallbackfont   \NC 回退字体，参数参见\goto{第四章 字体系统}[page:font] \NC\NR
+\NC patterns       \NC 断字模式 \NC\NR
+\NC script         \NC 脚本（hanzi/nihongo等） \NC\NR
+\NC interlinespace \NC 行距，参数和\type{\setuplocalinterlinespace}相同 \NC\NR
+\NC whitespace     \NC 空白处理，参数和\type{\setupwhitespace}相同 \NC\NR
+\NC align          \NC 对齐方式，参数和\type{\setupalign}相同 \NC\NR
+\NC indenting      \NC 缩进设置，参数和\type{\setupindenting}相同 \NC\NR
 \HL
 \stoptabulate
 
-\chapter{字体系统}
+\section{盘古之白}
 
-\pagereference[page:font]
+\defineurl[url:黄复雄][url={https://mailman.ntg.nl/archives/list/ntg-context@ntg.nl/thread/CIE43VW6Z4PCMBE2AJZJWFIDTCSLCJ76/\#WA7SJQGHHXHWHVA6UAIMVZCHNZLLLL5O},text=黄复雄]
+
+我们新增了中西文之间的间距控制，以及汉字间距控制命令。
+代码来自\from[url:黄复雄]，有细微修改。
+
+\starttyping
+\setupkanjiskip[% 使用时，请不要保留这些注释。此外，他只能在段落之前启用。无法段落中切换
+  % 控制中文字符间距，建议保留 0
+  width       = 0.00, 
+  % 控制中西文字符间距, 最低建议设置 0.25，可以根据实际字号做调整
+  halfwidth   = 0.25, 
+  % 控制中文字符拉伸胶水，可以在 0.10~0.50之间，不建议设置更多，避免拉伸过多空白。来自CJK脚本的inter_char_stretch_factor
+  stretch     = 0.10, 
+  % 控制半角字符拉伸胶水，来自CJK脚本的inter_char_half_stretch_factor
+  halfstretch = 0.15, 
+  % 控制中文字符收缩胶水，可以在 0.01~0.50之间，不建议设置更多，避免收缩过多空白。来自CJK脚本的inter_char_shrink_factor
+  shrink      = 0.01, 
+  % 控制半角字符收缩胶水，来自CJK脚本的inter_char_half_shrink_factor
+  halfshrink  = 0.10, 
+]
+\stoptyping
+
+\chapter[page:font]{字体系统}
 
 \section{字体集}
 
@@ -421,41 +461,149 @@ memos 模块预定义了多种字体集，方便用户快速切换。
 \subsection{Adobe 字体系列}
 
 \starttyping
-\switchtobodyfont[adobehans]   % Adobe 简体中文
-\switchtobodyfont[adobehant]   % Adobe 繁体中文
-\switchtobodyfont[adobenihon]  % Adobe 日语
+\switchtobodyfont[adobehans]  % Adobe 简体中文
+\switchtobodyfont[adobehant]  % Adobe 繁体中文
+\switchtobodyfont[adobenihon] % Adobe 日语
 \stoptyping
 
 \subsection{Source 字体系列}
 
 \starttyping
-\switchtobodyfont[sourcehans]      % Source Han Sans 简体中文
-\switchtobodyfont[sourcehant]      % Source Han Sans 繁体中文
-\switchtobodyfont[sourcenihon]     % Source Han Sans 日语
-\switchtobodyfont[sourcehanslight] % Source Han Sans Light
+\switchtobodyfont[sourcehans]  % Source Han Sans 简体中文
+\switchtobodyfont[sourcehant]  % Source Han Sans 繁体中文
+\switchtobodyfont[sourcenihon] % Source Han Sans 日语
 \stoptyping
 
 \subsection{macOS 字体系列}
 
 \starttyping
-\switchtobodyfont[sinohans]  % PingFang SC
-\switchtobodyfont[sinohant]  % PingFang TC
-\switchtobodyfont[hiragino]  % Hiragino Sans
+\switchtobodyfont[sinohans] % 华文字体
+\switchtobodyfont[sinohant] % 华文字体
+\switchtobodyfont[hiragino] % Hiragino Sans
 \stoptyping
 
 \subsection{其他字体集}
 
+还提供了一些其他的字体集，全部列明如下：
+
 \starttyping
-\switchtobodyfont[genyotw]    % GenYo Gothic TW
-\switchtobodyfont[genyotc]    % GenYo Gothic TC
-\switchtobodyfont[shanggu]    % Shanggu
-\switchtobodyfont[ipaexhans]  % IPAex 简体中文
-\switchtobodyfont[ibmplexsc]  % IBM Plex SC
+---
+\switchtobodyfont[adobehans]
+\switchtobodyfont[adobehant]
+\switchtobodyfont[adobenihon]
+---
+\switchtobodyfont[sonyhant]
+---
+\switchtobodyfont[kozuka]]
+\switchtobodyfont[reimin]
+\switchtobodyfont[ryumin]
+---
+\switchtobodyfont[founder]
+---
+\switchtobodyfont[dynahans]
+\switchtobodyfont[dynahant]
+\switchtobodyfont[dynanihon]
+---
+\switchtobodyfont[shanggu]
+\switchtobodyfont[genyotw]
+\switchtobodyfont[genyotc]
+\switchtobodyfont[genryutw]
+\switchtobodyfont[genryutc]
+---
+\switchtobodyfont[sourcehans]
+\switchtobodyfont[sourcehant]
+\switchtobodyfont[sourcenihon]
+\switchtobodyfont[sourcehansel]
+\switchtobodyfont[sourcehanslight]
+\switchtobodyfont[sourcehantlight]
+\switchtobodyfont[sourcenihonlight]
+---
+\switchtobodyfont[shangguvf]
+\switchtobodyfont[sourcehansvf]
+\switchtobodyfont[sourcehantvf]
+\switchtobodyfont[sourcenihonvf]
+\switchtobodyfont[wenyuanhansvf]
+\switchtobodyfont[wenyuanhanslite]
+---
+\switchtobodyfont[ipaexhans]
+\switchtobodyfont[ipaexhant]
+\switchtobodyfont[ipaexnihon]
+---
+\switchtobodyfont[freehans]
+\switchtobodyfont[freehant]
+---
+\switchtobodyfont[huiwen]
+---
+\switchtobodyfont[ibmplexsc]
+\switchtobodyfont[ibmplexjp]
+\switchtobodyfont[ibmplextc]
+\switchtobodyfont[frexsans]
+---
+\switchtobodyfont[zen]
+\switchtobodyfont[zenantique]
+---
+\switchtobodyfont[sinohans]
+\switchtobodyfont[sinohant]
+---
+\switchtobodyfont[lihant]
+---
+\switchtobodyfont[jiyou]
+\switchtobodyfont[hiragino]
+\switchtobodyfont[toppanbunkyu]
+
+\stoptyping
+
+\section{西文字体}
+
+我们将西文字体作为中文字体的回退字体设置。可以通过 \type{fallbackfont} 进行设置。系统默认设定了以下西文字体集：
+
+\starttyping
+\usemodule[fallbackfont=playfair8pt]
+\usemodule[fallbackfont=playfair]
+\usemodule[fallbackfont=playfair12pt]
+\usemodule[fallbackfont=playfair16pt]
+\usemodule[fallbackfont=playfair21pt]
+\usemodule[fallbackfont=playfair32pt]
+\usemodule[fallbackfont=playfair48pt]
+\usemodule[fallbackfont=playfair72pt]
+\usemodule[fallbackfont=playfair96pt]
+\usemodule[fallbackfont=merriweather8pt]
+\usemodule[fallbackfont=merriweather]
+\usemodule[fallbackfont=merriweather12pt]
+\usemodule[fallbackfont=merriweather16pt]
+\usemodule[fallbackfont=merriweather21pt]
+\usemodule[fallbackfont=merriweather32pt]
+\usemodule[fallbackfont=merriweather48pt]
+\usemodule[fallbackfont=merriweather72pt]
+\usemodule[fallbackfont=merriweather96pt]
+\usemodule[fallbackfont=iwona]
+\usemodule[fallbackfont=ebgaramond]
+\usemodule[fallbackfont=alegreya]
+\usemodule[fallbackfont=cormorant]
+\usemodule[fallbackfont=cormorantlight]
+\usemodule[fallbackfont=junicode]
+\usemodule[fallbackfont=terms]
+\usemodule[fallbackfont=inter]
+\usemodule[fallbackfont=lato]
+\usemodule[fallbackfont=pagella]
+\usemodule[fallbackfont=libertinus]
+\usemodule[fallbackfont=gentium]
+\usemodule[fallbackfont=ibmplex]
+\usemodule[fallbackfont=ibmplexvar]
+\usemodule[fallbackfont=newsreader]
+\usemodule[fallbackfont=newsreader6pt]
+\usemodule[fallbackfont=newsreader72pt]
+\usemodule[fallbackfont=newsreaderlight]
+\usemodule[fallbackfont=modern]
+\usemodule[fallbackfont=spectral]
+\usemodule[fallbackfont=josefin]
+\usemodule[fallbackfont=baskervville]
+\usemodule[fallbackfont=source]
 \stoptyping
 
 \section{字体风格}
 
-模块支持四种字体风格：
+四种字体风格：
 
 \starttabulate[|l|l|p|]
 \HL
@@ -493,31 +641,21 @@ memos 模块预定义了多种字体集，方便用户快速切换。
 
 \subsection{扩展字号}
 
-启用 \type{moresize} 模式后，可以使用更多字号选项：
+可以通过命令 \type{\zihao} 来设置中文字号，具体如下：
 
 \starttyping
-\usemodule[memos][mode=moresize]
-
-% 中文传统字号
-{\o  初号}
-{\i  一号}
-{\ii 二号}
-{\iii 三号}
-{\iv 四号}
-{\v  五号}
-
-% 带小字号
-{\os 小初号}
-{\is 小一号}
-{\iis 小二号}
-{\iiis 小三号}
-{\ivs 小四号}
-{\vs 小五号}
+\zihao[0]    \zihao[-0]%初号 小初号
+\zihao[1]    \zihao[-1]%一号 小一号
+\zihao[2]    \zihao[-2]%二号 小二号
+\zihao[3]    \zihao[-3]%三号 小三号
+\zihao[4]    \zihao[-4]%四号 小四号
+\zihao[5]    \zihao[-5]%五号 小五号
+\zihao[6]    \zihao[-6]%六号 小六号
+\zihao[7]    %七号
+\zihao[8]    %八号
 \stoptyping
 
-\chapter{页面布局}
-
-\pagereference[page:layout]
+\chapter[page:layout]{页面布局}
 
 \section{布局样式}
 
@@ -527,46 +665,50 @@ memos 模块预定义了多种字体集，方便用户快速切换。
 \HL
 \NC 布局名称 \NC 说明 \NC\NR
 \HL
-\NC moderate \NC 适中布局（默认），适合大多数文档 \NC\NR
-\NC narrow \NC 窄边距布局，适合内容密集的文档 \NC\NR
-\NC wide \NC 宽边距布局，适合边注较多的文档 \NC\NR
-\NC extrawide \NC 超宽边距布局，适合大量边注 \NC\NR
-\NC kindle \NC Kindle 电子书布局，适合电子阅读器 \NC\NR
-\NC ipad \NC iPad 平板布局，适合平板设备 \NC\NR
-\NC kaolike \NC 考理科布局，适合试卷和教材 \NC\NR
-\NC exotic \NC 异域风格布局 \NC\NR
-\NC sidemirror \NC 侧边镜像布局 \NC\NR
-\NC propiorroot \NC Propiorroot 布局 \NC\NR
+\NC moderate      \NC 适中布局（默认） \NC\NR
+\NC narrow        \NC 窄边距布局 \NC\NR
+\NC wide          \NC 宽边距布局 \NC\NR
+\NC extrawide     \NC 超宽边距布局 \NC\NR
+\NC kindle        \NC Kindle 电子书布局 \NC\NR
+\NC ipad          \NC iPad 平板布局 \NC\NR
+\NC kaolike       \NC kaolike 布局 \NC\NR
+\NC exotic        \NC 异域风格布局 \NC\NR
+\NC sidemirror    \NC 侧边镜像布局 \NC\NR
+\NC propiorroot   \NC Propiorroot 布局 \NC\NR
 \NC propiorgolden \NC 黄金比例布局 \NC\NR
+\NC hermes        \NC 字符比例布局 \NC\NR
+\NC graaf         \NC Van de Graaf Canon 布局 \NC\NR
+\NC vdh           \NC Villard Diagram 布局    \NC\NR
+\NC optvdh        \NC Villard Diagram 布局    \NC\NR
 \HL
 \stoptabulate
 
 \section{布局详细参数}
 
-每种布局都可以通过参数自定义：
+每种布局都可以通过\CONTEXT\ 系统命令 \type{\setuplayout[NAME][KEY=VALUE]} 自定义：
 
 \starttabulate[|l|p|]
 \HL
 \NC 参数 \NC 说明 \NC\NR
 \HL
-\NC width \NC 文本区宽度 \NC\NR
-\NC height \NC 文本区高度 \NC\NR
-\NC backspace \NC 左边距 \NC\NR
-\NC topspace \NC 上边距 \NC\NR
-\NC leftmargin \NC 左边注宽度 \NC\NR
-\NC rightmargin \NC 右边注宽度 \NC\NR
-\NC leftmargindistance \NC 左边注距离 \NC\NR
+\NC width               \NC 文本区宽度 \NC\NR
+\NC height              \NC 文本区高度 \NC\NR
+\NC backspace           \NC 左边距 \NC\NR
+\NC topspace            \NC 上边距 \NC\NR
+\NC leftmargin          \NC 左边注宽度 \NC\NR
+\NC rightmargin         \NC 右边注宽度 \NC\NR
+\NC leftmargindistance  \NC 左边注距离 \NC\NR
 \NC rightmargindistance \NC 右边注距离 \NC\NR
-\NC header \NC 页眉高度 \NC\NR
-\NC footer \NC 页脚高度 \NC\NR
-\NC headerdistance \NC 页眉距离 \NC\NR
-\NC footerdistance \NC 页脚距离 \NC\NR
-\NC leftedge \NC 左边缘宽度 \NC\NR
-\NC rightedge \NC 右边缘宽度 \NC\NR
-\NC leftedgedistance \NC 左边缘距离 \NC\NR
-\NC rightedgedistance \NC 右边缘距离 \NC\NR
-\NC bottom \NC 底部距离 \NC\NR
-\NC bottomdistance \NC 底部距离 \NC\NR
+\NC header              \NC 页眉高度 \NC\NR
+\NC footer              \NC 页脚高度 \NC\NR
+\NC headerdistance      \NC 页眉距离 \NC\NR
+\NC footerdistance      \NC 页脚距离 \NC\NR
+\NC leftedge            \NC 左边缘宽度 \NC\NR
+\NC rightedge           \NC 右边缘宽度 \NC\NR
+\NC leftedgedistance    \NC 左边缘距离 \NC\NR
+\NC rightedgedistance   \NC 右边缘距离 \NC\NR
+\NC bottom              \NC 底部距离 \NC\NR
+\NC bottomdistance      \NC 底部距离 \NC\NR
 \HL
 \stoptabulate
 
@@ -577,7 +719,7 @@ memos 模块预定义了多种字体集，方便用户快速切换。
 \doloopoverlist
   {exotic, kaolike, ipad, kindle, sidemirror,
    propiorroot, propiorgolden,
-   narrow, moderate, wide, extrawide}
+   narrow, moderate, wide, extrawide, hermes, graaf, vdh, optvdh}
   {{\page\showframe\setuplayout[\recursestring]{\red\ssd \currentlayout}\showsetups\page}}
 
 \setuplayout[default]
@@ -599,6 +741,7 @@ memos 模块预定义了多种字体集，方便用户快速切换。
 
 % 自定义布局参数
 \usemodule[memos][
+  layout=hermes,
   textcount=42,    % 文本区宽度（字符数）
   heightcount=45,  % 文本区高度（行数）
   margincount=10,  % 边注区宽度（字符数）
@@ -606,9 +749,8 @@ memos 模块预定义了多种字体集，方便用户快速切换。
 ]
 \stoptyping
 
-\chapter{颜色系统}
+\chapter[page:color]{颜色系统}
 
-\pagereference[page:color]
 \setuplayout[narrow]
 
 \section{基础颜色集合}
@@ -631,17 +773,17 @@ memos 模块预定义了多种字体集，方便用户快速切换。
 \HL
 \NC 调色板名称 \NC 主题色 \NC 说明 \NC\NR
 \HL
-\NC serene \NC blue \NC 宁静蓝 - 适合科技文档 \NC\NR
-\NC harmony \NC green \NC 和谐绿 - 适合教育材料 \NC\NR
-\NC passion \NC red \NC 热情红 - 适合重点强调 \NC\NR
-\NC adventure \NC orange \NC 冒险橙 - 适合创意设计 \NC\NR
-\NC optimism \NC yellow \NC 乐观黄 - 适合活泼主题 \NC\NR
-\NC creativity \NC cyan \NC 创意青 - 适合现代风格（默认） \NC\NR
-\NC magic \NC purple \NC 魔法紫 - 适合神秘主题 \NC\NR
-\NC romance \NC pink \NC 浪漫粉 - 适合文艺作品 \NC\NR
-\NC reliable \NC gray \NC 可靠灰 - 适合商务文档 \NC\NR
-\NC formality \NC black \NC 正式黑 - 适合正式文档 \NC\NR
-\NC innocence \NC white \NC 纯真白 - 适合简洁风格 \NC\NR
+\NC serene     \NC blue   \NC 宁静蓝 - 适合科技文档 \NC\NR
+\NC harmony    \NC green  \NC 和谐绿 - 适合教育材料 \NC\NR
+\NC passion    \NC red    \NC 热情红 - 适合重点强调 \NC\NR
+\NC adventure  \NC orange \NC 冒险橙 - 适合创意设计 \NC\NR
+\NC optimism   \NC yellow \NC 乐观黄 - 适合活泼主题 \NC\NR
+\NC creativity \NC cyan   \NC 创意青 - 适合现代风格（默认） \NC\NR
+\NC magic      \NC purple \NC 魔法紫 - 适合神秘主题 \NC\NR
+\NC romance    \NC pink   \NC 浪漫粉 - 适合文艺作品 \NC\NR
+\NC reliable   \NC gray   \NC 可靠灰 - 适合商务文档 \NC\NR
+\NC formality  \NC black  \NC 正式黑 - 适合正式文档 \NC\NR
+\NC innocence  \NC white  \NC 纯真白 - 适合简洁风格 \NC\NR
 \HL
 \stoptabulate
 
@@ -707,9 +849,7 @@ memos 模块预定义了多种字体集，方便用户快速切换。
 \stoptabulate
 \page\setuplayout[default]
 
-\chapter{页眉页脚}
-
-\pagereference[page:headerfooter]
+\chapter[page:headerfooter]{页眉页脚}
 
 \section{页眉页脚样式}
 
@@ -751,9 +891,7 @@ memos 模块预定义了多种字体集，方便用户快速切换。
 \usemodule[memos][hdrstyle=none]
 \stoptyping
 
-\chapter{目录系统}
-
-\pagereference[page:toc]
+\chapter[page:toc]{目录系统}
 
 \section{目录样式}
 
@@ -810,14 +948,14 @@ memos 模块预定义了多种字体集，方便用户快速切换。
 \HL
 \NC 浮动体类型 \NC 位置 \NC 说明 \NC\NR
 \HL
-\NC figure \NC 文本区 \NC 标准图片 \NC\NR
-\NC textfig \NC 文本区 \NC 文本区图片 \NC\NR
+\NC figure    \NC 文本区 \NC 标准图片   \NC\NR
+\NC textfig   \NC 文本区 \NC 文本区图片 \NC\NR
 \NC marginfig \NC 边注区 \NC 边注区图片 \NC\NR
-\NC fullfig \NC 全页宽 \NC 全页宽图片 \NC\NR
-\NC table \NC 文本区 \NC 标准表格 \NC\NR
-\NC texttab \NC 文本区 \NC 文本区表格 \NC\NR
+\NC fullfig   \NC 全页宽 \NC 全页宽图片 \NC\NR
+\NC table     \NC 文本区 \NC 标准表格   \NC\NR
+\NC texttab   \NC 文本区 \NC 文本区表格 \NC\NR
 \NC margintab \NC 边注区 \NC 边注区表格 \NC\NR
-\NC fulltab \NC 全页宽 \NC 全页宽表格 \NC\NR
+\NC fulltab   \NC 全页宽 \NC 全页宽表格 \NC\NR
 \HL
 \stoptabulate
 
@@ -841,6 +979,7 @@ memos 模块预定义了多种字体集，方便用户快速切换。
 \startplacemarginfig[title=边注图片]
   \externalfigure[][width=\rightmarginwidth,height=5\baselineskip]
 \stopplacemarginfig
+\forgetsidefloats
 \stopbuffer
 
 \typebuffer[marginfig-demo]
@@ -1248,10 +1387,10 @@ DualHeader 卡片支持多种内容背景类型：
 \HL
 \NC newbook \NC 新书封面 - 简洁现代风格 \NC\NR
 \NC flyleaf \NC 扉页 - 适合书籍扉页 \NC\NR
-\NC usercover \NC 用户自定义封面 - 完全可定制 \NC\NR
-\NC cover \NC 标准封面 - 传统书籍封面 \NC\NR
+\NC cover:1 \NC 用户自定义封面 - 完全可定制 \NC\NR
+\NC cover:2 \NC 标准封面 - 传统书籍封面 \NC\NR
 \NC ORLY \NC O'Reilly 风格封面 - 动物图案风格 \NC\NR
-\HL
+
 \stoptabulate
 
 \section{基本用法}
@@ -1264,13 +1403,15 @@ DualHeader 卡片支持多种内容背景类型：
 \makecover[flyleaf][publisher={出版社名称}]
 
 % 用户自定义封面
-\makecover[usercover][publisher={出版社名称}]
+\makecover[cover:1][publisher={出版社名称}]
 
 % 标准封面
-\makecover[cover][publisher={出版社名称}]
+\makecover[cover:2][publisher={出版社名称}]
 
 % O'Reilly 风格封面
 \makecover[ORLY][publisher={O'Reilly Media}]
+
+\makecover[announcement]
 \stopbuffer
 
 \typebuffer[cover-demo]
@@ -1314,146 +1455,6 @@ DualHeader 卡片支持多种内容背景类型：
 \HL
 \stoptabulate
 
-\section{各封面类型详细配置}
-
-\subsection{newbook 封面}
-
-新书封面是默认的封面类型，简洁现代：
-
-\starttyping
-\setupcover[newbook][
-  book={书籍标题},
-  author={作者姓名},
-  publisher={出版社名称},
-  bookcolor=themecolor,
-  authorcolor=softgray,
-  publishercolor=gray,
-]
-\makecover[newbook]
-\stoptyping
-
-\subsection{flyleaf 扉页}
-
-扉页使用特殊的 makeup 类型，适合书籍扉页：
-
-\starttyping
-\setupcover[flyleaf][
-  book={书籍标题},
-  author={作者姓名},
-  publisher={出版社名称},
-]
-\makecover[flyleaf]
-\stoptyping
-
-\subsection{usercover 用户自定义封面}
-
-用户自定义封面提供了完整的示例配置：
-
-\starttyping
-\setupcover[usercover][
-  makeup=usercover,
-  list={series,subtitle,book,author,publisher},
-  series={\CONTEXT\ 書籍封面示例},
-  seriescolor=softgray,
-  seriesvspace=,
-  seriesalign=flushleft,
-  subtitle={Digital Processing of Synthetic Aperture Radar Data\par
-            Algorithms and Implementation},
-  subtitlecolor=softgray,
-  subtitlevspace=\vfill,
-  subtitlealign=flushright,
-  book={\hfill
-        \framed[frame=on,width=8em,align=flushright,rulethickness=1pt,
-                framecolor=lightoptcolor,bottomframe=off,rightframe=off,]
-                {合成孔径雷达\par 成像算法与实现}},
-  bookcolor=lightoptcolor,
-  bookvspace=\vskip\baselineskip\relax,
-  bookalign=flushright,
-  author={\vbox{[加] Ian G. Cumming Frank H.Wong\quad\quad 著\par
-        洪 \quad 文 \quad 胡东辉 \quad 韩 \quad 冰 \quad 等译\par
-                                   吴一戎          \quad 审校\par
-                                   Jyun S.Wang     \quad 排注}},
-  authorcolor=softgray,
-  authorvspace=\vskip2\baselineskip\relax,
-  authoralign=flushright,
-  publisher={这是出版社},
-  publisheralign=flushright,
-  publisherstyle=tt,
-  publishercolor=softgray,
-  publishervspace=\vskip2\baselineskip\relax,
-  lastvspace=\null\vskip\baselineskip\relax,
-]
-\makecover[usercover]
-\stoptyping
-
-\subsection{cover 标准封面}
-
-标准封面使用 MP 图形作为背景：
-
-\starttyping
-\setupcover[cover][
-  makeup=cover,
-  list={book,author,publisher,version},
-  book={合成孔径雷达 \par 成像算法与实现},
-  bookalign=flushleft,
-  bookcolor=lightoptcolor,
-  bookvspace=\vfill,
-  afterbook={\blackrule[width=.5tw,height=1pt,depth=0pt,color=lightoptcolor]},
-  author={Author: Soanguy},
-  authorstyle=\tta,
-  authorcolor=lightgray,
-  authoralign=flushleft,
-  authorvspace=\vskip\baselineskip\relax,
-  publisher={这是出版社},
-  publisherstyle=tt,
-  publishercolor=lightgray,
-  publishervspace=\vskip6\baselineskip\relax,
-  version={version: \currentdate},
-  versionstyle=tt,
-  versioncolor=lightgray,
-  versionalign=center,
-  versionvspace=\vskip1\baselineskip\relax,
-  lastvspace=,
-]
-\makecover[cover]
-\stoptyping
-
-\subsection{ORLY 封面}
-
-O'Reilly 风格封面，带有动物图案：
-
-\starttyping
-\setupcover[ORLY][
-  makeup=ORLY,
-  list={series,animal,book,author,publisher},
-  series={从入门到放弃系列权威指南},
-  seriesvspace=\vskip4pt\relax,
-  animal={\hfill\externalfigure[butterfly.png]},
-  animalvspace=\vfil,
-  bookleft={\hfill
-           \startframed[background=color,backgroundcolor=themecolor,
-                        frame=off,align=flushright,width=max]},
-  bookright={\stopframed},
-  book={合成孔径雷达 \par 成像算法与实现},
-  bookalign=flushleft,
-  bookcolor=white,
-  bookvspace=,
-  afterbook={\hfill \ttb Up and Running\par\vskip4\baselineskip\relax},
-  author={{\bf O'RLY Cover} \hfill Robin Nixon},
-  authorstyle=\ttb,
-  authorcolor=darkgray,
-  authoralign=flushleft,
-  authorvspace=\vskip\baselineskip\relax,
-  publisher={这是出版社},
-  publisheralign=flushright,
-  publisherstyle=tt,
-  publishercolor=darkgray,
-  publishervspace=,
-  lastvspace=,
-]
-\makecover[ORLY]
-\stoptyping
-
 \section{封面布局}
 
 每种封面类型都有对应的布局定义：
@@ -1461,61 +1462,28 @@ O'Reilly 风格封面，带有动物图案：
 \starttyping
 % preset 布局
 \definelayout[preset]
-  [backspace=15mm,rightmargin=10mm,rightedge=0mm,]
 
 % flyleaf 布局
-\definelayout[flyleaf]
-  [backspace=10mm,rightmargin=10mm,rightedge=0mm,]
+\definelayout[flyleaf][preset]
 
 % usercover 布局
-\definelayout[usercover][default]
+\definelayout[cover:1][preset]
 
 % cover 布局
-\definelayout[cover][default]
+\definelayout[cover:2][preset]
 
 % ORLY 布局
-\definelayout[ORLY][default][header=5mm,]
-\stoptyping
-
-\section{自定义封面}
-
-\starttyping
-% 自定义新书封面
-\setupcover[newbook][
-  book={我的书籍标题},
-  author={作者姓名},
-  publisher={出版社名称},
-  bookcolor=themecolor,
-  authorcolor=softgray,
-  publishercolor=gray,
-  bookstyle=\ssa\bf,
-  authorstyle=\ss,
-  publisherstyle=\tt,
-  bookalign=center,
-  authoralign=center,
-  publisheralign=center,
-]
-\makecover[newbook]
-
-% 自定义 O'Reilly 风格封面
-\setupcover[ORLY][
-  series={从入门到精通系列},
-  book={ConTeXt 排版指南},
-  author={Soanguy},
-  publisher={示例出版社},
-]
-\makecover[ORLY]
+\definelayout[ORLY][preset]
 \stoptyping
 
 \section{封面使用建议}
 
-\startitemize[packed]
-\item 新书推荐使用 \type{newbook} 或 \type{cover} 封面
+\startpoints
+\item 新书推荐使用 \type{newbook}
 \item 技术书籍推荐使用 \type{ORLY} 封面
-\item 需要完全自定义时使用 \type{usercover}
 \item 扉页使用 \type{flyleaf}
 \item 可以通过 \type{list} 参数控制封面元素的显示顺序
-\stopitemize
+\stoppoints
 
 
 
@@ -1552,10 +1520,8 @@ O'Reilly 风格封面，带有动物图案：
 \section{描述列表}
 
 \startbuffer[description-demo]
-\startdescription
-  \description{术语一} 这是术语一的解释。
-  \description{术语二} 这是术语二的解释。
-\stopdescription
+\description{术语一} 这是术语一的解释。\par
+\description{术语二} 这是术语二的解释。\par
 \stopbuffer
 
 \typebuffer[description-demo]
@@ -1627,9 +1593,9 @@ O'Reilly 风格封面，带有动物图案：
 \subsection{邮件链接}
 
 \startbuffer[mail-demo]
-\mailto{user@example.com}
+\mailto[user@example.com]
 
-\Mailto{user@example.com}{联系作者}
+\mailto[user@example.com]{联系作者}
 \stopbuffer
 
 \typebuffer[mail-demo]
@@ -1718,9 +1684,7 @@ xtable 使用 \type{\startxtable} 环境，模块预设了以下行类型：
 
 \getbuffer[xtable-demo]
 
-\chapter{章节样式}
-
-\pagereference[page:chapter]
+\chapter[page:chapter]{章节样式}
 
 \section{可用章节样式}
 
@@ -1752,6 +1716,213 @@ xtable 使用 \type{\startxtable} 环境，模块预设了以下行类型：
 \usemodule[memos][chapterstyle=madsen]
 \stoptyping
 
+% ==========================================
+% 样式 1: default
+% ==========================================
+%\startbuffer[buf-default]
+%  \usemodule[memos][chapterstyle=default]
+%  \starttext
+%    \chapter{Chapter:default}
+%    \section{Section}
+%    \subsection{Subsection}
+%    \subsubsection{Subsubsection}
+%    \input lipsum
+%  \stoptext
+%\stopbuffer
+%\savebuffer[list=buf-default,file=preview-default.tex,prefix=no]
+%\executesystemcommand{context preview-default.tex}
+%\placefigure[force]{Style: default}{\externalfigure[preview-default.pdf][width=1tw]}
+%
+%% ==========================================
+%% 样式 2: line
+%% ==========================================
+%\startbuffer[buf-line]
+%  \usemodule[memos][chapterstyle=line]
+%  \starttext
+%    \chapter{Chapter:line}
+%    \section{Section}
+%    \subsection{Subsection}
+%    \subsubsection{Subsubsection}
+%    \input lipsum
+%  \stoptext
+%\stopbuffer
+%\savebuffer[list=buf-line,file=preview-line.tex,prefix=no]
+%\executesystemcommand{context preview-line.tex}
+%\placefigure[force]{Style: line}{\externalfigure[preview-line.pdf][width=1tw]}
+%
+%% ==========================================
+%% 样式 3: colorful
+%% ==========================================
+%\startbuffer[buf-colorful]
+%  \usemodule[memos][chapterstyle=colorful]
+%  \starttext
+%    \chapter{Chapter:colorful}
+%    \section{Section}
+%    \subsection{Subsection}
+%    \subsubsection{Subsubsection}
+%    \input lipsum
+%  \stoptext
+%\stopbuffer
+%\savebuffer[list=buf-colorful,file=preview-colorful.tex,prefix=no]
+%\executesystemcommand{context preview-colorful.tex}
+%\placefigure[force]{Style: colorful}{\externalfigure[preview-colorful.pdf][width=1tw]}
+%
+%
+%% ==========================================
+%% 样式 4: madsen
+%% ==========================================
+%\startbuffer[buf-madsen]
+%  \usemodule[memos][chapterstyle=madsen]
+%  \starttext
+%    \chapter{Chapter:madsen}
+%    \section{Section}
+%    \subsection{Subsection}
+%    \subsubsection{Subsubsection}
+%    \input lipsum
+%  \stoptext
+%\stopbuffer
+%\savebuffer[list=buf-madsen,file=preview-madsen.tex,prefix=no]
+%\executesystemcommand{context preview-madsen.tex}
+%\placefigure[force]{Style: madsen}{\externalfigure[preview-madsen.pdf][width=1tw]}
+%
+%% ==========================================
+%% 样式 5: rocket
+%% ==========================================
+%\startbuffer[buf-rocket]
+%  \usemodule[memos][chapterstyle=rocket]
+%  \starttext
+%    \chapter{Chapter:rocket}
+%    \section{Section}
+%    \subsection{Subsection}
+%    \subsubsection{Subsubsection}
+%    \input lipsum
+%  \stoptext
+%\stopbuffer
+%\savebuffer[list=buf-rocket,file=preview-rocket.tex,prefix=no]
+%\executesystemcommand{context preview-rocket.tex}
+%\placefigure[force]{Style: rocket}{\externalfigure[preview-rocket.pdf][width=1tw]}
+%
+%% ==========================================
+%% 样式 6: hexa
+%% ==========================================
+%\startbuffer[buf-hexa]
+%  \usemodule[memos][chapterstyle=hexa]
+%  \starttext
+%    \chapter{Chapter:hexa}
+%    \section{Section}
+%    \subsection{Subsection}
+%    \subsubsection{Subsubsection}
+%    \input lipsum
+%  \stoptext
+%\stopbuffer
+%\savebuffer[list=buf-hexa,file=preview-hexa.tex,prefix=no]
+%\executesystemcommand{context preview-hexa.tex}
+%\placefigure[force]{Style: hexa}{\externalfigure[preview-hexa.pdf][width=1tw]}
+%
+%% ==========================================
+%% 样式 7: simple
+%% ==========================================
+%\startbuffer[buf-simple]
+%  \usemodule[memos][chapterstyle=simple]
+%  \starttext
+%    \chapter{Chapter:simple}
+%    \section{Section}
+%    \subsection{Subsection}
+%    \subsubsection{Subsubsection}
+%    \input lipsum
+%  \stoptext
+%\stopbuffer
+%\savebuffer[list=buf-simple,file=preview-simple.tex,prefix=no]
+%\executesystemcommand{context preview-simple.tex}
+%\placefigure[force]{Style: simple}{\externalfigure[preview-simple.pdf][width=1tw]}
+%
+%% ==========================================
+%% 样式 8: classics
+%% ==========================================
+%\startbuffer[buf-classics]
+%  \usemodule[memos][chapterstyle=classics]
+%  \starttext
+%    \chapter{Chapter:classics}
+%    \section{Section}
+%    \subsection{Subsection}
+%    \subsubsection{Subsubsection}
+%    \input lipsum
+%  \stoptext
+%\stopbuffer
+%\savebuffer[list=buf-classics,file=preview-classics.tex,prefix=no]
+%\executesystemcommand{context preview-classics.tex}
+%\placefigure[force]{Style: classics}{\externalfigure[preview-classics.pdf][width=1tw]}
+%
+%% ==========================================
+%% 样式 9: classicnovel
+%% ==========================================
+%\startbuffer[buf-classicnovel]
+%  \usemodule[memos][chapterstyle=classicnovel]
+%  \starttext
+%    \chapter{Chapter:classicnovel}
+%    \section{Section}
+%    \subsection{Subsection}
+%    \subsubsection{Subsubsection}
+%    \input lipsum
+%  \stoptext
+%\stopbuffer
+%\savebuffer[list=buf-classicnovel,file=preview-classicnovel.tex,prefix=no]
+%\executesystemcommand{context preview-classicnovel.tex}
+%\placefigure[force]{Style: classicnovel}{\externalfigure[preview-classicnovel.pdf][width=1tw]}
+%
+%% ==========================================
+%% 样式 10: kaolike
+%% ==========================================
+%\startbuffer[buf-kaolike]
+%  \usemodule[memos][chapterstyle=kaolike]
+%  \starttext
+%    \chapter{Chapter:kaolike}
+%    \section{Section}
+%    \subsection{Subsection}
+%    \subsubsection{Subsubsection}
+%    \input lipsum
+%  \stoptext
+%\stopbuffer
+%\savebuffer[list=buf-kaolike,file=preview-kaolike.tex,prefix=no]
+%\executesystemcommand{context preview-kaolike.tex}
+%\placefigure[force]{Style: kaolike}{\externalfigure[preview-kaolike.pdf][width=1tw]}
+%
+%% ==========================================
+%% 样式 11: article
+%% ==========================================
+%\startbuffer[buf-article]
+%  \usemodule[memos][chapterstyle=article]
+%  \starttext
+%    \chapter{Chapter:article}
+%    \section{Section}
+%    \subsection{Subsection}
+%    \subsubsection{Subsubsection}
+%    \input lipsum
+%  \stoptext
+%\stopbuffer
+%\savebuffer[list=buf-article,file=preview-article.tex,prefix=no]
+%\executesystemcommand{context preview-article.tex}
+%\placefigure[force]{Style: article}{\externalfigure[preview-article.pdf][width=1tw]}
+%
+%% ==========================================
+%% 样式 12: publish
+%% ==========================================
+%\startbuffer[buf-publish]
+%  \usemodule[memos][chapterstyle=publish]
+%  \starttext
+%    \chapter{Chapter:publish}
+%    \section{Section}
+%    \subsection{Subsection}
+%    \subsubsection{Subsubsection}
+%    \input lipsum
+%  \stoptext
+%\stopbuffer
+%\savebuffer[list=buf-publish,file=preview-publish.tex,prefix=no]
+%\executesystemcommand{context preview-publish.tex}
+%\placefigure[force]{Style: publish}{\externalfigure[preview-publish.pdf][width=1tw]}
+
+
+
 \chapter{高级功能}
 
 \section{模式控制}
@@ -1780,14 +1951,6 @@ xtable 使用 \type{\startxtable} 环境，模块预设了以下行类型：
 
 草稿模式用于快速预览，可能跳过某些耗时的排版处理。
 
-\subsection{扩展字号模式}
-
-\starttyping
-\usemodule[memos][mode=moresize]
-\stoptyping
-
-启用更多字号选项，特别是中文传统字号。
-
 \section{章节标题样式}
 
 \starttyping
@@ -1799,7 +1962,7 @@ xtable 使用 \type{\startxtable} 环境，模块预设了以下行类型：
 可以组合多个模式：
 
 \starttyping
-\usemodule[memos][mode={print,moresize}]
+\usemodule[memos][mode={print,kindle}]
 \stoptyping
 
 \chapter{拼音注音}
@@ -2061,11 +2224,12 @@ xtable 使用 \type{\startxtable} 环境，模块预设了以下行类型：
 
 \startbuffer
 % 逐步显示笔画
-\bihuashow[width=1.5cm,frame=outertian]{好}{1}
-\bihuashow[width=1.5cm,frame=outertian]{好}{2}
-\bihuashow[width=1.5cm,frame=outertian]{好}{3}
-\bihuashow[width=1.5cm,frame=outertian]{好}{4}
-\bihuashow[width=1.5cm,frame=outertian]{好}{5}
+\dontleavehmode
+\bihuashow[width=1.5cm,frame=outertian]{好}{1}%
+\bihuashow[width=1.5cm,frame=outertian]{好}{2}%
+\bihuashow[width=1.5cm,frame=outertian]{好}{3}%
+\bihuashow[width=1.5cm,frame=outertian]{好}{4}%
+\bihuashow[width=1.5cm,frame=outertian]{好}{5}%
 \bihuashow[width=1.5cm,frame=outertian]{好}{6}
 \stopbuffer
 
@@ -2357,12 +2521,12 @@ zhindex 模块需要以下数据文件：
 
 \section{排序特点}
 
-\startitemize[packed]
+\startpoints
 \item 支持中西文混合排序
 \item 数字排在最前，字母排在最后
 \item 同类内按各自规则排序
 \item 笔画排序支持按笔顺细分
-\stopitemize
+\stoppoints
 
 \chapter{最佳实践}
 
@@ -2405,32 +2569,31 @@ zhindex 模块需要以下数据文件：
 
 \section{字体选择建议}
 
-\startitemize[packed]
+\startpoints
 \item 正式文档：使用 Adobe 字体系列（adobehans/adobehant）
 \item 开源项目：使用 Source 字体系列（sourcehans/sourcehant）
 \item macOS 用户：可以使用系统字体（sinohans/sinohant）
-\item 需要轻量字体：使用 Source Han Sans Light（sourcehanslight）
-\stopitemize
+\stoppoints
 
 \section{颜色搭配建议}
 
-\startitemize[packed]
+\startpoints
 \item 科技文档：serene（蓝色）、creativity（青色）
 \item 文学作品：formality（黑色）、innocence（白色）
 \item 教育材料：harmony（绿色）、optimism（黄色）
 \item 商务文档：reliable（灰色）、formality（黑色）
 \item 创意设计：adventure（橙色）、magic（紫色）、romance（粉色）
 \item 重点强调：passion（红色）
-\stopitemize
+\stoppoints
 
 \section{布局选择建议}
 
-\startitemize[packed]
+\startpoints
 \item 一般文档：moderate（适中布局）
 \item 电子书：kindle（Kindle 布局）
 \item 平板阅读：ipad（iPad 布局）
 \item 试卷教材：kaolike（考理科布局）
-\stopitemize
+\stoppoints
 
 \chapter{故障排除}
 
@@ -2482,7 +2645,6 @@ zhindex 模块需要以下数据文件：
   fontsize=11pt,
   themecolor=blue,
   hdrstyle=book,
-  mode=moresize,
 ]
 
 \starttext

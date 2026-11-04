@@ -1,0 +1,480 @@
+\usemodule[memos][fontstyle=ss]
+
+\starttext
+
+\chapter{startDualText 合并组件测试}
+
+% ============================================================
+\section{基础功能测试}
+
+\subsection{完整双栏（默认）}
+
+\startDualText[number={No.001},title={这是标题}]
+这是一个完整的标题条+正文示例。左侧编号，右侧标题，下方正文。
+\stopDualText
+% 【预期】顶部标题条：左编号底色块 + 右标题；下方正文框完整；接缝单线贴合。
+
+\subsection{仅显示编号}
+
+\startDualText[number={A-123},showtitle=0]
+只显示编号，不显示标题。
+\stopDualText
+% 【预期】标题条只有左侧编号块，右侧无标题框；正文正常。
+
+\subsection{仅显示标题}
+
+\startDualText[title={仅标题示例},shownumber=0]
+只显示标题，不显示编号。
+\stopDualText
+% 【预期】标题条只有标题块（占满或按 titlepos）；正文正常。
+
+\subsection{无编号和标题}
+
+\startDualText[shownumber=0,showtitle=0]
+无标题条，纯正文框。
+\stopDualText
+% 【预期】无标题条，不占标题高度；纯正文框。
+
+% ============================================================
+\section{标题位置 titlepos 测试}
+
+\subsection{titlepos=1 比例占满（默认）}
+
+\startDualText[number={No.1},title={比例占满标题},titlepos=1]
+titlepos=1 时编号和标题按 numberratio:titleratio 占满全宽。
+\stopDualText
+% 【预期】编号块与标题块各占约一半宽度，无空隙。
+
+\subsection{titlepos=0 按文字宽 fit}
+
+\startDualText[number={No.2},title={按文字宽度},titlepos=0]
+titlepos=0 时按文字实际宽度排布。
+\stopDualText
+% 【预期】编号块和标题块宽度贴合文字，两侧留白。
+
+\subsection{titlepos=0 + 左对齐}
+
+\startDualText[number={No.3},title={左对齐},titlepos=0,titlealign=1]
+标题左对齐。
+\stopDualText
+% 【预期】fit 盒子靠左。
+
+\subsection{titlepos=0 + 右对齐}
+
+\startDualText[number={No.4},title={右对齐},titlepos=0,titlealign=3]
+标题右对齐。
+\stopDualText
+% 【预期】fit 盒子靠右。
+
+\subsection{titlepos=1 + 编号左/标题右}
+
+\startDualText[number=01,title=标题右对齐,titlepos=1,numberalign=1,titlealign=3,
+  numberframe=0,titleframe=0,leftframe=0,rightframe=0,bottomframe=0,topframe=1]
+编号左对齐，标题右对齐，仅上边框。
+\stopDualText
+% 【预期】仅一条上边框线；编号文字靠左、标题文字靠右。
+
+\subsection{titlepos=1 + 仅编号右对齐}
+
+\startDualText[number=04,showtitle=0,titlepos=1,numberalign=3,
+  numberframe=0,titleframe=0,leftframe=0,rightframe=0,bottomframe=0,topframe=1]
+仅编号时右对齐。
+\stopDualText
+% 【预期】编号文字靠右，仅上边框。
+
+% ============================================================
+\section{标题栏边框控制}
+
+\subsection{隐藏 number 边框}
+
+\startDualText[number={No.001},title={隐藏 number 边框},numberframe=0]
+只隐藏编号块的边框。
+\stopDualText
+% 【预期】编号块有底色无边框；标题块有边框。
+
+\subsection{隐藏 title 边框}
+
+\startDualText[number={No.002},title={隐藏 title 边框},titleframe=0]
+只隐藏标题块的边框。
+\stopDualText
+% 【预期】标题块有底色无边框；编号块有边框。
+
+\subsection{隐藏所有标题栏边框}
+
+\startDualText[number={No.003},title={隐藏所有边框},numberframe=0,titleframe=0]
+编号和标题块都无边框。
+\stopDualText
+% 【预期】两块都只有底色，无边框线。
+
+\subsection{自定义边框颜色}
+
+\startDualText[number={No.004},title={自定义边框颜色},
+  numberframecolor=red,titleframecolor=blue]
+编号边框红色，标题边框蓝色。
+\stopDualText
+% 【预期】编号块红框、标题块蓝框。
+
+% ============================================================
+\section{宽度比例测试}
+
+\subsection{1:2 比例}
+
+\startDualText[number={No.},title={标题宽度是编号的两倍},
+  numberratio=1,titleratio=2,titlepos=1]
+标题宽度是编号的两倍。
+\stopDualText
+% 【预期】标题块宽度约为编号块两倍。
+
+\subsection{1:3 比例}
+
+\startDualText[number={A},title={标题宽度是编号的三倍},
+  numberratio=1,titleratio=3,titlepos=1]
+标题宽度是编号的三倍。
+\stopDualText
+% 【预期】标题块宽度约为编号块三倍。
+
+% ============================================================
+\section{圆角测试}
+
+\subsection{标题条圆角 hdrradius}
+
+\startDualText[number={圆角},title={标题条圆角},hdrradius=6pt]
+hdrradius 设置标题块圆角。
+\stopDualText
+% 【预期】标题块外侧圆角；接缝处保持直角。
+
+\subsection{正文圆角 radius}
+
+\startDualText[number={R},title={正文圆角},radius=6pt]
+radius 设置正文框圆角。
+\stopDualText
+% 【预期】正文框四角圆角；标题块直角。
+
+\subsection{正文圆角 + bodycorner 选角}
+
+\startDualText[number={C},title={仅下两角圆},radius=6pt,bodycorner=2]
+bodycorner=2 只圆下两角。
+\stopDualText
+% 【预期】正文框仅下方两角圆角，上方两角直角。
+
+\subsection{标题圆角 + 正文圆角组合}
+
+\startDualText[number={组合},title={标题+正文圆角},
+  hdrradius=5pt,radius=8pt]
+标题块与正文框各自圆角。
+\stopDualText
+% 【预期】标题块圆角、正文框圆角；接缝处各自独立。
+
+% ============================================================
+\section{背景样式测试}
+
+\subsection{simple（默认）}
+
+\startDualText[number={S},title={simple 样式},]
+默认简单样式，纯色背景+边框。
+\stopDualText
+% 【预期】纯色背景，完整边框。
+
+\subsection{shadowbox}
+
+\startDualText[number={Sh},title={阴影框},
+  shadow=yes,
+  shadowcolor=lightthemecolor]
+阴影框样式。
+\stopDualText
+% 【预期】右下角阴影效果。
+
+\subsection{charbox}
+
+\startDualText[number={Ch},title={字符图案},character={$\star$}]
+字符水印样式。
+\stopDualText
+% 【预期】背景有旋转 45° 字符水印。
+
+\subsection{framebox}
+
+\startDualText[number={F},title={棋盘格},framebox=yes,
+  framecolor=themecolor]
+棋盘格图案样式。
+\stopDualText
+% 【预期】背景有棋盘格点阵图案。
+
+\subsection{barbox}
+
+\startDualText[number={B},title={左侧色条},bar=yes,
+  framecolor=themecolor]
+左侧色条样式。
+\stopDualText
+% 【预期】正文左侧有色条 + 三边框。
+
+\subsection{symbolbox}
+
+\startDualText[number={Y},title={角标符号},symbol=※]
+右下角角标样式。
+\stopDualText
+% 【预期】正文右下角有角标符号。
+
+\subsection{自定义背景色}
+
+\startDualText[number={Bg},title={自定义底色},
+  backgroundcolor=softthemecolor,
+  numberbgcolor=orange,numbercolor=white,
+  titlecolor=red,titlebgcolor=white,
+  ]
+自定义编号/标题/正文底色。
+\stopDualText
+% 【预期】编号块橙底白字；标题块白底红字；正文浅色底。
+
+% ============================================================
+\section{边框控制测试}
+
+\subsection{仅左边框}
+
+\startDualText[shownumber=0,showtitle=0,
+  leftframe=1,rightframe=0,topframe=0,bottomframe=0]
+只显示左边框。
+\stopDualText
+% 【预期】仅左侧一条竖线。
+
+\subsection{仅左右边框}
+
+\startDualText[shownumber=0,showtitle=0,
+  leftframe=1,rightframe=1,topframe=0,bottomframe=0]
+只显示左右边框。
+\stopDualText
+% 【预期】左右两条竖线，上下无线。
+
+\subsection{仅上边框}
+
+\startDualText[shownumber=0,showtitle=0,
+  leftframe=0,rightframe=0,topframe=1,bottomframe=0]
+只显示上边框。
+\stopDualText
+% 【预期】仅顶部一条横线。
+
+\subsection{无边框}
+
+\startDualText[shownumber=0,showtitle=0,
+  leftframe=0,rightframe=0,topframe=0,bottomframe=0,
+  backgroundcolor=softthemecolor]
+不显示任何边框，仅底色。
+\stopDualText
+% 【预期】无边框线，仅可见底色区域。
+
+\subsection{粗线 rulethickness}
+
+\startDualText[number={粗},title={6pt 粗线},rulethickness=6pt]
+粗线效果。
+\stopDualText
+% 【预期】边框线 6pt 粗；线外缘不跃出区域边界。
+
+% ============================================================
+\section{框线偏移测试}
+
+\subsection{frameoffset=0（默认，线贴边界）}
+
+\startDualText[number={F0},title={frameoffset 0},frameoffset=0pt,
+  backgroundcolor=softthemecolor]
+线外缘与背景边界齐平。
+\stopDualText
+% 【预期】边框线外缘与底色外缘齐平，不跃出。
+
+\subsection{frameoffset=-2pt（官方居中跃出）}
+
+\startDualText[number={F-},title={frameoffset -2pt},frameoffset=-2pt,
+  backgroundcolor=softthemecolor]
+线中心落在边界，左右各跃出 th/2。
+\stopDualText
+% 【预期】边框线向外跃出约 1pt（th/2）。
+
+\subsection{frameoffset=+2pt（线更靠内）}
+
+\startDualText[number={F+},title={frameoffset +2pt},frameoffset=2pt,
+  backgroundcolor=softthemecolor]
+线更靠内。
+\stopDualText
+% 【预期】边框线向内缩进，底色外缘露出一圈。
+
+\subsection{backgroundoffset=0 vs 4pt}
+
+\startDualText[number={B0},title={bgoff 0},backgroundoffset=0pt,
+  backgroundcolor=softthemecolor]
+背景不外扩。
+\stopDualText
+
+\startDualText[number={B4},title={bgoff 4pt},backgroundoffset=4pt,
+  backgroundcolor=softthemecolor]
+背景向外扩 4pt。
+\stopDualText
+% 【预期】第二例底色比第一例向外扩约 4pt，且不被裁切。
+
+% ============================================================
+\section{跨页测试 hdrrepeat}
+
+\subsection{hdrrepeat=1 每页重复（默认）}
+
+\startDualText[number={P1},title={每页标题},
+  backgroundcolor=lightgray]
+  \par 第一段。第二段。第三段。第四段。第五段。
+  \par 第六段。第七段。第八段。第九段。第十段。
+  \par 第十一段。第十二段。第十三段。第十四段。第十五段。
+  \par 第十六段。第十七段。第十八段。第十九段。第二十段。
+  \par 第二十一段。第二十二段。第二十三段。第二十四段。第二十五段。
+  \par 第二十六段。第二十七段。第二十八段。第二十九段。第三十段。最后一段。
+\stopDualText
+% 【预期】每一页顶部都有标题条；各页正文框背景与框线完整。
+
+\subsection{hdrrepeat=0 仅首页}
+
+\startDualText[number={P2},title={仅首页标题},
+  backgroundcolor=lightgray,hdrrepeat=0]
+  \par 第一段。第二段。第三段。第四段。第五段。
+  \par 第六段。第七段。第八段。第九段。第十段。
+  \par 第十一段。第十二段。第十三段。第十四段。第十五段。
+  \par 第十六段。第十七段。第十八段。第十九段。第二十段。
+  \par 第二十一段。第二十二段。第二十三段。第二十四段。第二十五段。
+  \par 第二十六段。第二十七段。第二十八段。第二十九段。第三十段。最后一段。
+\stopDualText
+% 【预期】仅首页顶部有标题条；后续页正文框完整（可能因 topoffset 偏高）。
+
+% ============================================================
+\section{组合效果测试}
+
+\subsection{阴影 + 圆角}
+
+\startDualText[number={组合},title={阴影+圆角},
+  shadow=yes,
+  bodycorner=2,
+  hdrcorner=1,
+  hdrradius=8pt,
+  radius=8pt,shadowcolor=lightthemecolor]
+阴影和圆角的组合。
+\stopDualText
+% 【预期】正文框圆角+阴影；标题条正常。
+
+\subsection{左侧条 + 粗线}
+
+\startDualText[number={组合},title={色条+粗线},
+  bar=yes,rulethickness=2pt,leftframe=1]
+左侧色条与粗边框组合。
+\stopDualText
+% 【预期】左侧色条 + 2pt 边框线。
+
+\subsection{字符图案 + 圆角}
+
+\startDualText[number={组合},title={字符+圆角},
+  character={$\star$},
+  character={$\heartsuit$},
+  bodycorner=2,
+  hdrcorner=1,
+  hdrradius=10pt,
+  radius=10pt]
+字符水印与圆角组合。
+\stopDualText
+% 【预期】圆角正文框 + 爱心水印。
+
+\subsection{仅左边框模拟 blockbox}
+
+\startDualText[number={模拟},title={模拟 blockbox},
+  leftframe=1,rightframe=0,topframe=0,bottomframe=0,rulethickness=2pt]
+仅左边框模拟 blockquote 效果。
+\stopDualText
+% 【预期】仅左侧 2pt 竖线，模拟引用块。
+
+\subsection{自定义样式}
+
+\startDualText[number={? 问题探究},title={自定义样式},
+  numberbgcolor=orange,numbercolor=white,
+  titlecolor=red,titlebgcolor=white,
+  backgroundcolor=lightorange,
+  numberframe=0,titleframe=0,
+  leftframe=0,rightframe=0,topframe=1,bottomframe=0,
+  numberratio=1,titleratio=3]
+自定义编号/标题/正文配色与边框。
+\stopDualText
+% 【预期】橙底白字编号 + 红字白底标题 + 浅橙正文 + 仅上边框；标题占 3/4 宽。
+
+% ============================================================
+\section{混合样式测试}
+
+\subsection{shadow + bar}
+
+\startDualText[number={X1},title={阴影+色条},
+  shadow=yes,bar=yes,
+  framecolor=themecolor,
+  shadowcolor=lightthemecolor]
+同时开启阴影与左色条。
+\stopDualText
+% 【预期】右下阴影 + 左色条 + 边框，叠加正常。
+
+\subsection{shadow + character}
+
+\startDualText[number={X2},title={阴影+字符},
+  shadow=yes,character={$\heartsuit$},
+  framecolor=red,
+  shadowcolor=lightthemecolor]
+同时开启阴影与字符水印。
+\stopDualText
+% 【预期】阴影 + 爱心水印，水印不被阴影遮盖。
+
+\subsection{bar + character}
+
+\startDualText[number={X3},title={色条+字符},
+  bar=yes,character={$\star$},
+  framecolor=themecolor]
+同时开启左色条与字符水印。
+\stopDualText
+% 【预期】左色条 + 星形水印，两者互不干扰。
+
+\subsection{bar + framebox}
+
+\startDualText[number={X4},title={色条+棋盘},
+  bar=yes,framebox=yes,
+  framecolor=themecolor]
+同时开启左色条与棋盘格点阵。
+\stopDualText
+% 【预期】左色条覆盖在棋盘格之上，底色仍为白。
+
+\subsection{shadow + bar + character}
+
+\startDualText[number={X5},title={阴影+色条+字符},
+  shadow=yes,bar=yes,character={$\heartsuit$},
+  framecolor=themecolor,rulethickness=1.5pt,
+  shadowcolor=lightthemecolor]
+三者同时开启。
+\stopDualText
+% 【预期】阴影 + 左色条 + 爱心水印共存。
+
+\subsection{shadow + bar + framebox}
+
+\startDualText[number={X6},title={阴影+色条+棋盘},
+  shadow=yes,bar=yes,framebox=yes,
+  framecolor=themecolor,
+  shadowcolor=lightthemecolor]
+阴影 + 色条 + 棋盘格。
+\stopDualText
+% 【预期】阴影 + 左色条 + 棋盘格，色条不被棋盘遮住。
+
+\subsection{shadow + character + symbol}
+
+\startDualText[number={X7},title={阴影+字符+角标},
+  shadow=yes,character={$\star$},symbol=※,
+  framecolor=themecolor,
+  shadowcolor=lightthemecolor]
+阴影 + 水印 + 右下角标。
+\stopDualText
+% 【预期】阴影 + 星形水印 + ※ 角标同时可见。
+
+\subsection{全套组合}
+
+\startDualText[number={X8},title={全套},
+  shadow=yes,bar=yes,framebox=yes,
+  character={$\heartsuit$},symbol=※,
+  framecolor=themecolor,rulethickness=1.5pt,radius=6pt,
+  bodycorner=2,
+  shadowcolor=lightthemecolor]
+全部装饰同时开启。
+\stopDualText
+% 【预期】阴影 + 色条 + 棋盘 + 水印 + 角标 + 圆角共存，层次不乱。
+
+\stoptext

@@ -28,12 +28,17 @@ A ConTeXt Chinese typesetting toolkit featuring three core modules: exam generat
 
 - **Multiple Choice Questions** - Support for single and multiple selections with automatic grading
 - **Fill-in-the-Blank** - Flexible answer formats
+- **True/False Questions** - Dedicated `truefalse` environment and `\titem[*]` marker
+- **Option Cloze** - `optclose` environment and `\oitem` marker
 - **Reading Comprehension** - Support for long text material references
 - **Essay Questions** - Free response spaces
 - **Cloze Tests** - Text gap-filling with answer matching
 - **Answer Control** - Centralized answer management
 - **Score Control** - Flexible point configuration
+- **Grade Tables** - `\partio` collects scores, `\typegrade` renders them
+- **Item Shuffling** - `\ORDER` shuffles with a seed and numbers automatically[experimental]
 - **Question Header Control** - Custom question numbering and formatting
+- **Symbols & Badges** - Drawn with MetaFun; no external symbol font required
 
 ### Usage Examples
 
@@ -74,10 +79,58 @@ A ConTeXt Chinese typesetting toolkit featuring three core modules: exam generat
 
 ```tex
 \startclose[showanswer=true,point=10]
-In spring, the season of \closechoice[flowers,leaves,birds,rain],
-we \closechoice[walk,run,jump,fly] in the park.
+In spring, the season of \closechoice{flowers,leaves,birds,rain},
+we \closechoice{walk,run,jump,fly} in the park.
 \stopclose
 ```
+
+#### True/False Questions
+
+```tex
+\starttruefalse[point=2,showanswer=true]
+  \titem[*]{The Earth is a planet in the solar system.}
+  \titem{The Sun rises in the west.}
+\stoptruefalse
+```
+
+#### Option Cloze
+
+```tex
+\startoptclose[point=2,showanswer=true]
+The latest \oitem[answer=engineering]{engineer} techniques are applied to create
+this protective \oitem[answer=functional]{function} structure.
+\stopoptclose
+```
+
+#### Grade Output
+
+```tex
+% Start a score-collection block (optional uid)
+\partio[first]
+
+% ... questions ...
+
+% Render the grade table
+\typegrade[partios=first, layout=cols, showanswer=true]
+
+% Export the full answer tree
+\UnlimitedExport{answers.tsv}
+```
+
+#### Shuffling and Symbols
+
+```tex
+\ORDER[seed=42,numbering=characters]{A,B,C,D,E}
+
+\setupmark[style=handdrawn]     % hand-drawn symbols
+\setupmark[style=normal]        % formal style (default)
+
+\circledtext{1}
+\DrawBadge[shape=square,radius=0pt,text=Right]{1}
+```
+
+All marking symbols are drawn with MetaFun; no external symbol font such as
+NotoSansSymbols is required.
 
 #### Essay Writing
 
@@ -243,8 +296,8 @@ mtxrun --script install-modules --install visualcounter
 ## Installation
 
 1. Download the project files
-2. Place files in `tex/texmf-local/` under your ConTeXt installation
-3. Run `mtxrun --generate` to refresh file index
+2. Copy the whole `tex/context/third/basicexam/` directory (including `t-basicexam.mkxl`, `t-memos.mkxl`, `s-poriginal.mkxl`, and `data/`) into the ConTeXt module tree, e.g. `tex/texmf-modules/tex/context/third/basicexam/`
+3. Run `mtxrun --generate` to refresh the file index
 4. Use modules in your TeX files:
    - `\usemodule[basicexam]`
    - `\usemodule[memos]`
@@ -260,9 +313,16 @@ mtxrun --script install-modules --install visualcounter
 - **[memos Manual (Chinese)](doc/context/third/basicexam/memos-manual.tex)** - Document layout documentation (Chinese)
 - **[Test Files](doc/context/third/basicexam/)**:
   - **[test-exam.tex](doc/context/third/basicexam/test-exam.tex)** - Exam generation tests
+  - **[exam-luatest.tex](doc/context/third/basicexam/exam-luatest.tex)** - Lua interface and answer tree tests
   - **[test-frame.tex](doc/context/third/basicexam/test-frame.tex)** - Frame tests
+  - **[test-frametb.tex](doc/context/third/basicexam/test-frametb.tex)** - DualBody textbackground tests
+  - **[test-framehd.tex](doc/context/third/basicexam/test-framehd.tex)** - DualHeader tests
+  - **[test-framemp.tex](doc/context/third/basicexam/test-framemp.tex)** - DualBody MetaPost overlay tests
+  - **[test-framemg.tex](doc/context/third/basicexam/test-framemg.tex)** - Merged DualText component tests
   - **[test-poriginal.tex](doc/context/third/basicexam/test-poriginal.tex)** - Style module tests
   - **[test-zhnumber.tex](doc/context/third/basicexam/test-zhnumber.tex)** - Chinese numeral tests
   - **[test-zhindex.tex](doc/context/third/basicexam/test-zhindex.tex)** - Chinese index tests
   - **[test-pinyin.tex](doc/context/third/basicexam/test-pinyin.tex)** - Pinyin annotation tests
+  - **[test-pinyin-all.tex](doc/context/third/basicexam/test-pinyin-all.tex)** - Full pinyin data tests
   - **[test-bihua.tex](doc/context/third/basicexam/test-bihua.tex)** - Stroke display tests
+  - **[test-xruby.tex](doc/context/third/basicexam/test-xruby.tex)** - Ruby annotation tests

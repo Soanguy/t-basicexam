@@ -1,0 +1,612 @@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                                 ruby                                %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\installnamespace          {xruby}
+\installcommandhandler    \????xruby  {xruby}  \????xruby
+
+\setupxruby[mono] [style=\switchtobodyfont[5pt],yoffset=0pt,location=top,intrusion=no]%
+\setupxruby[group][style=\switchtobodyfont[5pt],yoffset=0pt,location=top,intrusion=no]%
+\setupxruby[jyuku][style=\switchtobodyfont[5pt],yoffset=0pt,location=top,intrusion=big,bprotrusion=no]%
+
+\protected\tolerant\def\xruby#*[#S#1]#*[#S#2]#:#3#4{
+  \begingroup\edef\currentxruby{mono}%
+    \ifparameters#1\else
+      \ifhastok={#1}
+        \ifparameters#1\else\setupxruby[\currentxruby][#1]\fi
+			\else
+        \iftok{#1}{m}\edef\currentxruby{mono}\fi
+        \iftok{#1}{g}\edef\currentxruby{group}\fi
+        \iftok{#1}{j}\edef\currentxruby{jyuku}\fi
+      \fi
+    \fi
+    \ifparameters#2\else\setupxruby[\currentxruby][#2]\fi
+    \ifx\p_protrusion\v!yes\edef\p_bprotrusion{\v!yes}\edef\p_aprotrusion{\v!yes}\fi
+    \edef\p_intrusion  {\xrubyparameter{intrusion}}%
+    \edef\p_bintrusion {\xrubyparameter{bintrusion}}%
+    \edef\p_aintrusion {\xrubyparameter{aintrusion}}%
+    \edef\p_protrusion {\xrubyparameter{protrusion}}%
+    \edef\p_bprotrusion{\xrubyparameter{bprotrusion}}%
+    \edef\p_aprotrusion{\xrubyparameter{aprotrusion}}%
+    \edef\p_stretch    {\xrubyparameter    {stretch}}%
+    \edef\p_rubystretch{\xrubyparameter{rubystretch}}%
+    \edef\p_location   {\xrubyparameter\c!location}%
+    \def\c!mono{mono}\edef\c!jyuku{jyuku}%
+    \removeunwantedspaces
+    \ifx\currentxruby\c!mono  \xruby_mono [#2]{#3}{#4}\fi
+    \ifx\currentxruby\c!group \xruby_group[#2]{#3}{#4}\fi
+    \ifx\currentxruby\c!jyuku \xruby_mono [#2]{#3}{#4}\fi
+  \endgroup
+}
+
+\newcount\c_flag_box
+\newdimen\d_xruby_biggerwidth
+\newskip\d_xruby_topback
+\newskip\d_xruby_leftskip
+\newskip\d_xruby_rightskip
+\newcount\c_xruby_mono_current
+\newcount\c_xruby_mono_total
+\newif\ifxruby_mono_first
+
+\def\hfilword#1{%
+    \ifx\p_stretch\v!yes
+      \ifx\p_bprotrusion\v!no\else\hfil\fi
+    \fi
+  #1%
+    \ifx\p_stretch\v!yes
+      \ifx\p_aprotrusion\v!no\else\hfil\fi
+    \fi
+}
+
+\def\xruby_settopbox#1%
+  {\setbox0=\hbox{%
+   \noindent
+   \removeunwantedspaces
+   \usexrubystyleandcolor\c!style\c!color
+   \xrubyparameter\c!left
+   \ifx\p_rubystretch\v!yes
+     \processisolatedwords{#1}\hfilword
+   \else{\hfil#1\hfil}\fi
+   \xrubyparameter\c!right}%
+}
+
+\def\xruby_topbox{%
+  \ifx\p_location\v!top
+    \scratchdimen\dimexpr\ht1+\xrubyparameter\c!yoffset\relax
+  \fi
+  \ifx\p_location\v!bottom
+    \scratchdimen\dimexpr-\dp1-\ht0-\xrubyparameter\c!yoffset\relax
+  \fi
+  \hskip-\dimexpr(\wd1+\wd0)/2\relax
+  \raise\scratchdimen
+  \ruledhbox\ifnum\c_flag_box=\zeropoint to \d_xruby_biggerwidth\fi{\unhcopy0}%
+}
+
+\def\xruby_setbodybox#1{\setbox1\hbox{\noindent\strut\usexrubystyleandcolor{bodystyle}{bodycolor}\processisolatedwords{#1}\hfilword}}
+
+\def\xruby_bodybox{\ruledhbox \ifnum\c_flag_box=\zeropoint to \d_xruby_biggerwidth\fi{\unhcopy1}}
+
+\def\get_mindimen#1{%
+  \ifdim\dimexpr-\d_xruby_topback>#1\relax\scratchdimen#1\fi
+  \ifdim\dimexpr-\d_xruby_topback<#1\relax\scratchdimen-\d_xruby_topback\fi
+  \ifdim\dimexpr-\d_xruby_topback=#1\relax\scratchdimen#1\fi
+}
+
+\def\set_intrusion#1{%
+  \ifx#1\v!small\scratchdimenone0.5em\fi
+  \ifx#1\v!big  \scratchdimenone1.0em\fi
+  \ifx#1\v!no   \scratchdimenone0.0em\fi
+  \get_mindimen \scratchdimenone
+}
+
+\def\xruby_output_pair#1#2{%
+  \begingroup
+    \xruby_setbodybox{#1}%
+    \xruby_settopbox{#2}%
+    \d_xruby_topback  \dimexpr(\wd1-\wd0)/2\relax
+    \d_xruby_leftskip \zeropoint
+    \d_xruby_rightskip\zeropoint
+    \c_flag_box       \zerocount
+    \ifdim\wd1>\wd0%body is bigger
+      \d_xruby_biggerwidth\wd1\c_flag_box=1
+    \fi
+    \ifdim\wd1=\wd0
+      \d_xruby_biggerwidth\wd1\c_flag_box\zerocount
+    \fi
+    \ifdim\wd1<\wd0
+      \d_xruby_biggerwidth\wd0\c_flag_box=-1
+      \set_intrusion\p_intrusion
+      \d_xruby_leftskip=\scratchdimen
+      \d_xruby_rightskip\d_xruby_leftskip
+      \set_intrusion\p_bintrusion
+      \d_xruby_leftskip=\scratchdimen
+      \set_intrusion\p_aintrusion
+      \d_xruby_rightskip\scratchdimen
+    \fi
+    \ifx\p_stretch\v!yes\c_flag_box\zerocount\fi
+    \ifnum\c_flag_box=\zeropoint
+      \scratchdimen   \d_xruby_leftskip
+      \scratchdimenone\d_xruby_rightskip
+      \d_xruby_leftskip \zeropoint
+      \d_xruby_rightskip\d_xruby_leftskip
+      \wd0\d_xruby_biggerwidth
+      \wd1\d_xruby_biggerwidth
+    \fi
+    \ifx\p_bprotrusion\v!yes
+      \ifx\p_aprotrusion\v!yes
+        \kern-\scratchdimen
+      \else
+        \kern-2\scratchdimen
+      \fi
+    \fi
+    \ifnum\c_flag_box<\zeropoint\kern-\dimexpr\d_xruby_leftskip+\d_xruby_topback\relax\fi
+    \bgroup\hbox{\noindent\xruby_bodybox\xruby_topbox}\egroup
+    \ifnum\c_flag_box>\zeropoint\kern\dimexpr+\d_xruby_topback  \relax\fi
+    \ifnum\c_flag_box<\zeropoint\kern\dimexpr-\d_xruby_rightskip\relax\fi
+    \ifx\p_aprotrusion\v!yes
+      \ifx\p_bprotrusion\v!yes
+        \kern-\scratchdimenone
+      \else
+        \kern-2\scratchdimenone
+      \fi
+    \fi
+  \endgroup
+}
+
+\tolerant\def\xruby_group#*[#S#1]#:#2#3{%
+  \begingroup\dontcomplain
+   \penalty0\dontleavehmode
+   \xruby_output_pair{#2}{#3}%
+   \penalty0%
+  \endgroup
+}
+
+\def\xruby_mono_inter{\penalty0}
+
+\def\xruby_mono_body_pop#1#2\relax{%
+  \def\xruby_mono_current_body{#1}%
+  \def\xruby_mono_body{#2}%
+}
+
+\def\xruby_mono_count#1|{%
+  \def\xruby_next{\xruby_mono_count}%
+  \ifx#1\relax
+    \let\xruby_next\relax
+  \else
+    \advance\c_xruby_mono_total\plusone
+  \fi
+  \xruby_next
+}
+
+\def\xruby_mono_ruby_next#1|{%
+  \def\xruby_next{\xruby_mono_ruby_next}%
+  \ifx#1\relax
+    \let\xruby_next\relax
+  \else
+    \def\xruby_mono_current_ruby{#1}%
+    \xruby_mono_process_pair
+  \fi
+  \xruby_next
+}
+
+\def\xruby_mono_process_pair{%
+  \ifx\xruby_mono_body\empty
+  \else
+    \expandafter\xruby_mono_body_pop\xruby_mono_body\relax
+    \advance\c_xruby_mono_current by 1
+    \ifxruby_mono_first
+      \xruby_mono_firstfalse
+    \else
+      \xruby_mono_inter
+    \fi
+    \xruby_mono_adjust_params
+    \xruby_output_pair{\xruby_mono_current_body}{\xruby_mono_current_ruby}%
+  \fi
+}
+
+\def\xruby_save_params{%
+  \edef\saved_bprotrusion{\p_bprotrusion}%
+  \edef\saved_aprotrusion{\p_aprotrusion}%
+  \edef\saved_bintrusion {\p_bintrusion}%
+  \edef\saved_aintrusion {\p_aintrusion}%
+  \edef\saved_stretch    {\p_stretch}%
+}
+
+\def\xruby_restore_params{%
+  \let\p_bprotrusion\saved_bprotrusion
+  \let\p_aprotrusion\saved_aprotrusion
+  \let\p_bintrusion \saved_bintrusion
+  \let\p_aintrusion \saved_aintrusion
+  \let\p_stretch    \saved_stretch
+}
+
+\def\xruby_mono_adjust_params{%
+  \ifnum\c_xruby_mono_current=1
+    \xruby_save_params
+  \fi
+  \ifnum\c_xruby_mono_current>1
+    \let\p_bprotrusion\v!no
+    \let\p_bintrusion\v!no
+    \let\p_stretch\v!no
+  \fi
+  \ifnum\c_xruby_mono_current=\c_xruby_mono_total
+    \xruby_restore_params
+  \fi
+}
+
+\tolerant\def\xruby_mono#*[#S#1]#:#2#3%
+  {\begingroup\dontcomplain
+   \def\xruby_mono_body{#2}%
+   \xruby_mono_firsttrue
+   \c_xruby_mono_current\zerocount
+   \c_xruby_mono_total\zerocount
+   \penalty0
+   \dontleavehmode
+   \expandafter\xruby_mono_count#3|\relax|%
+   \expandafter\xruby_mono_ruby_next#3|\relax|%
+   \penalty0
+  \endgroup}
+
+
+\definemode [memos:extra:zhnumber][keep]
+\definemode [memos:extra:pinyin]  [keep]
+\definemode [memos:extra:index]   [keep]
+\definemode [memos:extra:bihua]   [keep]
+
+\processallactionsinset[\currentmoduleparameter{extra}][
+        pinyin=>{\enablemode[memos:extra:pinyin]},
+      zhnumber=>{\enablemode[memos:extra:zhnumber]},
+         index=>{\enablemode[memos:extra:index]},
+         bihua=>{\enablemode[memos:extra:bihua]},
+           all=>{\enablemode[memos:extra:pinyin,memos:extra:zhnumber,memos:extra:index,memos:extra:bihua]},
+          none=>\relax,
+    \v!default=>\relax,
+    \v!unknown=>\errorparameter{extra},
+]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                               zhnumber                              %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\startmode[memos:extra:zhnumber]
+  \registerctxluafile{t-zhnumber}{}
+
+  \installnamespace {zhnumber}
+
+  \installcommandhandler \????zhnumber {zhnumber} \????zhnumber
+
+  \setupzhnumber[zero=〇]
+
+  \permanent\def\zhnumber{\dosingleempty\dozhnumber}
+  \def\dozhnumber[#1]#2{\clf_zhnumber{#2}{#1}}
+
+  \permanent\def\zhdigit{\dosingleempty\dozhdigit}
+  \def\dozhdigit[#1]#2{\clf_zhdigits{#2}{#1}}
+
+  \permanent\def\zhdate#1{\clf_zhdate{#1}}
+
+  \permanent\def\zhtime#1{\clf_zhtime{#1}}
+
+  \permanent\def\zhweekday#1{\clf_zhweekday{#1}}
+
+  \permanent\def\zhtoday{\expanded{\clf_zhdate{\the\normalyear/\the\normalmonth/\the\normalday}}}
+
+  \permanent\def\zhcurrtime{\calculatecurrenttime\clf_zhtime{\currenthour:\currentminute}}
+
+  \permanent\def\zhtiangan#1{\clf_zhtiangan{#1}}
+
+  \permanent\def\zhdizhi#1{\clf_zhdizhi{#1}}
+
+  \permanent\def\zhganzhi#1{\clf_zhganzhi{#1}}
+
+  \permanent\def\zhganzhinian#1{\clf_zhganzhinian{#1}}
+
+  \appendtoks
+      \clf_zhsetzero{\zhnumberparameter{zero}}%
+  \to \everysetupzhnumber
+
+  \clf_zhsetzero{\zhnumberparameter{zero}}%
+
+  % 数字转换（普通数词读法）
+  \defineconversion[zhnumber]    [\clf_zhnumber_normal]
+  \defineconversion[zhnumbercap] [\clf_zhnumber_cap]
+  \defineconversion[zhnumberall] [\clf_zhnumber_all]
+
+  % 逐位读法
+  \defineconversion[zhdigit]      [\clf_zhdigits_normal]
+  \defineconversion[zhdigitcap]   [\clf_zhdigits_cap]
+  \defineconversion[zhdigitphone] [\clf_zhdigits_phone]
+
+  % 日期、时间、星期（直接使用已有接口）
+  \defineconversion[zhdate]    [\clf_zhdate]
+  \defineconversion[zhtime]    [\clf_zhtime]
+  \defineconversion[zhweekday] [\clf_zhweekday]
+
+  % 天干、地支、干支、干支纪年（直接使用已有接口）
+  \defineconversion[zhtiangan]    [\clf_zhtiangan]
+  \defineconversion[zhdizhi]      [\clf_zhdizhi]
+  \defineconversion[zhganzhi]     [\clf_zhganzhi]
+  \defineconversion[zhganzhinian] [\clf_zhganzhinian]
+
+  \defineconversion[tiangan][甲, 乙, 丙, 丁, 戊, 己, 庚, 辛, 壬, 癸]
+
+  \defineconversion[dizhi][子, 丑, 寅, 卯, 辰, 巳, 午, 未, 申, 酉, 戌, 亥]
+
+  \defineconversion[ganzhi]
+                  [甲子,乙丑,丙寅,丁卯,戊辰,己巳,庚午,辛未,壬申,癸酉,
+                    甲戌,乙亥,丙子,丁丑,戊寅,己卯,庚辰,辛巳,壬午,癸未,
+                    甲申,乙酉,丙戌,丁亥,戊子,己丑,庚寅,辛卯,壬辰,癸巳,
+                    甲午,乙未,丙申,丁酉,戊戌,己亥,庚子,辛丑,壬寅,癸卯,
+                    甲辰,乙巳,丙午,丁未,戊申,己酉,庚戌,辛亥,壬子,癸丑,
+                    甲寅,乙卯,丙辰,丁巳,戊午,己未,庚申,辛酉,壬戌,癸亥]
+\stopmode
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                               zhpinyin                              %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\startmode[memos:extra:pinyin]
+  \registerctxluafile{t-pinyin}{}
+
+  \newdimen\pinyinvsep \pinyinvsep=1em
+  \newskip\pinyinhsep  \pinyinhsep=0pt
+  \newskip\pinyinpysep \pinyinpysep=\spaceskip
+
+  \def\pinyinpysepstr{\hskip\pinyinpysep}
+  
+  \installnamespace{pinyin}
+  \installsimplecommandhandler \????pinyin {pinyin} \????pinyin
+
+  \let\memos_pinyin_normal_setup\setuppinyin
+
+  \overloaded\tolerant\def\setuppinyin#*[#S#1]{%
+    \memos_pinyin_normal_setup[#1]%
+    \pinyinvsep     =\pinyinparameter{vsep}%
+    \pinyinhsep     =\pinyinparameter{hsep}%
+    \pinyinpysep    =\pinyinparameter{pysep}%
+    \def\pinyinratio{\pinyinparameter{ratio}}%
+    \ctxlua{thirddata.pinyin.setup{%
+           multiple=[[\pinyinparameter{multiple}]],%
+      markpolyphone=[[\pinyinparameter{markpolyphone}]]%
+    }}%
+  }
+
+  \setuppinyin[vsep=0pt,
+               hsep=0pt plus 1pt minus 1pt,
+               pysep=\spaceskip,
+               ratio=0.6,
+               multiple=no,
+               markpolyphone=no]
+
+  \tolerant\def\startpinyinscope#*[#1]%
+    {\begingroup\doifnotempty{#1}{\setuppinyin[#1]}%
+     \grabbufferdata[pinyinscope][pinyinscope][startpinyinscope][stoppinyinscope]}
+
+  \def\stoppinyinscope{\ctxlua{thirddata.pinyin.process_buffer()}\endgroup}
+
+  \tolerant\def\pinyin#*[#S#1]#:#2%
+    {\begingroup
+    \ifparameters#1\else\setuppinyin[#1]\fi
+    \ctxlua{thirddata.pinyin.format_pinyin_string([==[#2]==])}%
+    \endgroup}
+
+  \tolerant\def\xpinyin#*[#S#1]#*[#S#2]#:#3%
+  {\begingroup
+    \ifparameter#2\or
+      \setuppinyin[#2]%
+      \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])
+              thirddata.pinyin.process_buffer("xpinyinbuf",[==[#1]==])}%
+    \else
+      \ifparameter#1\or
+        \ifhastok={#1}
+          \setuppinyin[#1]%
+          \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])
+                  thirddata.pinyin.process_buffer("xpinyinbuf")}%
+        \else
+          \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])
+                  thirddata.pinyin.process_buffer("xpinyinbuf",[==[#1]==])}%
+        \fi
+      \else
+        \ctxlua{buffers.assign("xpinyinbuf",[==[#3]==])
+                thirddata.pinyin.process_buffer("xpinyinbuf")}%
+      \fi
+    \fi
+    \endgroup}
+
+  \def\setpinyin#1#2%
+    {\ctxlua{thirddata.pinyin.set(utf.byte([==[#1]==]), [==[#2]==])}}
+
+  \newbox\pinyinbox
+  \newbox\hanzibox
+
+  \def\pinyinannotate#1#2#3%
+    {\dontleavehmode
+    \begingroup
+    \setbox\hanzibox =\hbox{\usepinyinstyleandcolor{bodystyle}{bodycolor}#1}%
+    \setbox\pinyinbox=\hbox{\doif{#3}{true}{}\usepinyinstyleandcolor{style}{color}#2}%
+    \dimen0=\wd\hanzibox
+    \dimen1=\pinyinratio\dimexpr\wd\pinyinbox\relax
+    \ifdim\dimen1>\dimen0 \dimen0=\dimen1\fi
+    \vbox{\hsize\dimen0
+      \lineskip\zeropoint
+      \dp\pinyinbox\zeropoint
+      \hbox to \dimen0{\hss\vrule width0pt height0pt depth\pinyinvsep\relax\scale[width=\dimen1]{\box\pinyinbox}\hss}%
+      \nointerlineskip
+      \hbox to \dimen0{\hss\strut\box\hanzibox\hss}%
+    }\hskip\pinyinhsep\relax
+    \endgroup}
+\stopmode
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                               zhindex                               %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\startmode[memos:extra:index]
+  \registerctxluafile{t-zhindex}{}
+\stopmode
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                               zhbihua                               %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% license：MIT
+%% author：雾月，https://github.com/Sophanatprime
+
+%% bihua data: https://github.com/skishore/makemeahanzi and https://github.com/chanind/hanzi-writer-data
+
+\startmode[memos:extra:bihua]
+\registerctxluafile{t-bihua}{}
+
+\installnamespace {bihua}
+\installcommandhandler \????bihua {bihua} \????bihua
+
+\definebihua
+    [bihua]
+    [width=1cm,
+     frame=outer,
+     natural=no,
+     framestroke=black,
+     framefill=,
+     framelinewidth=0.5pt,
+     framedashpattern=solid,
+     iframestroke=0.5white,
+     iframelinewidth=0.3pt,
+     iframedashpattern=dashed,
+     charstroke=black,
+     charfill=black,
+     charlinewidth=0.3pt,
+     chardashpattern=solid,
+     laststroke=red,
+     lastfill=red,
+     lastlinewidth=0.3pt,
+     lastdashpattern=solid,
+     innert=0pt,
+     innerb=0pt,
+     innerl=0pt,
+     innerr=0pt,
+     inner=,
+     spacing=0em,
+     font=SimSun,
+     fontsize=0pt,
+     charcolor=black,
+     charopacity=1,
+     charstrokecolor=,
+     charstrokewidth=0.3pt,
+     charmode=fill,
+     charscale=1,
+     charxoffset=0pt,
+     charyoffset=0pt,
+     mode=stroke]
+
+\unexpanded\def\bihuaload#1{%
+    \ctxlua{thirddata.bihua.load_chars("#1")}%
+}
+
+\def\bihua_setup_options{%
+    \ctxlua{
+        thirddata.bihua.set_options{
+            width              = "\bihuaparameter{width}",
+            spacing            = "\bihuaparameter{spacing}",
+            frame              = "\bihuaparameter{frame}",
+            natural            = \bihuaparameter{natural},
+            frame_stroke       = "\bihuaparameter{framestroke}",
+            frame_fill         = "\bihuaparameter{framefill}",
+            frame_linewidth    = "\bihuaparameter{framelinewidth}",
+            frame_dashpattern  = "\bihuaparameter{framedashpattern}",
+            iframe_stroke      = "\bihuaparameter{iframestroke}",
+            iframe_linewidth   = "\bihuaparameter{iframelinewidth}",
+            iframe_dashpattern = "\bihuaparameter{iframedashpattern}",
+            char_stroke        = "\bihuaparameter{charstroke}",
+            char_fill          = "\bihuaparameter{charfill}",
+            char_linewidth     = "\bihuaparameter{charlinewidth}",
+            char_dashpattern   = "\bihuaparameter{chardashpattern}",
+            last_stroke        = "\bihuaparameter{laststroke}",
+            last_fill          = "\bihuaparameter{lastfill}",
+            last_linewidth     = "\bihuaparameter{lastlinewidth}",
+            last_dashpattern   = "\bihuaparameter{lastdashpattern}",
+            inner_t            = "\bihuaparameter{innert}",
+            inner_b            = "\bihuaparameter{innerb}",
+            inner_l            = "\bihuaparameter{innerl}",
+            inner_r            = "\bihuaparameter{innerr}",
+            inner              = "\bihuaparameter{inner}",
+            font               = "\bihuaparameter{font}",
+            fontsize           = "\bihuaparameter{fontsize}",
+            char_color         = "\bihuaparameter{charcolor}",
+            char_opacity       = \bihuaparameter{charopacity},
+            char_stroke_color  = "\bihuaparameter{charstrokecolor}",
+            char_stroke_width  = "\bihuaparameter{charstrokewidth}",
+            char_mode          = "\bihuaparameter{charmode}",
+            char_scale         = \bihuaparameter{charscale},
+            char_xoffset       = "\bihuaparameter{charxoffset}",
+            char_yoffset       = "\bihuaparameter{charyoffset}",
+            mode               = "\bihuaparameter{mode}",
+        }%
+    }%
+}
+
+\def\bihua_setup_current#1#2{%
+    \ifparameter#2\or
+        \cdef\currentbihua{#1}%
+        \setupcurrentbihua[#2]%
+    \else
+        \cdef\currentbihua{bihua}%
+        \setupcurrentbihua[#1]%
+    \fi
+    \bihua_setup_options
+}
+
+\permanent\protected\tolerant\def\bihuashow[#1]#*[#2]#:#3#4%
+    {\begingroup
+     \bihua_setup_current{#1}{#2}%
+     \ctxlua{
+         local mp_code = thirddata.bihua.generate_metafun("#3", #4)
+         context.startMPcode()
+         context(mp_code)
+         context.stopMPcode()
+     }%
+     \endgroup}
+
+\permanent\protected\tolerant\def\bihuashowall[#1]#*[#2]#:#3%
+    {\begingroup
+     \bihua_setup_current{#1}{#2}%
+     \ctxlua{
+         local mp_code = thirddata.bihua.generate_metafun_all("#3")
+         context.startMPcode()
+         context(mp_code)
+         context.stopMPcode()
+     }%
+     \endgroup}
+
+\permanent\protected\tolerant\def\zitiefont[#1]#*[#2]#:#3%
+    {\begingroup
+     \bihua_setup_current{#1}{#2}%
+     \ctxlua{
+         local mp_code = thirddata.bihua.generate_metafun_font("#3")
+         context.startMPcode()
+         context(mp_code)
+         context.stopMPcode()
+     }%
+     \endgroup}
+
+\permanent\protected\tolerant\def\zitiefonts[#1]#*[#2]#:#3%
+    {\begingroup
+     \bihua_setup_current{#1}{#2}%
+     \dontleavehmode
+     \ctxlua{
+         local chars = "#3"
+         local spacing = "\bihuaparameter{spacing}"
+         for i = 1, utf8.len(chars) do
+             local pos = utf8.offset(chars, i)
+             local char = chars:sub(pos, utf8.offset(chars, i+1)-1)
+             context.hbox(function()
+                 local mp_code = thirddata.bihua.generate_metafun_font(char)
+                 context.startMPcode()
+                 context(mp_code)
+                 context.stopMPcode()
+             end)
+             if i < utf8.len(chars) then
+                 context.hskip(spacing)
+             end
+         end
+     }%
+     \endgroup}
+\stopmode

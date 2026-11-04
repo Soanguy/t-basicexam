@@ -1,0 +1,576 @@
+% \enabledirectives[backend.pdf.nounicode=當前非有效版本，請聯繫作者]
+
+\startuseMPgraphic{mp:itemgroup:squares}
+  numeric us; path ps;
+  us := BodyFontSize;
+  ps := fullsquare scaled .5us;
+  draw ps shifted (.2us, -.2us) withcolor .5white  withpen pencircle scaled 1pt;
+  draw ps shifted (.4us, -.0us) withcolor \MPcolor{lightthemecolor}  withpen pencircle scaled 1pt;
+\stopuseMPgraphic
+
+\startuseMPgraphic{mp:itemgroup:circles}
+  numeric uc; path pc;
+  uc := BodyFontSize;
+  pc := fullcircle scaled .55uc;
+  draw pc shifted (.15uc, -.15uc) withcolor .5white  withpen pencircle scaled 1pt;
+  draw pc       withcolor \MPcolor{lightthemecolor}  withpen pencircle scaled 1pt;
+\stopuseMPgraphic
+
+\startuseMPgraphic{mp:itemgroup:square}
+  numeric us; path ps;
+  us := BodyFontSize;
+  ps := fullsquare scaled .6us;
+  fill ps shifted (.2us, -.2us) withcolor .5white;
+  fill ps withcolor \MPcolor{lightthemecolor};
+\stopuseMPgraphic
+
+\startuseMPgraphic{mp:itemgroup:circle}
+  numeric uc; path pc;
+  uc := BodyFontSize;
+  pc := fullcircle scaled .65uc;
+  fill pc shifted (.15uc, -.15uc) withcolor .5white;
+  fill pc withcolor \MPcolor{lightthemecolor};
+\stopuseMPgraphic
+
+\startuseMPgraphic{sym:squares-random}
+  save height , depth ;
+  height := \the \bodyfontsize * \currentfontscale ;
+  depth  := \the \strutdepth ;
+  path squaresrandom;
+  squaresrandom   := fullsquare scaled .6height randomized 1pt;
+  draw squaresrandom crossingunder (fullsquare scaled height)
+                     withpen pencircle scaled 2pt
+                     withcolor \MPcolor{\itemgroupparameter{color}};
+  draw  (fullsquare scaled height)
+             withpen pencircle scaled 0pt withtransparency (1,0) ;
+\stopuseMPgraphic
+
+\startuniqueMPgraphic{sym:square}
+  save height , depth ;
+  height := \the \bodyfontsize * \currentfontscale ;
+  depth  := \the \strutdepth ;
+  path square;
+  square   := fullsquare scaled .6height;
+  draw square crossingunder (fullsquare scaled height)
+              withpen pencircle scaled 1pt
+              withcolor \MPcolor{\itemgroupparameter{color}};
+  draw  (fullsquare scaled height)
+             withpen pencircle scaled 0pt withtransparency (1,0) ;
+\stopuniqueMPgraphic
+
+\startuniqueMPgraphic{sym:circle}
+  save height , depth ;
+  height := \the \bodyfontsize * \currentfontscale ;
+  depth  := \the \strutdepth ;
+  path circle;
+  circle   := fullcircle scaled .6height;
+  draw circle crossingunder (fullsquare scaled height)
+              withpen pencircle scaled 1pt
+              withcolor \MPcolor{\itemgroupparameter{color}};
+  draw  (fullsquare scaled height)
+             withpen pencircle scaled 0pt withtransparency (1,0) ;
+\stopuniqueMPgraphic
+
+\startuniqueMPgraphic{sym:bullet}
+  save height , depth ;
+  height := \the \bodyfontsize * \currentfontscale ;
+  depth  := \the \strutdepth ;
+  path bullet;
+  bullet := fullcircle scaled .2height;
+  fill bullet crossingunder (fullsquare scaled height)
+              withpen pencircle scaled 1pt withcolor \MPcolor{\itemgroupparameter{color}};
+  draw  (fullsquare scaled height)
+             withpen pencircle scaled 0pt withtransparency (1,0) ;
+\stopuniqueMPgraphic
+
+\definesymbol [mp:squares]      [{\lower.3ex\vbox{\useMPgraphic{sym:squares-random}}}]
+\definesymbol [mp:square]       [{\lower.3ex\vbox{\uniqueMPgraphic{sym:square}}}]
+\definesymbol [mp:circle]       [{\lower.3ex\vbox{\uniqueMPgraphic{sym:circle}}}]
+\definesymbol [mp:bullet]       [{\lower.3ex\vbox{\uniqueMPgraphic{sym:bullet}}}]
+
+\definesymbol [shadowedsquare]  [{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:square}}}]
+\definesymbol [shadowedcircle]  [{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:circle}}}]
+\definesymbol [shadowedsquares] [{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:squares}}}]
+\definesymbol [shadowedcircles] [{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:circles}}}]
+
+\definesymbol[blankdiamond][{\tfx ⬥}]
+
+\defineitemgroup    [ordinals] [levels=4]
+\setupitemgroup     [ordinals] [each]
+                               [before=,after=,right=,
+                                width=1.5em,headstyle=bf,
+                                stopper=.,symalign=center]
+\setupitemgroup     [ordinals] [1]        [n,packed,joinedup]
+\setupitemgroup     [ordinals] [2]        [i,packed,joinedup]
+\setupitemgroup     [ordinals] [3]        [a,packed,joinedup]
+\setupitemgroup     [ordinals] [4]        [i,packed,joinedup]
+\defineitemgroup    [points]   [levels=4]% [nowhite]
+\setupitemgroup     [points]   [each]     [packed,joinedup]
+                               [before=,after=,right=,
+                                width=1.5em,headstyle=bf,
+                                stopper=,symalign=center]
+\setupitemgroup     [points]   [1]        [symbol=mp:bullet]
+\setupitemgroup     [points]   [2]        [symbol=diamond]
+\setupitemgroup     [points]   [3]        [symbol=asterisk]
+\setupitemgroup     [points]   [4]        [symbol=star]
+
+\definedescription  [hangdescr][
+                     before=,  after=,  width=fit,
+                     indenting={2em},indentnext=yes,margin=1em,
+                     headstyle=bold, style=normal,  align={flushleft},
+                     text={\raise 1pt \hbox to 1em{$\bullet$}},%hang=99,
+                     alternative=hanging,]
+\definedescription  [topdescr][
+                     before=\vskip.25\baselineskip\relax,
+                     after=\vskip.25\baselineskip\relax,
+                     inbetween=\leftskip1em\relax,width=fit,
+                     indenting={2em},indentnext=yes,
+                     headstyle=bold,style=normal,
+                     align={flushleft},alternative=top,
+                     text={\raise 1pt \hbox to 1em{$\bullet$}},]
+\definedescription  [description][
+                     before=\vskip.25\baselineskip\relax,
+                     after=\vskip.25\baselineskip\relax,
+                     alternative=serried,width=fit,
+                     indenting=2em,indentnext=yes,
+                     headstyle=bold,align={flushleft},]
+
+\defineenumeration[theorem]     [text=\labeltext{reference:theorem},    way=bychapter,prefix=yes,prefixsegments=chapter]
+\defineenumeration[lemma]       [text=\labeltext{reference:lemma},      way=bychapter,prefix=yes,prefixsegments=chapter]
+\defineenumeration[corollary]   [text=\labeltext{reference:corollary},  way=bychapter,prefix=yes,prefixsegments=chapter]
+\defineenumeration[proposition] [text=\labeltext{reference:proposition},way=bychapter,prefix=yes,prefixsegments=chapter]
+\defineenumeration[definition]  [text=\labeltext{reference:definition}, way=bychapter,prefix=yes,prefixsegments=chapter]
+\defineenumeration[proof]       [text=\labeltext{reference:proof},      way=bychapter,prefix=yes,prefixsegments=chapter]
+\defineenumeration[remark]      [text=\labeltext{reference:remark},     way=bychapter,prefix=yes,prefixsegments=chapter]
+\defineenumeration[examples]    [text=\labeltext{reference:example},    way=bychapter,prefix=yes,prefixsegments=chapter]
+\defineenumeration[tips]        [text=Tips,inbetween=,width=fit,right={.~},
+                                  headcommand=\setuptextrules[color=themecolor,rulecolor=themecolor,rulethickness=1.5\linewidth]\textrule[top],
+                                  before=\vskip-\baselineskip\relax,
+                                  after=\setuptextrules[color=themecolor,rulecolor=themecolor,rulethickness=1.5\linewidth]\textrule[bottom]\empty,
+                                  prefix=yes,% or prefixsegments=chapter:section
+                                  prefixsegments=section]
+\setupcounter       [tips]       [way=bysection]
+\defineenumeration  [mainpoint]
+\setupenumeration   [mainpoint] [text=,
+                                 title=yes,
+                                 titleleft=,titleright=,
+                                 titlestyle=sstf,
+                                 numberstyle=sstf,
+                                 numberconversion=cn,stopper=、,
+                                 indentnext=yes,
+                                 before=\blank[halfline],after=,
+                                 inbetween=\blank[halfline],
+                                 ]
+
+%%%%% only for compatiblility
+\let\startlists\startordinals
+\let\stoplists\stopordinals
+%%%%%%%%%%%%%%%%%
+%\setupnote affects the number inside the body text,
+%\setupnotation affects the text at the bottom of the page (footnote or endnote).
+% \note[fn:notei]\notesep\note[fn:noteii]
+
+\startsetups fn:hanzi
+  \setglobalscript [hanzi]%% \restoreglobalbodyfont
+\stopsetups
+
+\defineinterlinespace[footnote][line=2.8ex]
+
+\def\notesep    {{\useurlstyleandcolor\c!style\c!color\strc_notes_inject_separator}}
+\def\MMS_notecommand#1{\high{\noteparameter\c!left #1\noteparameter\c!right}}
+
+\setupnote      [setups={fn:hanzi},
+                 textseparator=\textcomma,
+                 textcolor=footnotecolor,
+                 textcommand=\MMS_notecommand,
+                 textstyle=hw,
+                 left=\languageparameter{leftnotemark},
+                 right=\languageparameter{rightnotemark},
+                ]
+\setupnotation  [setups={fn:hanzi},
+                 style=hw,
+                 color=footnotecolor,
+                 interlinespace=footnote,
+                 headcolor=footnotecolor,
+                 way=bypage,
+                 left=\languageparameter{leftnotemark},
+                 right=\languageparameter{rightnotemark},
+                ]
+
+\definenote    [marginnote]
+\setupnote     [marginnote] [location=none]
+\setupnotation [marginnote] [align=flushleft,
+                headalign={flushright,lohi},
+                location=serried,]
+\setuptexttexts[margin] []  [\vtop to \textheight{\vskip4pt\relax
+                              \setglobalscript [hanzi]
+                            \placelocalnotes[marginnote][width=\outermarginwidth]\vfill}]
+\setupmargindata  [inoutermargin][style=\setlocalscript[hanzi]\hwx,]
+\setupmarginframed[inoutermargin][style=\setlocalscript[hanzi]\hwx,]
+\defineconversion [sidenote][%
+    \hbox to 1.0em{{\tfx\hfil\ast\hfil}},
+    \hbox to 1.0em{{\tfx\hfil\ast\ast\hfil}},
+    \hbox to 1.0em{\tfx\raise .5em%
+      \hbox to 1.0em{\hfil\ast\hfil}\kern-1.0em
+      \hbox to 1.0em{\hfil\ast\ast\hfil}}]
+\tolerant\def\movesidenote[#1]{\def\move_sidenote{\doifsomethingelse{#1}{#1}{0em}}}
+\movesidenote[-\baselineskip]
+\define\PlaceFootnote%
+  {\inoutermargin[stack=continue,dy=\move_sidenote]{%
+      \placelocalnotes[sidenote][align={width,hyphenated,morehyphenation,tight},width=max,before=,after=,]
+  }\movesidenote[0em]}
+\definenote    [sidenote]
+\setupnote     [sidenote] [location=text,next=\PlaceFootnote,left=,right=,]
+\setupnotation [sidenote] [numberconversion=sidenote,width=2mm,left=,right=,]
+%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%
+\def\centerfloat{% it seem not work on doublesided page(even page)
+  \parindent 0pt%\ifodd\realpageno
+  \rightskip 0pt plus 1fil minus \rightmarginwidth
+  \leftskip  0pt plus 1fil minus \rightmarginwidth
+  \parfillskip 0pt plus0pt minus0pt}
+\definenarrower [widersame] [left=\rightmargintotal,
+                             right=\rightmargintotal,middle=1em]
+\definenarrower [widerside] [left=\leftmarginwidth,
+                             right=\rightmarginwidth,middle=1em]
+\definenarrower [widerpara] [left=1em,right=1em,middle=1em]
+% ConTeXt has a similar command:starthanging
+%%%%% Note: you can only widen limited type of elements.e.g. normal text.
+%%%%%       it seems in table and figure enviroment ,narrower is not work well
+%%%%%       therefore we defined followed command to fix it.
+\definepagestate[codefloat][delay=yes]
+\def\startwidenfloat{%
+  \dontleavehmode\signalrightpage\doifelserightpage%
+  {\startwidersame[-right]}%
+  {\startwidersame[-left]}%
+  \startframedtext[frame=off,offset=overlay,before=,after=,]}
+\def\stopwidenfloat{\stopframedtext\stopwidersame}
+
+\def\startwidefloat{%
+  \dontleavehmode\signalrightpage\doifelserightpage%
+  {\startwidersame[-right]}%
+  {\startwidersame[-left]}}
+\def\stopwidefloat{\stopwidersame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definetextbackground[framedcode]
+\definetextbackground[halfframedcode][framedcode]
+\definetextbackground[wideframedcode][framedcode]
+\setuptextbackground [framedcode][width=local,
+                      frame=on,           foregroundcolor=codecolor,
+                      background=color,   backgroundcolor=palethemecolor,
+                      corner=round,       radius=4pt,
+                      location=always,    framecolor=themecolor,
+                      leftoffset=\bodyfontsize,
+                      rightoffset=\bodyfontsize,
+                      topoffset=.5\bodyfontsize,
+                      bottomoffset=.5\bodyfontsize,
+                      before={\blank},
+                      after={\blank},]
+\setuptextbackground [halfframedcode][width=.55\textwidth,before=,after=,]
+\setuptextbackground [wideframedcode][width=\spanmarginwidth,]
+\definetextbackground[framelmverbatim][
+  location=always,    frame=off,
+  rulethickness=1pt,  leftoffset=1em,
+  framecolor=darkgray,mp=mpos:region:leftbar,
+  background=color,   backgroundcolor=transparentcolor,]
+\setuplinenumbering[
+  location=inleft,
+     align=inner,
+  distance=-2em,  margin=0em,
+      left=,
+     width=1em,    style=\ttx]
+
+\definetype  [verb]
+\definetyping[verbatim]
+\definetyping[wideverbatim][verbatim]
+\definetyping[lmverbatim]
+\definetyping[widelmverbatim][lmverbatim]
+\setuptype   [verb][option=context,strip=yes,color=codecolor]
+\setuptyping [before=,after=]
+\setuptyping [verbatim][strip=yes,
+          width=.95\textwidth,option=context,
+          style={\switchtobodyfont[10pt,tt]
+                 \setuplocalinterlinespace[line=1.25\bodyfontsize]},
+          before={\startalignment[center]\startframedcode},
+          after={\stopframedcode\stopalignment},]
+\setuptyping [wideverbatim][
+          before={\startwidefloat\startwideframedcode},
+          after={\stopwideframedcode\stopwidefloat},]
+\setuptyping [lmverbatim][
+          numbering=line,before=\startframelmverbatim,
+          style=\ttx,    after=\stopframelmverbatim,]
+\setuptyping [widelmverbatim][
+          before={\startwidefloat\startframelmverbatim},
+          after={\stopframelmverbatim\stopwidefloat},]
+
+\defineframed[LeftCodeExampleFramed][
+    frame=off,before=,after=,
+    minheight=2\baselineskip,
+    align={top,normal},
+    width=0.5\textwidth,
+    offset=none,
+    frameoffset=0pt,
+    rightframe=on]
+\defineframed[RightCodeExampleFramed][
+    frame=off,before=,after=,
+    minheight=2\baselineskip,
+    align=top,
+    offset=none,frameoffset=0pt,
+    width=0.5\textwidth,
+    loffset=.5em]
+\definebuffer[CodeExample]
+\define\stopCodeExample{%
+    \noindent\placesidebyside
+    {\LeftCodeExampleFramed{\typeCodeExample\vfil}}
+    {\RightCodeExampleFramed{\getCodeExample\vfil}}}
+%\startCodeExample % usage
+%\framed{Klotz am Bein}
+%\stopCodeExample
+
+\definebuffer[GetCode]
+\def\stopGetCode{{%
+  \setuplocalinterlinespace[line=1.5ex]\blank
+  \setuptabulate[split=no]
+  \vbox\bgroup
+  \starttabulate[|lp(.5tw)|lp(.5tw)|]
+  \FL
+  \CC[blue] \centeraligned{\white{SourceCode}}
+  \CC[blue] \centeraligned{\white{Result}} \NC\NR\HL
+  \NC {\typeGetCode[style={\ttx}]}
+  \VL {\tfx\getGetCode}                          \NC\NR\LL
+  \stoptabulate\egroup%
+}}
+
+\definebuffer[GetWideCode]
+\def\stopGetWideCode{{\unskip%
+  \dontleavehmode\signalrightpage\doifelserightpage%
+  {\startwidersame[-right]}%
+  {\startwidersame[-left]}%
+  \setuplocalinterlinespace[line=1.5ex]\blank
+  \setuptabulate[split=no]
+  \starttabulate[|lp(.5\spanmarginwidth)|lp(.5\spanmarginwidth)|]
+  \FL
+  \CC[blue] \centeraligned{\white{SourceCode}}
+  \CC[blue] \centeraligned{\white{Result}}  \NC\NR\HL
+  \NC \typeGetWideCode[style={\ttx}]
+  \VL \getGetWideCode                       \NC\NR\LL
+  \stoptabulate%
+  \stopwidersame
+}}
+% \startGetCode
+%    you code here
+% \stopGetCode
+% \startGetWideCode
+%    you code here
+% \stopGetWideCode
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%To restrict image search only by paths specified by the directory key, use: global
+%The default search[local] order is: the current directory, the parent directory,
+%the grand-parent directory, and then the paths specified by the directory key.
+% \setupexternalfigures[location={local,global,default},
+%                       directory={outFilms}]
+% usage of auto measure: https://wiki.contextgarden.net/Combinations
+\newdimen\spanmarginwidth\spanmarginwidth=\dimexpr\textwidth+\rightmargintotal\relax
+\setupexternalfigures [order={pdf,png,jpg},]
+\defineexternalfigure [automeasure]   [width=\measure{combination}]
+\defineexternalfigure [textmeasure]   [width=\textwidth]
+\defineexternalfigure [marginmeasure] [width=\rightmarginwidth]
+\defineexternalfigure [fullmeasure]   [width=\dimexpr\textwidth+\rightmargintotal\relax]
+
+\setupxtable [leftmargindistance=.5em,  offset=.2em,
+              rightmargindistance=.5em, frame=off,
+              framecolor=themecolor,    topframe=on,
+              bottomframe=on,align=lohi]
+\setupxtable [header] [bottomframe=off,rulethickness=1pt]
+\setupxtable [head]   [bottomframe=off,rulethickness=1pt]
+\setupxtable [body]   []
+\setupxtable [foot]   [topframe=off,   rulethickness=1pt]
+\setupxtable [footer] [topframe=off,   rulethickness=1pt]
+\setupxtable [lastrow][topframe=off,   rulethickness=1pt]
+
+\setupfloats [freeregion=no]
+\setupfloats [table]
+             [%default={here,split,top,bottom,page},
+              before=,after=,indentnext=yes,
+              setups={fn:hanzi},
+              margin=1em,
+              spacebefore=,spaceafter=,
+              ]
+\setupfloat  [figure]
+             [%default={here,split,top,bottom,page},
+              before=,after=,indentnext=yes,
+              setups={fn:hanzi},
+              margin=1em,
+              spacebefore=,spaceafter=,
+              ]
+\setupcaption[textstyle=\setuplocalinterlinespace[line=1.3em]\hwx,
+              headstyle=\setuplocalinterlinespace[line=1.3em]\ssx,% 图 1.1
+              color=captioncolor,
+             % width=max,
+             % width=\rightmarginwidth,
+             % hang=yes,% 将使标题不居中且悬挂
+             % align={last,width,hanging},
+             % inbetween={},
+              ]
+\setupTABLE[header][style=bf,color=themecolor]
+\startsetups trilines
+\setupTABLE[frame=off,framecolor=themecolor,split=yes,,rulethickness=.2pt]
+\setupTABLE[row][first][topframe=on,rulethickness=1pt]
+\setupTABLE[row][2][topframe=on]
+\setupTABLE[row][last][bottomframe=on,rulethickness=1pt]
+\stopsetups
+\startsetups fullines
+\setupTABLE[frame=on,framecolor=themecolor,split=yes,rulethickness=.2pt]
+\stopsetups
+\startsetups alternatecolor
+\setupTABLE[row][odd][background=color,backgroundcolor=softthemecolor,]
+\setupTABLE[row][even][background=color,backgroundcolor=white,]
+\stopsetups
+\startsetups nonlines
+\setupTABLE[frame=off,split=yes,]
+\stopsetups
+
+\definefloat  [fullfig]      [fullfigs]      [figure]
+\definefloat  [marginfig]    [marginfigs]    [figure]
+\definefloat  [textfig]      [textfigs]      [figure]
+\definefloat  [fulltab]      [fulltabs]      [table]
+\definefloat  [margintab]    [margintabs]    [table]
+\definefloat  [texttab]      [texttabs]      [table]
+\definefloat  [fullfigure]   [fullfigures]   [figure]
+\definefloat  [marginfigure] [marginfigures] [figure]
+\definefloat  [textfigure]   [textfigures]   [figure]
+\definefloat  [fulltable]    [fulltables]    [table]
+\definefloat  [margintable]  [margintables]  [table]
+\definefloat  [texttable]    [texttables]    [table]
+
+\setupfloat   [fullfig,fulltab,fullfigure,fulltable]%%\availablefloatwidth
+              [default=inner,availablewidth=\spanmarginwidth]
+\setupfloat   [marginfig,margintab,marginfigure,margintable]
+              [default=outermargin]
+\setupfloat   [textfig,texttab,textfigure,texttable]
+              [default=center]
+
+\setupcaptions [fullfig,fulltab,fullfigure,fulltable]
+               [width=\rightmarginwidth,align=inner, location=outermargin,spacebefore=\figureheight]
+\setupcaptions [marginfig,margintab,marginfigure,margintable]
+               [width=\rightmarginwidth,align=inner, location=bottom,     spacebefore=.3em]
+\setupcaptions [textfig,texttab,textfigure,texttable]
+               [width=\textwidth,       align=center,location=bottom,     spacebefore=.3em]
+
+% \setupcombinedlist[listoffigures]
+%                   [marginfig,textfig,fullfig,figure,
+%                    fullfigure,marginfigure,textfigure]
+% \setupcombinedlist[listoftables]
+%                   [margintab,texttab,fulltab,table,
+%                    fulltable,margintable,texttable]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usesymbols      [fontawesome]%
+\setupurl        [color=linkcolor,style=tt]
+
+\definenamespace [usersymbol]
+  [  name=usersymbol,
+   parent=usersymbol,
+    setup=list,
+  command=list,
+  ]
+
+\setupusersymbol
+  [from=\symbol[fontawesome][plane],
+  Frame=\symbol[fontawesome][quote_right],
+    ref=\symbol[fontawesome][circle_blank],
+suggest=\symbol[fontawesome][star]]
+
+\def\symbol_style#1{{\nobreak\kern1pt\high{\switchtobodyfont[5pt]\useurlstyleandcolor\c!style\c!color #1}}}
+\def\urlsymbol{\symbol_style{\usersymbolparameter{from}}}
+\def\refsymbol{\symbol_style{\usersymbolparameter {ref}}}
+
+\pushoverloadmode
+\overloaded\unexpanded\def\from[#label]{\dontleavehmode
+   \goto{\clf_from{#label}}[fileorurl(#label)]\urlsymbol}
+\popoverloadmode
+
+\def\mailto[#1]{%
+  \doifnextcharelse\bgroup
+    {\mailto_withsecond[#1]}%
+    {\mailto_withoutsecond[#1]}%
+}
+% 不要在 #2 后添加 空格，否则会被认为 #2 的结束界定符是 空格，导致吞噬一些不该吞噬的文本
+\def\mailto_withsecond[#1]#2{\useURL[#1][mailto:#1][][#2]\from[{#1}](\goto{#1}[url(mailto:#1)])}
+\def\mailto_withoutsecond[#1]{\useURL[#1][mailto:#1][][#1]\from[{#1}]}
+
+\lettonothing\defineurl
+\tolerant\def\defineurl[#1][#2]%
+ {\begingroup
+  \ifarguments\or
+    \getdummyparameters[#1]\or
+    \getdummyparameters[reference={#1},#2]\fi
+  \edef\p_urlormail{\ifempty\dummyparameter{url}mailto:\dummyparameter{mail}\else\dummyparameter{url}\fi}
+  \edef\p_reference{\ifempty\dummyparameter\c!reference\p_urlormail\else\dummyparameter\c!reference\fi}%
+  \edef\p_text     {\ifempty\dummyparameter\c!text\p_reference\else\dummyparameter\c!text\fi}%
+  \expanded{\useURL[\p_reference][\p_urlormail][\dummyparameter\c!file][\p_text]}%
+  \endgroup}
+
+\def\linkto#1{{\doifmodeelse{print}{\url[#1]}{\from[#1]}}}
+
+\def\href#1[#2]{\ifempty{#1}\goto{#2}[fileorurl(#2)]\else\doifmodeelse{print}{\goto{#2}[fileorurl(#2)]}{\goto{#1}[fileorurl(#2)]}\fi\urlsymbol}
+
+% \href{baidu}[baidu.com] 无须提前定义，直接使用
+% \href[baidu.com]        无须提前定义，直接使用
+% \defineurl[url:reference][url={http://baidu.com},text=url:text]
+% \defineurl[referen=url:reference,url={http://baidu.com},text=url:text]
+% \url[url:reference]  需要提前定义
+% \from[url:reference] 需要提前定义
+% \mailto[ai2472206007@yeah.net]      无须提前定义，直接使用
+% \mailto[ai2472206007@yeah.net]{Mas} 无须提前定义，直接使用
+%%% font effect : inner outer both normal hidden stretch
+%%% CONTEXT already define followed command :
+%\defineeffect [inner]   [alternative=inner, rulethickness=.25pt]
+%\defineeffect [outer]   [alternative=outer, rulethickness=.25pt]
+%\defineeffect [both]    [alternative=both, rulethickness=.25pt]
+%\defineeffect [normal]  [alternative=normal]
+%\defineeffect [hidden]  [alternative=hidden]
+%\defineeffect [stretch] [alternative=stretch,stretch=1]
+%%%%%% indeed command start
+% if prefixsegments 1:5 will show
+% part : chap -- sec.subsec.subsubsec.figure
+% if prefixsegments 2:2 will show
+% chap . figure
+\defineseparatorset [defaults][:,-,.][.]
+\defineprocessor    [dostopper][left=,right=]
+\defineprocessor    [nostopper][left=,right=]
+\defineconversionset[defaultconversion][][dostopper->n]
+\defineconversionset[floatconversion]  [][nostopper->n]%
+\setupreferencestructureprefix
+             [figure][defaults]
+             [prefixconversionset=floatconversion,prefixsegments=2:2]
+\setupreferencestructureprefix
+              [table][defaults]
+              [prefixconversionset=floatconversion,prefixsegments=2:2]
+\setupreferencestructureprefix
+              [defaults]
+              [prefixconversionset=defaultconversion]
+
+\startsetups refabout:simp
+    \labeltexts{reference:\autoreferencekindtext}{\clf_filterreference{number}}%
+    \kern.5em\clf_filterreference{title}%
+\stopsetups
+
+\startsetups refabout:full
+    \labeltexts{reference:\autoreferencekindtext}{\clf_filterreference{number}}%
+    \kern.5em\clf_filterreference{title}(p.\clf_filterreference{realpage})%
+\stopsetups
+
+\definereferenceformat[refin]   [label=reference:*,    style=rm, type=number,  ]
+\definereferenceformat[refat]   [label=reference:page, style=rm, type=realpage,]
+\definereferenceformat[refabout][right=\refsymbol,     style=rm, type=title]%务必用 title 才能正确读值
+\definereferenceformat[reftext] [setups=refabout:simp, style=rm, ]%\autoreferencekindtext 会自动拼接，无须label参数
+\definereferenceformat[reffull] [setups=refabout:full,  style=rm, ]
+
+\setupregister  [index] [
+  textcolor=referencecolor,
+  pagecolor=referencecolor,
+  textstyle=tf,
+  pagestyle=it,
+]

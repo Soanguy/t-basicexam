@@ -1,11 +1,10 @@
 \usemodule[memos]
 \usemodule[basicexam][mode={teacher,check}]
 
-\setupinteraction[state=start]
 \setuptextrules[style=\tf\ss,before=,after=,rulethickness=.5pt]
 \setuphead[section][style=\ss\bfb,color=black]
 \setuphead[subsection][style=\ss\bf,color=blue]
-\setuptyping[style=\ttxx\setuplocalinterlinespace[line=2ex],
+\setuptyping[style=\ttx\setuplocalinterlinespace[line=2ex],
              option={context},
              before={\vbox{\hrule height .5pt\par
                      \textrule{EXAMPLE}%
@@ -103,15 +102,19 @@ Additionally, they demonstrate column control through the optional parameter
 \startquestion
   This is the question stem of the selection question.
   \startchoice[n=8]
-    \startcitem Choice One   \stopcitem
-    \startcitem Choice Two   \stopcitem
-    \startcitem Choice Three \stopcitem
-    \startcitem Choice Four  \stopcitem
+    \startcitem A   \stopcitem
+    \startcitem B   \stopcitem
+    \startcitem C   \stopcitem
+    \startcitem D   \stopcitem
+    \startcitem A   \stopcitem
+    \startcitem B   \stopcitem
+    \startcitem C   \stopcitem
+    \startcitem D   \stopcitem
   \stopchoice
 \stopquestion
 
 \question{This is the question stem of the selection question.
-   \choice[n=8]{Choice One,Choice Two,Choice Three,Choice Four}
+   \choice[n=8]{One ,One,Two, Two,Three, Three,Four ,Four}
 }
 
 \startplacefigure [location={none,right,2*hang}]
@@ -516,6 +519,20 @@ This is the main part of the question.
 
 \getbuffer
 
+\subsection{Dedicated truefalse environment}
+
+\startbuffer
+\starttruefalse[point=2,showanswer=true]
+  \titem[*]{The Earth is a planet in the solar system.}
+  \titem{The Sun rises in the west.}
+  \titem[*]{Water boils at 100°C at standard pressure.}
+\stoptruefalse
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
 \subsection{example with answer}
 
 \startbuffer
@@ -659,53 +676,53 @@ This is the main part of the question.
 
 \section{Close}
 
-\startclose[showanswer=true,showpoint=true,point=5,answer=nil]
+\startclose[showanswer=true,showpoint=true,point=5,continue=no]
 On Oct. 11, hundreds of runners competed in a cross-country race in Minnesota.
-Melanie Bailey should have \closechoice[designed,followed,changed,finished] the
-course earlier than she did. Her \closechoice[delay,chance,trouble,excuse] came
-because she was carrying a \closechoice[judge,volunteer,classmate,competitor]
+Melanie Bailey should have \closechoice{[*]designed,followed,changed,finished} the
+course earlier than she did. Her \closechoice{delay,[*]chance,trouble,excuse} came
+because she was carrying a \closechoice{judge,volunteer,[*]classmate,competitor}
 across the finish line.
 
 As reported by a local newspaper, Bailey was more than two-thirds of the way
-through her \closechoice[race,school,town,training] when a runner in front of
-her began crying in pain. She \closechoice[agreed,returned,stopped,promised]
+through her \closechoice{race,school,town,[*]training} when a runner in front of
+her began crying in pain. She \closechoice{agreed,returned,stopped,[*]promised}
 to help her fellow runner, Danielle Lenoue. Bailey took her arm to see if she
-could walk forward with \closechoice[courage,aid,patience,advice] . She couldn't.
-Bailey then \closechoice[went away,stood up,stepped aside,bent down] to let Lenoue
+could walk forward with \closechoice{[*]courage,aid,patience,advice} . She couldn't.
+Bailey then \closechoice{[*]went away,stood up,stepped aside,bent down} to let Lenoue
 climb onto her back and carried her all the way to the finish line, then another
-300 feet to where Lenoue could get \closechoice[medical,public,constant,equal] attention.
+300 feet to where Lenoue could get \closechoice{medical,public,[*]constant,equal} attention.
 
-Once there, Lenoue was \closechoice[interrupted,assessed,identified,appreciated]
+Once there, Lenoue was \closechoice{interrupted,assessed,identified,[*]appreciated}
 and later taken to a hospital, where she learned that she had serious injuries in
-one of her knees. She would have struggled with extreme \closechoice[hunger,pain,cold,tiredness]
+one of her knees. She would have struggled with extreme \closechoice{[*]hunger,pain,cold,tiredness}
 to make it to that aid checkpoint without Bailey's help.
 
-As for Bailey, she is more \closechoice[worried,ashamed,confused,discouraged]
-about why her act is considered a big \closechoice[game,problem,lesson,deal] .
-"She was just crying. I couldn't \closechoice[leave,cure,bother,understand] her,"
-Bailey told the reporter. "I feel like I was just doing the right thing.”
+As for Bailey, she is more \closechoice{worried,[*]ashamed,confused,discouraged}
+about why her act is considered a big \closechoice{game,problem,[*]lesson,deal} .
+"She was just crying. I couldn't \closechoice{leave,cure,bother,[*]understand} her,"
+Bailey told the reporter. "I feel like I was just doing the right thing."
 
-Although the two young women were strangers before the \closechoice[ride,test,meet,show] ,
-they've since become friends. Neither won the race, but the \closechoice[secret,display,benefit,exchange]
+Although the two young women were strangers before the \closechoice{ride,test,meet,[*]show} ,
+they've since become friends. Neither won the race, but the \closechoice{secret,display,[*]benefit,exchange}
 of human kindness won the day.
 \stopclose
 
 
 \section{Chinese Poem}
 
-\setupverse [sample={滾滾長江東逝水浪花淘盡英雄},skip=left,before=\blank,after=\blank]
+\setupverse [sample={滚滚长江东逝水浪花淘尽英雄},skip=left,before=\blank,after=\blank]
 \setupverse [title] [align=center,style=bf,skip=both]
 \setupverse [author][align=flushright,style=it,skip=both]
 \setupverse [source][align=flushright,style=it,skip=both]
 
 \startbuffer
 \startverse[title=临江仙 $\cdot$ 滚滚长江东逝水,author=明 $\cdot$ 杨慎]
-滾滾長江東逝水浪花淘盡英雄\\
-是非成敗轉頭空\\
-青山依舊在 幾度夕陽紅\\
-白髮漁樵江渚上 慣看秋月春風\\
-一壺濁酒喜相逢\\
-古今多少事 都付笑談中
+滚滚长江东逝水浪花淘尽英雄\\
+是非成败转头空\\
+青山依旧在 几度夕阳红\\
+白发渔樵江渚上 惯看秋月春风\\
+一壶浊酒喜相逢\\
+古今多少事 都付笑谈中
 \stopverse
 \stopbuffer
 
@@ -734,93 +751,6 @@ of human kindness won the day.
 \typebuffer
 \getbuffer
 
-\section{Answer Output (typeanswer)}
-
-The \type{\typeanswer} command is used to output collected answers, supporting multiple output styles and customizable parameters.
-
-\subsection{Core Parameters}
-
-\starttabulate[|l|p|]
-\HL
-\NC Parameter \NC Description \NC\NR
-\HL
-\NC \type{start} \NC Starting question number \NC\NR
-\NC \type{stop} \NC Ending question number \NC\NR
-\NC \type{total} \NC Total number of questions (alternative to stop) \NC\NR
-\NC \type{chapter} \NC Chapter number (default: current chapter) \NC\NR
-\NC \type{alternative} \NC Output style \NC\NR
-\NC \type{rows}, \type{columns} \NC Table rows and columns \NC\NR
-\NC \type{separator} \NC Separator (for text style) \NC\NR
-\NC \type{left}, \type{right} \NC Content to wrap around answers \NC\NR
-\NC \type{before}, \type{after} \NC Content before and after each item \NC\NR
-\HL
-\stoptabulate
-
-\subsection{Predefined Alternatives}
-
-\startbuffer
-% List format (default)
-\typeanswer[start=1,total=5,alternative=list]{}
-
-% Table format
-\typeanswer[start=1,total=10,alternative=table,rows=2,columns=5]{}
-
-% Text format
-\typeanswer[start=1,total=5,alternative=text,separator={\quad},left={\(},right={\)}]{}
-
-% Grid format
-\typeanswer[start=1,total=10,alternative=grid,rows=5,columns=2]{}
-
-% Direct access
-\typeanswer[alternative=direct]{1-Q-5}
-\stopbuffer
-
-\typebuffer
-
-\getbuffer
-
-\subsection{Custom Alternative}
-
-Users can define custom output styles using \type{\definetypeansweralternative}:
-
-\startbuffer
-\unprotect
-\definetypeansweralternative
-  [mycustom]
-  [renderingsetup=\????typeanswerrenderings:mycustom]
-
-\startsetups[\????typeanswerrenderings:mycustom]
-  \scratchcounter=\numexpr\c_typeanswer_stop-\c_typeanswer_start+1\relax
-  \c_typeanswer_index=\c_typeanswer_start
-  \dorecurse\scratchcounter{%
-    \bf Question \typeanswergetnumber: \typeanswergetanswer (\typeanswergetpoint points)\par
-    \advance\c_typeanswer_index by 1\relax}
-\stopsetups
-\protect
-
-\typeanswer[start=1,total=3,alternative=mycustom]{}
-\stopbuffer
-
-\typebuffer
-
-\getbuffer
-
-\subsection{User Commands}
-
-User commands available for customizing alternatives:
-
-\starttabulate[|l|p|]
-\HL
-\NC Command \NC Description \NC\NR
-\HL
-\NC \type{\typeanswercurrentindex} \NC Current index \NC\NR
-\NC \type{\typeanswergetnumber} \NC Get question number \NC\NR
-\NC \type{\typeanswergetanswer} \NC Get answer \NC\NR
-\NC \type{\typeanswergetpoint} \NC Get point value \NC\NR
-\NC \type{\typeanswergetdirect{id}{field}} \NC Directly get specified data \NC\NR
-\HL
-\stoptabulate
-
 \section{Score}
 
 \startbuffer
@@ -838,6 +768,34 @@ User commands available for customizing alternatives:
  some text \score{4}
  some text \score{3}
 \stopanswer
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\section{Grade Table (partio/typegrade)}
+
+\startbuffer
+\partio[testpart]
+\startquestion[point=4,answer=B]
+  Which option is correct?
+  \choice{Option A,{[*]Option B},Option C,Option D}
+\stopquestion
+
+\typegrade[partios=testpart,layout=cols,showanswer=true,showcum=true]
+\stopbuffer
+
+\typebuffer
+
+\getbuffer
+
+\section{Shuffled Items (ORDER)}
+
+\startbuffer
+\ORDER[seed=42,numbering=characters]{A,B,C,D,E}
+\par
+\ctxlua{thirddata.basicexam.collectd_orderanswer()}
 \stopbuffer
 
 \typebuffer
@@ -983,7 +941,7 @@ When a writing task contains multiple sub-topics, use \type{subwriting}:
 
 The \type{optclose} environment is a variant of the \type{close} environment,
 designed for fill-in-the-blank questions where the answer is provided inline.
-Use \type{\ocitem} to mark each blank.
+Use \type{\oitem} to mark each blank.
 
 \starttabulate[|l|l|p|]
 \HL
@@ -998,11 +956,11 @@ Use \type{\ocitem} to mark each blank.
 
 \startbuffer
 \startoptclose[showanswer=true,showpoint=true,point=4]
-The latest \ocitem[answer=engineering,point=6]{engineer} techniques are applied to create
-this protective \ocitem[answer=functional]{function} structure that is also
+The latest \oitem[answer=engineering,point=6]{engineer} techniques are applied to create
+this protective \oitem[answer=functional]{function} structure that is also
 beautiful. The design features ten steel "sepals" made of glass and aluminium.
-These sepals open on warm days \ocitem[answer=to give]{give} the inside plants
-sunshine and fresh air. In cold weather, the structure stays \ocitem[answer=closed]{close}
+These sepals open on warm days \oitem[answer=to give]{give} the inside plants
+sunshine and fresh air. In cold weather, the structure stays \oitem[answer=closed]{close}
 to protect the plants.
 \stopoptclose
 \stopbuffer
@@ -1077,7 +1035,9 @@ for handwritten answers, commonly used in composition sections.
 \section{Symbols}
 
 The module provides a comprehensive set of marking symbols for answers.
-These symbols require the {\bf NotoSansSymbols2} font to be installed.
+These symbols are drawn with MetaFun and do not require an external font.
+Use \type{\setupmark[style=handdrawn]} for a hand-drawn look and
+\type{\setupmark[style=normal]} for the default formal look.
 
 \starttabulate[|l|r|l|r|]
 \HL
@@ -1103,20 +1063,21 @@ Various styles are available through conversion commands.
 \HL
 \NC Parameter \NC Values \NC Description \NC\NR
 \HL
-\NC radius \NC 0--0.5 \NC 0=square, 0.5=circle \NC\NR
+\NC radius \NC dimension \NC Corner radius: 0pt=square, 3pt=rounded \NC\NR
+\NC shape \NC rect, circle, square, capsule \NC Badge shape \NC\NR
 \NC framecolor \NC color \NC Border color \NC\NR
-\NC fillcolor \NC color \NC Fill color \NC\NR
-\NC color \NC color \NC Text color \NC\NR
+\NC numbg \NC color \NC Number background color \NC\NR
+\NC numcolor \NC color \NC Number color \NC\NR
 \NC style \NC font style \NC Text style \NC\NR
-\NC scaled \NC number \NC Scale factor \NC\NR
+\NC scale \NC number \NC Scale factor \NC\NR
 \HL
 \stoptabulate
 
 \startbuffer
 \circledtext{1}\quad
-\circledtext[radius=0.5]{A}\quad
-\circledtext[radius=0,fillcolor=black,color=white]{B}\quad
-\circledtext[radius=0.2]{C}
+\circledtext[radius=5pt]{A}\quad
+\circledtext[radius=0pt,fillcolor=black,color=white]{B}\quad
+\circledtext[radius=2pt]{C}
 
 \startitemize[Co:num,packed]
   \item First item

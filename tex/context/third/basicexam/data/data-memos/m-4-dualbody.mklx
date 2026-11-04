@@ -1,0 +1,1222 @@
+%D DualBody / DualHeader / DualText 模块
+%D
+%D ============================================================
+%D MP 函数架构（谁调谁、共用什么）
+%D ============================================================
+%D
+%D 【底层绘制函数】（\startMPdefinitions，三命令共用）
+%D   DrawDualBodyOnPath(dmain, dbg, dfc, dsc,
+%D                      dth, drad, dcorner, dlf, drf, dtf, dbf,
+%D                      dch, dsym, dshadow, dbar, dframe,
+%D                      dfov, dboff)
+%D     正文盒绘制：底色/阴影/水印/色条/棋盘格/边框/角标
+%D     调用方：DualBodyframe、DualBodyText、DrawDualCombinedOnPath
+%D
+%D   DrawDualHeaderOnPath(dhead, header参数..., dth, dhdrradius, dhdrcorner, dnumtext, dtittext)
+%D     路径模式标题条绘制（坐标来自 dhead path）
+%D     调用方：仅 DrawDualCombinedOnPath
+%D
+%D   DrawDualHeaderFrameNew(header参数..., linethickness, hdrradius, hdrcorner)
+%D     Overlay 模式标题条绘制（坐标取 OverlayWidth/Height）
+%D     调用方：DualHeaderTextNew / DualTitleBar（旧接口，供 test-header）
+%D
+%D   DrawDualCombinedOnPath(dmain, dshowhdr, dheadh,
+%D                          header参数..., body参数..., dfov, dboff)
+%D     合并绘制：先切出标题条带，再调 DrawDualBodyOnPath + DrawDualHeaderOnPath
+%D     调用方：仅 \startDualText
+%D
+%D 【命令 → MP 调用链】
+%D   \DualBodyframe      → DrawDualBodyOnPath
+%D                         （overlay，\MPvar 取参，几何=OverlayWidth/Height）
+%D   \startDualBodyText  → DrawDualBodyOnPath
+%D                         （textbackground，\getvariable 取参，几何=multipars）
+%D   \startDualText      → DrawDualCombinedOnPath
+%D                         → DrawDualBodyOnPath + DrawDualHeaderOnPath
+%D                         （textbackground，\getvariable 取参，几何=multipars）
+%D   \DualHeaderTextNew  → DrawDualHeaderFrameNew
+%D                         （framedtext+overlay，\framedtextparameter 取参）
+%D
+%D 【共用的 TeX 宏】
+%D   \dualbodyMPparams{ns}  从 namespace 读正文参数 → MP 变量
+%D                         （DualBodyText / DualText 共用；DualBodyframe 走 \MPvar 不经过它）
+%D
+%D 三种使用方式：
+%D   1. \DualBodyframe[参数]{内容}          — framed + overlay（静态默认值）
+%D   2. \startDualBodyText[参数] ... \stopDualBodyText — 纯正文 textbackground
+%D   3. \startDualText[参数] ... \stopDualText          — 标题条+正文 合并（单 MP）
+%D
+%D 另保留旧接口供 test-header：
+%D   \DualHeaderTextNew / DualTitleBar（framedtext + overlay）
+%D
+%D MP 参数缩写对照（DrawDualBodyOnPath / DrawDualCombinedOnPath）：
+%D   dbg   = backgroundcolor   正文底色（不进标题条）
+%D   dfc   = framecolor        框线色
+%D   dsc   = shadowcolor       阴影色
+%D   dth   = rulethickness     线宽
+%D   drad  = radius            圆角半径
+%D   dcorner/bodycorner       圆角选角：0=四角 1=上 2=下 3=左 4=右 其他=直角
+%D   dlf/drF/dtf/dbf           leftframe/rightframe/topframe/bottomframe（>0 画该边）
+%D   dshadow=shadow            yes=画阴影
+%D   dbar  = bar               yes=左色条（自动启用，不看 leftframe）
+%D   dframe= framebox          yes=棋盘格点阵
+%D   dch   = character         非空=45° 水印（none/空=关）
+%D   dsym  = symbol            非空=右下角标（none/空=关）
+%D   dfov  = frameoffset       框线内缩修正；0=线外缘贴边界，-th/2=官方居中跃出
+%D   dboff = backgroundoffset  背景外扩量；0=不外扩，>0 向外扩（复刻官方 filloffset）
+%D   dox   = th/4 或 th/2      局部内缩（barbox 用 th/4；合并接缝几何用 th/2）
+
+\unprotect
+
+% ============================================================
+% 共享 TeX 宏：正文参数读取（DualBodyText / DualText 共用）
+% ============================================================
+% 用法（在 \edef 生成 MP code 时调用，宏体需在 edef 中完全展开）：
+%   \dualbodyMPparams{\dualbodyNS}
+%   \dualbodyMPparams{\dualtextNS}
+% 展开为 MP 语句，把 namespace 中的正文参数读入：
+%   dbg/dfc/dsc, dth/dr/dbc, dlf/drf/dtf/dbf,
+%   dch/dsym, dshadow/dbar/dframe, dfov/dboff
+\def\dualbodyMPparams#1{%
+  color dbg, dfc, dsc;
+  dbg := \noexpand\MPcolor{\getvariable{#1}{backgroundcolor}};
+  dfc := \noexpand\MPcolor{\getvariable{#1}{framecolor}};
+  dsc := \noexpand\MPcolor{\getvariable{#1}{shadowcolor}};
+  numeric dth, drad, dbc;
+  dth := \getvariable{#1}{rulethickness};
+  drad := \getvariable{#1}{radius};
+  dbc := \getvariable{#1}{bodycorner};
+  numeric dlf, drf, dtf, dbf;
+  dlf := \getvariable{#1}{leftframe};
+  drf := \getvariable{#1}{rightframe};
+  dtf := \getvariable{#1}{topframe};
+  dbf := \getvariable{#1}{bottomframe};
+  string dch, dsym;
+  dch := "\getvariable{#1}{character}";
+  dsym := "\getvariable{#1}{symbol}";
+  numeric dshadow, dbar, dframe;
+  dshadow := 0;
+  if "\getvariable{#1}{shadow}" = "yes" : dshadow := 1; fi;
+  dbar := 0;
+  if "\getvariable{#1}{bar}" = "yes" : dbar := 1; fi;
+  dframe := 0;
+  if "\getvariable{#1}{framebox}" = "yes" : dframe := 1; fi;
+  numeric dfov, dboff;
+  dfov := \getvariable{#1}{frameoffset};
+  dboff := \getvariable{#1}{backgroundoffset};
+}
+
+% ============================================================
+% 共享 MP 定义
+% ============================================================
+\startMPdefinitions
+
+  % 文字宽度
+  vardef GetTextWidth(expr textpic) =
+    xpart urcorner textpic - xpart llcorner textpic
+  enddef;
+
+  % 文字水平位置：align 1=左 2=中 3=右；padding 为边距
+  vardef AlignTextPosition(expr textpic, left, right, align, padding) =
+    numeric textw;
+    textw := GetTextWidth(textpic);
+    if align = 1 :
+      left + textw/2 + padding
+    elseif align = 3 :
+      right - textw/2 - padding
+    else :
+      left + (right - left)/2
+    fi
+  enddef;
+
+  % 盒子左边界：align 1=左贴 margin 2=居中 3=右贴 margin
+  vardef CalcBoxX(expr boxwidth, align, totalwidth, margin) =
+    if align = 1 :
+      margin
+    elseif align = 3 :
+      totalwidth - boxwidth - margin
+    else :
+      (totalwidth - boxwidth) / 2
+    fi
+  enddef;
+
+  % 统一圆角矩形：tl/tr/br/bl 控制四角是否圆
+  vardef DualHeaderBox(expr left, right, bottom, top, r,
+                       tl, tr, br, bl) =
+    save p; path p;
+    if r > 0 :
+      if tl : p := (left, top - r) .. controls (left, top) .. (left + r, top);
+      else  : p := (left, top); fi;
+      if tr : p := p -- (right - r, top) .. controls (right, top) .. (right, top - r);
+      else  : p := p -- (right, top); fi;
+      if br : p := p -- (right, bottom + r) .. controls (right, bottom) .. (right - r, bottom);
+      else  : p := p -- (right, bottom); fi;
+      if bl : p := p -- (left + r, bottom) .. controls (left, bottom) .. (left, bottom + r);
+      else  : p := p -- (left, bottom); fi;
+      p := p -- cycle;
+    else :
+      p := (left, top) -- (right, top) -- (right, bottom) -- (left, bottom) -- cycle;
+    fi;
+    p
+  enddef;
+
+  % ---------- 正文绘制 ----------
+  % 参数对照见文件头。dmain 为正文区域路径。
+  % 简化版正文绘制：
+  %   dshadow=1 画阴影；dbar=1 画左色条；dframe=1 画棋盘格点阵
+  %   dch 非空 → 字符水印；dsym 非空 → 右下角标
+  def DrawDualBodyOnPath(expr dmain, dbg, dfc, dsc,
+                         dth, drad, dcorner, dlf, drf, dtf, dbf,
+                         dch, dsym, dshadow, dbar, dframe,
+                         dfov, dboff) =
+    begingroup
+      path dmain_; dmain_ := dmain;
+      color dbg_, dfc_, dsc_;
+      dbg_ := dbg; dfc_ := dfc; dsc_ := dsc;
+      numeric dth_, drad_, dcorner_, dlf_, drf_, dtf_, dbf_;
+      dth_ := dth; drad_ := drad; dcorner_ := dcorner;
+      dlf_ := dlf; drf_ := drf; dtf_ := dtf; dbf_ := dbf;
+      numeric dfov_, dboff_; dfov_ := dfov; dboff_ := dboff;
+      string dch_, dsym_;
+      dch_ := dch; dsym_ := dsym;
+      numeric dshadow_, dbar_, dframe_;
+      dshadow_ := dshadow; dbar_ := dbar; dframe_ := dframe;
+
+      numeric dox; dox := dth_ / 4;
+
+      % 圆角开关（corner≠9 且 radius>0 时启用）
+      boolean ctl, ctr, cbr, cbl;
+      if (drad_ > 0) and (dcorner_ <> 9) :
+        if dcorner_ = 0 :
+          ctl:=true; ctr:=true; cbr:=true; cbl:=true;
+        elseif dcorner_ = 1 :
+          ctl:=true; ctr:=true; cbr:=false; cbl:=false;
+        elseif dcorner_ = 2 :
+          ctl:=false; ctr:=false; cbr:=true; cbl:=true;
+        elseif dcorner_ = 3 :
+          ctl:=true; ctr:=false; cbr:=false; cbl:=true;
+        elseif dcorner_ = 4 :
+          ctl:=false; ctr:=true; cbr:=true; cbl:=false;
+        else :
+          ctl:=true; ctr:=true; cbr:=true; cbl:=true;
+        fi;
+      else :
+        ctl:=false; ctr:=false; cbr:=false; cbl:=false;
+      fi;
+
+      numeric bxmin, bymin, bxmax, bymax;
+      bxmin := xpart llcorner dmain_;  bymin := ypart llcorner dmain_;
+      bxmax := xpart urcorner dmain_;  bymax := ypart urcorner dmain_;
+
+      % 背景路径（含圆角）
+      path dbody;
+      if (drad_ > 0) and (dcorner_ <> 9) :
+        dbody := DualHeaderBox(bxmin, bxmax, bymin, bymax,
+                               drad_, ctl, ctr, cbr, cbl);
+      else :
+        dbody := dmain_;
+      fi;
+
+      % 框线路径：内缩 dlo = th/2 + frameoffset
+      path dbody_in;
+      numeric drin, dlo;
+      dlo  := dth_ / 2 + dfov_;
+      drin := drad_ - dlo;
+      if drin < 0 : drin := 0; fi;
+      if dlo = 0 :
+        dbody_in := dbody;
+      elseif (drad_ > 0) and (dcorner_ <> 9) :
+        dbody_in := DualHeaderBox(bxmin+dlo, bxmax-dlo, bymin+dlo, bymax-dlo,
+                                  drin, ctl, ctr, cbr, cbl);
+      else :
+        dbody_in := dmain_ enlarged (-dlo);
+      fi;
+
+      % 阴影
+      if dshadow_ > 0 :
+        numeric dst; dst := 8pt;
+        path dsh;
+        if (drad_ > 0) and (dcorner_ <> 9) :
+          path dsh_r;
+          dsh_r := DualHeaderBox(bxmin, bxmax, bymin, bymax,
+                                 drad_, true, true, true, true);
+          dsh := dsh_r shifted (dst/2 * (1,-1));
+          fill dsh withcolor dsc_;
+        else :
+          dsh := dbody shifted (dst/4 * (1,-1));
+          draw ((dst*right + llcorner dsh)
+                -- lrcorner dsh
+                -- (dst*down + urcorner dsh))
+            withpen pensquare scaled dst withcolor dsc_;
+        fi;
+      fi;
+
+      drawoptions(withpen pencircle scaled dth_ withcolor dfc_);
+
+      % 背景填充
+      filldraw dbody withcolor dbg_ withpen pencircle scaled (2*dboff_);
+
+      % 字符水印（character 非空时自动）
+      if (dch_ <> "") and (dch_ <> "none") :
+        draw dbody withpattern image(
+          draw textext(dch_) rotated 45 withcolor dfc_ withopacity .2);
+      fi;
+
+      % 左色条
+      if dbar_ > 0 :
+        numeric dbw; dbw := dth_ * 1.5;
+        path dbarrect;
+        dbarrect := (xpart llcorner dbody_in, ypart llcorner dbody_in)
+                  -- (xpart llcorner dbody_in + dbw, ypart llcorner dbody_in)
+                  -- (xpart llcorner dbody_in + dbw, ypart urcorner dbody_in)
+                  -- (xpart llcorner dbody_in, ypart urcorner dbody_in)
+                  -- cycle;
+        if (drad_ > 0) and (dcorner_ <> 9) :
+          picture dpb;
+          dpb := image(fill dbarrect withcolor dfc_);
+          clip dpb to dbody;
+          draw dpb;
+        else :
+          fill dbarrect withcolor dfc_;
+        fi;
+      fi;
+
+      % 棋盘格点阵（framebox=yes）
+      if dframe_ > 0 :
+        numeric da; da := 2;
+        path dp; dp := fullcircle scaled .1da;
+        picture dpic;
+        dpic := image(
+          fill dp withcolor dfc_ withopacity .1;
+          fill dp shifted (da,-da) withcolor dfc_ withopacity .1;
+        );
+        setbounds dpic to ((0,0)--(2da,0)--(2da,-2da)--(0,-2da)--cycle);
+        draw dbody withpattern dpic;
+      fi;
+
+      % 边框：四边全开则整框；否则按边画（圆角边含相邻角弧）
+      % 禁用边框时用透明色，避免遮盖问题
+      boolean dall;
+      dall := (dlf_>0) and (drf_>0) and (dtf_>0) and (dbf_>0);
+      color dline;
+      if dall :
+        dline := dfc_;
+        draw dbody_in withcolor dline;
+      else :
+        dline := dfc_;
+        numeric lox, loy, hix, hiy;
+        lox := xpart llcorner dbody_in;
+        loy := ypart llcorner dbody_in;
+        hix := xpart urcorner dbody_in;
+        hiy := ypart urcorner dbody_in;
+        if drad_ > 0 :
+          numeric rr; rr := drin;
+          path dedge;
+          if dtf_ > 0 :
+            if ctl : dedge := (lox, hiy-rr) .. controls (lox, hiy) .. (lox+rr, hiy);
+            else   : dedge := (lox, hiy); fi;
+            if ctr : dedge := dedge -- (hix-rr, hiy) .. controls (hix, hiy) .. (hix, hiy-rr);
+            else   : dedge := dedge -- (hix, hiy); fi;
+            draw dedge withcolor dline;
+          fi;
+          if dbf_ > 0 :
+            if cbl : dedge := (lox, loy+rr) .. controls (lox, loy) .. (lox+rr, loy);
+            else   : dedge := (lox, loy); fi;
+            if cbr : dedge := dedge -- (hix-rr, loy) .. controls (hix, loy) .. (hix, loy+rr);
+            else   : dedge := dedge -- (hix, loy); fi;
+            draw dedge withcolor dline;
+          fi;
+          if dlf_ > 0 :
+            if cbl : dedge := (lox+rr, loy) .. controls (lox, loy) .. (lox, loy+rr);
+            else   : dedge := (lox, loy); fi;
+            if ctl : dedge := dedge -- (lox, hiy-rr) .. controls (lox, hiy) .. (lox+rr, hiy);
+            else   : dedge := dedge -- (lox, hiy); fi;
+            draw dedge withcolor dline;
+          fi;
+          if drf_ > 0 :
+            if cbr : dedge := (hix-rr, loy) .. controls (hix, loy) .. (hix, loy+rr);
+            else   : dedge := (hix, loy); fi;
+            if ctr : dedge := dedge -- (hix, hiy-rr) .. controls (hix, hiy) .. (hix-rr, hiy);
+            else   : dedge := dedge -- (hix, hiy); fi;
+            draw dedge withcolor dline;
+          fi;
+        else :
+          if dlf_ > 0 : draw (lox,loy)--(lox,hiy) withcolor dline; fi;
+          if drf_ > 0 : draw (hix,loy)--(hix,hiy) withcolor dline; fi;
+          if dtf_ > 0 : draw (lox,hiy)--(hix,hiy) withcolor dline; fi;
+          if dbf_ > 0 : draw (lox,loy)--(hix,loy) withcolor dline; fi;
+        fi;
+      fi;
+
+      % 角标符号（symbol 非空时自动，右下）
+      if (dsym_ <> "") and (dsym_ <> "none") :
+        picture dstx;
+        dstx := textext(dsym_);
+        dstx := dstx shifted (xpart urcorner dbody - 0.5*BodyFontSize,
+                              ypart llcorner dbody + 0.5*BodyFontSize - 1pt);
+        fill bbox dstx withcolor white;
+        draw dstx withcolor dfc_;
+      fi;
+    endgroup
+  enddef;
+
+\stopMPdefinitions
+
+% ============================================================
+% 模式一：\DualBodyframe — framed + overlay
+% ============================================================
+\startuseMPgraphic{DualBodyFrame}
+  color dbg, dfc, dsc;
+  dbg := \MPvar{backgroundcolor};
+  dfc := \MPvar{framecolor};
+  dsc := \MPvar{shadowcolor};
+
+  numeric dth, drad, dcorner;
+  dth  := \MPvar{rulethickness};
+  drad := \MPvar{radius};
+  dcorner := \MPvar{bodycorner};
+
+  numeric dlf, drf, dtf, dbf;
+  dlf := \MPvar{leftframe};
+  drf := \MPvar{rightframe};
+  dtf := \MPvar{topframe};
+  dbf := \MPvar{bottomframe};
+
+  string dch, dsym;
+  dch    := "\MPvar{character}";
+  dsym   := "\MPvar{symbol}";
+  numeric dshadow, dbar, dframe;
+  dshadow := 0;
+  if "\MPvar{shadow}" = "yes" : dshadow := 1; fi;
+  dbar := 0;
+  if "\MPvar{bar}" = "yes" : dbar := 1; fi;
+  dframe := 0;
+  if "\MPvar{framebox}" = "yes" : dframe := 1; fi;
+
+  numeric dfov, dboff;
+  dfov := \MPvar{frameoffset};
+  dboff := \MPvar{backgroundoffset};
+
+  path dmain;
+  numeric dox; dox := dth/4;
+  dmain := (dox,dox)--(OverlayWidth-dox,dox)
+         --(OverlayWidth-dox,OverlayHeight-dox)--(dox,OverlayHeight-dox)--cycle;
+
+  DrawDualBodyOnPath(dmain, dbg, dfc, dsc,
+                     dth, drad, dcorner, dlf, drf, dtf, dbf,
+                     dch, dsym, dshadow, dbar, dframe,
+                     dfov, dboff);
+\stopuseMPgraphic
+
+\defineoverlay[DualBodyOL][\useMPgraphic{DualBodyFrame}]
+
+\tolerant\def\DualBodyframe[#1]#2{%
+  \begingroup
+  \setupMPvariables[DualBodyFrame][
+    backgroundcolor=white,
+    framecolor=lightthemecolor,
+    rulethickness=1pt,
+    radius=5pt,
+    bodycorner=9,
+    leftframe=1,
+    rightframe=1,
+    topframe=1,
+    bottomframe=1,
+    symbol=none,
+    character=none,
+    shadow=no,
+    bar=no,
+    framebox=no,
+    shadowcolor=lightthemecolor,
+    frameoffset=0pt,
+    backgroundoffset=0pt,
+    #1
+  ]%
+  \framed[frame=off,
+          width=max,
+          background=DualBodyOL,
+          align={lohi,flushleft},
+          offset=1ex,#1]{#2}%
+  \endgroup
+}
+
+% ============================================================
+% 模式二：\startDualBodyText — 纯正文 textbackground
+% ============================================================
+\newcount\dualbodyCNT \dualbodyCNT\zerocount
+
+\tolerant\def\startDualBodyText[#1]%
+  {\begingroup
+   \global\advance\dualbodyCNT by 1
+   \edef\dualbodyNS{dualbody\the\dualbodyCNT}%
+   \edef\dualbodyMP{DualBodyBG\the\dualbodyCNT}%
+   \edef\dualbodyCD{DualBodyCard\the\dualbodyCNT}%
+   \setvariables[\dualbodyNS][
+     rulethickness=1pt,
+     radius=5pt,
+     bodycorner=9,
+     backgroundcolor=white,
+     framecolor=lightthemecolor,
+     leftframe=1,
+     rightframe=1,
+     topframe=1,
+     bottomframe=1,
+     symbol=none,
+     character=none,
+     shadow=no,
+     bar=no,
+     framebox=no,
+     shadowcolor=lightthemecolor,
+     frameoffset=0pt,
+     backgroundoffset=0pt,
+     #1,
+    ]%
+   \edef\dualbodyMPcode{%
+     \noexpand\startuseMPgraphic{\dualbodyMP}%
+       \dualbodyMPparams{\dualbodyNS}%
+       if nofmultipars > 0 :
+         for i=1 upto nofmultipars :
+           path dmain;
+           dmain := multipars[i];
+           DrawDualBodyOnPath(dmain, dbg, dfc, dsc,
+                              dth, drad, dbc, dlf, drf, dtf, dbf,
+                              dch, dsym, dshadow, dbar, dframe,
+                              dfov, dboff);
+         endfor;
+       else :
+         path dmain;
+         dmain := multibox;
+         DrawDualBodyOnPath(dmain, dbg, dfc, dsc,
+                            dth, drad, dbc, dlf, drf, dtf, dbf,
+                            dch, dsym, dshadow, dbar, dframe,
+                            dfov, dboff);
+       fi;
+       setbounds currentpicture to multibox;
+     \noexpand\stopuseMPgraphic
+   }\dualbodyMPcode
+    \definetextbackground[\dualbodyCD][
+      mp=\dualbodyMP,
+      location=paragraph,
+      frame=off,
+      leftoffset=1ex,
+      rightoffset=1ex,
+      topoffset=1ex,
+      bottomoffset=1ex,
+      align={flushleft,lohi},
+      #1,
+    ]%
+   \starttextbackground[\dualbodyCD]%
+}
+
+\unexpanded\def\stopDualBodyText
+  {\stoptextbackground\endgroup}
+
+% ============================================================
+% 标题绘制（overlay 模式 + 路径模式）
+% ============================================================
+\startMPdefinitions
+
+  % ---------- Overlay 版标题：坐标取 OverlayWidth/Height ----------
+  % 供 DualTitleBar / DualHeaderTextNew 使用。
+  % backgroundcolor 参数未使用（历史遗留，保持签名兼容）。
+  def DrawDualHeaderFrameNew(
+    expr shownumber, showtitle,
+         titlepos, titlealign, numberalign,
+         numberbgcolor, titlebgcolor, backgroundcolor,
+         numbercolor, titlecolor,
+         framecolor, numberframecolor, titleframecolor,
+         numberframe, titleframe,
+         numberratio, titleratio,
+         linethickness, hdrradius, hdrcorner
+  ) =
+    begingroup;
+      numeric w, h, ox, r, headerh, topborderpos;
+
+      w  := OverlayWidth;
+      h  := OverlayHeight;
+      ox := linethickness / 2;
+      r  := hdrradius;
+
+      boolean shownum, showttl, both;
+      shownum := shownumber > 0;
+      showttl := showtitle  > 0;
+      both    := shownum and showttl;
+
+      if shownum or showttl :
+        topborderpos := ox;
+        headerh      := h - 2 * ox;
+
+        numeric nleft, nright, tleft, tright;
+        numeric nbw, tbw, cw, cx, nw;
+        picture numbertext, titletext;
+
+        if shownum : numbertext := textext(\MPstring{DualHeaderNumber}); fi;
+        if showttl : titletext  := textext(\MPstring{DualHeaderTitle});  fi;
+
+        % 水平范围：titlepos=0 按文字宽 fit；否则按比例占满
+        if titlepos = 0 :
+          if both :
+            nbw := GetTextWidth(numbertext) + 8pt;
+            tbw := GetTextWidth(titletext)  + 8pt;
+            cw  := nbw + tbw;
+            cx  := CalcBoxX(cw, titlealign, w, ox);
+            nleft := cx;          nright := cx + nbw;
+            tleft := cx + nbw;    tright := cx + cw;
+          elseif shownum :
+            nbw := GetTextWidth(numbertext) + 8pt;
+            nleft := CalcBoxX(nbw, titlealign, w, ox);
+            nright := nleft + nbw;
+          else :
+            tbw := GetTextWidth(titletext) + 8pt;
+            tleft := CalcBoxX(tbw, titlealign, w, ox);
+            tright := tleft + tbw;
+          fi;
+        else :
+          if both :
+            nw    := w * numberratio / (numberratio + titleratio);
+            nleft := ox;  nright := nw;
+            tleft := nw;  tright := w - ox;
+          elseif shownum :
+            nleft := ox;  nright := w - ox;
+          else :
+            tleft := ox;  tright := w - ox;
+          fi;
+        fi;
+
+        % 圆角开关（hdrcorner：0=外侧四角 1=上外 2=下外 3=左盒左侧 4=右盒右侧）
+        boolean ntl, ntr, nbr, nbl, ttl, ttr, tbr, tbl;
+        ntl:=false; ntr:=false; nbr:=false; nbl:=false;
+        ttl:=false; ttr:=false; tbr:=false; tbl:=false;
+        if hdrcorner = 0 :
+          if both :
+            ntl:=true; nbl:=true; ttr:=true; tbr:=true;
+          elseif shownum :
+            ntl:=true; ntr:=true; nbr:=true; nbl:=true;
+          else :
+            ttl:=true; ttr:=true; tbr:=true; tbl:=true;
+          fi;
+        elseif hdrcorner = 1 :
+          if both :
+            ntl:=true; ttr:=true;
+          elseif shownum :
+            ntl:=true; ntr:=true;
+          else :
+            ttl:=true; ttr:=true;
+          fi;
+        elseif hdrcorner = 2 :
+          if both :
+            nbl:=true; tbr:=true;
+          elseif shownum :
+            nbl:=true; nbr:=true;
+          else :
+            tbl:=true; tbr:=true;
+          fi;
+        elseif hdrcorner = 3 :
+          if shownum :
+            ntl:=true; nbl:=true;
+          else :
+            ttl:=true; tbl:=true;
+          fi;
+        elseif hdrcorner = 4 :
+          if showttl :
+            ttr:=true; tbr:=true;
+          else :
+            ntr:=true; nbr:=true;
+          fi;
+        fi;
+
+        path nbox, tbox;
+        if shownum :
+          nbox := DualHeaderBox(nleft, nright, topborderpos, h - ox, r,
+                                ntl, ntr, nbr, nbl);
+        fi;
+        if showttl :
+          tbox := DualHeaderBox(tleft, tright, topborderpos, h - ox, r,
+                                ttl, ttr, tbr, tbl);
+        fi;
+
+        if shownum : fill nbox withcolor numberbgcolor; fi;
+        if showttl : fill tbox  withcolor titlebgcolor;  fi;
+
+        numeric cy, nx, tx;
+        cy := topborderpos + headerh / 2;
+
+        if shownum :
+          if titlepos = 0 :
+            nx := nleft + (nright - nleft)/2;
+          else :
+            nx := AlignTextPosition(numbertext, nleft, nright, numberalign, 4pt);
+          fi;
+          draw numbertext shifted (nx, cy - ypart center numbertext)
+               withcolor numbercolor;
+        fi;
+
+        if showttl :
+          if titlepos = 0 :
+            tx := tleft + (tright - tleft)/2;
+          else :
+            tx := AlignTextPosition(titletext, tleft, tright, titlealign, 4pt);
+          fi;
+          draw titletext shifted (tx, cy - ypart center titletext)
+               withcolor titlecolor;
+        fi;
+
+        if shownum and (numberframe > 0) :
+          draw nbox withpen pencircle scaled linethickness
+               withcolor numberframecolor;
+        fi;
+        if showttl and (titleframe > 0) :
+          draw tbox withpen pencircle scaled linethickness
+               withcolor titleframecolor;
+        fi;
+      fi;
+    endgroup;
+  enddef;
+
+  % ---------- 路径版标题：坐标取自 dmain ----------
+  % 供 \startDualText 合并命令使用。
+  % dmain 底边为标题与正文的公共边（由调用方切分保证）。
+  % 不在此 setbounds（合并命令统一裁到 multibox）。
+  def DrawDualHeaderOnPath(
+    expr dmain,
+         shownumber, showtitle,
+         titlepos, titlealign, numberalign,
+         numberbgcolor, titlebgcolor,
+         numbercolor, titlecolor,
+         numberframecolor, titleframecolor,
+         numberframe, titleframe,
+         numberratio, titleratio,
+         linethickness, hdrradius, hdrcorner,
+         numtext, tittext
+  ) =
+    begingroup;
+      numeric xmin, ymin, xmax, ymax, w, h, ox, r;
+      xmin := xpart llcorner dmain;  ymin := ypart llcorner dmain;
+      xmax := xpart urcorner dmain;  ymax := ypart urcorner dmain;
+      w := xmax - xmin;  h := ymax - ymin;
+      ox := linethickness / 2;
+      r  := hdrradius;
+
+      boolean shownum, showttl, both;
+      shownum := shownumber > 0;
+      showttl := showtitle  > 0;
+      both    := shownum and showttl;
+
+      if shownum or showttl :
+        numeric nleft, nright, tleft, tright;
+        numeric nbw, tbw, cw, cx, nw;
+        picture numbertext, titletext;
+
+        if shownum : numbertext := textext(numtext); fi;
+        if showttl : titletext  := textext(tittext);  fi;
+
+        % 水平范围（相对 xmin..xmax）
+        if titlepos = 0 :
+          if both :
+            nbw := GetTextWidth(numbertext) + 8pt;
+            tbw := GetTextWidth(titletext)  + 8pt;
+            cw  := nbw + tbw;
+            cx  := xmin + CalcBoxX(cw, titlealign, w, ox);
+            nleft := cx;       nright := cx + nbw;
+            tleft := cx + nbw; tright := cx + cw;
+          elseif shownum :
+            nbw := GetTextWidth(numbertext) + 8pt;
+            nleft := xmin + CalcBoxX(nbw, titlealign, w, ox);
+            nright := nleft + nbw;
+          else :
+            tbw := GetTextWidth(titletext) + 8pt;
+            tleft := xmin + CalcBoxX(tbw, titlealign, w, ox);
+            tright := tleft + tbw;
+          fi;
+        else :
+          if both :
+            nw    := w * numberratio / (numberratio + titleratio);
+            nleft := xmin + ox;  nright := xmin + nw;
+            tleft := xmin + nw;  tright := xmax - ox;
+          elseif shownum :
+            nleft := xmin + ox;  nright := xmax - ox;
+          else :
+            tleft := xmin + ox;  tright := xmax - ox;
+          fi;
+        fi;
+
+        % 圆角开关（语义同 DrawDualHeaderFrameNew）
+        boolean ntl, ntr, nbr, nbl, ttl, ttr, tbr, tbl;
+        ntl:=false; ntr:=false; nbr:=false; nbl:=false;
+        ttl:=false; ttr:=false; tbr:=false; tbl:=false;
+        if hdrcorner = 0 :
+          if both :
+            ntl:=true; nbl:=true; ttr:=true; tbr:=true;
+          elseif shownum :
+            ntl:=true; ntr:=true; nbr:=true; nbl:=true;
+          else :
+            ttl:=true; ttr:=true; tbr:=true; tbl:=true;
+          fi;
+        elseif hdrcorner = 1 :
+          if both :
+            ntl:=true; ttr:=true;
+          elseif shownum :
+            ntl:=true; ntr:=true;
+          else :
+            ttl:=true; ttr:=true;
+          fi;
+        elseif hdrcorner = 2 :
+          if both :
+            nbl:=true; tbr:=true;
+          elseif shownum :
+            nbl:=true; nbr:=true;
+          else :
+            tbl:=true; tbr:=true;
+          fi;
+        elseif hdrcorner = 3 :
+          if shownum :
+            ntl:=true; nbl:=true;
+          else :
+            ttl:=true; tbl:=true;
+          fi;
+        elseif hdrcorner = 4 :
+          if showttl :
+            ttr:=true; tbr:=true;
+          else :
+            ntr:=true; nbr:=true;
+          fi;
+        fi;
+
+        % 编号/标题框：占满 ymin+ox .. ymax-ox
+        path nbox, tbox;
+        if shownum :
+          nbox := DualHeaderBox(nleft, nright, ymin+ox, ymax-ox, r,
+                                ntl, ntr, nbr, nbl);
+        fi;
+        if showttl :
+          tbox := DualHeaderBox(tleft, tright, ymin+ox, ymax-ox, r,
+                                ttl, ttr, tbr, tbl);
+        fi;
+
+        if shownum : fill nbox withcolor numberbgcolor; fi;
+        if showttl : fill tbox  withcolor titlebgcolor;  fi;
+
+        % 文字垂直居中于 ymin..ymax
+        numeric cy, nx, tx;
+        cy := ymin + h / 2;
+
+        if shownum :
+          if titlepos = 0 :
+            nx := nleft + (nright - nleft)/2;
+          else :
+            nx := AlignTextPosition(numbertext, nleft, nright, numberalign, 4pt);
+          fi;
+          draw numbertext shifted (nx, cy - ypart center numbertext)
+               withcolor numbercolor;
+        fi;
+
+        if showttl :
+          if titlepos = 0 :
+            tx := tleft + (tright - tleft)/2;
+          else :
+            tx := AlignTextPosition(titletext, tleft, tright, titlealign, 4pt);
+          fi;
+          draw titletext shifted (tx, cy - ypart center titletext)
+               withcolor titlecolor;
+        fi;
+
+        if shownum and (numberframe > 0) :
+          draw nbox withpen pencircle scaled linethickness
+               withcolor numberframecolor;
+        fi;
+        if showttl and (titleframe > 0) :
+          draw tbox withpen pencircle scaled linethickness
+               withcolor titleframecolor;
+        fi;
+      fi;
+    endgroup;
+  enddef;
+
+  % ---------- 合并绘制：标题条 + 正文（单路径） ----------
+  % dmain   = 整个 multipar 区域
+  % dshowhdr= 是否画标题（0/1）
+  % dheadh  = 标题条高度（= hdrheight + rulethickness）
+  % 其余 header/body 参数见文件头缩写对照。
+  % 不单独画接缝线；靠 header 框与正文框自身边框贴合。
+  % corner 独立：dhdrcorner 只作用标题框，dcorner 只作用正文框。
+  %
+  % 接缝（seam）几何：
+  %   dseam = 标题条底边与正文框顶边相接的水平分界线位置
+  %          = 区域顶边 bymax 减去标题高度 dheadh
+  %   dox   = th/2，框线半宽（框线内缩量）
+  %   正文路径顶边在 dseam+dox：框线内缩 th/2 后，线中心落在 dseam
+  %   标题路径底边在 dseam-dox：框线内缩 th/2 后，线中心也落在 dseam
+  %   → 两条框线中心重合于 dseam，接缝处单线贴合、无错位
+  def DrawDualCombinedOnPath(
+    expr dmain, dshowhdr, dheadh,
+         % --- header ---
+         dshownumber, dshowtitle,
+         dtitlepos, dtitlealign, dnumberalign,
+         dnumberbgcolor, dtitlebgcolor,
+         dnumbercolor, dtitlecolor,
+         dnumberframecolor, dtitleframecolor,
+         dnumberframe, dtitleframe,
+         dnumberratio, dtitleratio,
+         dhdrradius, dhdrcorner,
+         dnumtext, dtittext,
+         % --- body ---
+         dbg, dfc, dsc,
+         dth, drad, dcorner, dlf, drf, dtf, dbf,
+         dch, dsym, dshadow, dbar, dframe,
+         dfov, dboff
+  ) =
+    begingroup
+      numeric bxmin, bymin, bxmax, bymax, dseam, dox;
+      bxmin := xpart llcorner dmain;
+      bymin := ypart llcorner dmain;
+      bxmax := xpart urcorner dmain;
+      bymax := ypart urcorner dmain;
+      dox := dth / 2;           % 框线半宽
+      dseam := bymax - dheadh;  % 接缝：标题底边与正文顶边的分界线
+
+      if (dshowhdr > 0) and (dheadh > 0) and (dseam > bymin) :
+        path dhead, dbody;
+        % 正文区域：底边 bymin，顶边 dseam+dox（框线中心落在 dseam）
+        dbody := (bxmin, bymin) -- (bxmax, bymin)
+               -- (bxmax, dseam + dox) -- (bxmin, dseam + dox) -- cycle;
+        % 标题区域：底边 dseam-dox（框线中心落在 dseam），顶边 bymax
+        dhead := (bxmin, dseam - dox) -- (bxmax, dseam - dox)
+               -- (bxmax, bymax) -- (bxmin, bymax) -- cycle;
+        % 阴影：基于完整 multipar 区域绘制（延伸到标题区）
+        % 从标题区下 8pt 开始；radius>0 且 corner≠9 时阴影全圆角
+        % 传 dshadow=0 给 DrawDualBodyOnPath 避免重复画阴影
+        numeric dshadowbody;
+        dshadowbody := dshadow;
+        if dshadow > 0 :
+          numeric dst; dst := 8pt;
+          path dsh;
+          if (drad > 0) and (dcorner <> 9) :
+            path dmain_r;
+            dmain_r := DualHeaderBox(bxmin, bxmax, bymin, bymax,
+                                     drad, true, true, true, true);
+            dsh := dmain_r shifted (dst/2 * (1,-1));
+            fill dsh withcolor dsc;
+          else :
+            dsh := dmain shifted (dst/4 * (1,-1));
+            draw ((dst*right + llcorner dsh)
+                  -- lrcorner dsh
+                  -- (dst*down + urcorner dsh))
+              withpen pensquare scaled dst withcolor dsc;
+          fi;
+          dshadowbody := 0;
+        fi;
+        DrawDualBodyOnPath(dbody, dbg, dfc, dsc,
+                           dth, drad, dcorner, dlf, drf, dtf, dbf,
+                           dch, dsym, dshadowbody, dbar, dframe,
+                           dfov, dboff);
+        DrawDualHeaderOnPath(dhead,
+                             dshownumber, dshowtitle,
+                             dtitlepos, dtitlealign, dnumberalign,
+                             dnumberbgcolor, dtitlebgcolor,
+                             dnumbercolor, dtitlecolor,
+                             dnumberframecolor, dtitleframecolor,
+                             dnumberframe, dtitleframe,
+                             dnumberratio, dtitleratio,
+                             dth, dhdrradius, dhdrcorner,
+                             dnumtext, dtittext);
+      else :
+        DrawDualBodyOnPath(dmain, dbg, dfc, dsc,
+                           dth, drad, dcorner, dlf, drf, dtf, dbf,
+                           dch, dsym, dshadow, dbar, dframe,
+                           dfov, dboff);
+      fi;
+    endgroup
+  enddef;
+
+\stopMPdefinitions
+
+% ============================================================
+% ：DualHeaderTextNew / DualTitleBar
+% ============================================================
+\setMPtext{DualHeaderNumber}{\hbox spread \baselineskip{\hss\framedtextparameter{number}\hss}}
+\setMPtext{DualHeaderTitle} {\hbox spread \baselineskip{\hss\framedtextparameter{title}\hss}}
+
+\defineoverlay[DualHeaderBoxNew][\useMPgraphic{DualHeaderFrameNew}{
+  shownumber=\framedtextparameter{shownumber},
+  showtitle=\framedtextparameter{showtitle},
+  titlepos=\framedtextparameter{titlepos},
+  titlealign=\framedtextparameter{titlealign},
+  numberalign=\framedtextparameter{numberalign},
+  numberbgcolor="\framedtextparameter{numberbgcolor}",
+  titlebgcolor="\framedtextparameter{titlebgcolor}",
+  numbercolor="\framedtextparameter{numbercolor}",
+  titlecolor="\framedtextparameter{titlecolor}",
+  framecolor="\framedtextparameter{framecolor}",
+  numberframecolor="\framedtextparameter{numberframecolor}",
+  titleframecolor="\framedtextparameter{titleframecolor}",
+  numberframe=\framedtextparameter{numberframe},
+  titleframe=\framedtextparameter{titleframe},
+  numberratio=\framedtextparameter{numberratio},
+  titleratio=\framedtextparameter{titleratio},
+  linethickness=\framedtextparameter{rulethickness},
+  hdrradius=\framedtextparameter{hdrradius},
+  hdrcorner=\framedtextparameter{hdrcorner}
+}]
+
+\startuseMPgraphic{DualHeaderFrameNew}
+  DrawDualHeaderFrameNew(
+    \MPvar{shownumber}, \MPvar{showtitle},
+    \MPvar{titlepos}, \MPvar{titlealign}, \MPvar{numberalign},
+    \MPvar{numberbgcolor}, \MPvar{titlebgcolor}, \MPvar{backgroundcolor},
+    \MPvar{numbercolor}, \MPvar{titlecolor},
+    \MPvar{framecolor}, \MPvar{numberframecolor}, \MPvar{titleframecolor},
+    \MPvar{numberframe}, \MPvar{titleframe},
+    \MPvar{numberratio}, \MPvar{titleratio},
+    \MPvar{linethickness}, \MPvar{hdrradius},
+    \MPvar{hdrcorner}
+  );
+\stopuseMPgraphic
+
+\defineframedtext[DualHeaderTextNew][
+  background=DualHeaderBoxNew,
+  frame=off,
+  width=max,
+  strut=no,
+  shownumber=1,
+  showtitle=1,
+  titlepos=1,
+  titlealign=2,
+  numberalign=2,
+  backgroundcolor=lightthemecolor,
+  numberbgcolor=\framedtextparameter{backgroundcolor},
+  titlebgcolor=white,
+  numbercolor=white,
+  titlecolor=lightthemecolor,
+  framecolor=lightthemecolor,
+  numberframecolor=\framedtextparameter{framecolor},
+  titleframecolor=\framedtextparameter{framecolor},
+  numberframe=1,
+  titleframe=1,
+  numberratio=1,
+  titleratio=1,
+  rulethickness=1pt,
+  hdrradius=0pt,
+  hdrcorner=0,
+]
+
+% ============================================================
+% \startDualText — 标题条 + 正文 合并命令（单 textbackground + 单 MP）
+% ============================================================
+% 用法：
+%   \startDualText[number={1.1},title={标题},backgroundcolor=yellow,...]
+%     正文内容（可跨页）
+%   \stopDualText
+%
+% 可分发参数：
+%   --- 标题 ---
+%   shownumber/showtitle    1=显示（默认 1）
+%   number/title            编号/标题文字
+%   titlepos                0=按文字宽 fit；其他=按比例占满（默认 1）
+%   titlealign/numberalign  1=左 2=中 3=右（默认 2）
+%   numberbgcolor/titlebgcolor  编号/标题底色（默认 lightthemecolor / white）
+%   numbercolor/titlecolor  字色（默认 white / lightthemecolor）
+%   framecolor              默认框色（默认 lightthemecolor）
+%   numberframecolor/titleframecolor  独立框色（默认同 framecolor）
+%   numberframe/titleframe  各自边框开关（默认 1）
+%   numberratio/titleratio  比例分配（默认 1:1）
+%   hdrradius               标题框圆角（默认 5pt）
+%   hdrcorner               标题圆角选角（默认 9=关闭；0=外侧四角 1=上 2=下 3=左 4=右）
+%   hdrheight               标题条基础高度（默认 2.2×BodyFontSize）
+%   hdrrepeat               1=每页都画标题（默认）；0=仅首页画标题
+%   --- 正文 ---
+%   backgroundcolor         正文底色（不进标题条，默认 white）
+%   framecolor              正文框线色（默认 lightthemecolor）
+%   rulethickness           线宽（默认 1pt）
+%   radius                  正文圆角（默认 5pt）
+%   bodycorner              正文圆角选角（同 hdrcorner 语义，默认 9=关闭）
+%   leftframe/rightframe/topframe/bottomframe  按边框（默认 1）
+%   shadow                  yes=画阴影（默认 no）
+%   bar                     yes=左色条（默认 no）
+%   framebox                yes=棋盘格点阵（默认 no）
+%   symbol/character        非空=角标/水印（默认 none）
+%   shadowcolor             阴影色（默认 lightthemecolor）
+%   frameoffset             框线内缩修正（默认 0pt，见 DrawDualBodyOnPath）
+%   backgroundoffset        背景外扩（默认 0pt，见 DrawDualBodyOnPath）
+%   before                  内容前钩子
+%
+% 标题条高度 H = hdrheight + rulethickness（烘焙进 MP 的 \_dualheff）
+%   textbackground topoffset = H + topoffset 参数（默认 1ex）
+%   shownumber=0 且 showtitle=0 时 H=0，不占高度。
+%   hdrrepeat=0 时仅首页画标题；后续页 topoffset 仍预留空间，正文画在完整 multipar 上。
+%
+% 实现：单 namespace dualtextN 存参数；单 MP 读取后调 DrawDualCombinedOnPath；
+%   在 multipars 顶部切出高度 H 的条带画标题，其余画正文。
+%   backgroundcolor 只进正文；hdrcorner/bodycorner 各自独立。
+%   不单独画接缝线。
+\newcount\dualtextCNT \dualtextCNT\zerocount
+
+\tolerant\def\startDualText[#1]%
+  {\begingroup
+   \global\advance\dualtextCNT by 1
+   \edef\dualtextNS{dualtext\the\dualtextCNT}%
+   \edef\dualtextMP{DualTextMP\the\dualtextCNT}%
+   \edef\dualtextCD{DualTextCard\the\dualtextCNT}%
+   \setvariables[\dualtextNS][
+     shownumber=1,
+     showtitle=1,
+     titlepos=1,
+     titlealign=2,
+     numberalign=2,
+     numberbgcolor=lightthemecolor,
+     titlebgcolor=white,
+     numbercolor=white,
+     titlecolor=lightthemecolor,
+     framecolor=lightthemecolor,
+     numberframecolor=lightthemecolor,
+     titleframecolor=lightthemecolor,
+     numberframe=1,
+     titleframe=1,
+     numberratio=1,
+     titleratio=1,
+     hdrradius=5pt,
+     hdrcorner=9,
+     hdrrepeat=1,
+     number=,
+     title=,
+     hdrheight=2.2\bodyfontsize,
+     rulethickness=1pt,
+     radius=5pt,
+     bodycorner=9,
+     backgroundcolor=white,
+     leftframe=1,
+     rightframe=1,
+     topframe=1,
+     bottomframe=1,
+     symbol=none,
+     character=none,
+     shadow=no,
+     bar=no,
+     framebox=no,
+     shadowcolor=lightthemecolor,
+     frameoffset=0pt,
+     backgroundoffset=0pt,
+     leftoffset=1ex,
+     rightoffset=1ex,
+     topoffset=1ex,
+     bottomoffset=1ex,
+     before=,
+     #1,
+     ]%
+   \edef\dualheff{\dimexpr
+     \getvariable{\dualtextNS}{hdrheight}
+     +\getvariable{\dualtextNS}{rulethickness}\relax}%
+   \edef\_dualheff{\the\dualheff}
+   % H = hdrheight + rulethickness + toffset；无标题时 H=0
+   \ifnum\getvariable{\dualtextNS}{shownumber}=0
+     \ifnum\getvariable{\dualtextNS}{showtitle}=0
+       \edef\_dualheff{0pt}%
+     \fi
+   \fi
+   \getvariable{\dualtextNS}{before}%
+   % 记录起始页，MP 运行时用 RealPageNumber 比较，仅首页画标题
+   \edef\dualtextstartpage{\the\realpageno}%
+   % 烘焙 MP script：读 namespace 参数 → DrawDualCombinedOnPath
+   \edef\dualtextMPcode{%
+     \noexpand\startuseMPgraphic{\dualtextMP}%
+       \dualbodyMPparams{\dualtextNS}%
+       numeric dshownumber, dshowtitle, dtitlepos, dtitlealign, dnumberalign;
+       dshownumber := \getvariable{\dualtextNS}{shownumber};
+       dshowtitle  := \getvariable{\dualtextNS}{showtitle};
+       dtitlepos   := \getvariable{\dualtextNS}{titlepos};
+       dtitlealign := \getvariable{\dualtextNS}{titlealign};
+       dnumberalign:= \getvariable{\dualtextNS}{numberalign};
+       color dnumberbgcolor, dtitlebgcolor, dnumbercolor, dtitlecolor;
+       color dnumberframecolor, dtitleframecolor;
+       dnumberbgcolor  := \noexpand\MPcolor{\getvariable{\dualtextNS}{numberbgcolor}};
+       dtitlebgcolor   := \noexpand\MPcolor{\getvariable{\dualtextNS}{titlebgcolor}};
+       dnumbercolor    := \noexpand\MPcolor{\getvariable{\dualtextNS}{numbercolor}};
+       dtitlecolor     := \noexpand\MPcolor{\getvariable{\dualtextNS}{titlecolor}};
+       dnumberframecolor := \noexpand\MPcolor{\getvariable{\dualtextNS}{numberframecolor}};
+       dtitleframecolor  := \noexpand\MPcolor{\getvariable{\dualtextNS}{titleframecolor}};
+       numeric dnumberframe, dtitleframe, dnumberratio, dtitleratio;
+       numeric dhdrradius, dhdrcorner;
+       dnumberframe  := \getvariable{\dualtextNS}{numberframe};
+       dtitleframe   := \getvariable{\dualtextNS}{titleframe};
+       dnumberratio  := \getvariable{\dualtextNS}{numberratio};
+       dtitleratio   := \getvariable{\dualtextNS}{titleratio};
+       dhdrradius    := \getvariable{\dualtextNS}{hdrradius};
+       dhdrcorner    := \getvariable{\dualtextNS}{hdrcorner};
+       string dnumtext, dtittext;
+       dnumtext  := "\getvariable{\dualtextNS}{number}";
+       dtittext  := "\getvariable{\dualtextNS}{title}";
+       % dshowhdr: 有标题内容且高度>0 时为 1
+       numeric dheadh, dshowhdr, drepeat;
+       dheadh := \_dualheff;
+       dshowhdr := 0;
+       if ((dshownumber > 0) or (dshowtitle > 0)) and (dheadh > 0) :
+         dshowhdr := 1;
+       fi;
+       % hdrrepeat=0 时仅首页画标题（RealPageNumber 为 registerdirect 无参函数，不带 ()）
+       drepeat := \getvariable{\dualtextNS}{hdrrepeat};
+       if drepeat < 1 :
+         numeric dstartpage, dcurpage;
+         dstartpage := \dualtextstartpage;
+         dcurpage := RealPageNumber;
+         if dcurpage > dstartpage :
+           dshowhdr := 0;
+         fi;
+       fi;
+        if nofmultipars > 0 :
+          for i=1 upto nofmultipars :
+            path dmain;
+            dmain := multipars[i];
+            DrawDualCombinedOnPath(dmain, dshowhdr, dheadh,
+                                   dshownumber, dshowtitle,
+                                   dtitlepos, dtitlealign, dnumberalign,
+                                   dnumberbgcolor, dtitlebgcolor,
+                                   dnumbercolor, dtitlecolor,
+                                   dnumberframecolor, dtitleframecolor,
+                                   dnumberframe, dtitleframe,
+                                   dnumberratio, dtitleratio,
+                                   dhdrradius, dhdrcorner,
+                                   dnumtext, dtittext,
+                                   dbg, dfc, dsc,
+                                   dth, drad, dbc, dlf, drf, dtf, dbf,
+                                   dch, dsym, dshadow, dbar, dframe,
+                                   dfov, dboff);
+          endfor;
+        else :
+          path dmain;
+          dmain := multibox;
+          DrawDualCombinedOnPath(dmain, dshowhdr, dheadh,
+                                 dshownumber, dshowtitle,
+                                 dtitlepos, dtitlealign, dnumberalign,
+                                 dnumberbgcolor, dtitlebgcolor,
+                                 dnumbercolor, dtitlecolor,
+                                 dnumberframecolor, dtitleframecolor,
+                                 dnumberframe, dtitleframe,
+                                 dnumberratio, dtitleratio,
+                                 dhdrradius, dhdrcorner,
+                                 dnumtext, dtittext,
+                                 dbg, dfc, dsc,
+                                 dth, drad, dbc, dlf, drf, dtf, dbf,
+                                 dch, dsym, dshadow, dbar, dframe,
+                                 dfov, dboff);
+        fi;
+       setbounds currentpicture to multibox;
+     \noexpand\stopuseMPgraphic
+   }%
+   \dualtextMPcode
+   \edef\dualheff{\dimexpr\_dualheff+\getvariable{\dualtextNS}{topoffset}\relax}%
+   \definetextbackground[\dualtextCD][
+      mp=\dualtextMP,
+      location=paragraph,
+      frame=off,
+      leftoffset=\getvariable{\dualtextNS}{leftoffset},
+      rightoffset=\getvariable{\dualtextNS}{rightoffset},
+      topoffset=\the\dualheff,
+      bottomoffset=\getvariable{\dualtextNS}{bottomoffset},
+      align={flushleft,lohi},
+      #1,
+    ]%
+   \starttextbackground[\dualtextCD]%
+}
+
+\unexpanded\def\stopDualText{\stoptextbackground\endgroup}
+
+\protect
+\endinput

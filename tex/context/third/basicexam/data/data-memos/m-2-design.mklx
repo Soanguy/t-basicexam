@@ -1,0 +1,1121 @@
+\setupcolors            [state=start,pagecolormodel=auto,textcolor=textcolor,]
+
+\startprotectedcolors
+  \definecolor [transparentcolor] [r=0,g=1,b=1,t=0,a=normal]
+  \definecolor [pagebg]           [x=fcfaf5]  % 通用页面背景
+
+  \definecolor [red]         [x=d70c19]
+  \definecolor [palered]     [x=fef0ed]  \definecolor [softred]     [x=fad1c4]  \definecolor [lightred]    [x=f99b8c]
+  \definecolor [darkred]     [x=b1000f]  \definecolor [deepred]     [x=5c1e19]  \definecolor [blackred]    [x=2d0c13]
+  
+  \definecolor [pink]        [x=e6709a]
+  \definecolor [palepink]    [x=fff2f5]  \definecolor [softpink]    [x=fce4ec]  \definecolor [lightpink]   [x=f8bbd9]
+  \definecolor [darkpink]    [x=ba456c]  \definecolor [deeppink]    [x=862a4a]  \definecolor [blackpink]   [x=4f142b]
+  
+  \definecolor [blue]        [x=2d69af]
+  \definecolor [paleblue]    [x=eff9ff]  \definecolor [softblue]    [x=b9e6ff]  \definecolor [lightblue]   [x=6cc3f0]
+  \definecolor [darkblue]    [x=15559a]  \definecolor [deepblue]    [x=1c2938]  \definecolor [blackblue]   [x=012030]
+  
+  \definecolor [purple]      [x=6f4c9e]
+  \definecolor [palepurple]  [x=f3effc]  \definecolor [softpurple]  [x=d9c8f0]  \definecolor [lightpurple] [x=c5a3e6]
+  \definecolor [darkpurple]  [x=4a366b]  \definecolor [deeppurple]  [x=2e1e40]  \definecolor [blackpurple] [x=1c0f26]
+
+  \definecolor [yellow]      [x=e5a00d]
+  \definecolor [paleyellow]  [x=fff8e0]  \definecolor [softyellow]  [x=fef0c0]  \definecolor [lightyellow] [x=ffe08c]
+  \definecolor [darkyellow]  [x=c17f0a]  \definecolor [deepyellow]  [x=8e5806]  \definecolor [blackyellow] [x=452900]
+
+  \definecolor [orange]      [x=e68615]
+  \definecolor [paleorange]  [x=fff4e8]  \definecolor [softorange]  [x=ffe4c2]  \definecolor [lightorange] [x=ffc28a]
+  \definecolor [darkorange]  [x=b56f0c]  \definecolor [deeporange]  [x=7a4700]  \definecolor [blackorange] [x=3b1f00]
+
+  \definecolor [green]       [x=6ba82e]
+  \definecolor [palegreen]   [x=f0f8e6]  \definecolor [softgreen]   [x=e0f0cd]  \definecolor [lightgreen]  [x=b2d97c]
+  \definecolor [darkgreen]   [x=4a7a1e]  \definecolor [deepgreen]   [x=2f4f10]  \definecolor [blackgreen]  [x=172a07]
+    
+  \definecolor [cyan]        [x=3c9566]
+  \definecolor [palecyan]    [x=eaf9f2]  \definecolor [softcyan]    [x=b9dec9]  \definecolor [lightcyan]   [x=55bb8a]
+  \definecolor [darkcyan]    [x=497568]  \definecolor [deepcyan]    [x=1a3b32]  \definecolor [blackcyan]   [x=061711]
+  
+  \definecolor [gray]        [x=a4a4a4]
+  \definecolor [palegray]    [x=f8f8f8]  \definecolor [softgray]    [x=f0f0f0]  \definecolor [lightgray]   [x=c3c3c3]
+  \definecolor [darkgray]    [x=7b7b7b]  \definecolor [deepgray]    [x=535353]  \definecolor [blackgray]   [x=2a2a2a]
+  
+  \definecolor [white]       [x=ffffff]
+  \definecolor [palewhite]   [x=fefefc]  \definecolor [softwhite]   [x=fdfcf8]  \definecolor [lightwhite]  [x=f9f7f0]
+  \definecolor [darkwhite]   [x=f3f9f1]  \definecolor [deepwhite]   [x=f2ecde]  \definecolor [blackwhite]  [x=ebe3d5]
+  
+  \definecolor [black]       [x=000000]
+  \definecolor [paleblack]   [x=f2f2f2]  \definecolor [softblack]   [x=6a6a6a]  \definecolor [lightblack]  [x=404040]
+  \definecolor [darkblack]   [x=1f1f1f]  \definecolor [deepblack]   [x=0f0f0f]  \definecolor [blackblack]  [x=050505]
+\stopprotectedcolors
+
+\definepalet [serene]    [
+  palethemecolor=paleblue,  softthemecolor=softblue,  lightthemecolor=lightblue,  
+      themecolor=blue,      darkthemecolor=darkblue,   deepthemecolor=deepblue,   
+                            softbackground=softblue,    lightoptcolor=lightred,
+                                  optcolor=red,        darkbackground=deepblue,
+      titlecolor=blue,           textcolor=black,           codecolor=deepblue,
+       linkcolor=blue,       footnotecolor=blackblue,
+    captioncolor=deepblue,        toccolor=blackblue,  referencecolor=darkblue,
+]
+
+\definepalet [harmony]   [
+  palethemecolor=palegreen, softthemecolor=softgreen, lightthemecolor=lightgreen,
+      themecolor=green,     darkthemecolor=darkgreen,  deepthemecolor=deepgreen,
+                            softbackground=softgreen,   lightoptcolor=lightblue,
+                                  optcolor=blue,       darkbackground=deepgreen,
+      titlecolor=green,          textcolor=black,           codecolor=deepgreen,
+       linkcolor=green,      footnotecolor=blackgreen,
+    captioncolor=deepgreen,       toccolor=blackgreen, referencecolor=darkgreen,
+]
+
+\definepalet [passion]   [
+  palethemecolor=palered,   softthemecolor=softred,   lightthemecolor=lightred,
+      themecolor=red,       darkthemecolor=darkred,    deepthemecolor=deepred,
+                            softbackground=softred,     lightoptcolor=lightgreen,  
+                                  optcolor=green,      darkbackground=deepred,
+      titlecolor=red,            textcolor=black,           codecolor=deepred,
+       linkcolor=red,        footnotecolor=blackred,
+    captioncolor=deepred,         toccolor=blackred,   referencecolor=darkred,
+]
+
+\definepalet [adventure] [
+  themecolor=orange,
+  palethemecolor=paleorange,
+  softthemecolor=softorange,
+  lightthemecolor=lightorange,
+  darkthemecolor=darkorange,
+  deepthemecolor=deeporange,
+  lightoptcolor=lightcyan,
+  optcolor=cyan,
+  softbackground=softorange,
+  darkbackground=deeporange,
+  titlecolor=orange,
+  textcolor=black,
+  codecolor=deeporange,
+  captioncolor=deeporange,
+  footnotecolor=blackorange,
+  linkcolor=orange,
+  toccolor=blackorange,
+  referencecolor=darkorange,
+]
+
+\definepalet [optimism]  [
+  themecolor=yellow,
+  palethemecolor=paleyellow,
+  softthemecolor=softyellow,
+  lightthemecolor=lightyellow,
+  darkthemecolor=darkyellow,
+  deepthemecolor=deepyellow,
+  lightoptcolor=lightorange,
+  optcolor=orange,
+  softbackground=softyellow,
+  darkbackground=deepyellow,
+  titlecolor=yellow,
+  textcolor=black,
+  codecolor=deepyellow,
+  captioncolor=deepyellow,
+  footnotecolor=blackyellow,
+  linkcolor=yellow,
+  toccolor=blackyellow,
+  referencecolor=darkyellow,
+]
+
+\definepalet [creativity] [
+  themecolor=cyan,
+  palethemecolor=palecyan,
+  softthemecolor=softcyan,
+  lightthemecolor=lightcyan,
+  darkthemecolor=darkcyan,
+  deepthemecolor=deepcyan,
+  lightoptcolor=lightyellow,
+  optcolor=yellow,
+  softbackground=softcyan,
+  darkbackground=deepcyan,
+  titlecolor=cyan,
+  textcolor=black,
+  codecolor=deepcyan,
+  captioncolor=deepcyan,
+  footnotecolor=blackcyan,
+  linkcolor=cyan,
+  toccolor=blackcyan,
+  referencecolor=darkcyan,
+]
+
+\definepalet [magic]     [
+  themecolor=purple,
+  palethemecolor=palepurple,
+  softthemecolor=softpurple,
+  lightthemecolor=lightpurple,
+  darkthemecolor=darkpurple,
+  deepthemecolor=deeppurple,
+  lightoptcolor=softpink,
+  optcolor=pink,
+  softbackground=softpurple,
+  darkbackground=deeppurple,
+  titlecolor=purple,
+  textcolor=black,
+  codecolor=deeppurple,
+  captioncolor=deeppurple,
+  footnotecolor=blackpurple,
+  linkcolor=purple,
+  toccolor=blackpurple,
+  referencecolor=darkpurple,
+]
+
+\definepalet [romance]   [
+  themecolor=pink,
+  palethemecolor=palepink,
+  softthemecolor=softpink,
+  lightthemecolor=lightpink,
+  darkthemecolor=darkpink,
+  deepthemecolor=deeppink,
+  lightoptcolor=lightcyan,
+  optcolor=cyan,
+  softbackground=softpink,
+  darkbackground=deeppink,
+  titlecolor=pink,
+  textcolor=black,
+  codecolor=deeppink,
+  captioncolor=deeppink,
+  footnotecolor=blackpink,
+  linkcolor=pink,
+  toccolor=blackpink,
+  referencecolor=darkpink,
+]
+
+\definepalet [reliable]  [
+  themecolor=gray,
+  palethemecolor=palegray,
+  softthemecolor=softgray,
+  lightthemecolor=lightgray,
+  darkthemecolor=darkgray,
+  deepthemecolor=deepgray,
+  lightoptcolor=lightpurple,
+  optcolor=purple,
+  softbackground=softgray,
+  darkbackground=deepgray,
+  titlecolor=gray,
+  textcolor=black,
+  codecolor=deepgray,
+  captioncolor=deepgray,
+  footnotecolor=blackgray,
+  linkcolor=gray,
+  toccolor=blackgray,
+  referencecolor=darkgray,
+]
+
+\definepalet [formality] [
+  themecolor=pink,
+  palethemecolor=palepink,
+  softthemecolor=softpink,
+  lightthemecolor=lightpink,
+  darkthemecolor=darkpink,
+  deepthemecolor=deeppink,
+  lightoptcolor=lightcyan,
+  optcolor=cyan,
+  softbackground=softpink,
+  darkbackground=deeppink,
+  titlecolor=pink,
+  textcolor=black,
+  codecolor=deeppink,
+  captioncolor=deeppink,
+  footnotecolor=blackpink,
+  linkcolor=pink,
+  toccolor=blackpink,
+  referencecolor=darkpink,
+]
+
+\definepalet [innocence] [
+  themecolor=blue,
+  palethemecolor=paleblue,
+  softthemecolor=softblue,
+  lightthemecolor=lightblue,
+  darkthemecolor=darkblue,
+  deepthemecolor=deepblue,
+  lightoptcolor=lightorange,
+  optcolor=orange,
+  softbackground=softblue,
+  darkbackground=deepblue,
+  titlecolor=blue,
+  textcolor=black,
+  codecolor=deepblue,
+  captioncolor=deepblue,
+  footnotecolor=blackblue,
+  linkcolor=blue,
+  toccolor=blackblue,
+  referencecolor=darkblue,
+]
+
+%% 注意，一旦启用 palet ， lib dum 会失效，因为他设定了自己的 palet
+
+%D \section{layout}
+%D 注意， \CONTEXT\ 設置的正文高度包括了頁眉頁腳。
+%D 特別地，herms 只關心 正文寬度、高度和邊注的寬度。
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                      頁面設置                                         %%%%%%
+%%%%%% paperwidth  = leftedge + leftmargin + width +                       %%%%%%
+%%%%%%               rightmargin +rightedge+ edgedistence                  %%%%%%
+%%%%%%     (also can be specialised as left and right)                     %%%%%%
+%%%%%% backspace   = leftedge + leftmargin +                               %%%%%%
+%%%%%%               leftedgedistance                                      %%%%%%
+%%%%%% paperheight = top + topdistance + height +                          %%%%%%
+%%%%%%               bottom + bottomdistance                               %%%%%%
+%%%%%% topspace    = top + topdistance                                     %%%%%%
+%%%%%% height      = header + textheight + footer +                        %%%%%%
+%%%%%%               headerdistance + footerdistance                       %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definepapersize [ipad]   [width=7.5in, height=10in, ]
+\definepapersize [kindle] [width=120mm, height=160mm,]
+
+\definelayout    [kindle][
+                   width=fit,               height=fit,
+               backspace=10mm,            topspace=0mm,
+               rightedge=0mm,    rightedgedistance=0mm,
+             rightmargin=8mm,  rightmargindistance=2mm,
+                  header=10mm,      headerdistance=5mm,
+                  footer=10mm,      footerdistance=5mm,
+                  bottom=0mm,       bottomdistance=0mm]
+\definelayout    [ipad][
+                   width=fit,               height=fit,
+               backspace=20mm,            topspace=0mm,
+               rightedge=0mm,    rightedgedistance=0mm,
+             rightmargin=15mm, rightmargindistance=5mm,
+                  header=5mm,       headerdistance=5mm,
+                  footer=5mm,       footerdistance=5mm,
+                  bottom=0mm,       bottomdistance=0mm]
+\definelayout    [kaolike] [% width=120mm,height=250mm,
+                  width=30*\bodyfontsize, 
+                  height=fit,
+               backspace=\dimexpr (1\paperwidth-45\bodyfontsize)/2\relax,            
+               rightedge=\dimexpr (1\paperwidth-45\bodyfontsize)/2\relax,   
+             rightmargin=15*\bodyfontsize, 
+              rightedgedistance=0mm,
+                topspace=0mm,  rightmargindistance=5mm,
+                  header=22mm,      headerdistance=5mm,
+                  footer=22mm,      footerdistance=5mm,
+                  bottom=0mm,       bottomdistance=0mm]
+\definelayout    [exotic] [% width=120mm,height=250mm,
+                   width=fit,               height=fit,
+               backspace=20mm,            topspace=5mm,
+               rightedge=10mm,   rightedgedistance=5mm,
+             rightmargin=50mm, rightmargindistance=5mm,
+                  header=10mm,      headerdistance=5mm,
+                  footer=15mm,      footerdistance=5mm,
+                  bottom=0mm,       bottomdistance=0mm]
+\definelayout    [moderate]
+                 [topspace=0mm,      backspace=35.0mm,
+                 bottomspace=0mm,
+                    bottom=0mm,    bottomdistance=0mm,
+                 rightedge=3mm, rightedgedistance=2mm,
+                  leftedge=3mm,  leftedgedistance=2mm,
+                              rightmargindistance=5mm,
+                               leftmargindistance=5mm,
+             leftmargin=25.0mm,    rightmargin=25.0mm,
+                header=20.82mm,    headerdistance=4mm,
+                footer=20.75mm,    footerdistance=4mm,
+                     width=fit,            height=fit,]
+\definelayout    [narrow]
+                 [topspace=0mm,      backspace=17.5mm,
+                 bottomspace=0mm,     %cutspace=17.5mm,
+                    bottom=0mm,    bottomdistance=0mm,
+                 rightedge=0mm, rightedgedistance=0mm,
+                  leftedge=0mm,  leftedgedistance=0mm,
+                              rightmargindistance=0mm,
+                               leftmargindistance=0mm,
+             leftmargin=17.5mm,    rightmargin=17.5mm,
+                header=12.37mm,    headerdistance=0mm,
+                footer=12.37mm,    footerdistance=0mm,
+                     width=fit,            height=fit,]
+\definelayout    [wide]
+                 [topspace=0mm,      backspace=35.0mm,
+                 bottomspace=0mm,
+                    bottom=0mm,    bottomdistance=0mm,
+                 rightedge=0mm, rightedgedistance=0mm,
+                  leftedge=0mm,  leftedgedistance=0mm,
+                              rightmargindistance=0mm,
+                               leftmargindistance=0mm,
+             leftmargin=35.0mm,    rightmargin=35.0mm,
+                header=45.50mm,    headerdistance=4mm,
+                footer=45.50mm,    footerdistance=4mm,
+                     width=fit,            height=fit,]
+\definelayout    [extrawide]
+                 [topspace=0mm,      backspace=49.5mm,
+                 bottomspace=0mm,
+                    bottom=0mm,    bottomdistance=0mm,
+                 rightedge=0mm, rightedgedistance=0mm,
+                  leftedge=0mm,  leftedgedistance=0mm,
+                              rightmargindistance=0mm,
+                               leftmargindistance=0mm,
+             leftmargin=49.5mm,    rightmargin=49.5mm,
+                header=70.00mm,    headerdistance=0mm,
+                footer=70.00mm,    footerdistance=0mm,
+                     width=fit,            height=fit,]
+\definelayout    [sidemirror][% width=146mm,height=247mm,
+                topspace=25mm,    backspace=32mm,
+                  header=25mm,       footer=25mm,
+                             headerdistance=5mm,
+                             footerdistance=5mm,
+                                topdistance=5mm,
+                             bottomdistance=5mm,
+                   width=fit,        height=fit,
+                  bottom=25mm,  rightmargin=32mm,]
+\definelayout    [propiorroot][%width=123mm,height=234mm,
+                topspace=21mm,    backspace=36mm,
+                  header=30mm,       footer=30mm,
+                             headerdistance=5mm,
+                             footerdistance=5mm,
+                                topdistance=5mm,
+                             bottomdistance=5mm,
+                   width=fit,        height=fit,
+                  bottom=42mm,  rightmargin=51mm,]
+\definelayout    [propiorgolden][%width=130mm,height=250mm,
+                topspace=34mm,    backspace=30mm,
+                  header=36mm,       footer=30mm,
+                             headerdistance=5mm,
+                             footerdistance=5mm,
+                                topdistance=5mm,
+                             bottomdistance=5mm,
+                    width=fit,        height=fit,
+                  bottom=13mm,  rightmargin=50mm,]
+
+\definelayout[graaf][
+  % 水平：严格保留 1:2 边距，正文宽度占 6/9
+  backspace=\dimexpr 1\paperwidth/9\relax,
+   cutspace=\dimexpr 2\paperwidth/9\relax,
+      width=\dimexpr 1\paperwidth -\layoutparameter\c!backspace -\layoutparameter\c!cutspace\relax, 
+  % 垂直：从页眉顶部到页脚底部总高度占 6/9
+   topspace=0mm,bottomspace=0mm,headerdistance=0mm,footerdistance=0mm,
+     header=\dimexpr 1\paperheight/9 -\layoutparameter\c!topspace    -\layoutparameter\c!headerdistance\relax,   % 页眉顶部定位在 H/9
+     height=\dimexpr 1\paperheight   -\layoutparameter\c!topspace    -\layoutparameter\c!bottomspace\relax,
+     footer=\dimexpr 2\paperheight/9 -\layoutparameter\c!bottomspace -\layoutparameter\c!footerdistance\relax,   % 页脚底部定位在 7H/9
+]
+
+\definelayout[optvdh][
+  vdhnumber=9,
+  rightedgewidth=5mm,rightedgedistance=5mm,rightmargindistance=5mm,
+        topspace=5mm,bottomspace=5mm,headerdistance=5mm,footerdistance=5mm,
+       backspace=\dimexpr 1\paperwidth/(\layoutparameter{vdhnumber} + 3)\relax,
+        cutspace=\dimexpr 2\paperwidth/(\layoutparameter{vdhnumber} + 3)\relax,
+           width=\dimexpr 1\paperwidth -\layoutparameter\c!backspace -\layoutparameter\c!cutspace\relax,
+          header=\dimexpr 3\paperwidth/(\layoutparameter{vdhnumber} + 3)/2 -\layoutparameter\c!topspace    -\layoutparameter\c!headerdistance\relax,
+          height=\dimexpr 1\paperheight                   -\layoutparameter\c!topspace    -\layoutparameter\c!bottomspace\relax, 
+          footer=\dimexpr 3\paperwidth/(\layoutparameter{vdhnumber} + 3)   -\layoutparameter\c!bottomspace -\layoutparameter\c!footerdistance\relax, 
+]
+
+\definelayout[vdh][
+  vdhnumber=12,
+  rightedgewidth=5mm,rightedgedistance=5mm,rightmargindistance=5mm,
+        topspace=5mm,bottomspace=5mm,headerdistance=5mm,footerdistance=5mm,
+       backspace=\dimexpr 1\paperwidth/(\layoutparameter{vdhnumber} + 3)\relax,
+        cutspace=\dimexpr 2\paperwidth/(\layoutparameter{vdhnumber} + 3)\relax,
+           width=\dimexpr 1\paperwidth -\layoutparameter\c!backspace -\layoutparameter\c!cutspace\relax,
+          header=\dimexpr 1\paperheight/(\layoutparameter{vdhnumber} + 3) -\layoutparameter\c!topspace    -\layoutparameter\c!headerdistance\relax,
+          height=\dimexpr 1\paperheight                  -\layoutparameter\c!topspace    -\layoutparameter\c!bottomspace\relax, 
+          footer=\dimexpr 2\paperheight/(\layoutparameter{vdhnumber} + 3) -\layoutparameter\c!bottomspace -\layoutparameter\c!footerdistance\relax, 
+]
+
+% layout=grids 已移除。页面模数不属于本模块的设计模型：
+% 版心由字符数与行数决定，网格只作用于版心内部。
+
+\setuppapersize  [\moduleparameter{memos}{papersize}]
+%% 因为 hermes 需要页面大小， 所以必须先设置页面尺寸。
+%% must load font first,then can get real text fontsize(1em)
+
+% 只關心每行寬度每列高度和邊注寬度。其他的依照 1:√2 的比例切割（只是粗略）
+\def\c_hermesratio{\moduleparameter{memos}{ratio}}
+\newcount\c_textcount     \c_textcount   =\moduleparameter{memos}{textcount}\relax
+\newcount\c_heightcount   \c_heightcount =\moduleparameter{memos}{heightcount}\relax
+\newcount\c_margincount   \c_margincount =\moduleparameter{memos}{margincount}\relax
+\newdimen\d_textfontsize  \d_textfontsize=\bodyfontsize\relax%\fontdimen6\font\relax
+\newdimen\d_marginwidth   \d_marginwidth=\dimexpr\bodyfontsize*\c_margincount\relax
+\newdimen\d_textlineheight\d_textlineheight=
+         \dimexpr\lineheight*\c_heightcount-\strutheight+\topskip\relax
+
+\startluacode
+  local todimen
+  local thr
+  local pw = tex.getdimen("paperwidth")
+  local ph = tex.getdimen("paperheight")
+  local pr = pw / ph
+  local tc = tex.getcount("c_textcount")
+  local hc = tex.getcount("c_heightcount")
+  local mc = tex.getcount("c_margincount")
+  local bs = tex.getdimen("d_textfontsize")
+  local hh = tex.getdimen("d_textlineheight")
+  local mw = tex.getdimen("d_marginwidth")
+  local twr = tc * bs -- 每行字數是必要設置
+
+  local ratio = tonumber(tokens.getters.macro("c_hermesratio")) or 1.414
+
+  if    hc == 0 then  -- 如果沒有設置頁面高度數
+        thr = twr / pr
+  else
+        thr = hh
+  end
+
+  local Lm, Rmr, Rml, Rm, Rmm
+
+  if    mc == 0 then
+        Lm  = (pw - twr) / (1 + ratio)             -- 左邊距總寬度
+        Rmr = Lm * ratio / (2 + ratio + 1/ratio)   -- 右邊緣距離
+        Rml = Rmr / ratio                          -- 右邊注距離
+        Rm  = pw - Lm - twr                        -- 右邊距總寬度
+        Rmm = Rm - Rml - Rmr                       -- 邊注寬度（自動計算）
+  else
+        Rmm = mw                                   -- 邊注寬度（指定）
+        Lm  = (pw - twr - Rmm) / (1 + ratio)       -- 左邊距總寬度（扣除邊注）
+        Rm  = pw - Lm - twr                        -- 右邊距總寬度
+        Rml = (Rm - Rmm) / (1 + ratio)             -- 右邊注距離
+        Rmr = Rm - Rmm - Rml                       -- 右邊緣距離
+  end
+
+  local He  = (ph - thr) / (1 + ratio)           -- top total
+  local Fo  = ph - He - thr                      -- bot total
+  local Het = He * ratio / (2 + ratio + 1/ratio) -- top distance
+  local Heb = Het / ratio                        -- header distance
+  local Hem = He - Het - Heb                     -- header height
+  local Fob = Fo * ratio / (2 + ratio + 1/ratio)
+  local Fot = Fob / ratio
+  local Fom = Fo - Fot -Fob
+
+  local function spstr(x) return tostring(math.floor(x + 0.5)) .. "sp" end
+
+  local textwidth  = spstr(twr)
+  local theight    = ph - Het - Fob        -- textheight 是 頁面 - 頂部 - 尾部
+  local textheight = spstr(theight)
+
+  local backspace           = spstr(Lm)
+  local rightmargin         = spstr(Rmm)
+  local rightmargindistance = spstr(Rml)
+  local rightedgedistance   = spstr(Rmr)
+  local topdistance         = spstr(Het)
+  local header              = spstr(Hem)
+  local headerdistance      = spstr(Heb)
+  local footer              = spstr(Fom)
+  local footerdistance      = spstr(Fot)
+  local botdistance         = spstr(Fob)
+
+  -- context("ratio ")context(ratio)context.par()
+  -- context("he                  ")context(He/65536)context.par()
+  -- context("backspace           ")context(Lm/65536)context.par()
+  -- context("topdistance         ")context(Het/65536)context.par()
+  -- context("rightmargin         ")context(Rmm/65536)context.par()
+  -- context("rightmargindistance ")context(Rml/65536)context.par()
+  -- context("rightedgedistance   ")context(Rmr/65536)context.par()
+  -- context("header              ")context(Hem/65536)context.par()
+  -- context("headerdistance      ")context(Heb/65536)context.par()
+  -- context("fo                  ")context(Fo/65536)context.par()
+  -- context("footerdistance      ")context(Fot/65536)context.par()
+  -- context("footer              ")context(Fom/65536)context.par()
+  -- context("botdistance         ")context(Fob/65536)context.par()
+  -- context(thr/65536)context.par()
+  -- context(textheight)context.par()
+
+context.definelayout(
+  { "hermes" },
+  {
+    width=textwidth,
+    backspace=backspace,
+    rightmargin=rightmargin,
+    rightmargindistance=rightmargindistance,
+    topspace=topdistance,
+    header=header,
+    headerdistance=headerdistance,
+    footer=footer,
+    footerdistance=footerdistance,
+    bottomspace=botdistance,
+    height=textheight,
+  }
+)
+\stopluacode
+
+%%%%% \section{layout}
+\definelayout [madsen]  [exotic]
+\definelayout [default] [\moduleparameter{memos}{layout}]
+\setuplayout  [\moduleparameter{memos}{layout}]
+
+% 字符网格只依赖实际版心尺寸，适用于 hermes / moderate 等所有布局。
+% 不再绘制页面模数网格，也不再读取 \layoutparameter{grids}。
+\newif\ifchargridchars    \chargridcharstrue
+\newif\ifchargridbaseline \chargridbaselinefalse
+\newif\ifchargridlabel    \chargridlabeltrue
+\newif\ifchargridruler    \chargridrulertrue
+
+\startuniqueMPgraphic{chargrid}{em,bl,ts,fh,fd,showchars,showbaseline}
+  numeric em, bl, ts, fh, fd, pad, n, m, k, i, yb, yt ;
+  em := \MPvar{em} ;
+  bl := \MPvar{bl} ;
+  ts := \MPvar{ts} ;
+  fh := \MPvar{fh} ;% 字顶到基线
+  fd := \MPvar{fd} ;% 基线到字底
+  pad := (em - (fh+fd))/2 ;   % 让 1em 方块包住字身
+  if pad < 0 : pad := 0 ; fi ;
+
+  color line, baseline ;
+  line     := .55[white,blue] ;
+  baseline := .20[white,black] ;
+  pickup pencircle scaled .2pt ;
+
+  n := floor((OverlayHeight - ts)/bl) ;
+  m := floor(OverlayWidth/em) ;
+
+  for k = 0 upto n :
+    % 正方形字格：底边由基线、字深和 padding 决定，边长恒为 1em
+    yb := OverlayHeight - ts - k*bl - fd - pad ;
+    yt := yb + em ;
+
+    if \MPvar{showbaseline} > 0 :
+      draw (0, OverlayHeight - ts - k*bl) -- (OverlayWidth, OverlayHeight - ts - k*bl)
+        withcolor baseline ;
+    fi ;
+
+    if \MPvar{showchars} > 0 :
+      draw (0, yb) -- (OverlayWidth, yb) withcolor line ;
+      draw (0, yt) -- (OverlayWidth, yt) withcolor line ;
+      for i = 0 upto m :
+        draw (i*em, yb) -- (i*em, yt) withcolor line ;
+      endfor ;
+    fi ;
+  endfor ;
+
+  draw unitsquare xscaled OverlayWidth yscaled OverlayHeight
+    withcolor .75[white,blue] ;
+\stopuniqueMPgraphic
+
+% 边界尺子：画在纸张边缘，1mm 刻度，5cm 标注
+\startuniqueMPgraphic{chargrid:ruler}{w,h,em,bl,ts,bx,by,showlabel}
+  numeric mmx, n, i, len, y, w, h, em, bl, ts, bx, by, nci, nli ;
+  mmx := 2.845274 ;
+  w := \MPvar{w} ;
+  h := \MPvar{h} ;
+  em := \MPvar{em} ;
+  bl := \MPvar{bl} ;
+  ts := \MPvar{ts} ;
+  bx := \MPvar{bx} ;
+  by := \MPvar{by} ;
+  nci := round(10*w/em) ;
+  nli := round(10*((h-ts)/bl + 1)) ;
+
+  color frame, tick, midtick, cmtick, lab ;
+  frame   := .78[white,black] ;
+  tick    := .78[white,black] ;
+  midtick := .55[white,black] ;
+  cmtick  := .45[white,blue] ;
+  lab     := .35[white,black] ;
+  pickup pencircle scaled .2pt ;
+
+  % 左侧竖尺：贴纸边（内缩 2pt 避开页框），刻度向页内，1mm 步进，5cm 标注，自上而下递增
+  draw (2, 0) -- (2, PaperHeight) withcolor frame ;
+  n := floor(PaperHeight/mmx) ;
+  for i = 0 upto n :
+    y := PaperHeight - i*mmx ;
+    if (i mod 10) = 0 :
+      len := 6 ; draw (2, y) -- (2+len, y) withcolor cmtick ;
+    elseif (i mod 5) = 0 :
+      len := 4 ; draw (2, y) -- (2+len, y) withcolor midtick ;
+    else :
+      len := 2 ; draw (2, y) -- (2+len, y) withcolor tick ;
+    fi ;
+    if ((i mod 50) = 0) and (i > 0) :
+      label.rt(textext("\ttxx " & decimal (i div 10) & "cm"), (2+len+2, y)) withcolor cmtick ;
+    fi ;
+  endfor ;
+  label.rt(textext("\ttxx 0cm"), (10, PaperHeight-15)) withcolor cmtick ;
+
+  % 顶部横尺：贴纸边（内缩 2pt 避开页框），刻度向页内，1mm 步进，5cm 标注，自左向右递增
+  draw (0, PaperHeight-2) -- (PaperWidth, PaperHeight-2) withcolor frame ;
+  n := floor(PaperWidth/mmx) ;
+  for i = 0 upto n :
+    if (i mod 10) = 0 :
+      len := 6 ; draw (i*mmx, PaperHeight-2) -- (i*mmx, PaperHeight-2-len) withcolor cmtick ;
+    elseif (i mod 5) = 0 :
+      len := 4 ; draw (i*mmx, PaperHeight-2) -- (i*mmx, PaperHeight-2-len) withcolor midtick ;
+    else :
+      len := 2 ; draw (i*mmx, PaperHeight-2) -- (i*mmx, PaperHeight-2-len) withcolor tick ;
+    fi ;
+    if ((i mod 50) = 0) and (i > 0) :
+      label.bot(textext("\ttxx " & decimal (i div 10) & "cm"), (i*mmx, PaperHeight-2-len-2)) withcolor cmtick ;
+    fi ;
+  endfor ;
+
+  % 汇总放在版心底部（正文区下沿之外），尾部对齐版心右边缘
+  if \MPvar{showlabel} > 0 :
+    label.lft(textext("\ttxx " & decimal (nci div 10) & "Char * " & decimal (nli div 10)
+      & "Line = " & decimal ((nci div 10)*(nli div 10)) & "Char"),
+      (bx+w-2, by-8)) withcolor lab ;
+  fi ;
+\stopuniqueMPgraphic
+
+\defineoverlay[grid][\uniqueMPgraphic{chargrid}{%
+  em=\the\bodyfontsize,
+  bl=\the\lineheight,
+  ts=\the\topskip,
+  fh=\the\fontcharht\font`永,
+  fd=\the\fontchardp\font`永,
+  showchars=\ifchargridchars 1\else 0\fi,
+  showbaseline=\ifchargridbaseline 1\else 0\fi,
+}]
+
+\defineoverlay[chargrid:ruler][\uniqueMPgraphic{chargrid:ruler}{%
+  w=\the\textwidth,
+  h=\the\textheight,
+  em=\the\bodyfontsize,
+  bl=\the\lineheight,
+  ts=\the\topskip,
+  bx=\the\backspace,
+  by=\the\dimexpr\paperheight-\topspace-\headerheight-\headerdistance-\textheight\relax,
+  showlabel=\ifchargridlabel 1\else 0\fi,
+}]
+
+\tolerant\def\showchargrids[#1]{%
+  \getparameters[chargrids][chars=yes,baseline=no,label=yes,ruler=yes]%
+  \iffirstargument\getparameters[chargrids][#1]\fi%
+  \processaction[\chargridschars]
+    [yes=>\chargridcharstrue,no=>\chargridcharsfalse,
+     \v!default=>\chargridcharstrue,\v!unknown=>\chargridcharstrue]%
+  \processaction[\chargridsbaseline]
+    [yes=>\chargridbaselinetrue,no=>\chargridbaselinefalse,
+     \v!default=>\chargridbaselinefalse,\v!unknown=>\chargridbaselinefalse]%
+  \processaction[\chargridslabel]
+    [yes=>\chargridlabeltrue,no=>\chargridlabelfalse,
+     \v!default=>\chargridlabeltrue,\v!unknown=>\chargridlabeltrue]%
+  \processaction[\chargridsruler]
+    [yes=>\chargridrulertrue,no=>\chargridrulerfalse,
+     \v!default=>\chargridrulertrue,\v!unknown=>\chargridrulertrue]%
+  \ifchargridruler
+    \setupbackgrounds[page][background={chargrid:ruler}]%
+  \fi
+  \setupbackgrounds[text][background=grid]%
+}
+
+%%% 此處定義了默認的頁面佈局， 可以通過 \setuplayout[default] 來設置
+% \doloopoverlist
+%   {exotic, kaolike, ipad, kindle, sidemirror,
+%    propiorroot, propiorgolden,
+%    narrow, moderate, wide, extrawide}
+%   {\page\setuplayout[\recursestring]{\red\ssd \currentlayout}\showsetups }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                               封面相關設置                          %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\installnamespace          {cover}
+\installcommandhandler \????cover  {cover}  \????cover
+
+\def\tophrule{%
+    \vskip 2pt\relax\hrule height  2pt depth .2pt width \textwidth
+    \vskip 2pt\relax\hrule height .2pt depth .2pt width \textwidth
+    \vskip 2pt\relax}
+\def\bottomhrule{%
+    \vskip 2pt\relax\hrule height .2pt depth .2pt width \textwidth
+    \vskip 2pt\relax\hrule height  2pt depth .2pt width \textwidth
+    \vskip 2pt\relax}
+\def\tophalfhrule{{%
+    \setuplocalinterlinespace[line=1pt]%
+    \vskip 2pt\relax
+    \centerline{\hbox{\vrule height  2pt depth .2pt width .5\textwidth}}%
+    \vskip 2pt\relax
+    \centerline{\hbox{\vrule height .2pt depth .2pt width .5\textwidth}}%
+    \vskip 2pt\relax}}
+\def\bottomhalfhrule{{%
+    \setuplocalinterlinespace[line=1pt]%
+    \vskip 2pt\relax
+    \centerline{\hbox{\vrule height .2pt depth .2pt width .5\textwidth}}%
+    \vskip 2pt\relax
+    \centerline{\hbox{\vrule height  2pt depth .2pt width .5\textwidth}}%
+    \vskip 2pt\relax}}
+
+\startuniqueMPgraphic{MP:flyleaf}
+    numeric width , height ;
+    numeric memosCoverWidth , memosCoverHeight , WhiteWidth;
+    WhiteWidth  := LeftEdgeWidth   + LeftEdgeDistance +
+                   LeftMarginWidth + LeftMarginDistance;
+    memosCoverWidth  := WhiteWidth      + TextWidth ;
+    memosCoverHeight := TextHeight      + HeaderDistance   + FooterDistance;
+    width  = PaperWidth + WhiteWidth;
+    height = \overlayheight ;
+    path paper_back ;%%% i
+    paper_back  := fullsquare xscaled width yscaled height ;
+    fill paper_back withcolor \MPcolor{softthemecolor} ;
+    path text_back ;%%% ii
+    text_back := fullsquare xscaled memosCoverWidth
+                            yscaled memosCoverHeight
+                            shifted (-.25WhiteWidth,0)
+                            cornered .5cm;
+    fill text_back withcolor white;
+\stopuniqueMPgraphic
+
+\startuniqueMPgraphic{MP:default:1}
+    numeric topwidth , topheight ;
+    numeric botwidth , botheight ;
+    topwidth  = PaperWidth;
+    topheight = .35*\overlayheight ;
+    botwidth  = PaperWidth;
+    botheight = .65*\overlayheight ;
+    path paper_backi ;%%% i
+    paper_backi  := fullsquare xscaled topwidth yscaled topheight shifted(0,.35*\overlayheight);
+    fill paper_backi withcolor \MPcolor{softthemecolor} ;
+    path paper_backii ;%%% i
+    paper_backii  := fullsquare xscaled botwidth yscaled botheight shifted(0,-.15*\overlayheight);
+    fill paper_backii withcolor \MPcolor{lightthemecolor} ;
+\stopuniqueMPgraphic
+
+\startuniqueMPgraphic{MP:golden_circle}
+  numeric phi, r, delta, Angle, steps, offset;
+  phi    := (1 + sqrt(5)) / 2;  % 黃金比例常數 ≈1.618
+  r      := 20cm;               % 初始圓半徑
+  delta  := 360 / phi;          % 黃金旋轉角 ≈137.508°
+  steps  := 8;                  % 循環次數
+  Angle  := 60;                 % 初始角度
+
+  % 精確計算位移公式：offset += r * dir(Angle)
+  for i = 0 upto steps:
+    % 繪製圓（半徑r，中心位置基於累積位移）
+    fill fullcircle scaled (2r)
+      rotated Angle                % 旋转角度
+      shifted (r/phi * dir(Angle)) % 位移控制螺旋轨迹
+      withshademethod "circular"
+      withshadecenter (.5,.75)
+      withcolor \MPcolor{themecolor} shadedinto \MPcolor{softthemecolor}
+      withtransparency (1,.8) ;
+
+    % 更新参数：半径按 phi 缩放，角度增加 delta
+    r := r / phi;
+    Angle := Angle + delta;
+  endfor;
+\stopuniqueMPgraphic
+
+\startuniqueMPgraphic{MP:cover:2}
+    numeric topwidth , topheight ;
+    numeric botwidth , botheight ;
+    topwidth  = PaperWidth;
+    topheight = .35*\overlayheight ;
+    botwidth  = PaperWidth;
+    botheight = .65*\overlayheight ;
+    path paper_backi ;%%% i
+    paper_backi  := fullsquare xscaled topwidth yscaled topheight shifted(0,.35*\overlayheight);
+    fill paper_backi withcolor \MPcolor{softthemecolor} ;
+    path paper_backii ;%%% i
+    paper_backii  := fullsquare xscaled botwidth yscaled botheight shifted(0,-.15*\overlayheight);
+    fill paper_backii withcolor \MPcolor{lightthemecolor} ;
+    fill fullcircle
+      xyscaled (.25*\overlayheight,.25*\overlayheight)
+      shifted  (.25*\overlaywidth ,.20*\overlayheight)
+      withcolor \MPcolor{softthemecolor} ;
+\stopuniqueMPgraphic
+
+\startuniqueMPgraphic{MP:ORLY}
+    path ORLYpaper_back ;%%% i
+    ORLYpaper_back  := fullsquare xscaled \overlaywidth yscaled \overlayheight;
+    fill ORLYpaper_back withcolor \MPcolor{softthemecolor} ;
+\stopuniqueMPgraphic
+
+%\def\c!list{list}
+\def\c!book{book}
+\def\c!makeup{makeup}
+
+\startsetups setup:default:1:makeup
+  \setupbackgrounds[page][background={olay:default:1}]
+\stopsetups
+
+\definemarking [book]
+\definemakeup  [reset]
+\definemakeup  [preset]
+\setupmakeup   [preset]   [headerstate=empty,footerstate=empty,top=,]
+\definelayout  [preset]   [backspace=15mm,rightmargin=10mm,rightedge=0mm,
+                           topspace=5mm,bottomspace=5mm,% header=5mm,footer=5mm,
+                           width=fit,height=fit,]
+
+\definelayer    [lay:default:1] [repeat=yes,width=\paperwidth, height=\paperheight]
+\defineoverlay [olay:default:1] [\useMPgraphic{MP:default:1}]
+\defineoverlay [olay:default:2] [\useMPgraphic{MP:default:2}]
+
+\startsetups setup:flyleafmakeup
+  \setupbackgrounds[page] [background={olay:flyleaf}]
+\stopsetups
+
+\definemakeup        [flyleaf] [preset]
+\setupmakeup         [flyleaf] [before=\setups{setup:flyleafmakeup},]
+\definelayer     [lay:flyleaf] [lay:default:1]
+\defineoverlay  [olay:flyleaf] [\useMPgraphic{MP:flyleaf}]
+\definelayout        [flyleaf] [preset]
+
+\startsetups setup:cover:1:makeup
+  \setupbackgrounds[page][background={olay:cover:1}]
+\stopsetups
+
+\definemakeup        [cover:1] [preset]
+\setupmakeup         [cover:1] [before=\setups{setup:cover:1:makeup}]
+\definelayer     [lay:cover:1] [lay:default:1]
+\defineoverlay  [olay:cover:1] [\useMPgraphic{MP:golden_circle}]
+\definelayout        [cover:1] [preset]
+
+\startsetups setup:cover:2:makeup
+  \setupbackgrounds[page][background={olay:cover:2}]
+\stopsetups
+
+\definemakeup        [cover:2] [preset]
+\setupmakeup         [cover:2] [before=\setups{setup:cover:2:makeup}]
+\defineoverlay  [olay:cover:2] [\useMPgraphic{MP:cover:2}]
+\definelayout        [cover:2] [preset]
+
+\startsetups setup:ORLYmakeup
+  \setupbackgrounds[page]        [background={olay:ORLY}]
+  \setupbackgrounds[header][text][background=color,backgroundcolor=themecolor]
+\stopsetups
+
+\definemakeup          [ORLY] [preset]
+\definelayout          [ORLY] [preset][header=5mm,]
+\defineoverlay    [olay:ORLY] [\useMPgraphic{MP:ORLY}]
+\setupmakeup           [ORLY] [before=\setups{setup:ORLYmakeup},
+                               after={\setupbackgrounds[header][text][background=color,backgroundcolor=white]}]
+
+%title 書名            subtitle 副標
+%publisher 出版商      author 作者
+%editor 編輯           translator 翻譯人員
+%summary 摘要          review 書評
+%quote 引言            author bio 作者自傳
+%part 部、篇            chapter 章節
+%appendix 附錄         glossary 詞彙表
+%index 索引            reference 參考資料
+%prologue 序幕、開場    epilogue 尾聲、後記
+
+\setupcover [
+               list={series,book,author,introduction,publisher},
+             makeup=preset,%flyleaf
+       % background=,
+       seriesvspace=\null\vskip3\baselineskip\relax,
+         bookvspace=\vskip2\baselineskip\relax,
+       authorvspace=\vskip3\baselineskip\relax,
+ introductionvspace=\vskip\baselineskip\relax,
+    publishervspace=\vfill,
+             series={\CONTEXT\ 模板系列示例},
+               book={这是书名\vskip\baselineskip\relax{\restoreglobalbodyfont
+                      \rm Here\ \ is\ \ Subtitle}},
+             author={主编 \quad Welson,Alex},
+          publisher={这是出版社},
+       introduction={\tophalfhrule
+                     \hbox to 1tw{\hfill\vbox{\hsize.8tw\relax\input gray\relax}\hfill}
+                     \bottomhalfhrule},
+        seriesstyle=\ss,
+          bookstyle=\definedfont[Sans sa 4],
+        authorstyle=\rm\it,
+     publisherstyle=\ss,
+  introductionstyle=\rm\it,
+        seriesalign=center,
+          bookalign=center,
+        authoralign=center,
+     publisheralign=center,
+  introductionalign=center,
+%beforeintroduction=\tophrule,
+% afterintroduction=\bottomhrule,
+          lastvspace=\vskip\baselineskip\relax,]
+
+\protected\def\definecovervariable#1{\begingroup% #1=element name
+    \par
+    \edef\p_variable{\namedcoverparameter\currentcover{#1}}
+    \edef\p_align{\namedcoverparameter\currentcover{#1align}}
+    \namedcoverparameter\currentcover{#1vspace}%
+    \namedcoverparameter\currentcover{before#1}%
+    \bgroup
+    \usecoverstyleandcolor{#1style}{#1color}%
+    \startalignment[\p_align]
+    \ifx\p_variable\empty
+      \writestatus{module exam}{warning: #1 is empty ! please input #1.
+                                or maybe you have some value is undefined.}%
+    \else
+      \namedcoverparameter\currentcover{#1left}%
+      \p_variable
+      \namedcoverparameter\currentcover{#1right}%
+    \fi
+    \stopalignment
+    \egroup
+    \namedcoverparameter{\currentcover}{after#1}%
+    \endgroup}
+
+\definetextbackground[cover]%
+\setuptextbackground [cover][location=always,background=,frame=off,]
+
+\protected\tolerant\def\makecover[#1]#*[#2]%
+  {\begingroup\def\currentcover{#1}%
+   \ifarguments\or\or\setupcover[#1][#2]\fi
+   \def\currentlist{\namedcoverparameter\currentcover\c!list}
+   \startmakeup[\namedcoverparameter\currentcover\c!makeup]%
+     \starttextbackground [cover]%
+     \vbox to \textheight{%
+       \usecoverstyleandcolor\c!style\c!color
+       \processcommacommand[\currentlist]\definecovervariable
+       \doifelse{\namedcoverparameter\currentcover{lastvspace}}{}{}%
+                {\namedcoverparameter\currentcover{lastvspace}}%
+    }\stoptextbackground%
+    \marking[book]{\namedcoverparameter\currentcover\c!book}
+    \stopmakeup%
+  \endgroup}
+
+\definecover[ORLY]
+\definecover[newbook]
+\definecover[kaolike]
+\definecover[flyleaf]
+\definecover[cover:1]
+\definecover[cover:2]
+\definecover[announcement]
+
+\setupcover[flyleaf][makeup=flyleaf]
+
+\setupcover[cover:1][
+  makeup=cover:1,
+  list={series,subtitle,book,author,publisher},
+  series={\CONTEXT\ 書籍封面示例},
+  seriescolor=softgray,
+  seriesvspace=,
+  seriesalign=flushleft,
+  subtitle={Digital Processing of Synthetic Aperture Radar Data\par
+            Algorithms and Implementation},
+  subtitlecolor=softgray,
+  subtitlevspace=\vfill,
+  subtitlealign=flushright,
+  book={\hfill
+        \framed[frame=on,width=8em,align=flushright,rulethickness=1pt,
+                framecolor=lightoptcolor,bottomframe=off,rightframe=off,]
+                {合成孔径雷达\par 成像算法与实现}},
+  bookcolor=lightoptcolor,
+  bookvspace=\vskip\baselineskip\relax,
+  bookalign=flushright,
+  author={\vbox{[加] Ian G. Cumming Frank H.Wong\quad\quad 著\par
+        洪 \quad 文 \quad 胡东辉 \quad 韩 \quad 冰 \quad 等译\par
+                                   吴一戎          \quad 审校\par
+                                   Jyun S.Wang     \quad 排注}},
+  authorcolor=softgray,
+  authorvspace=\vskip2\baselineskip\relax,
+  authoralign=flushright,
+  publisher={这是出版社},
+  publisheralign=flushright,
+  publisherstyle=tt,
+  publishercolor=softgray,
+  publishervspace=\vskip2\baselineskip\relax,
+  lastvspace=\null\vskip\baselineskip\relax,]
+
+\setupcover[cover:2][
+  makeup=cover:2,
+  list={book,author,publisher,version},
+  book={合成孔径雷达 \par 成像算法与实现},
+  bookalign=flushleft,
+  bookcolor=lightoptcolor,
+  bookvspace=\vfill,
+  afterbook={\blackrule[width=.5tw,height=1pt,depth=0pt,color=lightoptcolor]},
+  author={Author: Soanguy},
+  authorstyle=\tta,
+  authorcolor=lightgray,
+  authoralign=flushleft,
+  authorvspace=\vskip\baselineskip\relax,
+  publisher={这是出版社},
+  publisherstyle=tt,
+  publishercolor=lightgray,
+  publishervspace=\vskip6\baselineskip\relax,
+  version={version: \currentdate},
+  versionstyle=tt,
+  versioncolor=lightgray,
+  versionalign=center,
+  versionvspace=\vskip1\baselineskip\relax,
+  lastvspace=,
+  ]
+
+\setupcover[ORLY][
+  makeup=ORLY,
+  list={series,animal,book,author,publisher},
+  series={从入门到放弃系列权威指南},
+  seriesvspace=\vskip4pt\relax,
+  animal={\hfill\framed[background=color,backgroundcolor=darkthemecolor,width=20em,height=15em,frame=off]{}},
+  animalvspace=\vfil,
+  bookleft={\hfill
+           \startframed[background=color,backgroundcolor=themecolor,
+                        frame=off,align=flushright,width=max]},
+  bookright={\stopframed},
+  book={合成孔径雷达 \par 成像算法与实现},
+  bookalign=flushleft,
+  bookcolor=white,
+  bookvspace=,
+  afterbook={\hfill \ttb Up and Running\par\vskip4\baselineskip\relax},
+  author={{\en\bf O’RLY Cover} \hfill Robin Nixon},
+  authorstyle=\ttb,
+  authorcolor=darkgray,
+  authoralign=flushleft,
+  authorvspace=\vskip\baselineskip\relax,
+  publisher={这是出版社},
+  publisheralign=flushright,
+  publisherstyle=tt,
+  publishercolor=darkgray,
+  publishervspace=,
+  lastvspace=,
+  ]
+
+\setupcover[kaolike][
+  makeup=reset,
+  list={series,title,book,subtitle,author,date,publisher},
+  series=从入门到放弃系列权威指南,
+  title=一版在手，天下我有,
+  book=合成孔径雷达\par 成像算法与实现,
+  subtitle=定制属于你的书籍,
+  author=薛浩,
+  date=\currentdate,
+  publisher=绝绝子出版社,
+  seriesstyle=tf,
+  titlestyle=bfb,
+  bookstyle={\setupinterlinespace[2]\definedfont[Sans sa 2.5]},
+  subtitlestyle=ssa,
+  authorstyle=tfa,
+  datestyle=tfa,
+  publisherstyle=tfa,
+  seriesvspace=,
+  titlevspace=\kern6\baselineskip\relax,
+  subtitlevspace=\vskip\baselineskip\relax,
+  authorvspace=\vskip\baselineskip\relax,
+  datevspace=\vskip\baselineskip\relax,
+  seriesalign=flushleft,
+  titlealign=center,
+  subtitlealign=center,
+  datealign=center,
+]
+
+\setupcover[announcement][
+  makeup=reset,
+  list={abstracttitle,abstract,
+        announcementtitle,announcement,
+        copyrighttitle,copyright,
+        publishtitle,publish,
+        versiontitle,version},
+  abstracttitle=内容提要,
+  announcementtitle=声明,
+  copyrighttitle=版权没有，翻版不究,
+  publishtitle=出版说明,
+  versiontitle=版本,
+  abstract=介绍一种宽边排版的\TEX 模板，常见于现代风格教科书。除了提供完整的开箱即用的特性，还允许用户自定义自己的特性。,
+  announcement=您可以编辑此页面以满足您的需要。例如，有无版权声明以及其他一些信息。,
+  copyright={\usesymbols[cc]\symbol[cc][cc]\,\symbol[cc][zero]本书使用 {\tt CC0} 代码发布到公共领域。在法律允许的范围内，\hbox{我放弃本作品的所有版权。}\par
+            要查看 {\tt CC0} 代码的副本，请访问：%
+            {\tt\goto{http://creativecommons.org/publicdomain/zero/1.0/}[url(http://creativecommons.org/publicdomain/zero/1.0/)]}},
+  publish=本文档基于 KOMA--Script 以及 \TEX 并使用 kaobook 模板。\par（欢迎贡献！）,
+  version=首次由绝绝子出版社出版于 2022 年 9 月 8 日。,
+  abstracttitlestyle=bf,
+  announcementtitlestyle=bf,
+  copyrighttitlestyle=bf,
+  publishtitlestyle=bf,
+  versiontitlestyle=bf,
+  announcementtitlevspace=\vfil,
+  lastvspace=\blank[line],
+]
+
+%   默认的封面名称为 newbook，
+%   你可以通过  makecover[newbook] 来生成新封面的内容元素。
+%         通过 setupcover[newbook] 来定义新封面的内容元素。
+%
+%   默认的内容元素有四个：
+%   书名（book）、作者名（author）、书籍介绍（introduction）、出版社（publisher）。
+%   如果需要更多的内容元素，
+%   可以使用 setupcover[newbook][list={x,x,x}] 来定义所需要的内容元素。
+%
+%   在定义 list 的具体内容元素名称之后，会自动生成相应的参数。
+%   例如，定义 list=author，那么，你会得到：
+%   author authorstyle authoralign beforeauthor afterauthor authorvspace
+%   这些参数命令可以调整该内容元素的样式。
+%   同时，还定义了一个 textbackground 环境来进行更加复杂的样式调整（借助 MP）。

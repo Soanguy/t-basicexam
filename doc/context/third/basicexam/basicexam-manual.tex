@@ -1,16 +1,14 @@
-\usemodule[memos]
+\usemodule[memos][layout=hermes]
 \usemodule[basicexam]
 \usemodule[setups]
-
 \enablemode[no-setup-main]
 \loadsetups[i-basicexam.xml]
 
-\setupinteraction[state=start]
 \setuptextrules[style=\tf\ss,before=,after=,rulethickness=.5pt]
-
-\setuptyping[style=\ttxx\setuplocalinterlinespace[line=2ex],
+\setupquestion[point=1]
+\setuptyping[style=\ttx\setuplocalinterlinespace[line=2ex],
              option={context},
-             before={\vbox{\hrule height .5pt\par
+             before={\blank[halfline]\vbox{\hrule height .5pt\par
                      \textrule{代码示例}%
                      \hrule height .5pt\vrule width0pt depth 4pt}\par},
               after={\vbox{\hrule height .5pt\strut}},
@@ -33,21 +31,24 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 
 \section{主要特性}
 
-\startitemize[packed]
-\item 多种题型支持：选择题、填空题、简答题、完形填空等
+\startpoints
+\item 多种题型支持：选择题、填空题、判断题、选词填空、简答题、完形填空等
 \item 教师/学生模式切换，控制答案显示
 \item 无限层级嵌套题目支持
 \item 自动分数统计与答案收集
+\item \type{\partio} / \type{\typegrade} 成绩表收集与输出
+\item \type{\ORDER} 选项乱序与自动编号[experimental]
 \item 灵活的样式定制选项
-\item 内置多种符号标记
+\item 内置多种符号标记与徽章，全部由 MetaFun 绘制
 \item 作文格与写作区域
 \item 材料阅读与引用系统
-\stopitemize
+\stoppoints
 
 \section{系统要求}
 
 该模块需要 {\bf ConTeXt LMTX (LuaMetaTeX)} 环境，不支持 MkIV 版本。
 如果在不兼容的环境下运行，模块会提示错误并终止编译。
+标记符号与徽章使用 MetaFun 绘制，不需要安装额外的符号字体。
 
 \chapter{模块加载与参数}
 
@@ -212,7 +213,7 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 
 \subsection{标题元素}
 
-\type{list} 参数控制标题中显示哪些元素及其顺序。默认列表为：\type{secret,title,subject,information,signinformation,notice}。
+\type{list} 参数控制标题中显示哪些元素及其顺序。默认列表为：\type{secret, title, subject, information, signinformation, notice}。
 
 \starttabulate[|l|p(8cm)|]
 \HL
@@ -228,7 +229,7 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 \stoptabulate
 
 每个元素都可以单独设置样式、颜色和对齐方式，例如：
-\type{secretstyle}、\type{secretcolor}、\type{secretalign} 等。
+\type{secretstyle}、 \type{secretcolor}、 \type{secretalign} 等。
 
 \subsection{其他参数}
 
@@ -613,46 +614,6 @@ score 命令参数：
 \HL
 \stoptabulate
 
-\subsection{答案输出}
-
-答案输出功能用于在试卷末尾或指定位置生成答案汇总表。
-使用 \type{\typeanswer} 命令可以按不同格式输出答案。
-
-\startbuffer
-% 列表格式（默认）
-\typeanswer[start=1,total=10]
-
-% 表格格式
-\typeanswer[alternative=table,start=1,total=30,rows=6,columns=5]
-
-% 网格格式
-\typeanswer[alternative=grid,start=1,total=10,rows=5,columns=2]
-
-% 直接访问单个答案
-\typeanswer[alternative=direct]{Q-5}
-\stopbuffer
-
-\typebuffer
-
-typeanswer 命令参数：
-
-\starttabulate[|l|l|p|]
-\HL
-\NC 参数 \NC 默认值 \NC 说明 \NC\NR
-\HL
-\NC alternative \NC list \NC 输出格式：list、table、grid、direct \NC\NR
-\NC start \NC 1 \NC 起始题号 \NC\NR
-\NC stop \NC \NC 结束题号 \NC\NR
-\NC total \NC \NC 题目总数（替代 stop） \NC\NR
-\NC chapter \NC \NC 章节编号 \NC\NR
-\NC rows \NC \NC 表格行数 \NC\NR
-\NC columns \NC \NC 表格列数 \NC\NR
-\NC separator \NC \NC 分隔符（文本格式） \NC\NR
-\NC left \NC \NC 答案左侧内容 \NC\NR
-\NC right \NC \NC 答案右侧内容 \NC\NR
-\HL
-\stoptabulate
-
 \chapter{填空题}
 
 \section{基本用法}
@@ -718,7 +679,24 @@ typeanswer 命令参数：
 
 \subsection{判断题}
 
-填空题也可用于判断题：
+模块提供专用的 \type{truefalse} 环境。普通 \type{\titem} 表示错误答案，
+\type{\titem[*]{...}} 表示正确答案：
+
+\startbuffer
+\starttruefalse[point=2,showanswer=true]
+  \titem[*]{地球是太阳系的一颗行星。}
+  \titem{太阳从西边升起。}
+  \titem[*]{水在标准大气压下 100℃ 沸腾。}
+\stoptruefalse
+\stopbuffer
+
+\typebuffer \getbuffer
+
+在 teacher 模式下，\type{\titem[*]} 显示 \symbol{marksquarecheck}，
+普通 \type{\titem} 显示 \symbol{marksquarecross}；在 student 模式下，
+所有项目都显示统一的 \symbol{marksquare} 方框。
+
+也可以用填空环境实现判断题：
 
 \startbuffer
 \setupfillin[empty=none,style=\tta]
@@ -792,11 +770,11 @@ typeanswer 命令参数：
 \type{\indicator} 命令用于标记材料中的提问点，实现材料与题目的关联。
 标记后的内容会在材料中以特殊样式显示，同时在题目中引用。
 
-\startitemize[packed]
+\startpoints[packed]
 \item 在材料中使用 \type{\indicator{标记名}} 标记关键内容
 \item 在题目中使用 \type{\indicator{标记名}} 引用该内容
 \item 编译时自动建立关联关系
-\stopitemize
+\stoppoints
 
 \startbuffer
 \startmaterial[title={示例材料}]
@@ -814,13 +792,13 @@ typeanswer 命令参数：
 \type{verse} 环境用于排版诗词、歌词等韵文内容：
 
 \startbuffer
-\startverse[title=临江仙 $\cdot$ 滚滚长江东逝水,author=明 $\cdot$ 杨慎,sample={白髮漁樵江渚上 慣看秋月春風}]
-滾滾長江東逝水浪花淘盡英雄\\
-是非成敗轉頭空\\
-青山依舊在 幾度夕陽紅\\
-白髮漁樵江渚上 慣看秋月春風\\
-一壺濁酒喜相逢\\
-古今多少事 都付笑談中
+\startverse[title=临江仙 $\cdot$ 滚滚长江东逝水,author=明 $\cdot$ 杨慎,sample={白发渔樵江渚上 惯看秋月春风}]
+滚滚长江东逝水浪花淘尽英雄\\
+是非成败转头空\\
+青山依旧在 几度夕阳红\\
+白发渔樵江渚上 惯看秋月春风\\
+一壶浊酒喜相逢\\
+古今多少事 都付笑谈中
 \stopverse
 \stopbuffer
 
@@ -852,7 +830,7 @@ typeanswer 命令参数：
 可以分别设置标题、作者、来源的样式：
 
 \startbuffer
-\setupverse[sample={滾滾長江東逝水浪花淘盡英雄},skip=left,before=\blank,after=\blank]
+\setupverse[sample={滚滚长江东逝水浪花淘尽英雄},skip=left,before=\blank,after=\blank]
 \setupverse[title][align=center,style=bf,skip=both]
 \setupverse[author][align=flushright,style=it,skip=both]
 \setupverse[source][align=flushright,style=it,skip=both]
@@ -870,9 +848,9 @@ typeanswer 命令参数：
 \startbuffer
 \startclose[showanswer=true,showpoint=true,point=1.5,answer=nil]
 On Oct. 11, hundreds of runners competed in a cross-country race.
-Melanie Bailey should have \closechoice[designed,followed,changed,finished] the
-course earlier than she did. Her \closechoice[delay,chance,trouble,excuse] came
-because she was carrying a \closechoice[judge,volunteer,classmate,competitor]
+Melanie Bailey should have \closechoice{designed,{[*]followed},changed,finished} the
+course earlier than she did. Her \closechoice{delay,chance,{[*]trouble},excuse} came
+because she was carrying a \closechoice{judge,{[*]volunteer},classmate,competitor}
 across the finish line.
 \stopclose
 \stopbuffer
@@ -910,9 +888,9 @@ across the finish line.
 \subsection{closechoice 命令}
 
 \type{\closechoice} 命令用于在完形填空中插入选项，语法为：
-\type{\closechoice[选项1,选项2,选项3,...]}。
+\type{\closechoice{选项1,选项2,选项3,...}}。
 
-正确答案使用 \type{[*]} 标记：\type{\closechoice[选项1,{[*]正确选项},选项3]}。
+正确答案使用 \type{[*]} 标记：\type{\closechoice{选项1,{[*]正确选项},选项3}}。
 
 \subsection{optclose 环境}
 
@@ -920,8 +898,8 @@ across the finish line.
 
 \startbuffer
 \startoptclose[point=2,showanswer=true]
-The latest \ocitem[answer=engineering]{engineer} techniques are applied to create
-this protective \ocitem[answer=functional]{function} structure.
+The latest \oitem[answer=engineering]{engineer} techniques are applied to create
+this protective \oitem[answer=functional]{function} structure.
 \stopoptclose
 \stopbuffer
 
@@ -1011,23 +989,23 @@ this protective \ocitem[answer=functional]{function} structure.
 
 \type{writing} 环境用于创建作文题目，支持设置分数和答案：
 
-\startbuffer
-\startwriting[point=45,showpoint=true]
-  作文题目说明
-  
-  请根据以下要求写作：
-  \startitemize
-  \item 要求一
-  \item 要求二
-  \stopitemize
-  
-  \startanswer
-  范文内容...
-  \stopanswer
-\stopwriting
-\stopbuffer
-
-\typebuffer \getbuffer
+%\startbuffer
+%\startwriting[point=45,showpoint=true]
+%  作文题目说明
+%  
+%  请根据以下要求写作：
+%  \startpoints
+%  \item 要求一
+%  \item 要求二
+%  \stoppoints
+%  
+%  \startanswer
+%  范文内容...
+%  \stopanswer
+%\stopwriting
+%\stopbuffer
+%
+%\typebuffer \getbuffer
 
 \subsection{subwriting 环境}
 
@@ -1078,7 +1056,23 @@ this protective \ocitem[answer=functional]{function} structure.
 
 \chapter{符号定义}
 
-模块内置了多种标记符号（需要安装 NotoSansSymbols2 字体）：
+模块内置了多种标记符号。这些符号全部由 MetaFun 绘制，不依赖外部字体，
+因此无需安装 NotoSansSymbols 等符号字体。默认使用正式风格，使用
+\type{\setupmark[style=handdrawn]} 可切换为手绘风格
+（\type{style=normal} 恢复默认）。
+
+\starttabulate[|l|c|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC style \NC normal \NC 符号风格：\type{normal} 或 \type{handdrawn} \NC\NR
+\NC color \NC black \NC 符号颜色 \NC\NR
+\NC scale \NC 0.8 \NC 相对字号缩放 \NC\NR
+\NC sketch \NC 0.4 \NC 手绘抖动幅度（bp） \NC\NR
+\NC segments \NC 50 \NC 手绘路径分段数 \NC\NR
+\NC passes \NC 2 \NC 手绘叠加描边次数 \NC\NR
+\HL
+\stoptabulate
 
 \starttabulate[|l|r|l|r|]
 \HL
@@ -1103,49 +1097,75 @@ this protective \ocitem[answer=functional]{function} structure.
 
 \startbuffer
 \circledtext{1}\quad
-\circledtext[radius=0.5]{A}\quad
-\circledtext[radius=0,fillcolor=black,color=white]{B}\quad
-\circledtext[radius=0.2]{C}
+\circledtext[radius=5pt]{A}\quad
+\circledtext[radius=0pt,fillcolor=black,color=white]{B}\quad
+\circledtext[radius=2pt]{C}
 \stopbuffer
 
 \typebuffer \getbuffer
 
 \subsection{circledtext 参数}
 
-\showsetup[setupcircledtext]
+\type{\circledtext} 实际上是 \type{\circledconversion} 的别名，底层由
+\type{\DrawBadge} 绘制。\type{\circledtext} 只接受与 \type{\DrawBadge}
+相同的参数；全局默认值可用 \type{\setupbadge[...]} 修改。
+\type{radius} 是尺寸值而非比例：\type{0pt} 为方角，
+\type{3pt} 左右为圆角，更大的值逐渐趋近圆形（圆形的圆角由
+\type{shape=circle} 自动处理）。
 
-\starttabulate[|l|l|p|]
+\starttabulate[|l|c|p|]
 \HL
 \NC 参数 \NC 默认值 \NC 说明 \NC\NR
 \HL
-\NC frametype \NC circle \NC 边框类型：circle、square \NC\NR
-\NC framecolor \NC \NC 边框颜色 \NC\NR
-\NC fillcolor \NC \NC 填充颜色 \NC\NR
-\NC dashcolor \NC \NC 虚线颜色 \NC\NR
-\NC dashlinewidth \NC \NC 虚线宽度 \NC\NR
-\NC color \NC \NC 文本颜色 \NC\NR
-\NC radius \NC \NC 圆角半径 \NC\NR
-\NC effect \NC normal \NC 特效 \NC\NR
-\NC scaled \NC \NC 缩放比例 \NC\NR
+\NC text \NC 空 \NC 左侧文本，与编号并排显示 \NC\NR
+\NC shape \NC rect \NC 形状：\type{rect}、\type{circle}、\type{square}、\type{capsule} \NC\NR
+\NC radius \NC 4pt \NC 圆角半径，\type{0pt} 为方角 \NC\NR
+\NC textcolor \NC white \NC 左侧文本颜色 \NC\NR
+\NC numcolor \NC themecolor \NC 编号颜色 \NC\NR
+\NC framecolor \NC themecolor \NC 边框颜色 \NC\NR
+\NC dashcolor \NC mygray \NC 虚线颜色 \NC\NR
+\NC textbg \NC themecolor \NC 左侧背景色，\type{transparent} 表示不填充 \NC\NR
+\NC numbg \NC white \NC 编号背景色 \NC\NR
+\NC style \NC 空 \NC 文本字体样式 \NC\NR
+\NC scale \NC 0.7 \NC 整体缩放比例 \NC\NR
+\NC helperwidth \NC 0.4pt \NC 辅助线宽度 \NC\NR
+\NC dashwidth \NC 0pt \NC 虚线宽度 \NC\NR
+\NC offset \NC 1pt \NC 文本与边框间距 \NC\NR
+\NC rulethickness \NC 1pt \NC 边框线宽 \NC\NR
+\NC xshift \NC 0pt \NC 水平偏移 \NC\NR
+\NC yshift \NC -2pt \NC 垂直偏移 \NC\NR
+\NC cross \NC false \NC 是否绘制交叉线 \NC\NR
+\NC helper \NC false \NC 是否绘制辅助线 \NC\NR
+\NC strut \NC true \NC 编号是否使用支柱 \NC\NR
+\NC textstrut \NC true \NC 左侧文本是否使用支柱 \NC\NR
 \HL
 \stoptabulate
+
+\startbuffer
+\DrawBadge[shape=square, radius=0pt, text=正确,
+  textbg=darkgreen, numbg=darkgreen]{1}\quad
+\DrawBadge[shape=capsule, text=得分,
+  textbg=darkred, numbg=darkred]{10}
+\stopbuffer
+
+\typebuffer \getbuffer
 
 \subsection{圆圈编号转换}
 
 模块提供多种圆圈编号转换格式，可用于列表编号：
 
 \startbuffer
-\startitemize[Co:num,packed]
+\startpoints[Co:num,packed]
   \item 第一项
   \item 第二项
   \item 第三项
-\stopitemize
+\stoppoints
 
-\startitemize[CO:num,packed]
+\startpoints[CO:num,packed]
   \item 第一项
   \item 第二项
   \item 第三项
-\stopitemize
+\stoppoints
 \stopbuffer
 
 \typebuffer \getbuffer
@@ -1280,6 +1300,64 @@ this protective \ocitem[answer=functional]{function} structure.
 
 \chapter{高级功能}
 
+\section{成绩收集与输出}
+
+\type{\partio[uid]} 开启一个成绩收集分区；之后可用
+\type{\typegrade[partios=uid,...]} 输出成绩表。
+\type{partios} 留空时使用最新的 partio，也可以填数字、列表或
+\type{all}。\type{\startpartio} / \type{\stoppartio} 可临时开启或
+关闭收集。
+
+\starttyping
+\partio[first]
+
+\startquestion[point=4,answer=B]
+  下列哪一项是正确的？
+  \choice{选项A,{[*]选项B},选项C,选项D}
+\stopquestion
+
+\typegrade[partios=first, layout=cols,
+  showanswer=true, showcum=true]
+\stoptyping
+
+\type{\typegrade} 的其他常用参数：
+
+\starttabulate[|l|c|p|]
+\HL
+\NC 参数 \NC 默认值 \NC 说明 \NC\NR
+\HL
+\NC partios \NC 空 \NC 要渲染的 partio：空=最新，数字、列表或 \type{all} \NC\NR
+\NC source \NC last \NC 数据来源：\type{last}（上一遍编译缓存）或 \type{current} \NC\NR
+\NC layout \NC cols \NC 排版：\type{rows}、\type{cols}、\type{list}、\type{custom} \NC\NR
+\NC showsub \NC false \NC 是否展开子题 \NC\NR
+\NC showheader \NC true \NC 是否显示表头 \NC\NR
+\NC showcum \NC false \NC 是否显示累计分 \NC\NR
+\NC showanswer \NC false \NC 是否显示答案 \NC\NR
+\NC showscore \NC true \NC 是否显示得分栏 \NC\NR
+\NC showtotal \NC false \NC 是否显示总分 \NC\NR
+\NC answerwidth \NC 12em \NC rows 模式下答案列的最大宽度 \NC\NR
+\HL
+\stoptabulate
+
+\section{选项乱序}
+
+\type{\ORDER} 按给定种子打乱一组条目，并自动编号。
+用 \type{\setupORDER[...]} 修改全局默认值。
+
+\starttyping
+\ORDER[seed=42, numbering=characters]{甲,乙,丙,丁,戊}
+\stoptyping
+
+常用参数：\type{seed}（随机种子）、\type{symbol}（是否显示编号）、
+\type{numbering}（\type{numbers}、\type{characters} 等）、
+\type{distance}、\type{numberleft}、\type{numberright}、
+\type{answermode}（\type{correct} 或 \type{shuffled}）。
+乱序后的答案可用以下命令输出：
+
+\starttyping
+\ctxlua{thirddata.basicexam.collectd_orderanswer()}
+\stoptyping
+
 \section{无限层级支持}
 
 模块支持无限层级的题目嵌套，自动管理答案树：
@@ -1300,12 +1378,12 @@ this protective \ocitem[answer=functional]{function} structure.
 
 \section{数据持久化}
 
-答案数据自动保存到 .tuc 文件，可在第二次编译时访问：
+答案数据自动保存到 \type{<jobname>-examdata.lua}，可在第二次编译时访问：
 
 \starttyping
 % 访问保存的答案数据
-\datasetvariable{UnlimitedDataset}{题目ID}{answer}
-\datasetvariable{UnlimitedDataset}{题目ID}{point}
+\UnlimitedGetExtraData{题目ID}{answer}
+\UnlimitedGetExtraData{题目ID}{point}
 \stoptyping
 
 \section{答案树结构}
@@ -1347,14 +1425,14 @@ basicexam 模块使用答案树结构来管理所有题目的答案和分数信�
 
 使用以下命令获取指定节点的属性：
 
-\startitemize[packed]
+\startpoints[packed]
 \item \type{\UnlimitedDisplayPoint{ID}} - 获取节点分数
 \item \type{\UnlimitedDisplayAnswer{ID}} - 获取节点答案
 \item \type{\UnlimitedTotalPoint{ID}} - 获取节点总分（包含子题）
 \item \type{\UnlimitedTotalNumber{ID}} - 获取节点总数（包含子题）
 \item \type{\UnlimitedGetOrder{ID}} - 获取节点层级顺序
 \item \type{\UnlimitedIsLeaf{ID}} - 判断是否为叶子节点
-\stopitemize
+\stoppoints
 
 \startbuffer
 % 获取题目1的分数
@@ -1393,20 +1471,20 @@ basicexam 模块使用答案树结构来管理所有题目的答案和分数信�
 
 \subsection{参数说明}
 
-\startitemize[packed]
+\startpoints[packed]
 \item \type{level}: 层级编号，1=chapter, 2=section, 3=subsection...
 \item \type{number}: 该层级的编号（如第1章、第2章）
-\stopitemize
+\stoppoints
 
 {\bf 重要提示}：使用 \type{\UnlimitedCurrentStructure*} 命令时，必须在对应的章节/节结构内调用，否则会返回 0。
 
 \subsection{统计概念说明}
 
-\startitemize[packed]
+\startpoints[packed]
 \item {\bf 顶层题目（Major questions）}: 直接位于章节下的大题，不包含在其他题目内
 \item {\bf 顶层叶子节点（Independent major questions）}: 没有子题的顶层大题，即独立大题
 \item {\bf 所有叶子节点（All sub-questions）}: 所有实际需要作答的小题，包括嵌套的子题
-\stopitemize
+\stoppoints
 
 \subsection{统计示例}
 
@@ -1427,11 +1505,11 @@ basicexam 模块使用答案树结构来管理所有题目的答案和分数信�
 \typebuffer
 
 统计结果：
-\startitemize[packed]
+\startpoints[packed]
 \item 顶层题目数：3（大题1、大题2、大题3）
 \item 顶层叶子节点数：1（只有大题2是独立大题）
 \item 所有叶子节点数：6（小题1.1、1.2、大题2、小题3.1、3.2、3.3）
-\stopitemize
+\stoppoints
 
 \section{题目层级统计}
 
@@ -1448,10 +1526,10 @@ basicexam 模块使用答案树结构来管理所有题目的答案和分数信�
 
 \subsection{参数说明}
 
-\startitemize[packed]
+\startpoints[packed]
 \item \type{ID}: 题目节点ID（如 \type{jobname-1-Q-1}）
 \item \type{depth}: 相对层级深度（1=第一层子题，2=第二层子题...）
-\stopitemize
+\stoppoints
 
 \section{额外数据}
 
@@ -1531,23 +1609,23 @@ basicexam 模块使用答案树结构来管理所有题目的答案和分数信�
 
 如果您在使用过程中发现 bug 或有新功能需求，可以通过以下方式提交：
 
-\startitemize[packed]
+\startpoints[packed]
 \item 在 GitHub 仓库提交 Issue
 \item 发送邮件至作者邮箱
 \item 在相关论坛发帖讨论
-\stopitemize
+\stoppoints
 
 提交需求时，请尽量提供以下信息：
 
-\startitemize[packed]
+\startpoints[packed]
 \item ConTeXt 版本信息（运行 \type{context --version}）
 \item 最小复现示例
 \item 期望的行为和实际的行为
-\stopitemize
+\stoppoints
 
 \section{修改本模块}
 
-本模块采用 LuaMetaTeX 编写，源代码位于 \type{t-basicexam.mklx} 文件中。
+本模块采用 LuaMetaTeX 编写，主源代码为 \type{t-basicexam.mkxl}。
 
 \subsection{模块结构}
 
@@ -1555,8 +1633,14 @@ basicexam 模块使用答案树结构来管理所有题目的答案和分数信�
 \HL
 \NC 文件 \NC 说明 \NC\NR
 \HL
-\NC t-basicexam.mklx \NC 主模块文件，包含所有命令定义 \NC\NR
-\NC i-basicexam.xml \NC 接口定义文件，用于命令文档生成 \NC\NR
+\NC t-basicexam.mkxl \NC 试卷生成主模块 \NC\NR
+\NC t-memos.mkxl \NC 文档排版模块 \NC\NR
+\NC s-poriginal.mkxl \NC 演示文稿样式模块 \NC\NR
+\NC data/t-exam.lua \NC 答案树、成绩表、乱序等 Lua 实现 \NC\NR
+\NC data/t-*.lua \NC pinyin / bihua / zhnumber / zhindex 的 Lua 实现 \NC\NR
+\NC data/data-memos/ \NC memos 的组件文件（\type{m-*.mklx}） \NC\NR
+\NC data/data-font/ \NC 字体与回退配置 \NC\NR
+\NC doc/i-basicexam.xml \NC 接口定义文件，用于命令文档生成 \NC\NR
 \NC doc/basicexam-manual.tex \NC 使用手册 \NC\NR
 \NC doc/test-exam.tex \NC 测试文件 \NC\NR
 \HL
@@ -1564,11 +1648,11 @@ basicexam 模块使用答案树结构来管理所有题目的答案和分数信�
 
 \subsection{修改建议}
 
-\startitemize[packed]
+\startpoints[packed]
 \item 修改前请备份原文件
 \item 建议先阅读源代码注释
 \item 修改后请运行测试文件验证
 \item 如有重大改进，欢迎提交 Pull Request
-\stopitemize
+\stoppoints
 
 \stoptext

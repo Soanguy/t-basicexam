@@ -1,0 +1,318 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                             本地化設置                              %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\installlanguage [hans] [patterns={zh,us},]% install simplified  chinese
+\installlanguage [hant] [patterns={zh,us},]% install traditional chinese
+\input type-bak-fallbacks.mkiv
+\definebodyfontenvironment [default] [em=boldface]
+\pushoverloadmode
+\permanent\protected\def\emphasisboldface{\bi}
+\popoverloadmode
+%%%%%%%% \section {設置 語言 字體 行高等}
+\setuplanguage  [hans]
+                [   date={\v!year,年,mm,月,dd,日},
+            leftsentence=——,       rightsentence=——,
+         leftsubsentence=——,    rightsubsentence=——,
+           leftquotation=『,      rightquotation=』,
+               leftquote=「,          rightquote=」,
+             leftnotemark=〔,       rightnotemark=〕,]
+\setuplabeltext [hans]
+                [content={目录},            page={第,页},
+                   index={索引},        appendix={附录},
+                   table={表},           tables={表},
+                  figure={图},          figures={图},
+                 graphic={图},         graphics={图},
+            marginfigure={图},             text={参见：,},
+                 preface={前言},       totalpage={共,页},
+                 january={一月},        february={二月},
+                   march={三月},           april={四月},
+                     may={五月},            june={六月},
+                    july={七月},          august={八月},
+               september={九月},         october={十月},
+                november={十一月},      december={十二月},
+             monday:mnem={周一},    tuesday:mnem={周二},
+          wednesday:mnem={周三},   thursday:mnem={周四},
+             friday:mnem={周五},   saturday:mnem={周六},
+             sunday:mnem={周日},
+        reference:figure={图~,\refsymbol},
+         reference:table={表~,\refsymbol},
+          reference:page={第,页\refsymbol},
+       reference:chapter={第,章\refsymbol},
+       reference:section={第,节\refsymbol},
+       reference:theorem={定理~,\refsymbol},
+         reference:lemma={引理~,\refsymbol},
+     reference:corollary={推论~,\refsymbol},
+   reference:proposition={命题~,\refsymbol},
+    reference:definition={定义~,\refsymbol},
+         reference:proof={证明~,\refsymbol},
+        reference:remark={备注~,\refsymbol},
+       reference:example={示例~,\refsymbol},]
+
+\setuplanguage  [hant] [date={\v!year,年,mm,月,dd,日},
+            leftsentence=——,      rightsentence=——,
+         leftsubsentence=——,   rightsubsentence=——,
+           leftquotation=『,     rightquotation=』,
+               leftquote=「,         rightquote=」,
+            leftnotemark=〔,      rightnotemark=〕,]
+\setuplabeltext [hant]
+                [content={目錄},            page={第,頁},
+                   index={索引},        appendix={附錄},
+                   table={表},           tables={表},
+                  figure={圖},          figures={圖},
+                 graphic={圖},          graphics={圖},
+            marginfigure={圖},        totalpage={共,頁},
+                 preface={前言},
+                 january={一月},        february={二月},
+                   march={三月},           april={四月},
+                     may={五月},            june={六月},
+                    july={七月},          august={八月},
+               september={九月},         october={十月},
+                november={十一月},      december={十二月},
+             monday:mnem={週一},    tuesday:mnem={週二},
+          wednesday:mnem={週三},   thursday:mnem={週四},
+             friday:mnem={週五},   saturday:mnem={週六},
+             sunday:mnem={週日},
+        reference:figure={圖~,\refsymbol},
+         reference:table={表~,\refsymbol},
+          reference:page={第,頁\refsymbol},
+       reference:chapter={第,章\refsymbol},
+       reference:section={第,节\refsymbol},
+       reference:theorem={定理~,\refsymbol},
+         reference:lemma={引理~,\refsymbol},
+     reference:corollary={推論~,\refsymbol},
+   reference:proposition={命題~,\refsymbol},
+    reference:definition={定義~,\refsymbol},
+         reference:proof={證明~,\refsymbol},
+        reference:remark={備註~,\refsymbol},
+       reference:example={範例~,\refsymbol},]
+       
+\setuplanguage  [ja]  [\c!date={西暦,\v!year,年,mm,月,dd,日},
+                  leftsentence=——,    rightsentence=——,
+               leftsubsentence=——, rightsubsentence=——,
+                 leftquotation=『,   rightquotation=』,
+                     leftquote=「,       rightquote=」,
+                  leftnotemark=〔,    rightnotemark=〕,]
+\setuplabeltext [ja]  [content={目次},         page={第,ページ},
+                         index={索引},     appendix={付録},
+                         table={表},        tables={表},
+                        figure={図},       figures={図},
+                       graphic={図},      graphics={図},
+                  marginfigure={図},       preface={前書き},
+                       january={一月},     february={二月},
+                         march={三月},        april={四月},
+                           may={五月},         june={六月},
+                          july={七月},       august={八月},
+                     september={九月},      october={十月},
+                      november={十一月},   december={十二月},
+                   monday:mnem={月},   tuesday:mnem={火},
+                wednesday:mnem={水},  thursday:mnem={木},
+                   friday:mnem={金},  saturday:mnem={土},
+                   sunday:mnem={日},
+              reference:figure={図~,\refsymbol},
+               reference:table={表~,\refsymbol},
+                reference:page={第,ページ\refsymbol},
+             reference:chapter={第,章\refsymbol},
+             reference:section={第,节\refsymbol},
+             reference:theorem={Theorems~,\refsymbol},
+               reference:lemma={Lemmas~,\refsymbol},
+           reference:corollary={Corollary~,\refsymbol},
+         reference:proposition={Proposition~,\refsymbol},
+          reference:definition={Definition~,\refsymbol},
+               reference:proof={Proof~,\refsymbol},
+              reference:remark={Remark~,\refsymbol},
+             reference:example={Example~,\refsymbol},]
+
+\startluacode
+scripts.installdataset {
+    method  = "hanzi",
+    name    = "custom",
+    dataset = {
+        inter_char_shrink_factor          = 0.01,
+        inter_char_stretch_factor         = 0.10,
+        inter_char_half_shrink_factor     = 0.10,
+        inter_char_half_stretch_factor    = 0.15,
+        inter_char_quarter_shrink_factor  = 0.05,
+        inter_char_quarter_stretch_factor = 0.05,
+        inter_char_hangul_penalty         = 50,
+    }
+}
+\stopluacode
+\definescript [custom] [method=hanzi, preset=custom]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%D \section{Multilingual support}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 我们重定义了之前的userlanguage，现在可以直接通过language 命令来切换预设好的环境定义
+%% 但是需要注意必须要预先定义好字体才可以正常切换。
+%% 因为修改了 language 的 setups，导致会修改全局的字体设置，因此 basicexam 应该放在 最开始加载
+%% 这样后续如果使用 修改字体的 模块的话，才会生效
+
+\defineinterlinespace[CJK][
+  line=\dimexpr1.5\bodyfontsize\relax,
+  height=0.7,
+  depth=0.3,
+]
+
+\tolerant\def\out_optional[#1]{#1}
+
+\def\lang_set_if_provided#1#2#3{%
+  \ifcsname lang:#1#2\endcsname
+    \ifempty\csname lang:#1#2\endcsname\else
+      \expandafter#3\expandafter[\lastnamedcs]%
+    \fi
+  \fi
+}
+
+% 确保用户指定的 fontsize 已定义
+% 如果 fontsize 未定义，则从 default 环境继承创建
+\edef\m_memos_fontsize{\moduleparameter{memos}{fontsize}}%
+\ifx\m_memos_fontsize\empty\else
+  \normalizebodyfontsize\normalizedfontsize\m_memos_fontsize
+  \ifcsname\??fontbodyknown\normalizedfontsize\endcsname\else
+    \definebodyfontenvironment[\normalizedfontsize]%
+  \fi
+\fi
+
+\permanent\protected\def\defineuserlanguage[#1]#*[#2]%
+   {\getparameters[lang:#1][#2]%
+    \lang_set_if_provided{#1}{before}\out_optional
+    \startsetups[lang:#1:setup]%
+      \lang_set_if_provided{#1}{script}\setlocalscript
+      \ifvmode
+        \ifcsname lang:#1fallbackfont\endcsname\setups[fallback:\lastnamedcs]\fi
+        \lang_set_if_provided{#1}{bodyfont}\setupbodyfont
+      \else
+        \lang_set_if_provided{#1}{bodyfont}\switchtobodyfont
+      \fi
+      \lang_set_if_provided{#1}{interlinespace}\setuplocalinterlinespace
+      \lang_set_if_provided{#1}{align}\setupalign
+      \lang_set_if_provided{#1}{indenting}\setupindenting
+      \lang_set_if_provided{#1}{whitespace}\setupwhitespace
+    \stopsetups
+    \lang_set_if_provided{#1}{after}\out_optional
+    \setuplanguage[#1][setups=lang:#1:setup,#2]}
+
+\let\setupuserlanguage\defineuserlanguage
+
+% 这导致了多次加载。因为和默认没有多少区别。因此，我们取消了这个定义
+% 需要修改时，只需要重新定义一遍即可。
+% \setupuserlanguage[en][
+%   bodyfont=modern,
+%   patterns=en,
+%   interlinespace=2.8ex,
+%   whitespace=none,
+%   align={hanging,justified,morehyphenation,granular,lesswidows,lessclubs,lessorphans},
+%   indenting={first,always,1em},]
+
+\setupuserlanguage[cn][
+  bodyfont=modern,%ipaexhans,
+  fallbackfont=\moduleparameter{memos}{fallbackfont},
+  patterns=us,
+  script=hanzi,
+  interlinespace=CJK,
+  whitespace=none,
+  align={granular,lesswidows,lessclubs,lessorphans},
+  indenting={first,always,2em},]
+
+\setupuserlanguage[hans][
+  bodyfont=wenyuanhanslite,
+  fallbackfont=\moduleparameter{memos}{fallbackfont},
+  patterns=us,
+  script=custom,
+  interlinespace=CJK,
+  whitespace=none,
+  align={granular,lesswidows,lessclubs,lessorphans},
+  indenting={first,always,2em},]
+
+\setupuserlanguage[hant][
+  bodyfont=modern,%ipaexhant,
+  fallbackfont=\moduleparameter{memos}{fallbackfont},
+  patterns=us,
+  script=custom,
+  interlinespace=CJK,
+  whitespace=none,
+  align={granular,lesswidows,lessclubs,lessorphans},
+  indenting={first,always,2em},]
+
+\setupuserlanguage[ja][
+  bodyfont=modern,%ipaexnihon,
+  fallbackfont=\moduleparameter{memos}{fallbackfont},
+  patterns=us,
+  script=custom,
+  interlinespace=CJK,
+  whitespace=none,
+  align={granular,lesswidows,lessclubs,lessorphans},
+  indenting={first,always,1em},]
+
+\mainlanguage        [\moduleparameter{memos}{mainlanguage}]
+\language            [\moduleparameter{memos}{language}]
+\setupbodyfont       [\moduleparameter{memos}{bodyfont},\moduleparameter{memos}{fontstyle},\moduleparameter{memos}{fontsize}]
+\setupinterlinespace [\moduleparameter{memos}{lineheight}]% 必须先于 layout 进行定义。否则 hermes 无法获取 baselineskip
+% \setupinterlinespace [stretch=0.03]%设置一个比较小的值来合理的拉伸页面。避免过于空白的分页出现。height的align 必须设置该参数。
+\registerctxluafile{t-cjkskip}{}
+% ---------------------------------------------------------
+%    kanjiwidth / xkanjiwidth 走 tex.setglue
+%    stretch / shrink / halfstretch / halfshrink 走 dataset
+% ---------------------------------------------------------
+\def\setupkanjiskip[#1]{%
+    \ctxlua{thirddata.memos.setdataset("hanzi", "custom", {#1})}%
+}
+
+\def\disablepangu {\ctxlua{thirddata.memos.disablepangu()}}
+\def\enablepangu  {\ctxlua{thirddata.memos.enablepangu()}}
+\def\debugpangu   {\ctxlua{thirddata.memos.setdebugpangu(true)}}
+\def\nodebugpangu {\ctxlua{thirddata.memos.setdebugpangu(false)}}
+\def\debugshift   {\ctxlua{thirddata.memos.setdebugshift(true)}}
+\def\nodebugshift {\ctxlua{thirddata.memos.setdebugshift(false)}}
+\def\debugglue    {\ctxlua{thirddata.memos.enablegluedebug()}}
+\def\nodebugglue  {\ctxlua{thirddata.memos.disablegluedebug()}}
+\setupkanjiskip[% 应该先定义字体，然后在进行伸缩设置。
+    width       = 0.00,
+    halfwidth   = 0.25,
+    stretch     = 0.10,
+    halfstretch = 0.15,
+    shrink      = 0.01,
+    halfshrink  = 0.10,
+]
+
+\definedelimitedtext [paren]       [location=text]
+\setupdelimitedtext  [paren:1]     [left={\,\offset[y=-0.1em]{(}\nobreak}, right={\nobreak\offset[y=-0.1em]{)}\,}]
+\setupdelimitedtext  [paren:2]     [left={\,[\nobreak}, right={\nobreak]\,}]
+\setupdelimitedtext  [paren:3]     [left={\,\{\nobreak}, right={\nobreak\}\,}]
+
+\setupdelimitedtext  [quotation]   [language=local,repeat=yes,location=paragraph]
+\setupdelimitedtext  [quotation:1] [left=\penalty0\symbol[leftquotation]\nobreak,
+                                    middle=\symbol[leftquotation]\nobreak,
+                                    right=\nobreak\symbol[rightquotation]]
+\setupdelimitedtext  [quotation:2] [left=\penalty0\symbol[leftquote]\nobreak,
+                                    middle=\symbol[leftquotation]\nobreak,
+                                    right=\nobreak\symbol[rightquote]]
+
+\definedelimitedtext [book]        [location=text,language=local,repeat=yes]
+\setupdelimitedtext  [book:1]      [left=\penalty0《,middle=《,right=》]
+\setupdelimitedtext  [book:2]      [left=\penalty0〈,middle=〈,right=〉]
+
+% 链接断行规则
+\enabledirectives[hyphenators.urls.packslashes] % 避免连续斜杠分到不同行
+\sethyphenatedurlnormal{:=?&}
+\sethyphenatedurlbefore{?&}
+\sethyphenatedurlafter{:=}
+\sethyphenatedurlbefore{/} % 设置在斜杠前断行
+\sethyphenatedurlafter{_}
+%% % 设置断行时显示的符号
+%\def\hyphenatedurlseparator{↩}
+
+\definedate   [chinese] [year:cn-d,年,month,day:cn,号]
+\definedate   [default] [year:n,年,mm,月,dd,日]% 2025年01月11日
+\definedate   [slash]   [yy,/,mm,/,dd]%25/01/11
+\definedate   [line]    [yy,-,mm,-,dd]%25-01-11
+\definedate   [yyddmm]  [yy,/,dd,/,mm]%25/11/01
+%D \starttyping
+%D  \currentdate[chinese] \currentdate[default]
+%D  \currentdate[slash] \currentdate[line]
+%D  \currentdate[yyddmm]
+%D \stoptyping
+
+% \definebreakpoint [compound] [、] [nleft=1,nright=1,type=1]
+% \definebreakpoint [compound] [（] [nleft=3,nright=3,type=1]%% 会导致禁则失效
+% \definebreakpoint [compound] [）] [nleft=2,nright=2,type=1]
+% \setbreakpoints   [compound]

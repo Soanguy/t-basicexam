@@ -1,0 +1,154 @@
+\usemodule[memos][fontstyle=ss]
+
+\starttext
+
+\chapter{标题区域测试}
+
+\section{基本用法 - 编号+标题}
+
+\framed[width=max,align=flushleft,frame=off,]{\offinterlineskip
+\DualHeaderTextNew[number={1.1},title={测试标题},rulethickness=4pt]{}\par%
+\vskip-9pt
+\framed[width=max,framecolor=lightthemecolor,rulethickness=4pt,align=flushleft,]{\input lipsum }}
+
+% 【预期】标题在底部，编号框+标题框
+
+\section{只有标题 - 居中}
+
+\DualHeaderTextNew[shownumber=0,title={只有标题}]{}
+
+% 【预期】只有标题框，居中
+
+\section{只有标题 - 左对齐}
+
+\DualHeaderTextNew[shownumber=0,title={只有标题},titlealign=1]{}
+
+% 【预期】只有标题框，左对齐
+
+\section{只有标题 - 右对齐}
+
+\DualHeaderTextNew[shownumber=0,title={只有标题},titlealign=3]{}
+
+% 【预期】只有标题框，右对齐
+
+\section{只有编号 - 居中}
+
+\DualHeaderTextNew[showtitle=0,number={2.1}]{}
+
+% 【预期】只有编号框，居中，背景填满整个宽度
+
+\section{只有编号 - 左对齐}
+
+\DualHeaderTextNew[showtitle=0,number={2.1},numberalign=1]{}
+
+% 【预期】只有编号框，左对齐，背景填满整个宽度
+
+\section{标题在顶部 - 居中}
+
+\DualHeaderTextNew[number={3.1},title={标题在顶部},titlepos=0]{}
+
+% 【预期】标题框在顶部，居中
+
+\section{标题在顶部 - 左对齐}
+
+\DualHeaderTextNew[number={3.1},title={标题在顶部},titlepos=0,titlealign=1]{}
+
+% 【预期】标题框在顶部，左对齐
+
+\section{标题在顶部 - 右对齐}
+
+\DualHeaderTextNew[number={3.1},title={标题在顶部},titlepos=0,titlealign=3]{}
+
+% 【预期】标题框在顶部，右对齐
+
+\section{自定义颜色}
+
+\DualHeaderTextNew[number={4.1},title={自定义},numberbgcolor=blue,titlebgcolor=yellow,numbercolor=white,titlecolor=red]{}
+
+% 【预期】蓝色编号框（白色文字）+ 黄色标题框（红色文字）
+
+\section{圆角 - 编号+标题}
+
+\DualHeaderTextNew[number={5.1},title={圆角},hdrradius=8pt]{}
+
+% 【预期】编号框和标题框有圆角，外框圆角
+
+\section{圆角 - 只有编号}
+
+\DualHeaderTextNew[showtitle=0,number={5.1},hdrradius=8pt]{}
+
+% 【预期】只有编号框，圆角
+
+\section{圆角 - 只有标题}
+
+\DualHeaderTextNew[shownumber=0,title={圆角标题},hdrradius=8pt]{}
+
+% 【预期】只有标题框，圆角
+
+\section{边框线}
+
+\DualHeaderTextNew[number={6.1},title={边框线},framecolor=red,rulethickness=2pt]{}
+
+% 【预期】红色边框线，粗细2pt
+
+\section{编号框边框}
+
+\DualHeaderTextNew[number={7.1},title={编号框边框},numberframe=1,numberframecolor=blue]{}
+
+% 【预期】编号框有蓝色内部边框线
+
+\section{标题框边框}
+
+\DualHeaderTextNew[number={8.1},title={标题框边框},titleframe=1,titleframecolor=green]{}
+
+% 【预期】标题框有绿色内部边框线
+
+\section{不同比例}
+
+\DualHeaderTextNew[number={9.1},title={不同比例},numberratio=2,titleratio=1]{}
+
+% 【预期】编号框更宽（2:1比例）
+
+\section{圆角 corner=0}
+
+\DualHeaderTextNew[number={10.1},title={corner=0},hdrradius=8pt,hdrcorner=0,numberframe=1,titleframe=1,numberframecolor=black,titleframecolor=black]{}
+
+% 【预期】编号框左上左下圆角，标题框右上右下圆角
+
+\section{圆角 corner=1}
+
+\DualHeaderTextNew[number={10.2},title={corner=1},hdrradius=8pt,hdrcorner=1,numberframe=1,titleframe=1,numberframecolor=black,titleframecolor=black]{}
+
+% 【预期】编号框左上圆角，标题框右上圆角
+
+\section{圆角 corner=2}
+
+\DualHeaderTextNew[number={10.3},title={corner=2},hdrradius=8pt,hdrcorner=2,numberframe=1,titleframe=1,numberframecolor=black,titleframecolor=black]{}
+
+% 【预期】编号框左下圆角，标题框右下圆角
+
+\section{圆角 corner=3}
+
+\DualHeaderTextNew[number={10.4},title={corner=3},hdrradius=8pt,hdrcorner=3,numberframe=1,titleframe=1,numberframecolor=black,titleframecolor=black]{}
+
+% 【预期】编号框左上右上圆角，标题框左上右上圆角
+
+\section{无边框 - 编号框}
+
+\DualHeaderTextNew[number={11.1},title={无编号边框},numberframe=0,numberbgcolor=white,numbercolor=lightthemecolor,titlebgcolor=blue]{}
+
+% 【预期】编号框无边框，标题框有边框
+
+\section{无边框 - 标题框}
+
+\DualHeaderTextNew[number={11.2},title={无标题边框},titleframe=0]{}
+
+% 【预期】标题框无边框，编号框有边框
+
+\section{无边框 - 两个都无}
+
+\DualHeaderTextNew[number={11.3},title={都无边框},numberframe=0,titleframe=0,numberbgcolor=white,numbercolor=lightthemecolor,]{}
+
+% 【预期】编号框和标题框都无边框
+
+\stoptext

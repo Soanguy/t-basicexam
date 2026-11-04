@@ -1,14 +1,13 @@
-\usemodule[memos]
+\usemodule[memos][mainlanguage=en]
 \usemodule[basicexam]
 \usemodule[setups]
 
 \enablemode[no-setup-main]
 \loadsetups[i-basicexam.xml]
 
-\setupinteraction[state=start]
 \setuptextrules[style=\tf\ss,before=,after=,rulethickness=.5pt]
 
-\setuptyping[style=\ttxx\setuplocalinterlinespace[line=2ex],
+\setuptyping[style=\ttx\setuplocalinterlinespace[line=2ex],
              option={context},
              before={\vbox{\hrule height .5pt\par
                      \textrule{Code Example}%
@@ -34,12 +33,14 @@ The module supports various question types, including multiple choice, fill-in-t
 \section{Main Features}
 
 \startitemize[packed]
-\item Multiple question types: multiple choice, fill-in-the-blank, short answer, cloze, etc.
+\item Multiple question types: multiple choice, fill-in-the-blank, true/false, option cloze, short answer, cloze, etc.
 \item Teacher/Student mode switching to control answer display
 \item Unlimited nested question support
 \item Automatic score statistics and answer collection
+\item \type{\partio} / \type{\typegrade} score collection and grade tables
+\item \type{\ORDER} item shuffling and automatic numbering[experimental]
 \item Flexible style customization options
-\item Built-in various symbol markers
+\item Built-in marker symbols and badges, all drawn with MetaFun
 \item Composition grids and writing areas
 \item Reading material and reference system
 \stopitemize
@@ -48,6 +49,7 @@ The module supports various question types, including multiple choice, fill-in-t
 
 This module requires {\bf ConTeXt LMTX (LuaMetaTeX)} environment and does not support MkIV version.
 If running in an incompatible environment, the module will display an error and terminate compilation.
+Marker symbols and badges are drawn with MetaFun, so no additional symbol fonts are required.
 
 \chapter{Module Loading and Parameters}
 
@@ -613,46 +615,6 @@ score command parameters:
 \HL
 \stoptabulate
 
-\subsection{Answer Output}
-
-Answer output function is used to generate answer summary tables at the end of the paper or at specified locations.
-Use \type{\typeanswer} command to output answers in different formats.
-
-\startbuffer
-% List format (default)
-\typeanswer[start=1,total=10]
-
-% Table format
-\typeanswer[alternative=table,start=1,total=30,rows=6,columns=5]
-
-% Grid format
-\typeanswer[alternative=grid,start=1,total=10,rows=5,columns=2]
-
-% Direct access to individual answer
-\typeanswer[alternative=direct]{Q-5}
-\stopbuffer
-
-\typebuffer
-
-typeanswer command parameters:
-
-\starttabulate[|l|l|p|]
-\HL
-\NC Parameter \NC Default \NC Description \NC\NR
-\HL
-\NC alternative \NC list \NC Output format: list, table, grid, direct \NC\NR
-\NC start \NC 1 \NC Starting question number \NC\NR
-\NC stop \NC \NC Ending question number \NC\NR
-\NC total \NC \NC Total number of questions (alternative to stop) \NC\NR
-\NC chapter \NC \NC Chapter number \NC\NR
-\NC rows \NC \NC Number of table rows \NC\NR
-\NC columns \NC \NC Number of table columns \NC\NR
-\NC separator \NC \NC Separator (text format) \NC\NR
-\NC left \NC \NC Content to the left of answer \NC\NR
-\NC right \NC \NC Content to the right of answer \NC\NR
-\HL
-\stoptabulate
-
 \chapter{Fill-in-the-Blank}
 
 \section{Basic Usage}
@@ -717,6 +679,24 @@ Control fill-in display through \type{empty} parameter:
 \typebuffer \getbuffer
 
 \subsection{True/False Questions}
+
+The module provides a dedicated \type{truefalse} environment. A plain
+\type{\titem} marks a false statement, while \type{\titem[*]{...}} marks a
+true statement:
+
+\startbuffer
+\starttruefalse[point=2,showanswer=true]
+  \titem[*]{The Earth is a planet in the solar system.}
+  \titem{The Sun rises in the west.}
+  \titem[*]{Water boils at 100°C at standard pressure.}
+\stoptruefalse
+\stopbuffer
+
+\typebuffer \getbuffer
+
+In teacher mode, \type{\titem[*]} shows \symbol{marksquarecheck} and a plain
+\type{\titem} shows \symbol{marksquarecross}. In student mode all items show
+the same \symbol{marksquare} box.
 
 Fill-in-the-blank can also be used for true/false questions:
 
@@ -870,9 +850,9 @@ Each option is marked using \type{\closechoice} command, correct answers are mar
 \startbuffer
 \startclose[showanswer=true,showpoint=true,point=1.5,answer=nil]
 On Oct. 11, hundreds of runners competed in a cross-country race.
-Melanie Bailey should have \closechoice[designed,followed,changed,finished] the
-course earlier than she did. Her \closechoice[delay,chance,trouble,excuse] came
-because she was carrying a \closechoice[judge,volunteer,classmate,competitor]
+Melanie Bailey should have \closechoice{designed,{[*]followed},changed,finished} the
+course earlier than she did. Her \closechoice{delay,chance,{[*]trouble},excuse} came
+because she was carrying a \closechoice{judge,{[*]volunteer},classmate,competitor}
 across the finish line.
 \stopclose
 \stopbuffer
@@ -910,9 +890,9 @@ across the finish line.
 \subsection{closechoice Command}
 
 \type{\closechoice} command is used to insert options in cloze tests, syntax:
-\type{\closechoice[option1,option2,option3,...]}.
+\type{\closechoice{option1,option2,option3,...}}.
 
-Correct answers are marked with \type{[*]}: \type{\closechoice[option1,{[*]correct option},option3]}.
+Correct answers are marked with \type{[*]}: \type{\closechoice{option1,{[*]correct option},option3}}.
 
 \subsection{optclose Environment}
 
@@ -920,8 +900,8 @@ Correct answers are marked with \type{[*]}: \type{\closechoice[option1,{[*]corre
 
 \startbuffer
 \startoptclose[point=2,showanswer=true]
-The latest \ocitem[answer=engineering]{engineer} techniques are applied to create
-this protective \ocitem[answer=functional]{function} structure.
+The latest \oitem[answer=engineering]{engineer} techniques are applied to create
+this protective \oitem[answer=functional]{function} structure.
 \stopoptclose
 \stopbuffer
 
@@ -1078,7 +1058,24 @@ Use \type{\writinggrid} to create grid paper:
 
 \chapter{Symbol Definitions}
 
-The module has built-in various marker symbols (requires NotoSansSymbols2 font):
+The module has built-in marker symbols drawn with MetaFun. Because no external
+font is required, there is no need to install symbol fonts such as
+NotoSansSymbols. The default is the formal style; use
+\type{\setupmark[style=handdrawn]} for a hand-drawn look
+(\type{style=normal} restores the default).
+
+\starttabulate[|l|c|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC style \NC normal \NC Symbol style: \type{normal} or \type{handdrawn} \NC\NR
+\NC color \NC black \NC Symbol color \NC\NR
+\NC scale \NC 0.8 \NC Scale relative to the font size \NC\NR
+\NC sketch \NC 0.4 \NC Hand-drawn jitter (bp) \NC\NR
+\NC segments \NC 50 \NC Hand-drawn path segments \NC\NR
+\NC passes \NC 2 \NC Hand-drawn stroke passes \NC\NR
+\HL
+\stoptabulate
 
 \starttabulate[|l|r|l|r|]
 \HL
@@ -1103,32 +1100,58 @@ The module has built-in various marker symbols (requires NotoSansSymbols2 font):
 
 \startbuffer
 \circledtext{1}\quad
-\circledtext[radius=0.5]{A}\quad
-\circledtext[radius=0,fillcolor=black,color=white]{B}\quad
-\circledtext[radius=0.2]{C}
+\circledtext[radius=5pt]{A}\quad
+\circledtext[radius=0pt,fillcolor=black,color=white]{B}\quad
+\circledtext[radius=2pt]{C}
 \stopbuffer
 
 \typebuffer \getbuffer
 
 \subsection{circledtext Parameters}
 
-\showsetup[setupcircledtext]
+\type{\circledtext} is an alias for \type{\circledconversion}, which is drawn
+by \type{\DrawBadge}. It accepts the same parameters as \type{\DrawBadge};
+global defaults can be changed with \type{\setupbadge[...]}.
+\type{radius} is a dimension, not a ratio: \type{0pt} gives square corners,
+values such as \type{3pt} give rounded corners, and larger values approach a
+circle (use \type{shape=circle} for a true circle).
 
-\starttabulate[|l|l|p|]
+\starttabulate[|l|c|p|]
 \HL
 \NC Parameter \NC Default \NC Description \NC\NR
 \HL
-\NC frametype \NC circle \NC Frame type: circle, square \NC\NR
-\NC framecolor \NC \NC Frame color \NC\NR
-\NC fillcolor \NC \NC Fill color \NC\NR
-\NC dashcolor \NC \NC Dashed line color \NC\NR
-\NC dashlinewidth \NC \NC Dashed line width \NC\NR
-\NC color \NC \NC Text color \NC\NR
-\NC radius \NC \NC Corner radius \NC\NR
-\NC effect \NC normal \NC Effect \NC\NR
-\NC scaled \NC \NC Scale ratio \NC\NR
+\NC text \NC empty \NC Text shown on the left, next to the number \NC\NR
+\NC shape \NC rect \NC Shape: \type{rect}, \type{circle}, \type{square}, \type{capsule} \NC\NR
+\NC radius \NC 4pt \NC Corner radius; \type{0pt} gives square corners \NC\NR
+\NC textcolor \NC white \NC Color of the left text \NC\NR
+\NC numcolor \NC themecolor \NC Number color \NC\NR
+\NC framecolor \NC themecolor \NC Frame color \NC\NR
+\NC dashcolor \NC mygray \NC Dashed line color \NC\NR
+\NC textbg \NC themecolor \NC Left background; \type{transparent} disables the fill \NC\NR
+\NC numbg \NC white \NC Number background \NC\NR
+\NC style \NC empty \NC Font style for the text \NC\NR
+\NC scale \NC 0.7 \NC Overall scale factor \NC\NR
+\NC helperwidth \NC 0.4pt \NC Helper line width \NC\NR
+\NC dashwidth \NC 0pt \NC Dashed line width \NC\NR
+\NC offset \NC 1pt \NC Gap between text and frame \NC\NR
+\NC rulethickness \NC 1pt \NC Frame line width \NC\NR
+\NC xshift \NC 0pt \NC Horizontal offset \NC\NR
+\NC yshift \NC -2pt \NC Vertical offset \NC\NR
+\NC cross \NC false \NC Draw a cross \NC\NR
+\NC helper \NC false \NC Draw helper lines \NC\NR
+\NC strut \NC true \NC Use a strut for the number \NC\NR
+\NC textstrut \NC true \NC Use a strut for the left text \NC\NR
 \HL
 \stoptabulate
+
+\startbuffer
+\DrawBadge[shape=square, radius=0pt, text=Right,
+  textbg=darkgreen, numbg=darkgreen]{1}\quad
+\DrawBadge[shape=capsule, text=Score,
+  textbg=darkred, numbg=darkred]{10}
+\stopbuffer
+
+\typebuffer \getbuffer
 
 \subsection{Circled Number Conversion}
 
@@ -1280,6 +1303,64 @@ Dictionary entries support various association commands for marking relationship
 
 \chapter{Advanced Features}
 
+\section{Score Collection and Output}
+
+\type{\partio[uid]} opens a score-collection block. The collected scores can
+then be rendered with \type{\typegrade[partios=uid,...]}. An empty
+\type{partios} uses the latest partio; a number, a list, or \type{all} selects
+specific partios. \type{\startpartio} / \type{\stoppartio} temporarily enable
+or disable collection.
+
+\starttyping
+\partio[first]
+
+\startquestion[point=4,answer=B]
+  Which option is correct?
+  \choice{Option A,{[*]Option B},Option C,Option D}
+\stopquestion
+
+\typegrade[partios=first, layout=cols,
+  showanswer=true, showcum=true]
+\stoptyping
+
+Common \type{\typegrade} parameters:
+
+\starttabulate[|l|c|p|]
+\HL
+\NC Parameter \NC Default \NC Description \NC\NR
+\HL
+\NC partios \NC empty \NC Partios to render: empty=latest, number, list, or \type{all} \NC\NR
+\NC source \NC last \NC Data source: \type{last} (previous run cache) or \type{current} \NC\NR
+\NC layout \NC cols \NC Layout: \type{rows}, \type{cols}, \type{list}, \type{custom} \NC\NR
+\NC showsub \NC false \NC Expand and show sub-questions \NC\NR
+\NC showheader \NC true \NC Show table header \NC\NR
+\NC showcum \NC false \NC Show cumulative score \NC\NR
+\NC showanswer \NC false \NC Show answers \NC\NR
+\NC showscore \NC true \NC Show the score column \NC\NR
+\NC showtotal \NC false \NC Show the total \NC\NR
+\NC answerwidth \NC 12em \NC Maximum answer width in rows mode \NC\NR
+\HL
+\stoptabulate
+
+\section{Shuffling Items}
+
+\type{\ORDER} shuffles a list of items using a seed and numbers them
+automatically. Global defaults are changed with \type{\setupORDER[...]}.
+
+\starttyping
+\ORDER[seed=42, numbering=characters]{甲,乙,丙,丁,戊}
+\stoptyping
+
+Common parameters: \type{seed}, \type{symbol} (show numbers),
+\type{numbering} (\type{numbers}, \type{characters}, ...),
+\type{distance}, \type{numberleft}, \type{numberright}, and
+\type{answermode} (\type{correct} or \type{shuffled}).
+The shuffled answers can be printed with:
+
+\starttyping
+\ctxlua{thirddata.basicexam.collectd_orderanswer()}
+\stoptyping
+
 \section{Unlimited Nesting Support}
 
 The module supports unlimited levels of question nesting with automatic answer tree management:
@@ -1300,12 +1381,12 @@ First level major question
 
 \section{Data Persistence}
 
-Answer data is automatically saved to .tuc file and can be accessed during second compilation:
+Answer data is automatically saved to \type{<jobname>-examdata.lua} and can be accessed during second compilation:
 
 \starttyping
 % Access saved answer data
-\datasetvariable{UnlimitedDataset}{question ID}{answer}
-\datasetvariable{UnlimitedDataset}{question ID}{point}
+\UnlimitedGetExtraData{question ID}{answer}
+\UnlimitedGetExtraData{question ID}{point}
 \stoptyping
 
 \section{Answer Tree Structure}
@@ -1547,7 +1628,7 @@ When submitting requests, please try to provide the following information:
 
 \section{Modifying This Module}
 
-This module is written in LuaMetaTeX, source code is located in \type{t-basicexam.mklx} file.
+This module is written in LuaMetaTeX; the main source is \type{t-basicexam.mkxl}.
 
 \subsection{Module Structure}
 
@@ -1555,8 +1636,14 @@ This module is written in LuaMetaTeX, source code is located in \type{t-basicexa
 \HL
 \NC File \NC Description \NC\NR
 \HL
-\NC t-basicexam.mklx \NC Main module file, contains all command definitions \NC\NR
-\NC i-basicexam.xml \NC Interface definition file, for command documentation generation \NC\NR
+\NC t-basicexam.mkxl \NC Main exam-generation module \NC\NR
+\NC t-memos.mkxl \NC Document layout module \NC\NR
+\NC s-poriginal.mkxl \NC Presentation style module \NC\NR
+\NC data/t-exam.lua \NC Lua implementation of answer tree, grade table, and shuffling \NC\NR
+\NC data/t-*.lua \NC Lua implementation of pinyin / bihua / zhnumber / zhindex \NC\NR
+\NC data/data-memos/ \NC memos component files (\type{m-*.mklx}) \NC\NR
+\NC data/data-font/ \NC Font and fallback configuration \NC\NR
+\NC doc/i-basicexam.xml \NC Interface definition file for command documentation \NC\NR
 \NC doc/basicexam-manual.tex \NC User manual \NC\NR
 \NC doc/test-exam.tex \NC Test file \NC\NR
 \HL

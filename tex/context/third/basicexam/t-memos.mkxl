@@ -1,0 +1,199 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%D \module
+%D   [     file=t-memos,
+%D      version=2024-1-1,
+%D        title=Memos,
+%D     subtitle=Memoir Ever,
+%D       author=商无辛(Shueng Mosan),
+%D         date=2024-1-1,
+%D    copyright=商无辛(Shueng Mosan),
+%D      license=,
+%D          url=]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\startmodule[memos]
+\unprotect
+\def\userlanguageparameter#1#2{\ifcsname lang:\currentmainlanguage #1\endcsname\lastnamedcs\else#2\fi}
+
+\setupmodule [
+              papersize=A4,
+                 layout=moderate,
+           mainlanguage=hans,
+               language=\currentmoduleparameter{memos}{mainlanguage},
+             lineheight=\userlanguageparameter{interlinespace}{2.8ex},
+           fallbackfont=modern,
+               bodyfont=\userlanguageparameter{bodyfont}{modern},
+                 script=\userlanguageparameter{script}{},
+              fontstyle=rm,
+               fontsize=11pt,
+                   mode=,
+             themecolor=,
+               hdrstyle=,
+               tocstyle=,
+           chapterstyle=,
+            doublesided=no,
+              textcount=40, 
+            heightcount=40, 
+            margincount=0,
+                  ratio=1.414,]
+
+\setupmetadata[
+     \c!title=,
+  \c!subtitle=,
+    \c!author=,
+   \c!keyword=,
+      \c!date=,
+]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\__errorparameter#1{%
+    \writestatus{module error}{!! Something Wrong happened at #1}
+    \writestatus{module error}{!! #1 is \moduleparameter{memos}{#1}}
+    \writestatus{module error}{!! if the value is valid,please ignore the message.}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definemode[kindle]   [keep]
+\definemode[draft]    [keep]
+\definemode[print]    [keep]
+\definemode[moresize] [keep]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% h / f + ltext / ctext / rtext / oemargin
+\newif\ifhdr_sty_book         \hdr_sty_bookfalse
+\newif\ifhdr_sty_novel        \hdr_sty_novelfalse
+\newif\ifhdr_sty_colorful     \hdr_sty_colorfulfalse
+\newif\ifhdr_sty_madsen       \hdr_sty_madsenfalse
+\newif\ifhdr_sty_rocket       \hdr_sty_rocketfalse
+\newif\ifhdr_sty_hctext       \hdr_sty_hctextfalse
+\newif\ifhdr_sty_fctext       \hdr_sty_fctextfalse
+\newif\ifhdr_sty_foemargin    \hdr_sty_foemarginfalse
+\newif\ifhdr_sty_foemarginalt \hdr_sty_foemarginaltfalse
+\newif\ifhdr_sty_hoemargin    \hdr_sty_hoemarginfalse
+\newif\ifpage_doublesided
+\newif\ifLatinPunct
+
+\newskip \kanjiskip
+\newskip \xkanjiskip
+\newdimen\ybaselineshift
+\ybaselineshift = 0pt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\processaction[\currentmoduleparameter{hdrstyle}]%
+   [       book=>\hdr_sty_booktrue,
+          novel=>\hdr_sty_noveltrue,
+           line=>\hdr_sty_booktrue,
+       colorful=>\hdr_sty_colorfultrue,
+         madsen=>\hdr_sty_madsentrue,
+        kaolike=>\hdr_sty_hoemargintrue,
+         rocket=>\hdr_sty_rockettrue,
+         hctext=>\hdr_sty_hctexttrue,
+         fctext=>\hdr_sty_fctexttrue,
+      foemargin=>\hdr_sty_foemargintrue,
+   foemarginalt=>\hdr_sty_foemarginalttrue,
+      hoemargin=>\hdr_sty_hoemargintrue,
+           none=>\relax,
+     \v!default=>\hdr_sty_fctexttrue,
+     \v!unknown=>\__errorparameter{hdrstyle},]
+     
+\processaction[\currentmoduleparameter{doublesided}]%
+   [        yes=>{\setuppagenumbering[alternative=doublesided,]\page_doublesidedtrue},
+             no=>\relax,
+     \v!default=>\relax,
+     \v!unknown=>\__errorparameter{doublesided},]
+
+\processallactionsinset[\currentmoduleparameter{mode}][
+         print=>{\enablemode[print]},
+        kindle=>{\enablemode[kindle]},
+         draft=>{\enablemode[draft]},
+    \v!default=>\relax,
+    \v!unknown=>\__errorparameter{mode},
+]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%D 特別的，draft 模式下會開啟字符缺失檢查。但可能會導致未知錯誤，包括目錄、引用等無法生成
+%D \type{\enabledirectives[logs.errors=missing characters]}
+%D 命令檢查字符是否缺失，如果有則停止繼續打印。
+%D 需要注意的是，開啟 draft 和 moresize 模式會拖慢生成文件的速度。
+\startmode[draft]
+  \overfullrule=10pt%
+  \version[temporary]
+  \let\infofont\ttx
+  \enabletrackers[builders.hpack.quality]
+  \enabletrackers[builders.hpack.overflow]
+  \enabletrackers[fonts.missing]
+  \replacemissingcharacters
+  \showjustification
+\stopmode
+
+\startmode[kindle]
+  \setupmodule   [fontsize=14pt,papersize=kindle,layout=kindle]
+\stopmode
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\disabledirectives[system.reportfiles]
+\input m-1-localization.mklx%加载字体和本地化设置，会额外增加 0.2s
+\input m-2-design.mklx      %加载布局和颜色等设置 |加载此设置及以下设置，大概额外增加 0.06~0.09s
+\input m-3-structure.mklx   %加载标题和目录等设置 |测试最简单的情况，大概需要 0.62~0.70s 左右
+\input m-4-framed.mklx      %加载自定义块环境设置 |但不加载中文字体，大概需要 0.42-0.48s 左右
+\input m-4-dualbody.mklx
+\input m-5-textblock.mklx   %加载文本和浮动等设置 |最多的负担在中文字体以及处理中英文间距
+\input m-6-macros.mklx      %加载奇奇怪怪宏等定义 |大量的定义并不额外产生消耗
+\input m-7-extra.mklx       %加载注音数字笔画索引 |注意，除 xruby 和 zhnumber 命令外开启本身会产生一定量的消耗
+% 注意，消耗有一些是固定支出（固定字体加载），有一些是随文本数量增加而逐渐增加的支出（大部分lua代码）
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \processaction 执行顺序，需要先定义这些参数
+\processaction[\currentmoduleparameter{themecolor}]%
+   [       red=>{\setuppalet[passion]},
+          blue=>{\setuppalet[serene]},
+        yellow=>{\setuppalet[optimism]},
+         green=>{\setuppalet[harmony]},
+         black=>{\setuppalet[formality]},
+         white=>{\setuppalet[innocence]},
+          cyan=>{\setuppalet[creativity]},
+        orange=>{\setuppalet[adventure]},
+        purple=>{\setuppalet[magic]},
+          pink=>{\setuppalet[romance]},
+          gray=>{\setuppalet[reliable]},
+          none=>\relax,
+    \v!default=>{\setuppalet[creativity]},
+    \v!unknown=>\__errorparameter{themecolor},]
+
+\processaction[\currentmoduleparameter{chapterstyle}]%
+   [      line=>\setups{memos:chap:line},
+      colorful=>\setups{memos:chap:colorful},
+        madsen=>\setups{memos:chap:madsen},
+        rocket=>\setups{memos:chap:rocket},
+          hexa=>\setups{memos:chap:hexa},
+        simple=>\setups{memos:chap:simple},
+      classics=>\setups{memos:chap:classics},
+  classicnovel=>\setups{memos:chap:classicnovel},
+       kaolike=>\setups{memos:chap:kaolike},
+       article=>\setups{memos:chap:article},
+       publish=>\setups{memos:chap:publish},
+         ugent=>\setups{memos:chap:ugent},
+          grid=>\setups{memos:chap:grid},
+    brotherton=>\setups{memos:chap:brotherton},
+          dash=>\setups{memos:chap:dash},
+     crosshead=>\setups{memos:chap:crosshead},
+      verville=>\setups{memos:chap:verville},
+      thatcher=>\setups{memos:chap:thatcher},
+       bianchi=>\setups{memos:chap:bianchi},
+      pedersen=>\setups{memos:chap:pedersen},
+          VZ43=>\setups{memos:chap:VZ43},
+          none=>\relax,
+    \v!default=>\setups{memos:chap:default},
+    \v!unknown=>\__errorparameter{chapterstyle},]
+
+\processaction[\currentmoduleparameter{tocstyle}][
+          line=>\setups{memos:toc:line},
+      colorful=>\setups{memos:toc:colorful},
+        madsen=>\setups{memos:toc:madsen},
+        rocket=>\setups{memos:toc:rocket},
+          hexa=>\setups{memos:toc:hexa},
+        simple=>\setups{memos:toc:simple},
+      classics=>\setups{memos:toc:classics},
+  classicnovel=>\setups{memos:toc:classicnovel},
+       kaolike=>\setups{memos:toc:kaolike},
+          none=>\relax,
+    \v!default=>\setups{memos:toc:default},
+    \v!unknown=>\__errorparameter{tocstyle},]
+
+\protect
+\stopmodule
+\enabledirectives[system.reportfiles]
+\endinput

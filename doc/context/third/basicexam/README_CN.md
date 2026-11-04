@@ -28,12 +28,17 @@ ConTeXt 中文排版工具集，包含试卷生成、文档排版和样式定制
 
 - **选择题** - 支持单选、多选，自动判分
 - **填空题** - 灵活的答案格式
+- **判断题** - 专用 `truefalse` 环境与 `\titem[*]` 标记
+- **选词填空** - `optclose` 环境与 `\oitem` 标记
 - **材料题** - 支持长文本材料引用
 - **问答题** - 自由作答空间
 - **完形填空** - 文本挖空与答案配对
 - **答案控制** - 统一管理标准答案
 - **分数控制** - 灵活的分值配置
+- **成绩表** - `\partio` 收集分数，`\typegrade` 输出成绩表
+- **选项乱序** - `\ORDER` 按种子打乱并自动编号[experimental]
 - **题头控制** - 自定义题目编号和格式
+- **符号与徽章** - 全部由 MetaFun 绘制，无需外部符号字体
 
 ### 使用示例
 
@@ -87,8 +92,8 @@ ConTeXt 中文排版工具集，包含试卷生成、文档排版和样式定制
 
 ```tex
 \startclose[showanswer=true,point=10]
-在春天，\closechoice[花开,叶绿,鸟鸣,雨落]的季节里，
-我们\closechoice[漫步,奔跑,跳跃,飞翔]在公园里。
+在春天，\closechoice{花开,叶绿,鸟鸣,雨落}的季节里，
+我们\closechoice{漫步,奔跑,跳跃,飞翔}在公园里。
 \stopclose
 ```
 
@@ -118,15 +123,58 @@ ConTeXt 中文排版工具集，包含试卷生成、文档排版和样式定制
 \makepapertitle[myexam]
 ```
 
-#### 答案输出
+#### 答案与成绩输出
 
 ```tex
-% 列表格式
-\typeanswer[start=1,total=10,alternative=list]{}
+% 在试卷开头开启一个成绩收集分区（可选 uid）
+\partio[first]
 
-% 表格格式
-\typeanswer[start=1,total=10,alternative=table,rows=2,columns=5]{}
+% ... 题目 ...
+
+% 输出成绩表；partios 留空表示最新的 partio
+\typegrade[partios=first, layout=cols, showanswer=true]
+
+% 导出完整答案树到 TSV
+\UnlimitedExport{answers.tsv}
 ```
+
+#### 判断题
+
+```tex
+\starttruefalse[point=2,showanswer=true]
+  \titem[*]{地球是太阳系的一颗行星。}
+  \titem{太阳从西边升起。}
+\stoptruefalse
+```
+
+#### 选词填空
+
+```tex
+\startoptclose[point=2,showanswer=true]
+The latest \oitem[answer=engineering]{engineer} techniques are applied to create
+this protective \oitem[answer=functional]{function} structure.
+\stopoptclose
+```
+
+#### 选项乱序
+
+```tex
+\ORDER[seed=42,numbering=characters]{甲,乙,丙,丁,戊}
+```
+
+乱序后的答案可用 `\ctxlua{thirddata.basicexam.collectd_orderanswer()}` 输出。
+
+#### 符号与徽章
+
+```tex
+\setupmark[style=handdrawn]     % 手绘风格符号
+\setupmark[style=normal]        % 默认正式风格
+
+\circledtext{1}                 % 圆圈文本
+\DrawBadge[shape=square,radius=0pt,text=正确]{1}
+```
+
+所有标记符号均由 MetaFun 绘制，不需要安装 NotoSansSymbols 等外部符号字体。
 
 ---
 
@@ -335,7 +383,7 @@ mtxrun --script install-modules --install visualcounter
 
 或手动安装：
 1. 从 GitHub 下载：[https://github.com/adityam/visualcounter](https://github.com/adityam/visualcounter)
-2. 将 `t-visualcounter.mkvi` 复制到 `tex/texmf-local/context/third/`
+2. 将 `t-visualcounter.mkvi` 复制到 `tex/texmf-modules/tex/context/third/`
 3. 运行 `mtxrun --generate` 刷新索引
 
 ---
@@ -343,7 +391,7 @@ mtxrun --script install-modules --install visualcounter
 ## 安装说明
 
 1. 下载项目文件
-2. 将文件放置在 ConTeXt 安装路径下的 `tex/texmf-local/` 目录
+2. 将 `tex/context/third/basicexam/` 整个目录（含 `t-basicexam.mkxl`、`t-memos.mkxl`、`s-poriginal.mkxl` 和 `data/`）复制到 ConTeXt 的模块目录，例如 `tex/texmf-modules/tex/context/third/basicexam/`
 3. 在终端运行：`mtxrun --generate` 刷新文件索引
 4. 在 TeX 文件中使用相应模块：
    - `\usemodule[basicexam]`
@@ -355,12 +403,20 @@ mtxrun --script install-modules --install visualcounter
 ## 文档与示例
 
 - **[basicexam 手册](basicexam-manual.tex)**：详细的使用指南
+- **[basicexam 手册（英文）](basicexam-manual-en.tex)**：详细的使用指南（英文版）
 - **[memos 手册](memos-manual.tex)**：文档排版模块说明
 - **[memos 手册（英文）](memos-manual-en.tex)**：文档排版模块说明（英文版）
 - **[试卷生成测试](test-exam.tex)**：basicexam 模块测试示例
+- **[Lua 接口测试](exam-luatest.tex)**：答案树与 Unlimited 接口测试
 - **[框架测试](test-frame.tex)**：框架功能测试
+- **[DualBody 测试](test-frametb.tex)**：textbackground 双栏组件测试
+- **[DualHeader 测试](test-framehd.tex)**：标题区域组件测试
+- **[DualBody MP 测试](test-framemp.tex)**：MetaPost 背景组件测试
+- **[DualText 测试](test-framemg.tex)**：合并双栏组件测试
 - **[样式模块测试](test-poriginal.tex)**：s-poriginal 模块测试
 - **[中文数字测试](test-zhnumber.tex)**：zhnumber 功能测试
 - **[中文索引测试](test-zhindex.tex)**：zhindex 功能测试
 - **[拼音注音测试](test-pinyin.tex)**：pinyin 功能测试
+- **[拼音全量测试](test-pinyin-all.tex)**：pinyin 全量数据测试
 - **[笔画显示测试](test-bihua.tex)**：bihua 功能测试
+- **[注音排版测试](test-xruby.tex)**：ruby 注音排版测试

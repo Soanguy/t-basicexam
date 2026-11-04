@@ -1,0 +1,942 @@
+
+\startuseMPgraphic{MPFrameXXX}%%% ---| triangle frame |----
+     picture pxxx ; numeric oxxx, hxxx ; path axxx, bxxx ;
+     hxxx := OverlayHeight ;
+     oxxx := BodyFontSize ;
+     pxxx := textext(\MPstring{MPFrameTitle}) ;
+     axxx := unitsquare xyscaled(OverlayWidth,OverlayHeight) ;
+     pxxx := pxxx shifted (OverlayWidth/2, hxxx - ypart center pxxx) ;
+     bxxx := axxx smoothed 2 ;
+     drawoptions (withpen pencircle scaled \overlaylinewidth withcolor \MPcolor{\overlaycolor});
+     fill bxxx ; draw bxxx ;%titlepart
+     drawoptions (withpen pencircle scaled \overlaylinewidth withcolor \MPcolor{\overlaylinecolor});
+     fill bxxx withcolor \MPcolor{\overlaycolor}  ;    draw bxxx ;%mainpart
+     fill  (xpart llcorner pxxx ,      (ypart llcorner pxxx) - 2pt) --
+           (xpart lrcorner pxxx ,      (ypart lrcorner pxxx) - 2pt) --
+          ((xpart lrcorner pxxx) + 10pt , ypart center pxxx)        --
+           (xpart urcorner pxxx ,      (ypart urcorner pxxx) + 2pt) --
+           (xpart ulcorner pxxx ,      (ypart ulcorner pxxx) + 2pt) --
+          ((xpart llcorner pxxx) - 10pt , ypart center pxxx)        -- cycle;
+     fill ((xpart llcorner pxxx) + 1pt , ypart llcorner pxxx) --
+          ((xpart lrcorner pxxx) - 1pt , ypart lrcorner pxxx) --
+          ((xpart lrcorner pxxx) + 5pt ,   ypart center pxxx) --
+          ((xpart urcorner pxxx) - 1pt , ypart urcorner pxxx) --
+          ((xpart ulcorner pxxx) + 1pt , ypart ulcorner pxxx) --
+          ((xpart llcorner pxxx) - 5pt ,   ypart center pxxx) -- cycle
+          withcolor \MPcolor{\overlaycolor};
+     bxxx := (boundingbox pxxx enlarged (oxxx/2, oxxx/3) smoothed 2);
+     draw pxxx withcolor \MPcolor{\framedtextparameter{foregroundcolor}} ;
+     setbounds currentpicture to axxx ;
+\stopuseMPgraphic
+
+\startuseMPgraphic{rules:under:round}{radius}
+  fill unitsquare
+      xyscaled (RuleWidth,StrutHeight)
+      enlarged (ExHeight/4,ExHeight/8)
+      shifted  (0,RuleFactor*RuleOffset)
+      smoothed 1
+      withpen pencircle scaled RuleThickness
+      withcolor RuleColor ;
+  setbounds currentpicture to unitsquare xysized(RuleWidth,StrutHeight);
+\stopuseMPgraphic
+
+\startuseMPgraphic{mpos:region:leftbar}
+  draw_multi_pars;
+  draw_multi_side;
+\stopuseMPgraphic
+
+\startuseMPgraphic{RotatedSquares}
+  % ---- 读取 framed 参数 ----
+  numeric Iterate;
+  Iterate   := \framedparameter{iterate};
+  numeric Angle;
+  Angle     := \framedparameter{angle};
+  numeric lineWidth;
+  lineWidth := \framedparameter{rulethickness};
+  numeric perturb;
+  perturb := \framedparameter{perturbation};
+  color lineColor;
+  lineColor := \MPcolor{\framedparameter{framecolor}};
+  color squareFill;
+  squareFill := \MPcolor{\framedparameter{squarecolor}};
+  
+
+  % ---- Overlay 区域尺寸 ----
+  numeric w, h, cx, cy;
+  w := OverlayWidth;
+  h := OverlayHeight;
+  cx := w / 2;
+  cy := h / 2;
+  
+  fill unitsquare xyscaled (w, h) withcolor OverlayColor;
+
+  % ---- 以行高为基准的正方形边长 ----
+  numeric side;
+  side := \framedparameter{size} * BodyFontSize;
+
+  % ---- 基本正方形路径（以中心为旋转中心） ----
+  path baseSquare;
+  baseSquare := unitsquare
+                xyscaled (side, side)
+                shifted (-side/2, -side/2)
+                shifted (cx, cy);
+
+  % ---- 绘制 Iterate + 1 次旋转(Angle 角度)图案 ----
+  pickup pencircle scaled lineWidth;
+  drawoptions(withcolor lineColor);
+
+  for i = 0 upto Iterate:
+    path p;
+    p := baseSquare randomized perturb;
+    fill p rotatedaround((cx, cy), i * Angle) withcolor squareFill;
+    draw p rotatedaround((cx, cy), i * Angle);
+  endfor;
+
+  drawoptions();
+  setbounds currentpicture to OverlayBox ;
+\stopuseMPgraphic
+
+\startuseMPgraphic{circledtext}
+  % 只读取参数，不涉及文本
+  path square ; square := roundedsquare(1,1,\framedparameter{radius}) scaled OverlayWidth yshifted .15OverlayWidth;
+  picture p   ; p      := dashpattern(on    \framedparameter{dashskipwidth}  off  \framedparameter{dashskipwidth}) ;
+  % 添加虚线装饰（可选）
+  path ti ; ti := (.50OverlayWidth,0)--(.50OverlayWidth,OverlayWidth) ;
+  path it ; it := (0,.50OverlayWidth)--(OverlayWidth,.50OverlayWidth) ;
+  path xi ; xi := (.13OverlayWidth,.13OverlayWidth)--(.88OverlayWidth,.88OverlayWidth) ;
+  path ix ; ix := xi reflectedabout ((.5OverlayWidth,0),(.5OverlayWidth,5)) ;
+  draw ti withcolor \MPcolor{\framedparameter{dashcolor}} dashed p withpen pencircle scaled \framedparameter{dashlinewidth} yshifted .15OverlayWidth;
+  draw it withcolor \MPcolor{\framedparameter{dashcolor}} dashed p withpen pencircle scaled \framedparameter{dashlinewidth} yshifted .15OverlayWidth;
+  draw xi withcolor \MPcolor{\framedparameter{dashcolor}} dashed p withpen pencircle scaled \framedparameter{dashlinewidth} yshifted .15OverlayWidth;
+  draw ix withcolor \MPcolor{\framedparameter{dashcolor}} dashed p withpen pencircle scaled \framedparameter{dashlinewidth} yshifted .15OverlayWidth;
+  % 绘制框和装饰线，但不绘制文字
+  draw   \framedparameter{frametype} withcolor OverlayLineColor ;
+  fill   \framedparameter{frametype} withcolor \MPcolor{\framedparameter{fillcolor}}  ;
+\stopuseMPgraphic
+
+%D ========== 颜色混合函数 ==========
+
+\startMPdefinitions
+  color CardPrimary, CardGradient, CardAccent, CardText, CardCategory;
+  CardPrimary  := (0.00, 0.47, 0.84); % 主色调（Metro蓝）
+  CardGradient := (0.93, 0.28, 0.60); % 渐变结束色（Modern粉）
+  CardAccent   := (0.30, 0.55, 0.85); % 强调色（Fluent装饰线）
+  
+  def MixWhite(expr basecolor, ratio) =
+    (basecolor * (1 - ratio) + white * ratio)
+  enddef;
+  
+  def MixBlack(expr basecolor, ratio) =
+    (basecolor * (1 - ratio) + black * ratio)
+  enddef;
+  
+  def DrawCardBackground(expr style, radius, gradh) =
+    begingroup;
+    numeric r;
+    r := radius;
+    if r = 0 :
+      if style = 1 : r := 0pt;  fi;
+      if style = 2 : r := 28pt; fi;
+      if style = 3 : r := 24pt; fi;
+      if style = 4 : r := 32pt; fi;
+    fi;
+    
+    for i=1 upto nofmultipars :
+      path p;
+      p := (llcorner multipars[i] -- lrcorner multipars[i]
+         -- urcorner multipars[i] -- ulcorner multipars[i] -- cycle);
+      
+      if r > 0 :
+        p := p cornered r;
+      fi;
+      
+      if style = 1 :
+        fill p withcolor CardPrimary;
+        
+      elseif style = 2 :
+        fill p withcolor MixWhite(CardPrimary, 0.92);
+        
+        pair pc;
+        pc := center p;
+        path innerp;
+        innerp := p shifted -pc xyscaled(0.98, 0.96) shifted pc;
+        fill innerp withcolor MixWhite(CardPrimary, 0.96);
+        
+        draw p withpen pencircle scaled 0.5pt withcolor MixBlack(CardPrimary, 0.35);
+        
+        path topline;
+        topline := (xpart llcorner p + bbwidth(p)*0.2, ypart ulcorner p)
+                   -- (xpart llcorner p + bbwidth(p)*0.8, ypart ulcorner p);
+        draw topline withpen pencircle scaled 3pt withcolor CardAccent;
+        
+      elseif style = 3 :
+        fill p withcolor MixWhite(CardPrimary, 0.98);
+        draw p withpen pencircle scaled 0.5pt withcolor MixWhite(CardPrimary, 0.15);
+        
+      elseif style = 4 :
+        numeric barh;
+        barh := gradh;
+        
+        fill p withcolor white;
+        
+        save gradientpic;
+        picture gradientpic;
+        gradientpic := image(
+          path gradrect;
+          gradrect := unitsquare
+                      xscaled bbwidth(p)
+                      yscaled (barh)
+                      shifted (xpart llcorner p, ypart urcorner p - barh);
+          fill gradrect
+            withshademethod "linear"
+            withshadevector (1,0)
+            withshadecolors (CardPrimary, CardGradient);
+        );
+        
+        clip gradientpic to p;
+        addto currentpicture also gradientpic;
+        
+        draw p withpen pencircle scaled 0.5pt withcolor MixWhite(CardPrimary, 0.06);
+        
+      fi;
+    endfor;
+    
+    setbounds currentpicture to OverlayBox;
+    endgroup;
+  enddef;
+\stopMPdefinitions
+
+%D ========== 四种风格的 MP Graphic ==========
+
+\startuseMPgraphic{MetroBG}
+  DrawCardBackground(1, 0pt, 0pt);
+\stopuseMPgraphic
+
+\startuseMPgraphic{FluentBG}
+  DrawCardBackground(2, 0pt, 0pt);
+\stopuseMPgraphic
+
+\startuseMPgraphic{macOSBG}
+  DrawCardBackground(3, 0pt, 0pt);
+\stopuseMPgraphic
+
+\startuseMPgraphic{ModernBG}
+  DrawCardBackground(4, 0pt, 4pt);
+\stopuseMPgraphic
+
+%D ========== 双栏标题框组件 ==========
+
+\startMPdefinitions
+  vardef GetTextWidth(expr textpic) =
+    xpart urcorner textpic - xpart llcorner textpic
+  enddef;
+  
+  vardef DrawHeaderBox(expr boxpath, bgcolor, showframe, framecolor, radius, headerh) =
+    path resultbox;
+    resultbox := boxpath;
+    if (radius > 0) :
+      resultbox := resultbox cornered min(radius, headerh/3);
+    fi;
+    fill resultbox withcolor bgcolor;
+    if showframe > 0 :
+      draw resultbox withcolor framecolor;
+    fi;
+    resultbox
+  enddef;
+  
+  vardef AlignTextPosition(expr textpic, left, right, align, padding) =
+    numeric textw, pos;
+    textw := GetTextWidth(textpic);
+    if align = 1 :
+      pos := left + textw/2 + padding;
+    elseif align = 3 :
+      pos := right - textw/2 - padding;
+    else :
+      pos := left + (right - left)/2;
+    fi;
+    pos
+  enddef;
+  
+  vardef CalcBoxX(expr boxwidth, align, totalwidth, margin) =
+    if align = 1 :
+      margin
+    elseif align = 3 :
+      totalwidth - boxwidth - margin
+    else :
+      (totalwidth - boxwidth) / 2
+    fi
+  enddef;
+  
+  def DrawDivider(expr x, top, bottom) =
+    draw (x, top) -- (x, bottom);
+  enddef;
+  
+  def DrawDualHeaderFrame(
+    expr shownumber, showtitle,
+         titlepos, titlealign, numberalign,
+         numberbgcolor, titlebgcolor, bodybgcolor, headerbgcolor,
+         numbercolor, titlecolor,
+         framecolor, numberframecolor, titleframecolor,
+         numberframe, titleframe,
+         leftframe, rightframe, topframe, bottomframe,
+         numberratio, titleratio,
+         linethickness, radius,
+         bodybackground, shadowcolor,
+         symbol, character,
+         headerdivider
+  ) =
+    begingroup;
+      numeric w, h, headerh, ox, r;
+      path mainframe, numberbox, titlebox, headerbox, divider;
+      picture numbertext, titletext;
+
+      w := OverlayWidth;
+      h := OverlayHeight;
+      headerh := BodyFontSize * 2.2;
+      ox := linethickness/2;
+      r := radius;
+
+      boolean hasheader;
+      hasheader := (shownumber > 0) or (showtitle > 0);
+
+      mainframe := (ox, ox) -- (w-ox, ox) -- (w-ox, h-ox) -- (ox, h-ox) -- cycle;
+
+      if (r > 0) :
+        mainframe := mainframe cornered r;
+      fi;
+
+      if bodybackground = "shadowbox" :
+        numeric shadowthickness;
+        shadowthickness := 5 * linethickness;
+
+        numeric shadowtop;
+        if (titlepos = 0) and hasheader :
+          shadowtop := h - headerh - ox;
+        else :
+          shadowtop := h - ox;
+        fi;
+
+        path myshadow;
+        myshadow := (ox, ox) -- (w-ox, ox) -- (w-ox, shadowtop) -- (ox, shadowtop) -- cycle;
+        if (r > 0) :
+          myshadow := myshadow cornered r;
+        fi;
+        myshadow := myshadow shifted (shadowthickness/4 * (1,-1));
+        
+        draw (
+          (shadowthickness*right + llcorner myshadow)
+          -- lrcorner myshadow
+          -- (shadowthickness*down + urcorner myshadow)
+        ) withpen pensquare scaled shadowthickness withcolor shadowcolor;
+      fi;
+      
+      drawoptions(withpen pencircle scaled linethickness withcolor framecolor);
+      
+      path bodyframe;
+      if hasheader :
+        bodyframe := (ox, ox) -- (w-ox, ox) -- (w-ox, h-headerh-ox) -- (ox, h-headerh-ox) -- cycle;
+        if (r > 0) :
+          bodyframe := bodyframe cornered r;
+        fi;
+      else :
+        bodyframe := mainframe;
+      fi;
+      
+      if bodybackground = "charbox" :
+        fill bodyframe withcolor bodybgcolor;
+        if character <> "" :
+          draw bodyframe withpattern image (
+            draw textext(character) rotated 45
+                withcolor framecolor withopacity .2;
+          );
+        fi;
+      elseif bodybackground = "framebox" :
+        fill bodyframe withcolor bodybgcolor;
+        numeric a;
+        a := 2;
+        path p;
+        p := fullcircle scaled .1a;
+        picture patternimage;
+        patternimage := image (
+          fill p withcolor framecolor withopacity .1;
+          fill p shifted (a,-a) withcolor framecolor withopacity .1;
+        );
+        setbounds patternimage to ((0,0) -- (2a,0) -- (2a,-2a) -- (0,-2a) -- cycle);
+        draw bodyframe withpattern patternimage;
+      elseif bodybackground = "barbox" :
+        fill bodyframe withcolor bodybgcolor;
+        if leftframe > 0 :
+          path leftbar;
+          leftbar := (ox, ox) -- (ox + leftframe*4, ox) -- (ox + leftframe*4, h-ox) -- (ox, h-ox) -- cycle;
+          if (r > 0) :
+            leftbar := leftbar cornered r;
+          fi;
+          fill leftbar withcolor framecolor;
+        fi;
+      else :
+        fill bodyframe withcolor bodybgcolor;
+      fi;
+      
+      boolean allframesvisible;
+      allframesvisible := (leftframe > 0) and (rightframe > 0) and (topframe > 0) and (bottomframe > 0);
+      
+      numeric topborderpos;
+      if hasheader :
+        topborderpos := h - headerh - ox;
+      else :
+        topborderpos := h - ox;
+      fi;
+      
+      if allframesvisible :
+        if (r > 0) :
+          if (titlepos = 0) and hasheader :
+            draw (ox, ox) -- (ox, topborderpos);
+            draw (w-ox, ox) -- (w-ox, topborderpos);
+            draw (ox, ox) -- (w-ox, ox);
+            draw (ox, topborderpos) -- (w-ox, topborderpos);
+          else :
+            draw mainframe;
+          fi;
+        else :
+          draw (ox, ox) -- (ox, topborderpos);
+          draw (w-ox, ox) -- (w-ox, topborderpos);
+          draw (ox, ox) -- (w-ox, ox);
+          draw (ox, topborderpos) -- (w-ox, topborderpos);
+        fi;
+      else :
+        if leftframe > 0 :
+          draw (ox, ox) -- (ox, topborderpos);
+        fi;
+        if rightframe > 0 :
+          draw (w-ox, ox) -- (w-ox, topborderpos);
+        fi;
+        if bottomframe > 0 :
+          draw (ox, ox) -- (w-ox, ox);
+        fi;
+      fi;
+      
+      if hasheader :
+        if titlepos = 0 :
+          numeric titletop;
+          titletop := h - headerh - ox;
+          
+          if showtitle > 0 :
+            if shownumber > 0 :
+              numbertext := textext(\MPstring{DualHeaderNumber});
+              titletext := textext(\MPstring{DualHeaderTitle});
+              
+              numeric numberboxwidth, titleboxwidth;
+              numberboxwidth := GetTextWidth(numbertext) + 8pt;
+              titleboxwidth := GetTextWidth(titletext) + 8pt;
+              
+              numeric containerwidth, containerx;
+              containerwidth := numberboxwidth + titleboxwidth;
+              containerx := CalcBoxX(containerwidth, titlealign, w, ox);
+              
+              numberbox := DrawHeaderBox(
+                (containerx, titletop) -- (containerx + numberboxwidth, titletop)
+                -- (containerx + numberboxwidth, titletop + headerh) -- (containerx, titletop + headerh) -- cycle,
+                numberbgcolor, numberframe, numberframecolor, r, headerh
+              );
+              
+              titlebox := DrawHeaderBox(
+                (containerx + numberboxwidth, titletop) -- (containerx + containerwidth, titletop)
+                -- (containerx + containerwidth, titletop + headerh) -- (containerx + numberboxwidth, titletop + headerh) -- cycle,
+                titlebgcolor, titleframe, titleframecolor, r, headerh
+              );
+
+              numbertext := numbertext shifted (containerx + numberboxwidth/2, titletop + headerh/2 - ypart center numbertext);
+              draw numbertext withcolor numbercolor;
+              
+              titletext := titletext shifted (containerx + numberboxwidth + titleboxwidth/2, titletop + headerh/2 - ypart center titletext);
+              draw titletext withcolor titlecolor;
+              
+              if (r = 0) and (headerdivider > 0) :
+                DrawDivider(containerx + numberboxwidth, titletop, titletop + headerh);
+              fi;
+            else :
+              titletext := textext(\MPstring{DualHeaderTitle});
+              numeric titleboxwidth;
+              titleboxwidth := GetTextWidth(titletext) + 8pt;
+              
+              numeric titlexpos;
+              titlexpos := CalcBoxX(titleboxwidth, titlealign, w, ox);
+              
+              titlebox := DrawHeaderBox(
+                (titlexpos, titletop) -- (titlexpos + titleboxwidth, titletop)
+                -- (titlexpos + titleboxwidth, titletop + headerh) -- (titlexpos, titletop + headerh) -- cycle,
+                framecolor, titleframe, titleframecolor, r, headerh
+              );
+              
+              titletext := titletext shifted (titlexpos + titleboxwidth/2, titletop + headerh/2 - ypart center titletext);
+              draw titletext withcolor white;
+            fi;
+          else :
+            if shownumber > 0 :
+              numbertext := textext(\MPstring{DualHeaderNumber});
+              numeric numberboxwidth;
+              numberboxwidth := GetTextWidth(numbertext) + 8pt;
+
+              numeric numberxpos;
+              numberxpos := CalcBoxX(numberboxwidth, titlealign, w, ox);
+              
+              numberbox := DrawHeaderBox(
+                (numberxpos, titletop) -- (numberxpos + numberboxwidth, titletop)
+                -- (numberxpos + numberboxwidth, titletop + headerh) -- (numberxpos, titletop + headerh) -- cycle,
+                numberbgcolor, numberframe, numberframecolor, r, headerh
+              );
+              
+              numbertext := numbertext shifted (numberxpos + numberboxwidth/2, titletop + headerh/2 - ypart center numbertext);
+              draw numbertext withcolor numbercolor;
+            fi;
+          fi;
+          if (topframe > 0) :
+            draw (ox, topborderpos) -- (w-ox, topborderpos);
+          fi;
+        else :
+          headerbox := (ox, h-headerh) -- (w-ox, h-headerh)
+                       -- (w-ox, h-ox) -- (ox, h-ox) -- cycle;
+          
+          if (r > 0) :
+            headerbox := headerbox cornered r;
+          fi;
+          
+          fill headerbox withcolor headerbgcolor;
+          
+          if shownumber > 0 :
+            numeric numberwidth;
+            if showtitle > 0 :
+              numberwidth := w * numberratio / (numberratio + titleratio);
+            else :
+              numberwidth := w - 2*ox;
+            fi;
+            
+            numberbox := DrawHeaderBox(
+              (ox, h-headerh) -- (numberwidth-ox/2, h-headerh)
+              -- (numberwidth-ox/2, h-ox) -- (ox, h-ox) -- cycle,
+              numberbgcolor, numberframe, numberframecolor, r, headerh
+            );
+            
+            numbertext := textext(\MPstring{DualHeaderNumber});
+            numeric numberxpos;
+            numberxpos := AlignTextPosition(numbertext, ox, numberwidth - ox/2, numberalign, 4pt);
+            numbertext := numbertext shifted (numberxpos, h - headerh/2 - ypart center numbertext);
+            draw numbertext withcolor numbercolor;
+          fi;
+          
+          if showtitle > 0 :
+            numeric titleleft;
+            if shownumber > 0 :
+              titleleft := w * numberratio / (numberratio + titleratio) + ox/2;
+            else :
+              titleleft := ox;
+            fi;
+            
+            titlebox := DrawHeaderBox(
+              (titleleft, h-headerh) -- (w-ox, h-headerh)
+              -- (w-ox, h-ox) -- (titleleft, h-ox) -- cycle,
+              titlebgcolor, titleframe, titleframecolor, r, headerh
+            );
+            
+            titletext := textext(\MPstring{DualHeaderTitle});
+            numeric titlexpos;
+            titlexpos := AlignTextPosition(titletext, titleleft, w - ox, titlealign, 4pt);
+            titletext := titletext shifted (titlexpos, h - headerh/2 - ypart center titletext);
+            draw titletext withcolor titlecolor;
+          fi;
+          
+          if shownumber > 0 :
+            if showtitle > 0 :
+              if (r = 0) and (headerdivider > 0) :
+                numeric dividerpos;
+                dividerpos := w * numberratio / (numberratio + titleratio);
+                DrawDivider(dividerpos, h-headerh, h-ox);
+              fi;
+            fi;
+          fi;
+        fi;
+      fi;
+      
+      if (titlepos = 1) and hasheader and (topframe > 0) :
+        draw (ox, topborderpos) -- (w-ox, topborderpos);
+      fi;
+      
+      if bodybackground = "symbolbox" :
+        if symbol <> "" :
+          picture symtext;
+          symtext := textext(symbol);
+          symtext := symtext shifted (w - 0.5*BodyFontSize, 0.5*BodyFontSize - 1pt);
+          fill bbox symtext withcolor white;
+          draw symtext withcolor framecolor;
+        fi;
+      fi;
+      
+      setbounds currentpicture to mainframe;
+    endgroup;
+  enddef;
+\stopMPdefinitions
+
+\setMPtext{DualHeaderNumber}{}
+\setMPtext{DualHeaderTitle}{}
+\setMPtext{DualHeaderNumber}{\hbox spread \baselineskip{\hss\framedtextparameter{number}\hss}}
+\setMPtext{DualHeaderTitle} {\hbox spread \baselineskip{\hss\framedtextparameter{title}\hss}}
+
+\startuseMPgraphic{DualHeaderFrame}
+  DrawDualHeaderFrame(
+    \MPvar{shownumber}, \MPvar{showtitle},
+    \MPvar{titlepos}, \MPvar{titlealign}, \MPvar{numberalign},
+    \MPvar{numberbgcolor}, \MPvar{titlebgcolor}, \MPvar{bodybgcolor}, \MPvar{headerbgcolor},
+    \MPvar{numbercolor}, \MPvar{titlecolor},
+    \MPvar{framecolor}, \MPvar{numberframecolor}, \MPvar{titleframecolor},
+    \MPvar{numberframe}, \MPvar{titleframe},
+    \MPvar{leftframe}, \MPvar{rightframe}, \MPvar{topframe}, \MPvar{bottomframe},
+    \MPvar{numberratio}, \MPvar{titleratio},
+    \MPvar{linethickness}, \MPvar{radius},
+    \MPvar{bodybackground}, \MPvar{shadowcolor},
+    \MPvar{symbol}, \MPvar{character},
+    \MPvar{headerdivider}
+  );
+\stopuseMPgraphic
+
+%D ========== Textbackground 定义 ==========
+
+\definetextbackground
+  [MetroCard]
+  [location=paragraph,
+   mp=MetroBG,
+   frame=off,
+   leftoffset=1.8em,
+   rightoffset=1.8em,
+   topoffset=1.8em,
+   bottomoffset=1.8em,
+   color=white,
+   before={\blank[big]},
+   after={\blank[big]}]
+
+\definetextbackground[FluentCard][MetroCard][mp=FluentBG,]
+\definetextbackground[macOSCard] [MetroCard][mp=macOSBG,]
+\definetextbackground[ModernCard][MetroCard][mp=ModernBG,]
+
+\defineoverlay[MPFrameV]    [\useMPgraphic{MPFrameXXX}]
+\defineoverlay[RotatedSquares][\useMPgraphic{RotatedSquares}]
+\defineoverlay[circledtextOL][\useMPgraphic{circledtext}]
+\defineoverlay[DualHeaderBox][\useMPgraphic{DualHeaderFrame}{
+  shownumber=\framedtextparameter{shownumber},
+  showtitle=\framedtextparameter{showtitle},
+  titlepos=\framedtextparameter{titlepos},
+  titlealign=\framedtextparameter{titlealign},
+  numberalign=\framedtextparameter{numberalign},
+  numberbgcolor="\framedtextparameter{numberbgcolor}",
+  titlebgcolor="\framedtextparameter{titlebgcolor}",
+  bodybgcolor="\framedtextparameter{bodybgcolor}",
+  headerbgcolor="\framedtextparameter{headerbgcolor}",
+  numbercolor="\framedtextparameter{numbercolor}",
+  titlecolor="\framedtextparameter{titlecolor}",
+  framecolor="\framedtextparameter{framecolor}",
+  numberframecolor="\framedtextparameter{numberframecolor}",
+  titleframecolor="\framedtextparameter{titleframecolor}",
+  numberframe=\framedtextparameter{numberframe},
+  titleframe=\framedtextparameter{titleframe},
+  leftframe=\framedtextparameter{leftframe},
+  rightframe=\framedtextparameter{rightframe},
+  topframe=\framedtextparameter{topframe},
+  bottomframe=\framedtextparameter{bottomframe},
+  numberratio=\framedtextparameter{numberratio},
+  titleratio=\framedtextparameter{titleratio},
+  linethickness=\framedtextparameter{rulethickness},
+  radius=\framedtextparameter{radius},
+  bodybackground="\framedtextparameter{bodybackground}",
+  shadowcolor="\framedtextparameter{shadowcolor}",
+  symbol="\framedtextparameter{symbol}",
+  character="\framedtextparameter{character}",
+  headerdivider=\framedtextparameter{headerdivider}
+}]
+
+\setMPtext{MPFrameTitle}{} % initialize the text variable
+\setMPtext{MPFrameTitle}{\hbox spread \baselineskip{\hss\framed[frame=off]%
+    {\framedtextparameter{title}}\hss}}
+
+\defineframedtext[FrameText][
+                  background=MPFrameV,       frame=off,    title=Put your title,
+                  framecolor=lightthemecolor,backgroundcolor=white,
+                  rulethickness=1.5pt,       indenting={yes,2em}, offset=.5em,
+                  toffset=\bodyfontsize, % if titlepos=1 , then toffset=\bodyfontsize
+                  width=\textwidth,]
+
+\definecounter[FrameCounter]
+              [way=bychapter,
+               prefix=yes,
+               prefixset=chapter,
+               prefixconnector=\endash,]
+
+\setupMPvariables
+  [mpos:region]
+  [character=!,
+   type=fullcircle,%=fulldiamond fulltriangle
+   symbol=\usersymbolparameter{Frame},
+   shadowcolor=lightthemecolor]
+
+\definetextbackground[blockbox]
+
+\setuptextbackground [blockbox][
+                      location=always,   mp=mpos:region:leftbar,
+                      frame=off,         framecolor=lightthemecolor,
+                      width=broad,
+                      topoffset=1ex,     bottomoffset=1ex,
+                      leftoffset=2ex,    rightoffset=2ex,
+                      rulethickness=4pt,
+                      background=color,  backgroundcolor=palethemecolor,
+                      before=\vskip.5\baselineskip\relax,
+                       after=\vskip.5\baselineskip\relax]
+                       
+\definedescription   [excursus][
+                      text={Excursus:~},headstyle=bold,width=broad,
+                      alternative=top,  inbetween=,
+                      indenting=\userlanguageparameter\c!indenting\relax,
+                      before={\vskip.5\baselineskip\relax\starttextbackground[blockbox]},
+                      after={\stoptextbackground\vskip.5\baselineskip\relax},]
+
+\defineframedtext   [DualHeaderText][
+    background=DualHeaderBox,
+    frame=off,
+    width=\textwidth,
+    toffset=2.5\bodyfontsize,
+    % boffset=0pt,
+    % loffset=0pt,
+    % roffset=0pt,
+    indenting={yes,2em},
+    shownumber=1,
+    showtitle=1,
+    titlepos=1,
+    titlealign=2,
+    numberalign=2,
+    numberbgcolor=lightthemecolor,
+    titlebgcolor=white,
+    bodybgcolor=white,
+    headerbgcolor=transparentcolor,
+    numbercolor=white,
+    titlecolor=lightthemecolor,
+    framecolor=lightthemecolor,
+    numberframecolor=lightthemecolor,
+    titleframecolor=lightthemecolor,
+    numberframe=1,
+    titleframe=1,
+    leftframe=1,
+    rightframe=1,
+    topframe=1,
+    bottomframe=1,
+    numberratio=1,
+    titleratio=1,
+    rulethickness=1.5pt,
+    radius=0pt,
+    bodybackground=simple,
+    headerdivider=0,
+    % symbol=,
+    % character=,
+    % shadowcolor=,
+    % number=, 
+    % title=,
+]
+
+\definebar[underround] [undergraphic]
+  [mp=rules:under:round,
+   rulethickness=1.2,
+   offset=0,
+   order=background,
+   continue=yes,
+   foregroundcolor=white,
+   left={\hskip .5ex\relax},
+   right={\hskip .5ex\relax},
+   color=themecolor]
+
+\definebar[bigunderdot]
+  [text=\raise2\exheight\vbox to 1pt{\hsize 1em\relax\hfil\darkred\tf\cdot\hfil},repeat=no]
+
+%\underdot{orem ipsum dolor sit }
+%\bigunderdot{等級大家都 }
+%\underround{orem ipsum dolor sit }
+
+%%%%%%%%%%%%%%%%%%%%
+\defineframed[RotatedFrame][
+  background=RotatedSquares,
+  backgroundcolor=white,
+  location=low,
+  foregroundstyle=tfx,
+  foregroundcolor=white,
+  frame=off,
+  framecolor=darkblue,
+  rulethickness=0.6pt,
+  squarecolor=lightyellow,
+  perturbation=0pt,
+  iterate=3,
+  angle=30,
+  size=1,
+]
+
+\defineframed
+ [circledtxt]
+ [    background=circledtextOL,
+        location=low,
+        align={center,lohi},
+           width=\bodyfontsize,
+           frame=off,
+          offset=0pt,
+       anchoring=normal,
+         yanchor=.00\bodyfontsize,% 0.0~0.1
+       frametype=square,
+      framecolor=themecolor,
+       fillcolor=transparentcolor,
+ foregroundcolor=themecolor, % change font color
+ foregroundstyle=tfx,
+          radius=0,% if = 0 will be square,if = 0.5 will be circle
+       dashcolor=transparentcolor,
+   dashlinewidth=.5pt,
+   dashskipwidth=.9pt,% if = 0 ,will be undashed
+  ]
+
+%  \symbol[fontawesome][info_sign]
+%  \symbol[fontawesome][search]
+%  \symbol[fontawesome][edit]
+%  \symbol[fontawesome][exclamation_sign]
+%  \symbol[fontawesome][question_sign]
+%  \symbol[fontawesome][info_sign]
+
+%\chardef\kindofpagetextareas\plusone
+%\startexcursus[title={A Knuth extract}]
+%\stopexcursus
+
+\definetextbackground[secondary][
+  location=paragraph,
+  background=color,
+  backgroundcolor=palethemecolor,
+  leftoffset=1ex,
+  rightoffset=1ex,
+  topoffset=1ex,  
+  bottomoffset=1ex,
+  frame=off,]
+
+\definedescription[admonition]
+
+\setupdescription[admonition][
+  alternative=top,
+  before=\starttextbackground[secondary],
+  after=\stoptextbackground,
+  inbetween={{\offinterlineskip\color[lightthemecolor]{\noindent\kern-1ex\vrule width 1tw height 1pt}\par}},
+  indentnext=yes,
+  indenting={always,2em},
+  ]
+%%%%%%%%%%%%%%%%%
+% \starttextbackground[colorbox]
+%   \input knuth
+% \stoptextbackground
+
+% Source - https://tex.stackexchange.com/a/125486
+% Posted by Aditya, modified by community. See post 'Timeline' for change history
+% Retrieved 2026-10-09, License - CC BY-SA 3.0
+
+\newcount\c_placeholder_n
+
+\def\hightext#1%
+    {\color[white]{\global\advance\c_placeholder_n\plusone
+     \startpositionoverlay{text-1}% The layer just below text
+     \setMPpositiongraphicrange 
+       {b:placeholder:\the\c_placeholder_n}%
+       {e:placeholder:\the\c_placeholder_n}%
+       {mpos:placeholder}%
+       {self=placeholder:\the\c_placeholder_n,
+        linewidth=0bp,
+        linecolor=yellow,
+        color=yellow,
+        radius=2bp}%
+     \stoppositionoverlay
+     \bpos{placeholder:\the\c_placeholder_n}%
+     \,#1\,%
+     \epos{placeholder:\the\c_placeholder_n}}}
+
+\startMPpositionmethod{mpos:placeholder}
+    \startMPpositiongraphic{mpos:placeholder}{linecolor,linewidth,color,radius}%
+        begingroup;
+        newnumeric x,y, w, a_x, a_y, a_h, a_d, b_x, b_y, b_h, b_d, a_p, p_h, r ;
+        (x,y)     = \MPxy\textanchor; % The overlay is anchored at (x,y). 
+        % So, we have to subtract (x,y) from each point.
+        (a_x,a_y) = \MPxy\MPbself; % The localtion of the beginning of the line.
+        % Height and depth at the beginning of the line
+        a_h := \MPh\MPbself; a_d := \MPd\MPbself;
+        (b_x,b_y) = \MPxy\MPeself; % The location of the end of the line
+        % Height and depth at the end of the line
+        b_h := \MPh\MPeself; b_d := \MPd\MPeself;
+        % Page number of the anchors
+        a_p := \MPp\MPbself; b_p := \MPp\MPeself;
+        w := \MPw{\textanchor}; % equal to line width for split words.
+        r := \MPvar{radius};
+
+        newpath p;
+
+        drawoptions (withpen pencircle scaled \MPvar{linewidth} withcolor \MPvar{linecolor});
+
+        % Note that the line is drawn at the baseline of the word.
+        % If you subtract a_d to the y-coordinate, then the line will 
+        % be drawn so that it is below the depth of the characters (i.e., below the
+        % 'p' in placeholder).
+        % If you add a_h to the y-coordinate, then the line will be drawn so
+        % that it is at the top of the characters.
+        if a_y = b_y : % 同一行
+            newnumeric h;
+            h := a_h + a_d;
+            % 半径不能超过高度一半，也不能超过宽度一半
+            if r > h/2        : r := h/2        ; fi
+            if r > (b_x-a_x)/2: r := (b_x-a_x)/2; fi
+        
+            p := (-x + a_x, -y + a_y - a_d + r)
+              -- (-x + a_x, -y + a_y + a_h - r) {up}
+              .. {right} (-x + a_x + r, -y + a_y + a_h)
+              -- (-x + b_x - r, -y + a_y + a_h) {right}
+              .. {down}  (-x + b_x, -y + a_y + a_h - r)
+              -- (-x + b_x, -y + a_y - a_d + r) {down}
+              .. {left}  (-x + b_x - r, -y + a_y - a_d)
+              -- (-x + a_x + r, -y + a_y - a_d) {left}
+              .. {up}    (-x + a_x, -y + a_y - a_d + r)
+              -- cycle;
+            fill p withcolor \MPvar{color};
+            draw p;
+        else : % 跨行
+            % ---- 第一段：开始锚点在当前页 ----
+            if a_p = RealPageNumber :
+                rr := r;
+                if rr > (a_h + a_d)/2 : rr := (a_h + a_d)/2 ; fi
+                if rr > (w - (-x + a_x))/2 : rr := (w - (-x + a_x))/2 ; fi
+
+                p := (-x + a_x + rr, -y + a_y - a_d)
+                  -- (w, -y + a_y - a_d)
+                  -- (w, -y + a_y + a_h)
+                  -- (-x + a_x + rr, -y + a_y + a_h)
+                  {left} .. {down} (-x + a_x, -y + a_y + a_h - rr)
+                  -- (-x + a_x, -y + a_y - a_d + rr)
+                  {down} .. {right} (-x + a_x + rr, -y + a_y - a_d)
+                  -- cycle;
+                fill p withcolor \MPvar{color};
+                draw p;
+            fi
+
+            % ---- 第二段：结束锚点在当前页 ----
+            if b_p = RealPageNumber :
+                rr := r;
+                if rr > (b_h + b_d)/2 : rr := (b_h + b_d)/2 ; fi
+                if rr > (-x + b_x)/2 : rr := (-x + b_x)/2 ; fi
+
+                p := (0, -y + b_y - b_d)
+                  -- (-x + b_x - rr, -y + b_y - b_d)
+                  {right} .. {up} (-x + b_x, -y + b_y - b_d + rr)
+                  -- (-x + b_x, -y + b_y + b_h - rr)
+                  {up} .. {left} (-x + b_x - rr, -y + b_y + b_h)
+                  -- (0, -y + b_y + b_h)
+                  -- (0, -y + b_y - b_d)
+                  -- cycle;
+                fill p withcolor \MPvar{color};
+                draw p;
+            fi
+        fi
+        endgroup;
+    \stopMPpositiongraphic
+    \MPpositiongraphic{mpos:placeholder}{}%
+\stopMPpositionmethod

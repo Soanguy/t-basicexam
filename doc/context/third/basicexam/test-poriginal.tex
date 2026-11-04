@@ -197,10 +197,6 @@
   \externalfigure [][height=4\baselineskip,width=1tw]
 \stopplacetextfig
 
-\startplacemarginfig [title=margin figure,location={outermargin}]
-  \externalfigure [][width=\rightmarginwidth,height=5\baselineskip]
-\stopplacemarginfig
-
 \startplacefullfig [location=none]
    \startsubfloatnumbering
      \startfloatcombination [width=\dimexpr\textwidth+\rightmargintotal\relax,nx=3,distance=1mm,after=,inbetween=]
@@ -252,16 +248,6 @@
 \startplacetexttab [title={text table},location={high,low,middle}]
     \getbuffer
 \stopplacetexttab
-
-\startplacefulltab [location=none]
-   \startsubfloatnumbering
-     \startfloatcombination [width=\dimexpr\textwidth+\rightmargintotal\relax,nx=3,distance=1mm,after=,inbetween=]
-       \startplacetable [title=Left]   \getbuffer \stopplacetable
-       \startplacetable [title=Middle] \getbuffer \stopplacetable
-       \startplacetable [title=Right]  \getbuffer \stopplacetable
-     \stopfloatcombination
-   \stopsubfloatnumbering
-\stopplacefulltab
 
 \startplacetexttab[title=name of table]
   \getbuffer

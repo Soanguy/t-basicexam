@@ -1,0 +1,257 @@
+\usemodule[memos][fontstyle=ss]
+
+\starttext
+\showframe
+\setupinterlinespace[stretch=0]
+
+\chapter{textbackground 背景验证}
+
+\section{simple 白底}
+
+\startDualBodyText[
+  ,
+  framecolor=red,
+  rulethickness=1.5pt]
+这是一个 simple 风格的文本块，白底，lightthemecolor 边框。%如果发现有多余的行，那不是背景问题，是因为设置了 interlinespace 的拉伸机制
+\stopDualBodyText
+
+% 【预期】白底 + lightthemecolor 完整边框
+
+\section{simple 自定义背景色}
+
+\startDualBodyText[,backgroundcolor=softthemecolor,framecolor=themecolor,rulethickness=2pt]
+这是一个自定义背景色的文本块，softthemecolor 背景，themecolor 边框（2pt）。
+\stopDualBodyText
+
+% 【预期】softthemecolor 背景 + themecolor 边框（2pt）
+
+\section{圆角 radius=5pt}
+
+\startDualBodyText[,backgroundcolor=softblue,framecolor=blue,rulethickness=2pt,radius=15pt]
+这是一个圆角矩形文本块，浅蓝底 + 蓝框，圆角半径 5pt。
+\stopDualBodyText
+
+% 【预期】圆角矩形，浅蓝底 + 蓝框
+
+\section{仅左边框}
+
+\startDualBodyText[,framecolor=red,rulethickness=2pt,leftframe=1,rightframe=0,topframe=0,bottomframe=0]
+这是一个仅有左侧边框的文本块，红线在左侧。
+\stopDualBodyText
+
+% 【预期】仅左侧红线，无其他边框
+
+\section{无边框}
+
+\startDualBodyText[,backgroundcolor=palethemecolor,framecolor=themecolor,rulethickness=1.5pt,leftframe=0,rightframe=0,topframe=0,bottomframe=0]
+这是一个无边框的文本块，只有 palethemecolor 色块。
+\stopDualBodyText
+
+% 【预期】只有 palethemecolor 色块，无边框线
+
+\section{仅左右边框}
+
+\startDualBodyText[,framecolor=blue,rulethickness=1.5pt,leftframe=1,rightframe=1,topframe=0,bottomframe=0]
+这是一个仅有左右边框的文本块，蓝色竖线。\input lipsum
+\stopDualBodyText
+
+% 【预期】左右竖线，无上下横线
+
+\section{symbolbox}
+
+\startDualBodyText[symbol=※,framecolor=themecolor,rulethickness=1.5pt,symbol=★]
+这是一个 symbolbox 风格的文本块，右下角有 ★ 符号。
+\stopDualBodyText
+
+% 【预期】右下角符号，边框 themecolor
+
+\section{symbolbox 空 symbol（none）}
+
+\startDualBodyText[symbol=※,framecolor=themecolor,rulethickness=1.5pt,symbol=none]
+这是一个 symbolbox 但无符号的文本块，不报错。
+\stopDualBodyText
+
+% 【预期】无符号，仅背景+边框，不报错
+
+\section{charbox}
+
+\startDualBodyText[character={$\star$},framecolor=orange,rulethickness=1.5pt,character={$\star$}]
+这是一个 charbox 风格的文本块，有 45° 星号水印（半透明橙色）。
+\stopDualBodyText
+
+% 【预期】45° 星号水印（半透明橙色）
+
+\section{charbox 自定义字符 + 背景色}
+
+\startDualBodyText[character={$\star$},backgroundcolor=softyellow,framecolor=orange,rulethickness=1.5pt,character={※}]
+这是一个 charbox 自定义字符的文本块，浅黄底 + 橙色 ※ 水印。\input lipsum
+\stopDualBodyText
+
+% 【预期】浅黄底 + 橙色 ※ 水印
+
+\section{charbox 空 character（none）}
+
+\startDualBodyText[character={$\star$},framecolor=orange,rulethickness=1.5pt,character=none]
+这是一个 charbox 但无字符的文本块，不报错。
+\stopDualBodyText
+
+% 【预期】无水印，仅背景+边框
+
+\section{framebox}
+
+\startDualBodyText[framebox=yes,framecolor=themecolor,rulethickness=1.5pt]
+这是一个 framebox 风格的文本块，有图案背景。
+\stopDualBodyText
+
+% 【预期】点状/棋盘图案背景
+
+\section{shadowbox}
+
+\startDualBodyText[shadow=yes,framecolor=lightthemecolor,rulethickness=1.5pt,shadowcolor=lightthemecolor]
+这是一个 shadowbox 风格的文本块，右下角有投影。
+\stopDualBodyText
+
+% 【预期】右下角投影
+
+\section{shadowbox 自定义阴影色 + 粗线}
+
+\startDualBodyText[shadow=yes,backgroundcolor=softblue,framecolor=blue,rulethickness=2pt,shadowcolor=darkblue]
+这是一个 shadowbox 自定义阴影色的文本块，深蓝阴影更明显。
+\stopDualBodyText
+
+% 【预期】深蓝阴影更明显
+
+\section{barbox}
+
+\startDualBodyText[bar=yes,framecolor=themecolor,rulethickness=1.5pt,leftframe=1]
+这是一个 barbox 风格的文本块，左侧有色条 + 三边细框。
+\stopDualBodyText
+
+% 【预期】左侧色条 + 三边细框
+
+\section{barbox + 圆角}
+
+\startDualBodyText[bar=yes,backgroundcolor=softthemecolor,framecolor=themecolor,rulethickness=2pt,radius=5pt,leftframe=1]
+这是一个 barbox 圆角的文本块，左侧色条与主体圆角对齐。
+\stopDualBodyText
+
+% 【预期】左侧色条外轮廓与主体圆角对齐，无畸形
+
+\section{barbox leftframe=0（无色条）}
+
+\startDualBodyText[bar=yes,framecolor=themecolor,rulethickness=1.5pt,leftframe=0,rightframe=1,topframe=1,bottomframe=1]
+这是一个 barbox 但无左侧色条的文本块，仅右/上/下边框。
+\stopDualBodyText
+
+% 【预期】无左侧色条，仅右/上/下边框
+
+\section{圆角 + symbolbox}
+
+\startDualBodyText[symbol=※,framecolor=themecolor,rulethickness=1.5pt,radius=5pt,symbol=●]
+这是一个圆角 symbolbox 的文本块，圆角框 + 右下角 ● 符号。
+\stopDualBodyText
+
+% 【预期】圆角框 + 右下角符号
+
+\section{圆角 + charbox}
+
+\startDualBodyText[character={$\star$},framecolor=red,rulethickness=1.5pt,radius=5pt,character={$\heartsuit$}]
+这是一个圆角 charbox 的文本块，圆角 + 爱心水印。
+\stopDualBodyText
+
+% 【预期】圆角 + 爱心水印
+
+\section{圆角 + shadowbox}
+
+\startDualBodyText[shadow=yes,framecolor=lightthemecolor,rulethickness=1.5pt,radius=8pt,shadowcolor=lightthemecolor]
+这是一个圆角 shadowbox 的文本块，阴影轮廓也带圆角。
+\stopDualBodyText
+
+% 【预期】圆角 + 阴影轮廓也带圆角
+
+\section{圆角 + framebox}
+
+\startDualBodyText[framebox=yes,framecolor=themecolor,rulethickness=1.5pt,radius=5pt]
+这是一个圆角 framebox 的文本块，圆角 + 点状图案。
+\stopDualBodyText
+
+% 【预期】圆角 + 点状图案
+
+\section{粗线 rulethickness=3pt}
+
+\startDualBodyText[backgroundcolor=white,framecolor=red,rulethickness=3pt]
+这是一个粗线文本块，rulethickness=3pt，明显更粗的红框。
+\stopDualBodyText
+
+% 【预期】明显更粗的红框
+
+\section{细线 rulethickness=0.5pt}
+
+\startDualBodyText[backgroundcolor=white,framecolor=blue,rulethickness=0.5pt]
+这是一个细线文本块，rulethickness=0.5pt，很细的蓝框。
+\stopDualBodyText
+
+% 【预期】很细的蓝框
+
+\section{混合 shadow + bar}
+
+\startDualBodyText[shadow=yes,bar=yes,framecolor=themecolor,rulethickness=1.5pt,shadowcolor=lightthemecolor]
+这是一个 shadow + bar 混合文本块，阴影与左色条同时出现。
+\stopDualBodyText
+
+% 【预期】右下阴影 + 左色条 + 边框
+
+\section{混合 shadow + character}
+
+\startDualBodyText[shadow=yes,character={$\heartsuit$},framecolor=red,rulethickness=1.5pt,shadowcolor=lightthemecolor]
+这是一个 shadow + character 混合文本块，阴影与爱心水印同时出现。
+\stopDualBodyText
+
+% 【预期】阴影 + 爱心水印
+
+\section{混合 bar + character}
+
+\startDualBodyText[bar=yes,character={$\star$},framecolor=themecolor,rulethickness=1.5pt]
+这是一个 bar + character 混合文本块，左色条与星形水印同时出现。
+\stopDualBodyText
+
+% 【预期】左色条 + 星形水印
+
+\section{混合 bar + framebox}
+
+\startDualBodyText[bar=yes,framebox=yes,framecolor=themecolor,rulethickness=1.5pt]
+这是一个 bar + framebox 混合文本块，左色条与棋盘格同时出现。
+\stopDualBodyText
+
+% 【预期】左色条覆盖在棋盘格之上
+
+\section{混合 shadow + bar + character}
+
+\startDualBodyText[shadow=yes,bar=yes,character={$\heartsuit$},framecolor=themecolor,rulethickness=1.5pt,shadowcolor=lightthemecolor]
+这是一个 shadow + bar + character 全混合文本块，三者同时出现。
+\stopDualBodyText
+
+% 【预期】阴影 + 色条 + 水印共存
+
+\section{混合全套（含圆角 + 角标）}
+
+\startDualBodyText[shadow=yes,bar=yes,framebox=yes,character={$\heartsuit$},symbol=※,
+  framecolor=themecolor,rulethickness=1.5pt,radius=6pt,shadowcolor=lightthemecolor]
+这是一个全套混合文本块：阴影 + 色条 + 棋盘 + 水印 + 角标 + 圆角。
+\stopDualBodyText
+
+% 【预期】全部装饰共存，层次不乱
+
+\section{多段落文本}
+
+\startDualBodyText[backgroundcolor=palethemecolor,framecolor=themecolor,rulethickness=1.5pt]
+这是一个包含多段落的文本块。第一段。
+
+第二段。
+
+第三段。
+\stopDualBodyText
+
+% 【预期】整个多段落被同一个背景包裹，边框完整
+
+\stoptext
