@@ -98,7 +98,8 @@
 \defineitemgroup    [ordinals] [levels=4]
 \setupitemgroup     [ordinals] [each]
                                [before=,after=,right=,
-                                width=1.5em,headstyle=bf,
+                                headstyle=bf,color=deepthemecolor,
+                                width=1em,distance=.25em,
                                 stopper=.,symalign=center]
 \setupitemgroup     [ordinals] [1]        [n,packed,joinedup]
 \setupitemgroup     [ordinals] [2]        [i,packed,joinedup]
@@ -107,46 +108,44 @@
 \defineitemgroup    [points]   [levels=4]% [nowhite]
 \setupitemgroup     [points]   [each]     [packed,joinedup]
                                [before=,after=,right=,
-                                width=1.5em,headstyle=bf,
-                                stopper=,symalign=center]
+                                headstyle=bf,color=deepthemecolor,
+                                width=1em,distance=.25em,
+                                stopper=.,symalign=center]
 \setupitemgroup     [points]   [1]        [symbol=mp:bullet]
 \setupitemgroup     [points]   [2]        [symbol=diamond]
 \setupitemgroup     [points]   [3]        [symbol=asterisk]
 \setupitemgroup     [points]   [4]        [symbol=star]
 
 \definedescription  [hangdescr][
-                     before=,  after=,  width=fit,
-                     indenting={2em},indentnext=yes,margin=1em,
-                     headstyle=bold, style=normal,  align={flushleft},
+                     before=\par,  after=\par,  inbetween=,
+                     width=fit, indenting=2em, indentnext=yes,
+                     headstyle=bold, align={flushleft},
                      text={\raise 1pt \hbox to 1em{$\bullet$}},%hang=99,
                      alternative=hanging,]
 \definedescription  [topdescr][
-                     before=\vskip.25\baselineskip\relax,
-                     after=\vskip.25\baselineskip\relax,
-                     inbetween=\leftskip1em\relax,width=fit,
-                     indenting={2em},indentnext=yes,
-                     headstyle=bold,style=normal,
-                     align={flushleft},alternative=top,
-                     text={\raise 1pt \hbox to 1em{$\bullet$}},]
+                     before=\par,  after=\par,  inbetween=,
+                     width=fit, indenting=2em, indentnext=yes,
+                     headstyle=bold, align={flushleft},
+                     text={\raise 1pt \hbox to 1em{$\bullet$}},
+                     alternative=top,]
 \definedescription  [description][
-                     before=\vskip.25\baselineskip\relax,
-                     after=\vskip.25\baselineskip\relax,
-                     alternative=serried,width=fit,
-                     indenting=2em,indentnext=yes,
-                     headstyle=bold,align={flushleft},]
+                     before=\blank[halfline],  after=\blank[halfline],  inbetween=,
+                     width=fit, indenting=2em, indentnext=yes,
+                     headstyle=bold, align={flushleft},
+                     alternative=serried,]
 
-\defineenumeration[theorem]     [text=\labeltext{reference:theorem},    way=bychapter,prefix=yes,prefixsegments=chapter]
-\defineenumeration[lemma]       [text=\labeltext{reference:lemma},      way=bychapter,prefix=yes,prefixsegments=chapter]
-\defineenumeration[corollary]   [text=\labeltext{reference:corollary},  way=bychapter,prefix=yes,prefixsegments=chapter]
-\defineenumeration[proposition] [text=\labeltext{reference:proposition},way=bychapter,prefix=yes,prefixsegments=chapter]
-\defineenumeration[definition]  [text=\labeltext{reference:definition}, way=bychapter,prefix=yes,prefixsegments=chapter]
-\defineenumeration[proof]       [text=\labeltext{reference:proof},      way=bychapter,prefix=yes,prefixsegments=chapter]
-\defineenumeration[remark]      [text=\labeltext{reference:remark},     way=bychapter,prefix=yes,prefixsegments=chapter]
-\defineenumeration[examples]    [text=\labeltext{reference:example},    way=bychapter,prefix=yes,prefixsegments=chapter]
+\defineenumeration[theorem]     [alternative=hanging, width=fit, before=\blank[halfline]\leftskip1em\rightskip\leftskip, after=\blank[halfline], inbetween=, text=\labeltext{reference:theorem},    way=bychapter, prefix=yes, prefixsegments=chapter]
+\defineenumeration[lemma]       [alternative=hanging, width=fit, before=\blank[halfline]\leftskip1em\rightskip\leftskip, after=\blank[halfline], inbetween=, text=\labeltext{reference:lemma},      way=bychapter, prefix=yes, prefixsegments=chapter]
+\defineenumeration[corollary]   [alternative=hanging, width=fit, before=\blank[halfline]\leftskip1em\rightskip\leftskip, after=\blank[halfline], inbetween=, text=\labeltext{reference:corollary},  way=bychapter, prefix=yes, prefixsegments=chapter]
+\defineenumeration[proposition] [alternative=hanging, width=fit, before=\blank[halfline]\leftskip1em\rightskip\leftskip, after=\blank[halfline], inbetween=, text=\labeltext{reference:proposition},way=bychapter, prefix=yes, prefixsegments=chapter]
+\defineenumeration[definition]  [alternative=hanging, width=fit, before=\blank[halfline]\leftskip1em\rightskip\leftskip, after=\blank[halfline], inbetween=, text=\labeltext{reference:definition}, way=bychapter, prefix=yes, prefixsegments=chapter]
+\defineenumeration[proof]       [alternative=hanging, width=fit, before=\blank[halfline]\leftskip1em\rightskip\leftskip, after=\blank[halfline], inbetween=, text=\labeltext{reference:proof},      way=bychapter, prefix=yes, prefixsegments=chapter]
+\defineenumeration[remark]      [alternative=hanging, width=fit, before=\blank[halfline]\leftskip1em\rightskip\leftskip, after=\blank[halfline], inbetween=, text=\labeltext{reference:remark},     way=bychapter, prefix=yes, prefixsegments=chapter]
+\defineenumeration[examples]    [alternative=hanging, width=fit, before=\blank[halfline]\leftskip1em\rightskip\leftskip, after=\blank[halfline], inbetween=, text=\labeltext{reference:example},    way=bychapter, prefix=yes, prefixsegments=chapter]
 \defineenumeration[tips]        [text=Tips,inbetween=,width=fit,right={.~},
-                                  headcommand=\setuptextrules[color=themecolor,rulecolor=themecolor,rulethickness=1.5\linewidth]\textrule[top],
+                                  headcommand=\setuptextrules[color=themecolor,rulecolor=themecolor,rulethickness=1.5\linewidth,before=\blank[halfline]]\textrule[top],
                                   before=\vskip-\baselineskip\relax,
-                                  after=\setuptextrules[color=themecolor,rulecolor=themecolor,rulethickness=1.5\linewidth]\textrule[bottom]\empty,
+                                  after=\setuptextrules[color=themecolor,rulecolor=themecolor,rulethickness=1.5\linewidth,after=\blank[halfline]]\textrule[bottom]\empty,
                                   prefix=yes,% or prefixsegments=chapter:section
                                   prefixsegments=section]
 \setupcounter       [tips]       [way=bysection]
@@ -158,7 +157,8 @@
                                  numberstyle=sstf,
                                  numberconversion=cn,stopper=、,
                                  indentnext=yes,
-                                 before=\blank[halfline],after=,
+                                 before=\blank[halfline],
+                                 after=,
                                  inbetween=\blank[halfline],
                                  ]
 
@@ -171,56 +171,58 @@
 % \note[fn:notei]\notesep\note[fn:noteii]
 
 \startsetups fn:hanzi
-  \setglobalscript [hanzi]%% \restoreglobalbodyfont
+  \setglobalscript [custom]%% \restoreglobalbodyfont
 \stopsetups
 
-\defineinterlinespace[footnote][line=2.8ex]
+\permanent\protected\def\hanihigh{\typo_scripts_high[hanihigh]}
+\setuphigh[hanihigh][distance=1pt,up=\exheight]
 
 \def\notesep    {{\useurlstyleandcolor\c!style\c!color\strc_notes_inject_separator}}
-\def\MMS_notecommand#1{\high{\noteparameter\c!left #1\noteparameter\c!right}}
-
-\setupnote      [setups={fn:hanzi},
-                 textseparator=\textcomma,
-                 textcolor=footnotecolor,
-                 textcommand=\MMS_notecommand,
-                 textstyle=hw,
-                 left=\languageparameter{leftnotemark},
-                 right=\languageparameter{rightnotemark},
+\def\MMS_notecommand#1{\begingroup\nobreak\hanihigh{\languageparameter{leftnotemark}{#1}\languageparameter{rightnotemark}}\endgroup}
+\def\MMS_notationcommand#1{\begingroup{\languageparameter{leftnotemark}{#1}\languageparameter{rightnotemark}}\endgroup}
+\setupnote      [\c!setups       ={fn:hanzi},
+                 \c!textseparator=\textcomma,
+                 \c!textcolor    =footnotecolor,
                 ]
-\setupnotation  [setups={fn:hanzi},
-                 style=hw,
-                 color=footnotecolor,
-                 interlinespace=footnote,
-                 headcolor=footnotecolor,
-                 way=bypage,
-                 left=\languageparameter{leftnotemark},
-                 right=\languageparameter{rightnotemark},
+\setupnotation  [\c!setups       ={fn:hanzi},
+                 \c!color        =footnotecolor,
+                 \c!headcolor    =footnotecolor,
+                 \c!way          =bypage,
                 ]
 
-\definenote    [marginnote]
+\setupnote     [footnote]   [\c!textcommand  =\MMS_notecommand,]     
+\setupnotation [footnote]   [\c!numbercommand=\MMS_notationcommand,] 
+
+\definenote    [marginnote] [footnote]
 \setupnote     [marginnote] [location=none]
-\setupnotation [marginnote] [align=flushleft,
-                headalign={flushright,lohi},
-                location=serried,]
+\setupnotation [marginnote] [align=flushleft, headalign={flushright,lohi}, location=serried,]
+
 \setuptexttexts[margin] []  [\vtop to \textheight{\vskip4pt\relax
-                              \setglobalscript [hanzi]
-                            \placelocalnotes[marginnote][width=\outermarginwidth]\vfill}]
-\setupmargindata  [inoutermargin][style=\setlocalscript[hanzi]\hwx,]
-\setupmarginframed[inoutermargin][style=\setlocalscript[hanzi]\hwx,]
+                             \setups{fn:hanzi}%
+                             \placelocalnotes[marginnote][width=\outermarginwidth]\vfill}]
+
+
+\definemargindata [sidenoteframe][inoutermargin]
+\setupmargindata  [sidenoteframe][style=\setups{fn:hanzi},stack=continue]
+\setupmarginframed[sidenoteframe][style=\setups{fn:hanzi},stack=continue]
+
 \defineconversion [sidenote][%
-    \hbox to 1.0em{{\tfx\hfil\ast\hfil}},
-    \hbox to 1.0em{{\tfx\hfil\ast\ast\hfil}},
+    \hbox to 1.0em{{\tfx\hfill\ast}},
+    \hbox to 1.0em{{\tfx\hfill\ast\ast}},
     \hbox to 1.0em{\tfx\raise .5em%
       \hbox to 1.0em{\hfil\ast\hfil}\kern-1.0em
       \hbox to 1.0em{\hfil\ast\ast\hfil}}]
+
+
 \tolerant\def\movesidenote[#1]{\def\move_sidenote{\doifsomethingelse{#1}{#1}{0em}}}
+
 \movesidenote[-\baselineskip]
-\define\PlaceFootnote%
-  {\inoutermargin[stack=continue,dy=\move_sidenote]{%
-      \placelocalnotes[sidenote][align={width,hyphenated,morehyphenation,tight},width=max,before=,after=,]
-  }\movesidenote[0em]}
+\define\PlaceFootnote{\sidenoteframe[dy=\move_sidenote]{%
+    \placelocalnotes[sidenote][align={width,hyphenated,morehyphenation,tight},before=,after=,]
+  }}
+  
 \definenote    [sidenote]
-\setupnote     [sidenote] [location=text,next=\PlaceFootnote,left=,right=,]
+\setupnote     [sidenote] [location=text,next=\PlaceFootnote,left=,right=,width=max]
 \setupnotation [sidenote] [numberconversion=sidenote,width=2mm,left=,right=,]
 %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -231,9 +233,6 @@
   \parfillskip 0pt plus0pt minus0pt}
 \definenarrower [widersame] [left=\rightmargintotal,
                              right=\rightmargintotal,middle=1em]
-\definenarrower [widerside] [left=\leftmarginwidth,
-                             right=\rightmarginwidth,middle=1em]
-\definenarrower [widerpara] [left=1em,right=1em,middle=1em]
 % ConTeXt has a similar command:starthanging
 %%%%% Note: you can only widen limited type of elements.e.g. normal text.
 %%%%%       it seems in table and figure enviroment ,narrower is not work well
@@ -253,7 +252,6 @@
 \def\stopwidefloat{\stopwidersame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \definetextbackground[framedcode]
-\definetextbackground[halfframedcode][framedcode]
 \definetextbackground[wideframedcode][framedcode]
 \setuptextbackground [framedcode][width=local,
                       frame=on,           foregroundcolor=codecolor,
@@ -266,7 +264,6 @@
                       bottomoffset=.5\bodyfontsize,
                       before={\blank},
                       after={\blank},]
-\setuptextbackground [halfframedcode][width=.55\textwidth,before=,after=,]
 \setuptextbackground [wideframedcode][width=\spanmarginwidth,]
 \definetextbackground[framelmverbatim][
   location=always,    frame=off,
@@ -285,23 +282,24 @@
 \definetyping[wideverbatim][verbatim]
 \definetyping[lmverbatim]
 \definetyping[widelmverbatim][lmverbatim]
-\setuptype   [verb][option=context,strip=yes,color=codecolor]
+
 \setuptyping [before=,after=]
+\setuptype   [verb][option=context,strip=yes,color=codecolor]
 \setuptyping [verbatim][strip=yes,
-          width=.95\textwidth,option=context,
-          style={\switchtobodyfont[10pt,tt]
-                 \setuplocalinterlinespace[line=1.25\bodyfontsize]},
-          before={\startalignment[center]\startframedcode},
-          after={\stopframedcode\stopalignment},]
+              width=.95\textwidth,option=context,
+              style={\switchtobodyfont[10pt,tt]
+                    \setuplocalinterlinespace[line=1.25\bodyfontsize]},
+              before={\startalignment[center]\startframedcode},
+              after={\stopframedcode\stopalignment},]
 \setuptyping [wideverbatim][
-          before={\startwidefloat\startwideframedcode},
-          after={\stopwideframedcode\stopwidefloat},]
+              before={\startwidefloat\startwideframedcode},
+              after={\stopwideframedcode\stopwidefloat},]
 \setuptyping [lmverbatim][
-          numbering=line,before=\startframelmverbatim,
-          style=\ttx,    after=\stopframelmverbatim,]
+              numbering=line,before=\startframelmverbatim,
+              style=\ttx,    after=\stopframelmverbatim,]
 \setuptyping [widelmverbatim][
-          before={\startwidefloat\startframelmverbatim},
-          after={\stopframelmverbatim\stopwidefloat},]
+              before={\startwidefloat\startframelmverbatim},
+              after={\stopframelmverbatim\stopwidefloat},]
 
 \defineframed[LeftCodeExampleFramed][
     frame=off,before=,after=,
@@ -372,38 +370,21 @@
 % \setupexternalfigures[location={local,global,default},
 %                       directory={outFilms}]
 % usage of auto measure: https://wiki.contextgarden.net/Combinations
+% \figureheight
 \newdimen\spanmarginwidth\spanmarginwidth=\dimexpr\textwidth+\rightmargintotal\relax
 \setupexternalfigures [order={pdf,png,jpg},]
 \defineexternalfigure [automeasure]   [width=\measure{combination}]
-\defineexternalfigure [textmeasure]   [width=\textwidth]
-\defineexternalfigure [marginmeasure] [width=\rightmarginwidth]
 \defineexternalfigure [fullmeasure]   [width=\dimexpr\textwidth+\rightmargintotal\relax]
 
-\setupxtable [leftmargindistance=.5em,  offset=.2em,
-              rightmargindistance=.5em, frame=off,
-              framecolor=themecolor,    topframe=on,
-              bottomframe=on,align=lohi]
-\setupxtable [header] [bottomframe=off,rulethickness=1pt]
-\setupxtable [head]   [bottomframe=off,rulethickness=1pt]
-\setupxtable [body]   []
-\setupxtable [foot]   [topframe=off,   rulethickness=1pt]
-\setupxtable [footer] [topframe=off,   rulethickness=1pt]
-\setupxtable [lastrow][topframe=off,   rulethickness=1pt]
-
-\setupfloats [freeregion=no]
-\setupfloats [table]
-             [%default={here,split,top,bottom,page},
+\setupfloats [%default={here,split,top,bottom,page},
               before=,after=,indentnext=yes,
               setups={fn:hanzi},
               margin=1em,
-              spacebefore=,spaceafter=,
-              ]
-\setupfloat  [figure]
-             [%default={here,split,top,bottom,page},
-              before=,after=,indentnext=yes,
-              setups={fn:hanzi},
-              margin=1em,
-              spacebefore=,spaceafter=,
+              freeregion=no,
+              spacebefore=none,
+              spaceafter=none,
+              sidespacebefore=none,
+              sidespaceafter=none,
               ]
 \setupcaption[textstyle=\setuplocalinterlinespace[line=1.3em]\hwx,
               headstyle=\setuplocalinterlinespace[line=1.3em]\ssx,% 图 1.1
@@ -414,20 +395,33 @@
              % align={last,width,hanging},
              % inbetween={},
               ]
+
+\setupxtable [header] [frame=off,topframe=on, bottomframe=on, offset=.5ex,rulethickness=.5pt,framecolor=themecolor,align=lohi]
+\setupxtable [head]   [frame=off,topframe=on, bottomframe=on, offset=.5ex,rulethickness=.5pt,framecolor=themecolor,align=lohi]
+\setupxtable [body]   [frame=off,topframe=off,bottomframe=off,offset=.5ex,rulethickness=.5pt,framecolor=themecolor,align=lohi]
+\setupxtable [foot]   [frame=off,topframe=on,bottomframe=on,  offset=.5ex,rulethickness=.5pt,framecolor=themecolor,align=lohi]
+\setupxtable [footer] [frame=off,topframe=on,bottomframe=on,  offset=.5ex,rulethickness=.5pt,framecolor=themecolor,align=lohi]
+\setupxtable [lastrow][frame=off,topframe=on,bottomframe=on,  offset=.5ex,rulethickness=.5pt,framecolor=themecolor,align=lohi]
+
+\setupTABLE[offset=.5ex]
 \setupTABLE[header][style=bf,color=themecolor]
+
 \startsetups trilines
-\setupTABLE[frame=off,framecolor=themecolor,split=yes,,rulethickness=.2pt]
+\setupTABLE[frame=off,framecolor=themecolor,split=yes,,rulethickness=.5pt]
 \setupTABLE[row][first][topframe=on,rulethickness=1pt]
 \setupTABLE[row][2][topframe=on]
 \setupTABLE[row][last][bottomframe=on,rulethickness=1pt]
 \stopsetups
+
 \startsetups fullines
-\setupTABLE[frame=on,framecolor=themecolor,split=yes,rulethickness=.2pt]
+\setupTABLE[frame=on,framecolor=themecolor,split=yes,rulethickness=.5pt]
 \stopsetups
+
 \startsetups alternatecolor
-\setupTABLE[row][odd][background=color,backgroundcolor=softthemecolor,]
+\setupTABLE[row][odd][background=color,backgroundcolor=palethemecolor,]
 \setupTABLE[row][even][background=color,backgroundcolor=white,]
 \stopsetups
+
 \startsetups nonlines
 \setupTABLE[frame=off,split=yes,]
 \stopsetups
@@ -446,19 +440,23 @@
 \definefloat  [texttable]    [texttables]    [table]
 
 \setupfloat   [fullfig,fulltab,fullfigure,fulltable]%%\availablefloatwidth
-              [default=inner,availablewidth=\spanmarginwidth]
+              [default=right,location=right, availablewidth=\spanmarginwidth,rightmargin=-\rightmargintotal]
 \setupfloat   [marginfig,margintab,marginfigure,margintable]
               [default=outermargin]
 \setupfloat   [textfig,texttab,textfigure,texttable]
               [default=center]
 
 \setupcaptions [fullfig,fulltab,fullfigure,fulltable]
-               [width=\rightmarginwidth,align=inner, location=outermargin,spacebefore=\figureheight]
+               [width=\rightmarginwidth,align=inner, location={bottom, overlay}, rightmargin=-\rightmargintotal]
 \setupcaptions [marginfig,margintab,marginfigure,margintable]
-               [width=\rightmarginwidth,align=inner, location=bottom,     spacebefore=.3em]
+               [width=\rightmarginwidth,align=inner, location=bottom,  spacebefore=.3em]
 \setupcaptions [textfig,texttab,textfigure,texttable]
-               [width=\textwidth,       align=center,location=bottom,     spacebefore=.3em]
+               [width=\textwidth,       align=center,location=bottom,  spacebefore=.3em]
 
+
+% \startplacefullfig [title=fullwidth figure,location=here] 必须要有 location here ！
+%   \externalfigure [][width=\spanmarginwidth,height=3\lineheight]
+% \stopplacefullfig
 % \setupcombinedlist[listoffigures]
 %                   [marginfig,textfig,fullfig,figure,
 %                    fullfigure,marginfigure,textfigure]
@@ -482,9 +480,8 @@
     ref=\symbol[fontawesome][circle_blank],
 suggest=\symbol[fontawesome][star]]
 
-\def\symbol_style#1{{\nobreak\kern1pt\high{\switchtobodyfont[5pt]\useurlstyleandcolor\c!style\c!color #1}}}
-\def\urlsymbol{\symbol_style{\usersymbolparameter{from}}}
-\def\refsymbol{\symbol_style{\usersymbolparameter {ref}}}
+\def\urlsymbol{{\nobreak\kern1pt\high{\switchtobodyfont[5pt]\useurlstyleandcolor\c!style\c!color\usersymbolparameter{from}}}}
+\def\refsymbol{{\nobreak\kern1pt\high{\switchtobodyfont[5pt]\useurlstyleandcolor\c!style\c!color\usersymbolparameter {ref}}}}
 
 \pushoverloadmode
 \overloaded\unexpanded\def\from[#label]{\dontleavehmode
@@ -497,7 +494,7 @@ suggest=\symbol[fontawesome][star]]
     {\mailto_withoutsecond[#1]}%
 }
 % 不要在 #2 后添加 空格，否则会被认为 #2 的结束界定符是 空格，导致吞噬一些不该吞噬的文本
-\def\mailto_withsecond[#1]#2{\useURL[#1][mailto:#1][][#2]\from[{#1}](\goto{#1}[url(mailto:#1)])}
+\def\mailto_withsecond[#1]#2{\useURL[#1][mailto:#1][][#2]\from[{#1}]\goto{(#1)}[url(mailto:#1)]}
 \def\mailto_withoutsecond[#1]{\useURL[#1][mailto:#1][][#1]\from[{#1}]}
 
 \lettonothing\defineurl
@@ -566,11 +563,4 @@ suggest=\symbol[fontawesome][star]]
 \definereferenceformat[refat]   [label=reference:page, style=rm, type=realpage,]
 \definereferenceformat[refabout][right=\refsymbol,     style=rm, type=title]%务必用 title 才能正确读值
 \definereferenceformat[reftext] [setups=refabout:simp, style=rm, ]%\autoreferencekindtext 会自动拼接，无须label参数
-\definereferenceformat[reffull] [setups=refabout:full,  style=rm, ]
-
-\setupregister  [index] [
-  textcolor=referencecolor,
-  pagecolor=referencecolor,
-  textstyle=tf,
-  pagestyle=it,
-]
+\definereferenceformat[reffull] [setups=refabout:full, style=rm, ]

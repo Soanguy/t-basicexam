@@ -81,12 +81,12 @@
   \fi
   \hskip-\dimexpr(\wd1+\wd0)/2\relax
   \raise\scratchdimen
-  \ruledhbox\ifnum\c_flag_box=\zeropoint to \d_xruby_biggerwidth\fi{\unhcopy0}%
+  \hbox\ifnum\c_flag_box=\zeropoint to \d_xruby_biggerwidth\fi{\unhcopy0}%
 }
 
 \def\xruby_setbodybox#1{\setbox1\hbox{\noindent\strut\usexrubystyleandcolor{bodystyle}{bodycolor}\processisolatedwords{#1}\hfilword}}
 
-\def\xruby_bodybox{\ruledhbox \ifnum\c_flag_box=\zeropoint to \d_xruby_biggerwidth\fi{\unhcopy1}}
+\def\xruby_bodybox{\hbox \ifnum\c_flag_box=\zeropoint to \d_xruby_biggerwidth\fi{\unhcopy1}}
 
 \def\get_mindimen#1{%
   \ifdim\dimexpr-\d_xruby_topback>#1\relax\scratchdimen#1\fi

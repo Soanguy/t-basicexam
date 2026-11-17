@@ -14,6 +14,8 @@
 \unprotect
 \def\userlanguageparameter#1#2{\ifcsname lang:\currentmainlanguage #1\endcsname\lastnamedcs\else#2\fi}
 
+\def\s!memos{memos}
+
 \setupmodule [
               papersize=A4,
                  layout=moderate,
@@ -34,7 +36,17 @@
               textcount=40, 
             heightcount=40, 
             margincount=0,
-                  ratio=1.414,]
+    margindistancecount=1,
+            serifrscale=1,
+            handwrscale=1,
+             sansrscale=1,
+             monorscale=1,
+             mathrscale=1,
+                  ratio=1.414,
+                pattern=kaiming, 
+              spacequad=0.5, 
+               hangjian=no, 
+                  debug=no]
 
 \setupmetadata[
      \c!title=,
@@ -43,6 +55,12 @@
    \c!keyword=,
       \c!date=,
 ]
+
+\def\serifrscale{\moduleparameter{memos}{serifrscale}}
+\def\handwrscale{\moduleparameter{memos}{handwrscale}}
+\def\sansrscale{\moduleparameter{memos}{sansrscale}}
+\def\monorscale{\moduleparameter{memos}{monorscale}}
+\def\mathrscale{\moduleparameter{memos}{mathrscale}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \def\__errorparameter#1{%
     \writestatus{module error}{!! Something Wrong happened at #1}
@@ -69,8 +87,6 @@
 \newif\ifpage_doublesided
 \newif\ifLatinPunct
 
-\newskip \kanjiskip
-\newskip \xkanjiskip
 \newdimen\ybaselineshift
 \ybaselineshift = 0pt
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%

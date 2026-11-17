@@ -29,22 +29,6 @@
      setbounds currentpicture to axxx ;
 \stopuseMPgraphic
 
-\startuseMPgraphic{rules:under:round}{radius}
-  fill unitsquare
-      xyscaled (RuleWidth,StrutHeight)
-      enlarged (ExHeight/4,ExHeight/8)
-      shifted  (0,RuleFactor*RuleOffset)
-      smoothed 1
-      withpen pencircle scaled RuleThickness
-      withcolor RuleColor ;
-  setbounds currentpicture to unitsquare xysized(RuleWidth,StrutHeight);
-\stopuseMPgraphic
-
-\startuseMPgraphic{mpos:region:leftbar}
-  draw_multi_pars;
-  draw_multi_side;
-\stopuseMPgraphic
-
 \startuseMPgraphic{RotatedSquares}
   % ---- 读取 framed 参数 ----
   numeric Iterate;
@@ -94,24 +78,6 @@
 
   drawoptions();
   setbounds currentpicture to OverlayBox ;
-\stopuseMPgraphic
-
-\startuseMPgraphic{circledtext}
-  % 只读取参数，不涉及文本
-  path square ; square := roundedsquare(1,1,\framedparameter{radius}) scaled OverlayWidth yshifted .15OverlayWidth;
-  picture p   ; p      := dashpattern(on    \framedparameter{dashskipwidth}  off  \framedparameter{dashskipwidth}) ;
-  % 添加虚线装饰（可选）
-  path ti ; ti := (.50OverlayWidth,0)--(.50OverlayWidth,OverlayWidth) ;
-  path it ; it := (0,.50OverlayWidth)--(OverlayWidth,.50OverlayWidth) ;
-  path xi ; xi := (.13OverlayWidth,.13OverlayWidth)--(.88OverlayWidth,.88OverlayWidth) ;
-  path ix ; ix := xi reflectedabout ((.5OverlayWidth,0),(.5OverlayWidth,5)) ;
-  draw ti withcolor \MPcolor{\framedparameter{dashcolor}} dashed p withpen pencircle scaled \framedparameter{dashlinewidth} yshifted .15OverlayWidth;
-  draw it withcolor \MPcolor{\framedparameter{dashcolor}} dashed p withpen pencircle scaled \framedparameter{dashlinewidth} yshifted .15OverlayWidth;
-  draw xi withcolor \MPcolor{\framedparameter{dashcolor}} dashed p withpen pencircle scaled \framedparameter{dashlinewidth} yshifted .15OverlayWidth;
-  draw ix withcolor \MPcolor{\framedparameter{dashcolor}} dashed p withpen pencircle scaled \framedparameter{dashlinewidth} yshifted .15OverlayWidth;
-  % 绘制框和装饰线，但不绘制文字
-  draw   \framedparameter{frametype} withcolor OverlayLineColor ;
-  fill   \framedparameter{frametype} withcolor \MPcolor{\framedparameter{fillcolor}}  ;
 \stopuseMPgraphic
 
 %D ========== 颜色混合函数 ==========
@@ -613,13 +579,12 @@
    before={\blank[big]},
    after={\blank[big]}]
 
-\definetextbackground[FluentCard][MetroCard][mp=FluentBG,]
-\definetextbackground[macOSCard] [MetroCard][mp=macOSBG,]
-\definetextbackground[ModernCard][MetroCard][mp=ModernBG,]
+\definetextbackground[FluentCard][MetroCard][mp=FluentBG,color=deepblue,]
+\definetextbackground[macOSCard] [MetroCard][mp=macOSBG, color=deepblue,]
+\definetextbackground[ModernCard][MetroCard][mp=ModernBG,color=deepblue,]
 
-\defineoverlay[MPFrameV]    [\useMPgraphic{MPFrameXXX}]
+\defineoverlay[MPFrameXXX]    [\useMPgraphic{MPFrameXXX}]
 \defineoverlay[RotatedSquares][\useMPgraphic{RotatedSquares}]
-\defineoverlay[circledtextOL][\useMPgraphic{circledtext}]
 \defineoverlay[DualHeaderBox][\useMPgraphic{DualHeaderFrame}{
   shownumber=\framedtextparameter{shownumber},
   showtitle=\framedtextparameter{showtitle},
@@ -657,7 +622,7 @@
     {\framedtextparameter{title}}\hss}}
 
 \defineframedtext[FrameText][
-                  background=MPFrameV,       frame=off,    title=Put your title,
+                  background=MPFrameXXX,       frame=off,    title=Put your title,
                   framecolor=lightthemecolor,backgroundcolor=white,
                   rulethickness=1.5pt,       indenting={yes,2em}, offset=.5em,
                   toffset=\bodyfontsize, % if titlepos=1 , then toffset=\bodyfontsize
@@ -677,9 +642,8 @@
    shadowcolor=lightthemecolor]
 
 \definetextbackground[blockbox]
-
 \setuptextbackground [blockbox][
-                      location=always,   mp=mpos:region:leftbar,
+                      location=always,   mp=mpos:region:sideline,
                       frame=off,         framecolor=lightthemecolor,
                       width=broad,
                       topoffset=1ex,     bottomoffset=1ex,
@@ -738,24 +702,9 @@
     % title=,
 ]
 
-\definebar[underround] [undergraphic]
-  [mp=rules:under:round,
-   rulethickness=1.2,
-   offset=0,
-   order=background,
-   continue=yes,
-   foregroundcolor=white,
-   left={\hskip .5ex\relax},
-   right={\hskip .5ex\relax},
-   color=themecolor]
-
-\definebar[bigunderdot]
-  [text=\raise2\exheight\vbox to 1pt{\hsize 1em\relax\hfil\darkred\tf\cdot\hfil},repeat=no]
-
 %\underdot{orem ipsum dolor sit }
 %\bigunderdot{等級大家都 }
 %\underround{orem ipsum dolor sit }
-
 %%%%%%%%%%%%%%%%%%%%
 \defineframed[RotatedFrame][
   background=RotatedSquares,
@@ -772,27 +721,6 @@
   angle=30,
   size=1,
 ]
-
-\defineframed
- [circledtxt]
- [    background=circledtextOL,
-        location=low,
-        align={center,lohi},
-           width=\bodyfontsize,
-           frame=off,
-          offset=0pt,
-       anchoring=normal,
-         yanchor=.00\bodyfontsize,% 0.0~0.1
-       frametype=square,
-      framecolor=themecolor,
-       fillcolor=transparentcolor,
- foregroundcolor=themecolor, % change font color
- foregroundstyle=tfx,
-          radius=0,% if = 0 will be square,if = 0.5 will be circle
-       dashcolor=transparentcolor,
-   dashlinewidth=.5pt,
-   dashskipwidth=.9pt,% if = 0 ,will be undashed
-  ]
 
 %  \symbol[fontawesome][info_sign]
 %  \symbol[fontawesome][search]
@@ -940,3 +868,43 @@
     \stopMPpositiongraphic
     \MPpositiongraphic{mpos:placeholder}{}%
 \stopMPpositionmethod
+
+% \startMetroCard
+%   \input tufte
+% \stopMetroCard
+
+% \startFluentCard
+%   \input tufte
+% \stopFluentCard
+
+% \startmacOSCard
+%   \input knuth
+% \stopmacOSCard
+
+% \startModernCard
+%   \input ward
+% \stopModernCard
+
+% \startFrameText[title={我的标题}]
+%   这是一个带有三角形装饰标题的文本框。适合做提示框或者重点说明。
+% \stopFrameText
+
+% \startDualHeaderText[number={1.0}, title={核心概念}]
+%   这是一个固定高度的经典双栏标题框，不能自动跨页，但编译极快。
+% \stopDualHeaderText
+
+% \starttextbackground[blockbox]
+%   \input knuth
+% \stoptextbackground
+
+% \startexcursus[title={拓展阅读}]
+%   \input knuth
+% \stopexcursus
+
+% \RotatedFrame[iterate=4, angle=15, size=2, squarecolor=lightyellow]%
+%   {Hello}
+  
+% 这是一段普通文本，其中 \hightext{这几个字会被黄色高亮}，
+% 如果文本很长，甚至在高亮时 \hightext{跨行也会自动在换行处切断并包覆得很自然}。
+
+% \admonition{带圆角背景的下划线}{\en\input knuthmath }

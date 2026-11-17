@@ -44,6 +44,30 @@ structures.sections.current = function()
 end
 
 ---------------------------------------------------------------------------
+-- 2b) 模拟 TeX 的 currentexamorder 计数器
+---------------------------------------------------------------------------
+-- 真实流程：startquestion 内部 incrementcounter[currentexamorder]，
+--          随后 Lua 用 rawcountervalue 读取。
+-- 测试直接调 BEM.push_level 绕过了前者，所以：
+--   - 每次读取自动 +1（等价于 incrementcounter + 读取）
+--   - mock_chapter 变化时自动归零（等价于章节切换时的 resetcounter）
+
+local mock_order        = 0
+local last_mock_chapter = nil
+local real_getexpansion = token.getexpansion
+token.getexpansion = function(name)
+  if name == "\\rawcountervalue[currentexamorder]" then
+    if mock_chapter ~= last_mock_chapter then
+      mock_order        = 0
+      last_mock_chapter = mock_chapter
+    end
+    mock_order = mock_order + 1
+    return tostring(mock_order)
+  end
+  return real_getexpansion(name)
+end
+
+---------------------------------------------------------------------------
 -- 3) 截获 context 输出
 ---------------------------------------------------------------------------
 local real_context = context
@@ -680,11 +704,7 @@ do
   structures.sections.current = saved
 end
 
-
-
-group("37. jobname 含连字符", [[
-jobname = "my-doc" 时 id 变成 my-doc-101-Q-1，
-解析和查找都不受影响。]])
+group("37. jobname 含连字符", [[...]])
 do
   local saved_expansion = token.getexpansion
   local saved_current   = structures.sections.current
@@ -695,6 +715,11 @@ do
   structures.sections.current = function()
     return { numberdata = { numbers = { nil, 101 } } }
   end
+
+  -- 测试绕过了 mock_chapter 直接替换 structures.sections.current，
+  -- 上面的「按章节变化自动 reset」检测不到，手动归零一次。
+  mock_order        = 0
+  last_mock_chapter = nil
 
   BEM.check_mode = false
   BEM.init_tree()

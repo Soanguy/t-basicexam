@@ -1,60 +1,184 @@
-%D DualBody / DualHeader / DualText 模块
-%D
-%D ============================================================
-%D MP 函数架构（谁调谁、共用什么）
-%D ============================================================
-%D
-%D 【底层绘制函数】（\startMPdefinitions，三命令共用）
-%D   DrawDualBodyOnPath(dmain, dbg, dfc, dsc,
-%D                      dth, drad, dcorner, dlf, drf, dtf, dbf,
-%D                      dch, dsym, dshadow, dbar, dframe,
-%D                      dfov, dboff)
-%D     正文盒绘制：底色/阴影/水印/色条/棋盘格/边框/角标
-%D     调用方：DualBodyframe、DualBodyText、DrawDualCombinedOnPath
-%D
-%D   DrawDualHeaderOnPath(dhead, header参数..., dth, dhdrradius, dhdrcorner, dnumtext, dtittext)
-%D     路径模式标题条绘制（坐标来自 dhead path）
-%D     调用方：仅 DrawDualCombinedOnPath
-%D
-%D   DrawDualHeaderFrameNew(header参数..., linethickness, hdrradius, hdrcorner)
-%D     Overlay 模式标题条绘制（坐标取 OverlayWidth/Height）
-%D     调用方：DualHeaderTextNew / DualTitleBar（旧接口，供 test-header）
-%D
-%D   DrawDualCombinedOnPath(dmain, dshowhdr, dheadh,
-%D                          header参数..., body参数..., dfov, dboff)
-%D     合并绘制：先切出标题条带，再调 DrawDualBodyOnPath + DrawDualHeaderOnPath
-%D     调用方：仅 \startDualText
-%D
-%D 【命令 → MP 调用链】
-%D   \DualBodyframe      → DrawDualBodyOnPath
-%D                         （overlay，\MPvar 取参，几何=OverlayWidth/Height）
-%D   \startDualBodyText  → DrawDualBodyOnPath
-%D                         （textbackground，\getvariable 取参，几何=multipars）
-%D   \startDualText      → DrawDualCombinedOnPath
-%D                         → DrawDualBodyOnPath + DrawDualHeaderOnPath
-%D                         （textbackground，\getvariable 取参，几何=multipars）
-%D   \DualHeaderTextNew  → DrawDualHeaderFrameNew
-%D                         （framedtext+overlay，\framedtextparameter 取参）
-%D
-%D 【共用的 TeX 宏】
-%D   \dualbodyMPparams{ns}  从 namespace 读正文参数 → MP 变量
-%D                         （DualBodyText / DualText 共用；DualBodyframe 走 \MPvar 不经过它）
-%D
-%D 三种使用方式：
-%D   1. \DualBodyframe[参数]{内容}          — framed + overlay（静态默认值）
-%D   2. \startDualBodyText[参数] ... \stopDualBodyText — 纯正文 textbackground
-%D   3. \startDualText[参数] ... \stopDualText          — 标题条+正文 合并（单 MP）
-%D
-%D 另保留旧接口供 test-header：
-%D   \DualHeaderTextNew / DualTitleBar（framedtext + overlay）
-%D
+\startluacode
+do
+    local jobpositions      = job.positions
+    local attributes        = attributes
+    local nodes             = nodes
+    local tex               = tex
+    local interfaces        = interfaces
+    local logs              = logs
+    local setmetatableindex = table.setmetatableindex
+
+    local nuts              = nodes.nuts
+    local new_latelua       = nuts.pool.latelua
+    local new_rule          = nuts.pool.rule
+    local new_kern          = nuts.pool.kern
+    local new_hlist         = nuts.pool.hlist
+    local getid             = nuts.getid
+    local setlink           = nuts.setlink
+    local getheight         = nuts.getheight
+    local getdepth          = nuts.getdepth
+    local par_code          = nodes.nodecodes.par
+    local startofpar        = nuts.startofpar
+    local insertbefore      = nuts.insertbefore
+    local insertafter       = nuts.insertafter
+    local processranges     = nuts.processranges
+
+    local unsetvalue        = attributes.unsetvalue
+    local registervalue     = attributes.registervalue
+    local getvalue          = attributes.getvalue
+    local texsetattribute   = tex.setattribute
+    local texgetcount       = tex.getcount
+    local c_realpageno      = tex.iscount("realpageno")
+    local enableaction      = nodes.tasks.enableaction
+    local report_graphics   = logs.reporter("backgrounds")
+
+    local trace_ranges      = false
+
+    local dualindex         = 0
+    local dualrealpage      = 1
+    local dual_enabled      = false
+    local a_dualbackground  -- lazy
+
+    local function get_dual_attribute()
+        if not a_dualbackground then
+            a_dualbackground = attributes.private("dualbackground")
+        end
+        return a_dualbackground
+    end
+
+    local function dual_check(specification)
+        local a     = specification.attribute
+        local ix    = specification.index
+        local depth = specification.depth
+        local d     = specification.data
+        local where = specification.where
+        local ht    = specification.ht
+        local dp    = specification.dp
+        local w     = d.shapes[dualrealpage]
+        local x, y  = jobpositions.getpos()
+        print(string.format("[DBG] dual_check where=%s x=%s y=%s", where, tostring(x), tostring(y)))
+        if trace_ranges then
+            report_graphics("check %i/%i/%i %s (%p,%p)", a, ix, depth, where, x, y)
+        end
+        local n = #w
+        if d.index ~= ix then
+            n = n + 1
+            d.index = ix
+            d.depth = depth
+            w[n] = { y, ht, dp, x, x }
+        else
+            local wn = w[n]
+            local wh = wn[2]
+            local wd = wn[3]
+            if depth < d.depth then
+                local wy = wn[1]
+                wn[1] = y
+                d.depth = depth
+                local dy = wy - y
+                wh = wh - dy
+                wd = wd - dy
+            end
+            if where == "r" then
+                if x > wn[5] then wn[5] = x end
+            else
+                if x < wn[4] then wn[4] = x end
+            end
+            if ht > wh then wn[2] = ht end
+            if dp > wd then wn[3] = dp end
+        end
+    end
+
+    local function flushdual(head, f, l, a, parent, depth)
+        print("[DBG] flushdual a=" .. tostring(a))
+        local a_dual = get_dual_attribute()
+        if not a_dual then
+            return head, true
+        end
+        local d = getvalue(a_dual, a)
+        print("[DBG] flushdual d=" .. tostring(d ~= nil))
+        if d then
+            local ix = dualindex
+            local ht = getheight(parent)
+            local dp = getdepth(parent)
+            local ln = new_latelua {
+                action = dual_check, attribute = a, index = ix,
+                depth = depth, data = d, where = "l", ht = ht, dp = dp,
+            }
+            local rn = new_latelua {
+                action = dual_check, attribute = a, index = ix,
+                depth = depth, data = d, where = "r", ht = ht, dp = dp,
+            }
+            if trace_ranges then
+                ln = new_hlist(setlink(new_rule(65536, 65536 * 4, 0), new_kern(-65536), ln))
+                rn = new_hlist(setlink(new_rule(65536, 0, 65536 * 4), new_kern(-65536), rn))
+            end
+            if getid(f) == par_code and startofpar(f) then
+                insertafter(head, f, ln)
+            else
+                head, f = insertbefore(head, f, ln)
+            end
+            insertafter(head, l, rn)
+        end
+        return head, true
+    end
+
+    nodes.handlers.dualbackgrounds = function(head, where, parent)
+        print("[DBG] handler dualbackgrounds called, page=" .. tostring(texgetcount(c_realpageno)))
+        dualindex    = dualindex + 1
+        dualrealpage = texgetcount(c_realpageno)
+        local a_dual = get_dual_attribute()
+        print("[DBG] handler a_dual=" .. tostring(a_dual))
+        if a_dual then
+            return processranges(a_dual, flushdual, head, parent)
+        end
+        return head, true
+    end
+
+    local function registerdualbackground(name)
+        print("[DBG] registerdualbackground name=" .. tostring(name))
+        local a_dual = get_dual_attribute()
+        print("[DBG] a_dual=" .. tostring(a_dual))
+        if not a_dual then
+            report_graphics("attribute 'dualbackground' not defined")
+            return
+        end
+        local b = jobpositions.tobesaved["b:" .. name]
+        print("[DBG] tobesaved has b:" .. name .. " = " .. tostring(b ~= nil))
+        if b then
+            local s = setmetatableindex("table")
+            b.s = s
+            local t = {
+                bpos = b, name = name, shapes = s, count = 0, sindex = 0,
+            }
+            local n = registervalue(a_dual, t)
+            t.n = n
+            texsetattribute(a_dual, n)
+            if not dual_enabled then
+                print("[DBG] enabling nodes.handlers.dualbackgrounds")
+                enableaction("contributers", "dualbackgrounds")
+                -- enableaction("contributers", "nodes.handlers.dualbackgrounds")
+                dual_enabled = true
+            end
+        else
+            texsetattribute(a_dual, unsetvalue)
+        end
+    end
+
+    interfaces.implement {
+        name      = "registerdualbackground",
+        actions   = registerdualbackground,
+        arguments = "string",
+    }
+end
+\stopluacode
+
 %D MP 参数缩写对照（DrawDualBodyOnPath / DrawDualCombinedOnPath）：
 %D   dbg   = backgroundcolor   正文底色（不进标题条）
 %D   dfc   = framecolor        框线色
 %D   dsc   = shadowcolor       阴影色
 %D   dth   = rulethickness     线宽
 %D   drad  = radius            圆角半径
-%D   dcorner/bodycorner       圆角选角：0=四角 1=上 2=下 3=左 4=右 其他=直角
+%D   dcorner/bodycorner        圆角选角：0=四角 1=上 2=下 3=左 4=右 其他=直角
 %D   dlf/drF/dtf/dbf           leftframe/rightframe/topframe/bottomframe（>0 画该边）
 %D   dshadow=shadow            yes=画阴影
 %D   dbar  = bar               yes=左色条（自动启用，不看 leftframe）
@@ -65,49 +189,6 @@
 %D   dboff = backgroundoffset  背景外扩量；0=不外扩，>0 向外扩（复刻官方 filloffset）
 %D   dox   = th/4 或 th/2      局部内缩（barbox 用 th/4；合并接缝几何用 th/2）
 
-\unprotect
-
-% ============================================================
-% 共享 TeX 宏：正文参数读取（DualBodyText / DualText 共用）
-% ============================================================
-% 用法（在 \edef 生成 MP code 时调用，宏体需在 edef 中完全展开）：
-%   \dualbodyMPparams{\dualbodyNS}
-%   \dualbodyMPparams{\dualtextNS}
-% 展开为 MP 语句，把 namespace 中的正文参数读入：
-%   dbg/dfc/dsc, dth/dr/dbc, dlf/drf/dtf/dbf,
-%   dch/dsym, dshadow/dbar/dframe, dfov/dboff
-\def\dualbodyMPparams#1{%
-  color dbg, dfc, dsc;
-  dbg := \noexpand\MPcolor{\getvariable{#1}{backgroundcolor}};
-  dfc := \noexpand\MPcolor{\getvariable{#1}{framecolor}};
-  dsc := \noexpand\MPcolor{\getvariable{#1}{shadowcolor}};
-  numeric dth, drad, dbc;
-  dth := \getvariable{#1}{rulethickness};
-  drad := \getvariable{#1}{radius};
-  dbc := \getvariable{#1}{bodycorner};
-  numeric dlf, drf, dtf, dbf;
-  dlf := \getvariable{#1}{leftframe};
-  drf := \getvariable{#1}{rightframe};
-  dtf := \getvariable{#1}{topframe};
-  dbf := \getvariable{#1}{bottomframe};
-  string dch, dsym;
-  dch := "\getvariable{#1}{character}";
-  dsym := "\getvariable{#1}{symbol}";
-  numeric dshadow, dbar, dframe;
-  dshadow := 0;
-  if "\getvariable{#1}{shadow}" = "yes" : dshadow := 1; fi;
-  dbar := 0;
-  if "\getvariable{#1}{bar}" = "yes" : dbar := 1; fi;
-  dframe := 0;
-  if "\getvariable{#1}{framebox}" = "yes" : dframe := 1; fi;
-  numeric dfov, dboff;
-  dfov := \getvariable{#1}{frameoffset};
-  dboff := \getvariable{#1}{backgroundoffset};
-}
-
-% ============================================================
-% 共享 MP 定义
-% ============================================================
 \startMPdefinitions
 
   % 文字宽度
@@ -361,160 +442,7 @@
 
 \stopMPdefinitions
 
-% ============================================================
-% 模式一：\DualBodyframe — framed + overlay
-% ============================================================
-\startuseMPgraphic{DualBodyFrame}
-  color dbg, dfc, dsc;
-  dbg := \MPvar{backgroundcolor};
-  dfc := \MPvar{framecolor};
-  dsc := \MPvar{shadowcolor};
-
-  numeric dth, drad, dcorner;
-  dth  := \MPvar{rulethickness};
-  drad := \MPvar{radius};
-  dcorner := \MPvar{bodycorner};
-
-  numeric dlf, drf, dtf, dbf;
-  dlf := \MPvar{leftframe};
-  drf := \MPvar{rightframe};
-  dtf := \MPvar{topframe};
-  dbf := \MPvar{bottomframe};
-
-  string dch, dsym;
-  dch    := "\MPvar{character}";
-  dsym   := "\MPvar{symbol}";
-  numeric dshadow, dbar, dframe;
-  dshadow := 0;
-  if "\MPvar{shadow}" = "yes" : dshadow := 1; fi;
-  dbar := 0;
-  if "\MPvar{bar}" = "yes" : dbar := 1; fi;
-  dframe := 0;
-  if "\MPvar{framebox}" = "yes" : dframe := 1; fi;
-
-  numeric dfov, dboff;
-  dfov := \MPvar{frameoffset};
-  dboff := \MPvar{backgroundoffset};
-
-  path dmain;
-  numeric dox; dox := dth/4;
-  dmain := (dox,dox)--(OverlayWidth-dox,dox)
-         --(OverlayWidth-dox,OverlayHeight-dox)--(dox,OverlayHeight-dox)--cycle;
-
-  DrawDualBodyOnPath(dmain, dbg, dfc, dsc,
-                     dth, drad, dcorner, dlf, drf, dtf, dbf,
-                     dch, dsym, dshadow, dbar, dframe,
-                     dfov, dboff);
-\stopuseMPgraphic
-
-\defineoverlay[DualBodyOL][\useMPgraphic{DualBodyFrame}]
-
-\tolerant\def\DualBodyframe[#1]#2{%
-  \begingroup
-  \setupMPvariables[DualBodyFrame][
-    backgroundcolor=white,
-    framecolor=lightthemecolor,
-    rulethickness=1pt,
-    radius=5pt,
-    bodycorner=9,
-    leftframe=1,
-    rightframe=1,
-    topframe=1,
-    bottomframe=1,
-    symbol=none,
-    character=none,
-    shadow=no,
-    bar=no,
-    framebox=no,
-    shadowcolor=lightthemecolor,
-    frameoffset=0pt,
-    backgroundoffset=0pt,
-    #1
-  ]%
-  \framed[frame=off,
-          width=max,
-          background=DualBodyOL,
-          align={lohi,flushleft},
-          offset=1ex,#1]{#2}%
-  \endgroup
-}
-
-% ============================================================
-% 模式二：\startDualBodyText — 纯正文 textbackground
-% ============================================================
-\newcount\dualbodyCNT \dualbodyCNT\zerocount
-
-\tolerant\def\startDualBodyText[#1]%
-  {\begingroup
-   \global\advance\dualbodyCNT by 1
-   \edef\dualbodyNS{dualbody\the\dualbodyCNT}%
-   \edef\dualbodyMP{DualBodyBG\the\dualbodyCNT}%
-   \edef\dualbodyCD{DualBodyCard\the\dualbodyCNT}%
-   \setvariables[\dualbodyNS][
-     rulethickness=1pt,
-     radius=5pt,
-     bodycorner=9,
-     backgroundcolor=white,
-     framecolor=lightthemecolor,
-     leftframe=1,
-     rightframe=1,
-     topframe=1,
-     bottomframe=1,
-     symbol=none,
-     character=none,
-     shadow=no,
-     bar=no,
-     framebox=no,
-     shadowcolor=lightthemecolor,
-     frameoffset=0pt,
-     backgroundoffset=0pt,
-     #1,
-    ]%
-   \edef\dualbodyMPcode{%
-     \noexpand\startuseMPgraphic{\dualbodyMP}%
-       \dualbodyMPparams{\dualbodyNS}%
-       if nofmultipars > 0 :
-         for i=1 upto nofmultipars :
-           path dmain;
-           dmain := multipars[i];
-           DrawDualBodyOnPath(dmain, dbg, dfc, dsc,
-                              dth, drad, dbc, dlf, drf, dtf, dbf,
-                              dch, dsym, dshadow, dbar, dframe,
-                              dfov, dboff);
-         endfor;
-       else :
-         path dmain;
-         dmain := multibox;
-         DrawDualBodyOnPath(dmain, dbg, dfc, dsc,
-                            dth, drad, dbc, dlf, drf, dtf, dbf,
-                            dch, dsym, dshadow, dbar, dframe,
-                            dfov, dboff);
-       fi;
-       setbounds currentpicture to multibox;
-     \noexpand\stopuseMPgraphic
-   }\dualbodyMPcode
-    \definetextbackground[\dualbodyCD][
-      mp=\dualbodyMP,
-      location=paragraph,
-      frame=off,
-      leftoffset=1ex,
-      rightoffset=1ex,
-      topoffset=1ex,
-      bottomoffset=1ex,
-      align={flushleft,lohi},
-      #1,
-    ]%
-   \starttextbackground[\dualbodyCD]%
-}
-
-\unexpanded\def\stopDualBodyText
-  {\stoptextbackground\endgroup}
-
-% ============================================================
-% 标题绘制（overlay 模式 + 路径模式）
-% ============================================================
 \startMPdefinitions
-
   % ---------- Overlay 版标题：坐标取 OverlayWidth/Height ----------
   % 供 DualTitleBar / DualHeaderTextNew 使用。
   % backgroundcolor 参数未使用（历史遗留，保持签名兼容）。
@@ -929,83 +857,459 @@
 
 \stopMPdefinitions
 
-% ============================================================
-% ：DualHeaderTextNew / DualTitleBar
-% ============================================================
-\setMPtext{DualHeaderNumber}{\hbox spread \baselineskip{\hss\framedtextparameter{number}\hss}}
-\setMPtext{DualHeaderTitle} {\hbox spread \baselineskip{\hss\framedtextparameter{title}\hss}}
+\startuseMPgraphic{dualbackground:draw}
+  color dbg, dfc, dsc;
+  dbg := \MPvar{fillcolor};
+  dfc := \MPvar{linecolor};
+  dsc := \MPvar{shadowcolor};
+  numeric dth, drad, dbc;
+  dth := \MPvar{linewidth}; drad := \MPvar{lineradius}; dbc := \MPvar{bodycorner};
+  numeric dlf, drf, dtf, dbf;
+  dlf := \MPvar{leftframe};  drf := \MPvar{rightframe};
+  dtf := \MPvar{topframe};   dbf := \MPvar{bottomframe};
+  if dlf < 0 : dlf := \MPvar{linetype}; fi;
+  if drf < 0 : drf := \MPvar{linetype}; fi;
+  if dtf < 0 : dtf := \MPvar{linetype}; fi;
+  if dbf < 0 : dbf := \MPvar{linetype}; fi;
+    
+  string dch, dsym;
+  dch  := "\MPvar{character}";
+  dsym := "\MPvar{symbol}";
+  
+  string dnumtext, dtittext;
+  dnumtext := "\MPvar{number}";
+  dtittext := "\MPvar{title}";
+  
+  numeric dshadow, dbar, dframe;
+  dshadow := 0; if "\MPvar{shadow}"   = "yes" : dshadow := 1; fi;
+  dbar    := 0; if "\MPvar{bar}"      = "yes" : dbar    := 1; fi;
+  dframe  := 0; if "\MPvar{framebox}" = "yes" : dframe  := 1; fi;
+  
+  numeric dfov, dboff;
+  dfov := \MPvar{lineoffset}; dboff := \MPvar{filloffset};
 
-\defineoverlay[DualHeaderBoxNew][\useMPgraphic{DualHeaderFrameNew}{
-  shownumber=\framedtextparameter{shownumber},
-  showtitle=\framedtextparameter{showtitle},
-  titlepos=\framedtextparameter{titlepos},
-  titlealign=\framedtextparameter{titlealign},
-  numberalign=\framedtextparameter{numberalign},
-  numberbgcolor="\framedtextparameter{numberbgcolor}",
-  titlebgcolor="\framedtextparameter{titlebgcolor}",
-  numbercolor="\framedtextparameter{numbercolor}",
-  titlecolor="\framedtextparameter{titlecolor}",
-  framecolor="\framedtextparameter{framecolor}",
-  numberframecolor="\framedtextparameter{numberframecolor}",
-  titleframecolor="\framedtextparameter{titleframecolor}",
-  numberframe=\framedtextparameter{numberframe},
-  titleframe=\framedtextparameter{titleframe},
-  numberratio=\framedtextparameter{numberratio},
-  titleratio=\framedtextparameter{titleratio},
-  linethickness=\framedtextparameter{rulethickness},
-  hdrradius=\framedtextparameter{hdrradius},
-  hdrcorner=\framedtextparameter{hdrcorner}
-}]
+  numeric dshownumber, dshowtitle, dtitlepos, dtitlealign, dnumberalign;
+  dshownumber  := \MPvar{shownumber};
+  dshowtitle   := \MPvar{showtitle};
+  dtitlepos    := \MPvar{titlepos};
+  dtitlealign  := \MPvar{titlealign};
+  dnumberalign := \MPvar{numberalign};
+  
+  color dnumberbgcolor, dtitlebgcolor, dnumbercolor, dtitlecolor;
+  color dnumberframecolor, dtitleframecolor;
+  dnumberbgcolor    := \MPvar{numberbgcolor};
+  dtitlebgcolor     := \MPvar{titlebgcolor};
+  dnumbercolor      := \MPvar{numbercolor};
+  dtitlecolor       := \MPvar{titlecolor};
+  dnumberframecolor := \MPvar{numberframecolor};
+  dtitleframecolor  := \MPvar{titleframecolor};
+  
+  numeric dnumberframe, dtitleframe, dnumberratio, dtitleratio;
+  dnumberframe := \MPvar{numberframe}; dtitleframe := \MPvar{titleframe};
+  dnumberratio := \MPvar{numberratio}; dtitleratio := \MPvar{titleratio};
+  
+  numeric dhdrradius, dhdrcorner;
+  dhdrradius := \MPvar{hdrradius}; dhdrcorner := \MPvar{hdrcorner};
 
-\startuseMPgraphic{DualHeaderFrameNew}
-  DrawDualHeaderFrameNew(
-    \MPvar{shownumber}, \MPvar{showtitle},
-    \MPvar{titlepos}, \MPvar{titlealign}, \MPvar{numberalign},
-    \MPvar{numberbgcolor}, \MPvar{titlebgcolor}, \MPvar{backgroundcolor},
-    \MPvar{numbercolor}, \MPvar{titlecolor},
-    \MPvar{framecolor}, \MPvar{numberframecolor}, \MPvar{titleframecolor},
-    \MPvar{numberframe}, \MPvar{titleframe},
-    \MPvar{numberratio}, \MPvar{titleratio},
-    \MPvar{linethickness}, \MPvar{hdrradius},
-    \MPvar{hdrcorner}
-  );
+  numeric dheadh, dshowhdr, drepeat;
+  dheadh := \MPvar{hdrheight};
+  dshowhdr := 0;
+  if ((dshownumber > 0) or (dshowtitle > 0)) and (dheadh > 0) : dshowhdr := 1; fi;
+  drepeat := \MPvar{hdrrepeat};
+
+  if nofmultipars > 0 :
+    for i=1 upto nofmultipars :
+      DrawDualCombinedOnPath(multipars[i], dshowhdr, dheadh,
+        dshownumber, dshowtitle, dtitlepos, dtitlealign, dnumberalign,
+        dnumberbgcolor, dtitlebgcolor, dnumbercolor, dtitlecolor,
+        dnumberframecolor, dtitleframecolor, dnumberframe, dtitleframe,
+        dnumberratio, dtitleratio, dhdrradius, dhdrcorner,
+        dnumtext, dtittext,
+        dbg, dfc, dsc, dth, drad, dbc, dlf, drf, dtf, dbf,
+        dch, dsym, dshadow, dbar, dframe, dfov, dboff);
+    endfor;
+  else :
+    DrawDualCombinedOnPath(multibox, dshowhdr, dheadh,
+      dshownumber, dshowtitle, dtitlepos, dtitlealign, dnumberalign,
+      dnumberbgcolor, dtitlebgcolor, dnumbercolor, dtitlecolor,
+      dnumberframecolor, dtitleframecolor, dnumberframe, dtitleframe,
+      dnumberratio, dtitleratio, dhdrradius, dhdrcorner,
+      dnumtext, dtittext,
+      dbg, dfc, dsc, dth, drad, dbc, dlf, drf, dtf, dbf,
+      dch, dsym, dshadow, dbar, dframe, dfov, dboff);
+  fi;
+  setbounds currentpicture to multibox;
 \stopuseMPgraphic
 
-\defineframedtext[DualHeaderTextNew][
-  background=DualHeaderBoxNew,
-  frame=off,
-  width=max,
-  strut=no,
-  shownumber=1,
-  showtitle=1,
-  titlepos=1,
-  titlealign=2,
-  numberalign=2,
-  backgroundcolor=lightthemecolor,
-  numberbgcolor=\framedtextparameter{backgroundcolor},
-  titlebgcolor=white,
-  numbercolor=white,
-  titlecolor=lightthemecolor,
-  framecolor=lightthemecolor,
-  numberframecolor=\framedtextparameter{framecolor},
-  titleframecolor=\framedtextparameter{framecolor},
-  numberframe=1,
-  titleframe=1,
-  numberratio=1,
-  titleratio=1,
-  rulethickness=1pt,
-  hdrradius=0pt,
-  hdrcorner=0,
-]
+\newinteger\c_anch_dualbackgrounds_text_n
 
-% ============================================================
-% \startDualText — 标题条 + 正文 合并命令（单 textbackground + 单 MP）
-% ============================================================
-% 用法：
-%   \startDualText[number={1.1},title={标题},backgroundcolor=yellow,...]
-%     正文内容（可跨页）
-%   \stopDualText
-%
+\def\v_anch_dualbackgrounds_text_current    {dbg:0}
+\def\v_anch_dualbackgrounds_anchor_current_b{b:\v_anch_dualbackgrounds_text_current}
+\def\v_anch_dualbackgrounds_anchor_current_e{e:\v_anch_dualbackgrounds_text_current}
+
+\def\anch_dualbackgrounds_text_initialize_next
+  {\global\advanceby\c_anch_dualbackgrounds_text_n\plusone
+   \edef\v_anch_dualbackgrounds_text_current{dbg:\the\c_anch_dualbackgrounds_text_n}}
+
+\protected\def\anch_dualbackgrounds_text_initialize
+  {\doifelsepositionsused\enableparpositions\donothing
+   \glet\anch_dualbackgrounds_text_initialize\relax}
+
+\appendtoks
+    \anch_dualbackgrounds_text_initialize
+\to \everystarttext
+
+\permanent\def\dualbackgroundoverlay#1{\v!text#1}
+\newinteger\c_anch_dualbackgrounds_text_level
+
+\definelayer[dual\v!text-2][\c!position=\v!yes,\c!region=,\c!width=\textwidth,\c!height=\textheight]
+\definelayer[dual\v!text-1][\c!position=\v!yes,\c!region=,\c!width=\textwidth,\c!height=\textheight]
+\definelayer[dual\v!text+1][\c!position=\v!yes,\c!region=,\c!width=\textwidth,\c!height=\textheight]
+\definelayer[dual\v!text+2][\c!position=\v!yes,\c!region=,\c!width=\textwidth,\c!height=\textheight]
+
+\unexpanded\def\internaldualoverlay#1% will become more generic and installable
+  {\startoverlay                     % i.e. probably an overlay by itself
+     {\positionregionoverlay\textanchor{dual\v!text#1}}% see later
+     {\composedlayer                   {dual\v!text#1}}%
+   \stopoverlay}
+
+\defineoverlay[dual\v!text-2][\internaldualoverlay{-2}]
+\defineoverlay[dual\v!text-1][\internaldualoverlay{-1}]
+\defineoverlay[dual\v!text+1][\internaldualoverlay{+1}]
+\defineoverlay[dual\v!text+2][\internaldualoverlay{+2}]
+
+\appendhiddenbackground{dualtext-2}
+\appendhiddenbackground{dualtext-1}
+\appendhiddenbackground{dualtext+1}
+\appendhiddenbackground{dualtext+2}
+
+\installcorenamespace{dualbackground}
+\installcorenamespace{dualbackgroundlevel}
+
+\installcommandhandler \??dualbackground {dualbackground} \??dualbackground
+
+\appendtoks
+    \protected\frozen\instance\edefcsname        \currentdualbackground\endcsname{\groupedcommand{\startdualbackground[\currentdualbackground]}{\stopdualbackground}}%
+    \protected\frozen\instance\edefcsname\e!start\currentdualbackground\endcsname{\startdualbackground[\currentdualbackground]}%
+    \protected\frozen\instance\edefcsname\e!stop \currentdualbackground\endcsname{\stopdualbackground}%
+\to \everydefinedualbackground
+
+\newconstant   \c_anch_dualbackgrounds_pos_state
+\newconditional\c_anch_dualbackgrounds_pos_no_shape
+
+\def\anch_dualbackgrounds_epos
+  {\ifconditional\c_anch_dualbackgrounds_pos_no_shape
+     \eposkind\v_anch_dualbackgrounds_text_current\plusthree
+   \else
+     \eposkind\v_anch_dualbackgrounds_text_current\c_anch_dualbackgrounds_pos_state
+   \fi}
+
+\newinteger \c_anch_dualbackgrounds_text_count
+\newinteger \c_anch_dualbackgrounds_text_check
+\newconstant\c_anch_dualbackgrounds_text_state
+
+\permanent\tolerant\protected\def\startdualbackground[#tag]#spacer[#S#settings]%
+  {\begingroup
+   \writestatus{DBG}{START dual tag=\the\c_anch_dualbackgrounds_text_n}%
+   \global\advanceby\c_anch_dualbackgrounds_text_count\plusone
+   \advanceby\c_anch_dualbackgrounds_text_level\plusone
+   \cdef\currentdualbackground{#tag}%
+   \anch_dualbackgrounds_text_initialize_next
+   \ifparameter#settings\or
+     \setupcurrentdualbackground[#settings]%
+   \fi
+   \ifcstok{\dualbackgroundparameter\c!state}\v!start
+     \anch_dualbackgrounds_text_preset_yes
+   \else
+     \anch_dualbackgrounds_text_preset_nop
+   \fi
+   \anch_dualbackgrounds_text_start_indeed}
+
+\def\anch_dualbackgrounds_text_level_start
+  {\c_anch_dualbackgrounds_text_check\c_anch_dualbackgrounds_text_count}
+
+\def\anch_dualbackgrounds_text_level_stop
+  {\c_anch_dualbackgrounds_text_state
+     \ifnum\c_anch_dualbackgrounds_text_count>\c_anch_dualbackgrounds_text_check
+       \plusone
+     \else
+       \zerocount
+     \fi}
+
+\let\anch_dualbackgrounds_text_start_indeed\relax
+\let\anch_dualbackgrounds_text_stop_indeed \relax
+
+\lettonothing\p_anch_dualbackgrounds_text_frame
+\lettonothing\p_anch_dualbackgrounds_text_corner
+\lettonothing\p_anch_dualbackgrounds_text_background
+
+\defcsname\??dualbackgroundlevel\v!text\endcsname
+  {\let\anch_dualbackgrounds_text_start_indeed\anch_dualbackgrounds_text_start_txt
+   \let\anch_dualbackgrounds_text_stop_indeed \anch_dualbackgrounds_text_stop_txt}
+
+\defcsname\??dualbackgroundlevel\v!paragraph\endcsname
+  {\ifnum\c_anch_dualbackgrounds_text_level>\dualbackgroundparameter\c!criterium\relax
+     \let\anch_dualbackgrounds_text_start_indeed\anch_dualbackgrounds_text_start_txt
+     \let\anch_dualbackgrounds_text_stop_indeed \anch_dualbackgrounds_text_stop_txt
+   \else
+     \let\anch_dualbackgrounds_text_start_indeed\anch_dualbackgrounds_text_start_par
+     \let\anch_dualbackgrounds_text_stop_indeed \anch_dualbackgrounds_text_stop_par
+   \fi}
+
+\defcsname\??dualbackgroundlevel\v!always\endcsname
+  {\let\anch_dualbackgrounds_text_start_indeed\anch_dualbackgrounds_text_start_par
+   \let\anch_dualbackgrounds_text_stop_indeed \anch_dualbackgrounds_text_stop_par}
+
+\defcsname\??dualbackgroundlevel\v!none\endcsname
+  {\anch_dualbackgrounds_text_preset_nop}
+
+\def\anch_dualbackgrounds_text_preset_nop
+  {\let\anch_dualbackgrounds_text_start_indeed\relax
+   \let\anch_dualbackgrounds_text_stop_indeed \relax}
+
+\def\anch_dualbackgrounds_text_preset_yes
+  {\anch_dualbackgrounds_text_preset_nop
+   \csname\??dualbackgroundlevel\dualbackgroundparameter\c!location\endcsname
+   \edef\p_anch_dualbackgrounds_text_frame     {\dualbackgroundparameter\c!frame}%
+   \edef\p_anch_dualbackgrounds_text_corner    {\dualbackgroundparameter\c!corner}%
+   \edef\p_anch_dualbackgrounds_text_background{\dualbackgroundparameter\c!background}%
+   \edef\p_anch_dualbackgrounds_text_showtitle {\dualbackgroundparameter{showtitle}}%
+   \edef\p_anch_dualbackgrounds_text_shownumber{\dualbackgroundparameter{shownumber}}%
+   \ifx\p_anch_dualbackgrounds_text_showtitle\v!yes
+     \let\p_anch_dualbackgrounds_text_showtitle\!!plusone
+   \else
+     \let\p_anch_dualbackgrounds_text_showtitle\!!zerocount
+   \fi
+   \ifx\p_anch_dualbackgrounds_text_shownumber\v!yes
+     \let\p_anch_dualbackgrounds_text_shownumber\!!plusone
+   \else
+     \let\p_anch_dualbackgrounds_text_shownumber\!!zerocount
+   \fi
+   \ifnum\p_anch_dualbackgrounds_text_showtitle=\!!zerocount
+     \ifnum\p_anch_dualbackgrounds_text_shownumber=\!!zerocount
+       \setupcurrentdualbackground[hdrheight=0pt]%
+     \fi
+   \fi
+   \ifdim\dualbackgroundparameter{hdrheight}>\zeropoint
+     \scratchdimen\dimexpr
+      \dualbackgroundparameter{topoffset}%
+     +\dualbackgroundparameter{hdrheight}%
+     +\dualbackgroundparameter{rulethickness}\relax
+     \setupcurrentdualbackground[\c!topoffset=\the\scratchdimen]%
+   \fi
+   \ifx\p_anch_dualbackgrounds_text_frame\v!on
+     \ifx\p_anch_dualbackgrounds_text_corner\v!round
+       \let\p_anch_dualbackgrounds_text_frame\!!plustwo
+     \else
+       \let\p_anch_dualbackgrounds_text_frame\!!plusone
+     \fi
+   \else
+     \let\p_anch_dualbackgrounds_text_frame\!!zerocount
+   \fi
+   \ifx\p_anch_dualbackgrounds_text_background\v!color
+     \let\p_anch_dualbackgrounds_text_background\!!plusone
+   \else
+     \let\p_anch_dualbackgrounds_text_background\!!zerocount
+   \fi
+   \startpositionoverlay{\dualbackgroundoverlay{\dualbackgroundparameter\c!level}}%
+     \anch_dualbackgrounds_text_meta_graphic % gets expanded directly
+   \stoppositionoverlay}
+
+\def\anch_dualbackgrounds_text_meta_graphic
+  {\writestatus{DBG}{b=\v_anch_dualbackgrounds_anchor_current_b}%
+   \expanded{\setMPpositiongraphicrange % needs to be optimized
+            {\v_anch_dualbackgrounds_anchor_current_b}%
+            {\v_anch_dualbackgrounds_anchor_current_e}%
+            {\dualbackgroundparameter\c!method}%
+            {self=\v_anch_dualbackgrounds_text_current,
+               mp=\dualbackgroundparameter\c!mp,
+         gridtype=\dualbackgroundparameter\c!alternative,
+         filltype=\p_anch_dualbackgrounds_text_background,
+         linetype=\p_anch_dualbackgrounds_text_frame,
+         dashtype=\dualbackgroundparameter{dash},
+        gridcolor=\dualbackgroundparameter{framecolor},
+        linecolor=\dualbackgroundparameter{framecolor},
+       lineoffset=\dualbackgroundparameter{frameoffset},
+        fillcolor=\dualbackgroundparameter{backgroundcolor},
+       filloffset=\dualbackgroundparameter{backgroundoffset},
+        gridwidth=\dualbackgroundparameter{rulethickness},
+        gridshift=\dualbackgroundparameter{voffset},
+        linewidth=\dualbackgroundparameter{rulethickness},
+       lineradius=\dualbackgroundparameter{radius},
+       shownumber=\p_anch_dualbackgrounds_text_shownumber,
+        showtitle=\p_anch_dualbackgrounds_text_showtitle,
+         titlepos=\dualbackgroundparameter{titlepos},
+       titlealign=\dualbackgroundparameter{titlealign},
+      numberalign=\dualbackgroundparameter{numberalign},
+    numberbgcolor=\dualbackgroundparameter{numberbgcolor},
+     titlebgcolor=\dualbackgroundparameter{titlebgcolor},
+      numbercolor=\dualbackgroundparameter{numbercolor},
+       titlecolor=\dualbackgroundparameter{titlecolor},
+ numberframecolor=\dualbackgroundparameter{numberframecolor},
+  titleframecolor=\dualbackgroundparameter{titleframecolor},
+      shadowcolor=\dualbackgroundparameter{shadowcolor},
+      numberframe=\dualbackgroundparameter{numberframe},
+       titleframe=\dualbackgroundparameter{titleframe},
+      numberratio=\dualbackgroundparameter{numberratio},
+       titleratio=\dualbackgroundparameter{titleratio},
+        hdrradius=\dualbackgroundparameter{hdrradius},
+        hdrcorner=\dualbackgroundparameter{hdrcorner},
+        hdrrepeat=\dualbackgroundparameter{hdrrepeat},
+           number=\dualbackgroundparameter{number},
+            title=\dualbackgroundparameter{title},
+        hdrheight=\the\dimexpr\dualbackgroundparameter{hdrheight}\relax,
+       bodycorner=\dualbackgroundparameter{bodycorner},
+        leftframe=\dualbackgroundparameter{leftframe},
+       rightframe=\dualbackgroundparameter{rightframe},
+         topframe=\dualbackgroundparameter{topframe},
+      bottomframe=\dualbackgroundparameter{bottomframe},
+        character=\dualbackgroundparameter{character},
+           symbol=\dualbackgroundparameter{symbol},
+           shadow=\dualbackgroundparameter{shadow},
+              bar=\dualbackgroundparameter{bar},
+         framebox=\dualbackgroundparameter{framebox},
+      shadowcolor=\dualbackgroundparameter{shadowcolor},}}}
+
+\permanent\protected\def\stopdualbackground
+  {\writestatus{DBG}{STOP dual}%
+   \anch_dualbackgrounds_text_stop_indeed
+   \carryoverpar\endgroup} % why doesn't this work ?
+
+\permanent\protected\def\startdualbackgroundmanual
+  {\begingroup
+   \c_anch_dualbackgrounds_pos_state\plusone
+   \usedualbackgroundstyleandcolor\c!style\c!color
+   \anch_dualbackgrounds_bpos}
+
+\permanent\protected\def\stopdualbackgroundmanual
+  {\anch_dualbackgrounds_epos
+   \carryoverpar\endgroup}
+
+\def\anch_dualbackgrounds_text_start_txt
+  {\ifvmode\dontleavehmode\fi
+   \begingroup
+   \c_anch_dualbackgrounds_pos_state\plusone
+   \usedualbackgroundstyleandcolor\c!style\c!color
+   \anch_dualbackgrounds_bpos}
+
+\def\anch_dualbackgrounds_text_stop_txt
+  {\anch_dualbackgrounds_epos
+   \carryoverpar\endgroup}
+
+\newgluespec\dualbackgroundskip
+
+\def\anch_dualbackgrounds_grid_bpos
+  {\spac_helpers_assign_skip\dualbackgroundskip{\dualbackgroundparameter\c!topoffset}%
+   \ifdim\dualbackgroundskip>\zeropoint
+     \struttedbox % not always ok (e.g. setups)
+       {\hpack{\raise\dualbackgroundskip\hpack{\anch_dualbackgrounds_bpos}}}%
+   \else
+     \anch_dualbackgrounds_bpos
+   \fi}
+
+\def\anch_dualbackgrounds_text_start_par % beware .. background shapes
+  {\endgraf % new
+   \dualbackgroundparameter\c!before
+   \begingroup
+   \c_anch_dualbackgrounds_pos_state\plustwo
+   \begingroup
+   \anch_backgrounds_reset_attributes
+   \noindent
+   \ifgridlinesnapping
+     % gridlinesnapping: to be decided
+     \anch_dualbackgrounds_grid_bpos
+   \orelse\ifgridsnapping
+     \anch_dualbackgrounds_grid_bpos
+   \else
+     \anch_dualbackgrounds_bpos
+   \fi
+   \endgraf % we need a vertical nobreak - 29/06/2004
+   \endgroup
+   \nobreak
+   \vskip-\lineheight
+   \nobreak
+   \ifgridlinesnapping
+     % nothing
+   \orelse\ifgridsnapping
+     % nothing
+   \else
+     \spac_helpers_assign_skip\dualbackgroundskip{\dualbackgroundparameter\c!topoffset}%
+     \ifdim\dualbackgroundskip>\zeropoint
+        \kern\dualbackgroundskip\nobreak
+     \fi
+   \fi
+   \doadaptleftskip {\dualbackgroundparameter\c!leftoffset}%
+   \doadaptrightskip{\dualbackgroundparameter\c!rightoffset}%
+   % new
+   \dosetraggedcommand{\dualbackgroundparameter\c!align}%
+   \raggedcommand
+   \usedualbackgroundstyleandcolor\c!style\c!color
+   \nowhitespace
+   \seteffectivehsize
+   \doinhibitblank %   \blank[\v!disable]% new
+   \par}
+
+\def\anch_dualbackgrounds_grid_epos
+  {\ifdim\dualbackgroundskip>\zeropoint
+     \struttedbox % not always ok (e.g. setups)
+      {\hpack{\lower\dualbackgroundskip\hpack{\anch_dualbackgrounds_epos}}}%
+   \else
+     \anch_dualbackgrounds_epos
+   \fi}
+
+\def\anch_dualbackgrounds_text_stop_par
+  {\par
+   \removelastskip % new
+   \spac_helpers_assign_skip\dualbackgroundskip{\dualbackgroundparameter\c!bottomoffset}%
+   \ifdim\lastskip>\zeropoint
+     \advanceby\dualbackgroundskip-\lastskip
+   \fi
+   \ifgridlinesnapping
+     % nothing
+   \orelse\ifgridsnapping
+     % nothing
+   \orelse\ifdim\dualbackgroundskip>\zeropoint
+     \kern\dualbackgroundskip\nobreak
+   \fi
+   \nobreak
+   \vskip{-\lineheight-\parskip}% problem: we loose the hangindent
+   \nobreak
+   \endgroup
+   \begingroup
+   \forgeteverypar % NOT REALLY NEEDED, SAVES HASH/MEM
+   \anch_backgrounds_reset_attributes
+   \nobreak \noindent \strut \hfill \kern\zeropoint
+   % so far
+   \spac_helpers_assign_skip\dualbackgroundskip{\dualbackgroundparameter\c!bottomoffset}%
+   \ifgridlinesnapping
+     % gridlinesnapping: to be decided
+     \anch_dualbackgrounds_grid_epos
+   \orelse\ifgridsnapping % experimental, pascal (todo: topoffset in same way)
+     \anch_dualbackgrounds_grid_epos
+   \else
+     \anch_dualbackgrounds_epos
+   \fi
+   \endgraf
+   \carryoverpar\endgroup
+   \endgraf % new
+   \dualbackgroundparameter\c!after}
+
+\definesystemattribute[dualbackground][public]
+
+\def\anch_dualbackgrounds_bpos
+  {\ifconditional\c_anch_dualbackgrounds_pos_no_shape
+     \c_attr_dualbackground\attributeunsetvalue
+     \bposkind\v_anch_dualbackgrounds_text_current\plusthree
+   \orelse\ifnum\c_anch_dualbackgrounds_pos_state=\plusone
+     \bposkind\v_anch_dualbackgrounds_text_current\c_anch_dualbackgrounds_pos_state
+     \writestatus{DBG}{dual bpos -> \v_anch_dualbackgrounds_text_current}%
+     \clf_registerdualbackground{\v_anch_dualbackgrounds_text_current}%
+   \else
+     \bposkind\v_anch_dualbackgrounds_text_current\c_anch_dualbackgrounds_pos_state
+     \c_attr_dualbackground\attributeunsetvalue
+   \fi}
+
+
 % 可分发参数：
 %   --- 标题 ---
 %   shownumber/showtitle    1=显示（默认 1）
@@ -1047,176 +1351,141 @@
 %   在 multipars 顶部切出高度 H 的条带画标题，其余画正文。
 %   backgroundcolor 只进正文；hdrcorner/bodycorner 各自独立。
 %   不单独画接缝线。
-\newcount\dualtextCNT \dualtextCNT\zerocount
 
-\tolerant\def\startDualText[#1]%
-  {\begingroup
-   \global\advance\dualtextCNT by 1
-   \edef\dualtextNS{dualtext\the\dualtextCNT}%
-   \edef\dualtextMP{DualTextMP\the\dualtextCNT}%
-   \edef\dualtextCD{DualTextCard\the\dualtextCNT}%
-   \setvariables[\dualtextNS][
-     shownumber=1,
-     showtitle=1,
-     titlepos=1,
-     titlealign=2,
-     numberalign=2,
-     numberbgcolor=lightthemecolor,
-     titlebgcolor=white,
-     numbercolor=white,
-     titlecolor=lightthemecolor,
-     framecolor=lightthemecolor,
-     numberframecolor=lightthemecolor,
-     titleframecolor=lightthemecolor,
-     numberframe=1,
-     titleframe=1,
-     numberratio=1,
-     titleratio=1,
-     hdrradius=5pt,
-     hdrcorner=9,
-     hdrrepeat=1,
-     number=,
-     title=,
-     hdrheight=2.2\bodyfontsize,
-     rulethickness=1pt,
-     radius=5pt,
-     bodycorner=9,
-     backgroundcolor=white,
-     leftframe=1,
-     rightframe=1,
-     topframe=1,
-     bottomframe=1,
-     symbol=none,
-     character=none,
-     shadow=no,
-     bar=no,
-     framebox=no,
-     shadowcolor=lightthemecolor,
-     frameoffset=0pt,
-     backgroundoffset=0pt,
-     leftoffset=1ex,
-     rightoffset=1ex,
-     topoffset=1ex,
-     bottomoffset=1ex,
-     before=,
-     #1,
-     ]%
-   \edef\dualheff{\dimexpr
-     \getvariable{\dualtextNS}{hdrheight}
-     +\getvariable{\dualtextNS}{rulethickness}\relax}%
-   \edef\_dualheff{\the\dualheff}
-   % H = hdrheight + rulethickness + toffset；无标题时 H=0
-   \ifnum\getvariable{\dualtextNS}{shownumber}=0
-     \ifnum\getvariable{\dualtextNS}{showtitle}=0
-       \edef\_dualheff{0pt}%
-     \fi
-   \fi
-   \getvariable{\dualtextNS}{before}%
-   % 记录起始页，MP 运行时用 RealPageNumber 比较，仅首页画标题
-   \edef\dualtextstartpage{\the\realpageno}%
-   % 烘焙 MP script：读 namespace 参数 → DrawDualCombinedOnPath
-   \edef\dualtextMPcode{%
-     \noexpand\startuseMPgraphic{\dualtextMP}%
-       \dualbodyMPparams{\dualtextNS}%
-       numeric dshownumber, dshowtitle, dtitlepos, dtitlealign, dnumberalign;
-       dshownumber := \getvariable{\dualtextNS}{shownumber};
-       dshowtitle  := \getvariable{\dualtextNS}{showtitle};
-       dtitlepos   := \getvariable{\dualtextNS}{titlepos};
-       dtitlealign := \getvariable{\dualtextNS}{titlealign};
-       dnumberalign:= \getvariable{\dualtextNS}{numberalign};
-       color dnumberbgcolor, dtitlebgcolor, dnumbercolor, dtitlecolor;
-       color dnumberframecolor, dtitleframecolor;
-       dnumberbgcolor  := \noexpand\MPcolor{\getvariable{\dualtextNS}{numberbgcolor}};
-       dtitlebgcolor   := \noexpand\MPcolor{\getvariable{\dualtextNS}{titlebgcolor}};
-       dnumbercolor    := \noexpand\MPcolor{\getvariable{\dualtextNS}{numbercolor}};
-       dtitlecolor     := \noexpand\MPcolor{\getvariable{\dualtextNS}{titlecolor}};
-       dnumberframecolor := \noexpand\MPcolor{\getvariable{\dualtextNS}{numberframecolor}};
-       dtitleframecolor  := \noexpand\MPcolor{\getvariable{\dualtextNS}{titleframecolor}};
-       numeric dnumberframe, dtitleframe, dnumberratio, dtitleratio;
-       numeric dhdrradius, dhdrcorner;
-       dnumberframe  := \getvariable{\dualtextNS}{numberframe};
-       dtitleframe   := \getvariable{\dualtextNS}{titleframe};
-       dnumberratio  := \getvariable{\dualtextNS}{numberratio};
-       dtitleratio   := \getvariable{\dualtextNS}{titleratio};
-       dhdrradius    := \getvariable{\dualtextNS}{hdrradius};
-       dhdrcorner    := \getvariable{\dualtextNS}{hdrcorner};
-       string dnumtext, dtittext;
-       dnumtext  := "\getvariable{\dualtextNS}{number}";
-       dtittext  := "\getvariable{\dualtextNS}{title}";
-       % dshowhdr: 有标题内容且高度>0 时为 1
-       numeric dheadh, dshowhdr, drepeat;
-       dheadh := \_dualheff;
-       dshowhdr := 0;
-       if ((dshownumber > 0) or (dshowtitle > 0)) and (dheadh > 0) :
-         dshowhdr := 1;
-       fi;
-       % hdrrepeat=0 时仅首页画标题（RealPageNumber 为 registerdirect 无参函数，不带 ()）
-       drepeat := \getvariable{\dualtextNS}{hdrrepeat};
-       if drepeat < 1 :
-         numeric dstartpage, dcurpage;
-         dstartpage := \dualtextstartpage;
-         dcurpage := RealPageNumber;
-         if dcurpage > dstartpage :
-           dshowhdr := 0;
-         fi;
-       fi;
-        if nofmultipars > 0 :
-          for i=1 upto nofmultipars :
-            path dmain;
-            dmain := multipars[i];
-            DrawDualCombinedOnPath(dmain, dshowhdr, dheadh,
-                                   dshownumber, dshowtitle,
-                                   dtitlepos, dtitlealign, dnumberalign,
-                                   dnumberbgcolor, dtitlebgcolor,
-                                   dnumbercolor, dtitlecolor,
-                                   dnumberframecolor, dtitleframecolor,
-                                   dnumberframe, dtitleframe,
-                                   dnumberratio, dtitleratio,
-                                   dhdrradius, dhdrcorner,
-                                   dnumtext, dtittext,
-                                   dbg, dfc, dsc,
-                                   dth, drad, dbc, dlf, drf, dtf, dbf,
-                                   dch, dsym, dshadow, dbar, dframe,
-                                   dfov, dboff);
-          endfor;
-        else :
-          path dmain;
-          dmain := multibox;
-          DrawDualCombinedOnPath(dmain, dshowhdr, dheadh,
-                                 dshownumber, dshowtitle,
-                                 dtitlepos, dtitlealign, dnumberalign,
-                                 dnumberbgcolor, dtitlebgcolor,
-                                 dnumbercolor, dtitlecolor,
-                                 dnumberframecolor, dtitleframecolor,
-                                 dnumberframe, dtitleframe,
-                                 dnumberratio, dtitleratio,
-                                 dhdrradius, dhdrcorner,
-                                 dnumtext, dtittext,
-                                 dbg, dfc, dsc,
-                                 dth, drad, dbc, dlf, drf, dtf, dbf,
-                                 dch, dsym, dshadow, dbar, dframe,
-                                 dfov, dboff);
-        fi;
-       setbounds currentpicture to multibox;
-     \noexpand\stopuseMPgraphic
-   }%
-   \dualtextMPcode
-   \edef\dualheff{\dimexpr\_dualheff+\getvariable{\dualtextNS}{topoffset}\relax}%
-   \definetextbackground[\dualtextCD][
-      mp=\dualtextMP,
-      location=paragraph,
-      frame=off,
-      leftoffset=\getvariable{\dualtextNS}{leftoffset},
-      rightoffset=\getvariable{\dualtextNS}{rightoffset},
-      topoffset=\the\dualheff,
-      bottomoffset=\getvariable{\dualtextNS}{bottomoffset},
-      align={flushleft,lohi},
-      #1,
-    ]%
-   \starttextbackground[\dualtextCD]%
+\setupdualbackground
+  [\c!mp=dualbackground:draw,
+   \c!method=mpos:region,
+   \c!state=\v!start,
+   \c!location=\v!paragraph,
+   \c!leftoffset=1ex, % 1em,
+   \c!rightoffset=\dualbackgroundparameter\c!leftoffset,
+   \c!topoffset=\!!zeropoint,  % \v!medium,
+   \c!bottomoffset=\ifdim\dualbackgroundparameter{hdrheight}>\zeropoint 1ex\else\dualbackgroundparameter\c!topoffset\fi,
+   \c!criterium=\plusone,
+   \c!level=-1,
+   \c!alternative=0,
+   \c!align=,
+   \c!dash=0, % to be internationalized
+   \c!background=\v!color,
+   \c!backgroundcolor=lightgray,
+   \c!backgroundoffset=\!!zeropoint,
+   \c!corner=\v!rectangular,
+   \c!radius=2pt,
+   \c!voffset=\!!zeropoint,
+   \c!frame=\v!on,
+   \c!framecolor=lightgray,
+   \c!frameoffset=\!!zeropoint,
+   \c!rulethickness=\linewidth,
+   \c!leftframe=-1, 
+   \c!rightframe=-1, 
+   \c!topframe=-1, 
+   \c!bottomframe=-1,
+   shownumber=no,
+   showtitle=no,
+   number=A, 
+   numberalign=2,
+   numberratio=1,
+   numberframe=1, 
+   numberbgcolor=lightgray, 
+   numbercolor=white, 
+   numberframecolor=lightgray, 
+   title=B, 
+   titlepos=1,
+   titlealign=2,
+   titleratio=1,
+   titleframe=1,
+   titlebgcolor=lightgray,
+   titlecolor=white,
+   titleframecolor=lightgray,
+   hdrradius=2pt,
+   hdrcorner=1, 
+   hdrrepeat=1,
+   hdrheight=0pt,
+   bodycorner=2,
+   character=none, 
+   symbol=none,
+   shadow=no, 
+   bar=no,
+   framebox=no,
+   shadowcolor=lightgray,
+   ]
+
+% ============================================================
+% 模式一：\DualBodyframe — framed + overlay
+% ============================================================
+\startuseMPgraphic{DualBodyFrame}
+  color dbg, dfc, dsc;
+  dbg := \MPvar{backgroundcolor};
+  dfc := \MPvar{framecolor};
+  dsc := \MPvar{shadowcolor};
+
+  numeric dth, drad, dcorner;
+  dth  := \MPvar{rulethickness};
+  drad := \MPvar{radius};
+  dcorner := \MPvar{bodycorner};
+
+  numeric dlf, drf, dtf, dbf;
+  dlf := \MPvar{leftframe};
+  drf := \MPvar{rightframe};
+  dtf := \MPvar{topframe};
+  dbf := \MPvar{bottomframe};
+
+  string dch, dsym;
+  dch    := "\MPvar{character}";
+  dsym   := "\MPvar{symbol}";
+
+  numeric dshadow, dbar, dframe;
+  dshadow := 0;
+  dbar    := 0;
+  dframe  := 0;
+  if "\MPvar{shadow}"   = "yes" : dshadow := 1; fi;
+  if "\MPvar{bar}"      = "yes" : dbar    := 1; fi;
+  if "\MPvar{framebox}" = "yes" : dframe  := 1; fi;
+
+  numeric dfov, dboff;
+  dfov  := \MPvar{frameoffset};
+  dboff := \MPvar{backgroundoffset};
+
+  path dmain;
+  numeric dox; 
+  dox   := dth/4;
+  dmain := (dox,dox)--(OverlayWidth-dox,dox)
+         --(OverlayWidth-dox,OverlayHeight-dox)--(dox,OverlayHeight-dox)--cycle;
+
+  DrawDualBodyOnPath(dmain, dbg, dfc, dsc,
+                     dth, drad, dcorner, dlf, drf, dtf, dbf,
+                     dch, dsym, dshadow, dbar, dframe,
+                     dfov, dboff);
+\stopuseMPgraphic
+
+\defineoverlay[DualBodyOL][\useMPgraphic{DualBodyFrame}]
+
+\tolerant\def\DualBodyframe[#1]#2{%
+  \begingroup
+  \setupMPvariables[DualBodyFrame][
+    backgroundcolor=lightgray,
+    framecolor=lightgray,
+    rulethickness=1pt,
+    radius=5pt,
+    bodycorner=9,
+    leftframe=1,
+    rightframe=1,
+    topframe=1,
+    bottomframe=1,
+    symbol=none,
+    character=none,
+    shadow=no,
+    bar=no,
+    framebox=no,
+    shadowcolor=lightgray,
+    frameoffset=0pt,
+    backgroundoffset=0pt,
+    #1
+  ]%
+  \framed[frame=off,
+          width=max,
+          background=DualBodyOL,
+          align={flushleft},
+          offset=1ex,#1]{#2}%
+  \endgroup
 }
-
-\unexpanded\def\stopDualText{\stoptextbackground\endgroup}
-
-\protect
-\endinput

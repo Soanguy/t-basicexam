@@ -1,0 +1,125 @@
+\usemodule[memos,basicexam]
+\unprotect
+
+
+\starttext
+
+\startbuffer
+ 
+  \doloopoverlist
+   {Co:num,CO:num,Cr:num,CR:num,Cs:num,CS:num,
+   Co:Alph,CO:Alph,Cr:Alph,CR:Alph,Cs:Alph,CS:Alph,
+   Co:alph,CO:alph,Cr:alph,CR:alph,Cs:alph,CS:alph,
+   Co:cn,CO:cn,Cr:cn,CR:cn,Cs:cn,CS:cn,
+   Co:hira,CO:hira,Cr:hira,CR:hira,Cs:hira,CS:hira,
+   Co:kata,CO:kata,Cr:kata,CR:kata,Cs:kata,CS:kata,}
+   {\startitemize[\recursestring,nostopper]\item 而直接列举例文时\stopitemize}  
+\stopbuffer
+
+\startcolumns[n=2]
+\getbuffer
+\stopcolumns
+
+\DrawBadge[
+  text=, radius=0pt, scale=1,             % 不设左侧文本
+  shape=square,       % 强制正方形
+  helper=true,        % 开启内部横竖中线（田字格）
+  cross=true,        % 关闭对角线（不打叉）
+  framecolor=red,     % 外框和网格统一用红色
+  rulethickness=0.5pt,  % 外框粗细
+  dashcolor=red,      % 内部网格线的颜色
+  helperwidth=0.5pt,  % 内部网格线的粗细
+  helperdashwidth=2pt,
+  crossdashwidth=2pt,penstyle=square,       % 设为0就是实线，设成 2pt 就是虚线
+]{基} 
+
+
+\section{1. 基础形状与纯数字}
+
+1.1 默认胶囊 (带左右双区)
+\DrawBadge[text=Default]{1}
+
+\blank[big]
+
+1.2 纯数字胶囊
+\DrawBadge[text=, shape=capsule]{2}
+
+\blank[big]
+
+1.3 纯数字圆形 (测试 bW = bH 归一化)
+\DrawBadge[text=, shape=circle]{p3}
+
+\blank[big]
+
+1.4 纯数字方形 (测试 bW = bH 归一化，以及内置 radius)
+\DrawBadge[text=, shape=square, radius=4pt]{4}
+
+\blank[big]
+
+1.5 圆角矩形 (测试自定义 radius)
+\DrawBadge[text=Info, shape=rect, radius=8pt]{42}
+
+\blank[big]
+
+\section{2. 边框与填充参数}
+
+2.1 粗边框 (测试 rulethickness)
+\DrawBadge[text=Thick, shape=capsule, rulethickness=3pt]{1}
+
+\blank[big]
+
+2.2 无边框 (测试 framecolor 和 rulethickness 清零)
+\DrawBadge[text=NoFrame, shape=capsule, framecolor=transparent, rulethickness=0pt]{0}
+
+\blank[big]
+
+2.3 左右区域独立填色 (测试 textbg, numbg 对比度)
+\DrawBadge[text=Left, shape=capsule, textbackground=darkred, numberbackground=darkgreen]{8}
+
+\blank[big]
+
+\section{3. 装饰线与虚线}
+
+3.1 虚线边框 (测试 dashwidth, dashcolor)
+\DrawBadge[text=Dashed, shape=capsule, dashwidth=2pt, dashcolor=white]{7}
+
+\blank[big]
+
+3.2 辅助线与十字准星 (测试 helper, cross)
+\DrawBadge[text=Guides, shape=rect, radius=4pt, helper=true, cross=true]{9}
+
+\blank[big]
+
+\section{4. 文本样式与排版}
+
+4.1 加粗及颜色 (测试 color, style, numbercolor, numberstyle)
+\DrawBadge[text=Bold, shape=capsule, textstyle=\bf, textcolor=yellow, 
+           numbercolor=red, numberstyle=\bf]{99}
+
+\blank[big]
+
+4.2 极长文本自适应 (测试 wL 和 wR 的动态撑开)
+\DrawBadge[text=VeryLongText, shape=capsule]{123}
+
+\blank[big]
+
+\section{5. 位移与缩放}
+
+5.1 垂直偏移 (测试 yshift，观察基线的变化)
+\DrawBadge[text=Up, shape=capsule, yshift=5pt]{1}\par
+\DrawBadge[text=Down, shape=capsule, yshift=-5pt]{2}
+
+\blank[big]
+
+5.2 水平偏移 (测试 xshift)
+\DrawBadge[text=Left, shape=capsule, xshift=-10pt]{3}\par
+\DrawBadge[text=Right, shape=capsule, xshift=10pt]{4}
+
+\blank[big]
+
+5.3 缩放 (测试 scale，注意：如果底层未应用，此处两者应等大)
+\DrawBadge[text=Normal, shape=capsule]{5}\par
+\DrawBadge[text=Scaled, shape=capsule, scale=1.5]{6}
+
+
+\stoptext

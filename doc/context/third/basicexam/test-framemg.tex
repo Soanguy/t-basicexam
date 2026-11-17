@@ -9,6 +9,20 @@
 
 \subsection{完整双栏（默认）}
 
+\definedualbackground[DualText][
+  shownumber=yes,
+  showtitle=yes,
+  hdrheight=1.2\lineheight,
+  topoffset=1ex,
+  framecolor=blue,
+  numberframecolor=blue,
+  titleframecolor=blue,
+  numberbgcolor=lightcyan,
+  titlebgcolor=paleblue,
+  titlecolor=cyan,
+  backgroundcolor=paleblue,
+  ]
+
 \startDualText[number={No.001},title={这是标题}]
 这是一个完整的标题条+正文示例。左侧编号，右侧标题，下方正文。
 \stopDualText
@@ -16,21 +30,21 @@
 
 \subsection{仅显示编号}
 
-\startDualText[number={A-123},showtitle=0]
+\startDualText[number={A-123},showtitle=no]
 只显示编号，不显示标题。
 \stopDualText
 % 【预期】标题条只有左侧编号块，右侧无标题框；正文正常。
 
 \subsection{仅显示标题}
 
-\startDualText[title={仅标题示例},shownumber=0]
+\startDualText[title={仅标题示例},shownumber=no]
 只显示标题，不显示编号。
 \stopDualText
 % 【预期】标题条只有标题块（占满或按 titlepos）；正文正常。
 
 \subsection{无编号和标题}
 
-\startDualText[shownumber=0,showtitle=0]
+\startDualText[shownumber=no,showtitle=no]
 无标题条，纯正文框。
 \stopDualText
 % 【预期】无标题条，不占标题高度；纯正文框。
@@ -76,7 +90,7 @@ titlepos=0 时按文字实际宽度排布。
 
 \subsection{titlepos=1 + 仅编号右对齐}
 
-\startDualText[number=04,showtitle=0,titlepos=1,numberalign=3,
+\startDualText[number=04,showtitle=no,titlepos=1,numberalign=3,
   numberframe=0,titleframe=0,leftframe=0,rightframe=0,bottomframe=0,topframe=1]
 仅编号时右对齐。
 \stopDualText
@@ -230,23 +244,29 @@ bodycorner=2 只圆下两角。
 
 \subsection{仅左边框}
 
-\startDualText[shownumber=0,showtitle=0,
-  leftframe=1,rightframe=0,topframe=0,bottomframe=0]
+\startDualText[
+  shownumber=no,showtitle=no,
+  rulethickness=2pt,radius=0pt,
+  leftframe=1,rightframe=0,
+  topframe=0,bottomframe=0]
 只显示左边框。
 \stopDualText
 % 【预期】仅左侧一条竖线。
 
 \subsection{仅左右边框}
 
-\startDualText[shownumber=0,showtitle=0,
-  leftframe=1,rightframe=1,topframe=0,bottomframe=0]
+\startDualText[
+  shownumber=no,showtitle=no,
+  rulethickness=2pt,radius=0pt,
+  leftframe=1,rightframe=1,
+  topframe=0,bottomframe=0]
 只显示左右边框。
 \stopDualText
 % 【预期】左右两条竖线，上下无线。
 
 \subsection{仅上边框}
 
-\startDualText[shownumber=0,showtitle=0,
+\startDualText[shownumber=no,showtitle=no,
   leftframe=0,rightframe=0,topframe=1,bottomframe=0]
 只显示上边框。
 \stopDualText
@@ -254,7 +274,7 @@ bodycorner=2 只圆下两角。
 
 \subsection{无边框}
 
-\startDualText[shownumber=0,showtitle=0,
+\startDualText[shownumber=no,showtitle=no,
   leftframe=0,rightframe=0,topframe=0,bottomframe=0,
   backgroundcolor=softthemecolor]
 不显示任何边框，仅底色。

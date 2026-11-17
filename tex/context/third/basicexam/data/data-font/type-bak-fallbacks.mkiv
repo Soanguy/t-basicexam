@@ -113,7 +113,7 @@
   -- 5. LatinPunct 节点处理器
   -- ============================================================
 
-  memos.latinpunct_default = true
+  memos.latinpunct_default = false
 
   function memos.set_latinpunct_default(v)
       memos.latinpunct_default = v
@@ -218,7 +218,7 @@
   nodes.tasks.appendaction(
       "processors", "normalizers",
       "thirddata.memos.latinpunct.process",
-      nil, "nut", "enabled")
+      nil, "nut", "disabled")
 \stopluacode
 
 % ================================================================
@@ -233,7 +233,12 @@
 \def\stopCJKPunct   {\endgroup}
 
 \def\LatinPunctOn #1{{\dosetattribute{latinpunct}{1}#1}}
-\def\LatinPunctOff#1{{\dosetattribute{latinpunct}{0}#1}}
+
+\ifdefined\setuppunc
+  \def\LatinPunctOff#1{{\dosetattribute{latinpunct}{0}\setuppunc[quad=0.5]{‘’“ ” }#1}}
+\else
+  \def\LatinPunctOff#1{{\dosetattribute{latinpunct}{0}#1}}
+\fi
 
 \def\setLatinPunct[#1]%
   {\doifelse{#1}{no}%
@@ -258,13 +263,13 @@
   {\ctxlua{thirddata.memos.font_helpers_set_goodies_record("#1","#2")}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%                          字體集設置                                 %%%%%%
+%%%%%%                          字體集設置                                %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 警告 第三个参数 字体*特性。特性不可以被**括号**包裹。只能裸露出来，用**逗号**分割特性。
 %% 此外，此时尽量特性中的名称中不包含**特殊字符**，避免解析错误
-\setupfontexpansion[conservative][stretch=1, shrink=1, step=0.25, factor=1]
-
-\definefontfeature [chinese]             [simplified-chinese]
+\definefontfeature [simplified-chinese]  [default]
+\definefontfeature [traditional-chinese] [default]
+\definefontfeature [japanese]            [default]
 \definefontfeature [boldslanted]         [default] [effect={width=0.30,auto=yes,slant=.2}]
 \definefontfeature [latin-default][
                     language=dflt,mode=node,kern=yes,%
@@ -931,43 +936,43 @@
 %%%%%%%%%%%%%%%%%%%%
 
 \startsetups fallback:serif:modern
-  \definefontfallbackgoodies[fallback-serif]           [name:lmroman10regular*fbk-default]    [fallbackrange][force=yes][modern-text]
-  \definefontfallbackgoodies[fallback-serifbold]       [name:lmroman10bold*fbk-default]       [fallbackrange][force=yes][modern-text]
-  \definefontfallbackgoodies[fallback-serifitalic]     [name:lmroman10italic*fbk-default]     [fallbackrange][force=yes][modern-text]
-  \definefontfallbackgoodies[fallback-serifbolditalic] [name:lmroman10bolditalic*fbk-default] [fallbackrange][force=yes][modern-text]
-  \definefontfallbackgoodies[fallback-serifslanted]    [name:lmromanslant10regular]           [fallbackrange][force=yes][modern-text]
-  \definefontfallbackgoodies[fallback-serifboldslanted][name:lmromanslant10bold]              [fallbackrange][force=yes][modern-text]
-  \definefontfallbackgoodies[fallback-serifcaps]       [name:lmromancaps10regular]            [fallbackrange][force=yes][modern-text]
+  \definefontfallbackgoodies[fallback-serif]           [name:lmroman10regular*fbk-default]    [fallbackrange][force=yes,rscale=\serifrscale][modern-text]
+  \definefontfallbackgoodies[fallback-serifbold]       [name:lmroman10bold*fbk-default]       [fallbackrange][force=yes,rscale=\serifrscale][modern-text]
+  \definefontfallbackgoodies[fallback-serifitalic]     [name:lmroman10italic*fbk-default]     [fallbackrange][force=yes,rscale=\serifrscale][modern-text]
+  \definefontfallbackgoodies[fallback-serifbolditalic] [name:lmroman10bolditalic*fbk-default] [fallbackrange][force=yes,rscale=\serifrscale][modern-text]
+  \definefontfallbackgoodies[fallback-serifslanted]    [name:lmromanslant10regular]           [fallbackrange][force=yes,rscale=\serifrscale][modern-text]
+  \definefontfallbackgoodies[fallback-serifboldslanted][name:lmromanslant10bold]              [fallbackrange][force=yes,rscale=\serifrscale][modern-text]
+  \definefontfallbackgoodies[fallback-serifcaps]       [name:lmromancaps10regular]            [fallbackrange][force=yes,rscale=\serifrscale][modern-text]
 \stopsetups
 
 \startsetups fallback:sans:modern
-  \definefontfallbackgoodies[fallback-sans]            [name:lmsans10regular*fbk-default]     [fallbackrange][force=yes][modern-text]
-  \definefontfallbackgoodies[fallback-sansbold]        [name:lmsans10bold*fbk-default]        [fallbackrange][force=yes][modern-text]
-  \definefontfallbackgoodies[fallback-sansitalic]      [name:lmsans10oblique*fbk-default]     [fallbackrange][force=yes][modern-text]
-  \definefontfallbackgoodies[fallback-sansbolditalic]  [name:lmsans10boldoblique*fbk-default] [fallbackrange][force=yes][modern-text]
-  \definefontfallbackgoodies[fallback-sansslanted]     [name:lmsans10oblique]                 [fallbackrange][force=yes][modern-text]
-  \definefontfallbackgoodies[fallback-sansboldslanted] [name:lmsans10boldoblique]             [fallbackrange][force=yes][modern-text]
-  \definefontfallbackgoodies[fallback-sanscaps]        [libertinussans-regular*fbk-smallcaps] [fallbackrange][force=yes][modern-text]
+  \definefontfallbackgoodies[fallback-sans]            [name:lmsans10regular*fbk-default]     [fallbackrange][force=yes,rscale=\sansrscale][modern-text]
+  \definefontfallbackgoodies[fallback-sansbold]        [name:lmsans10bold*fbk-default]        [fallbackrange][force=yes,rscale=\sansrscale][modern-text]
+  \definefontfallbackgoodies[fallback-sansitalic]      [name:lmsans10oblique*fbk-default]     [fallbackrange][force=yes,rscale=\sansrscale][modern-text]
+  \definefontfallbackgoodies[fallback-sansbolditalic]  [name:lmsans10boldoblique*fbk-default] [fallbackrange][force=yes,rscale=\sansrscale][modern-text]
+  \definefontfallbackgoodies[fallback-sansslanted]     [name:lmsans10oblique]                 [fallbackrange][force=yes,rscale=\sansrscale][modern-text]
+  \definefontfallbackgoodies[fallback-sansboldslanted] [name:lmsans10boldoblique]             [fallbackrange][force=yes,rscale=\sansrscale][modern-text]
+  \definefontfallbackgoodies[fallback-sanscaps]        [libertinussans-regular*fbk-smallcaps] [fallbackrange][force=yes,rscale=\sansrscale][modern-text]
 \stopsetups
 
 \startsetups fallback:mono:modern
-  \definefontfallbackgoodies[fallback-mono]            [name:lmmono10regular]                 [fallbackrange][force=yes,rscale=1.03][modern-text]
-  \definefontfallbackgoodies[fallback-monobold]        [name:lmmonolt10bold]                  [fallbackrange][force=yes,rscale=1.03][modern-text]
-  \definefontfallbackgoodies[fallback-monoitalic]      [name:lmmonoslant10regular]            [fallbackrange][force=yes,rscale=1.03][modern-text]
-  \definefontfallbackgoodies[fallback-monobolditalic]  [name:lmmonolt10boldoblique]           [fallbackrange][force=yes,rscale=1.03][modern-text]
-  \definefontfallbackgoodies[fallback-monoslanted]     [name:lmmonoslant10regular]            [fallbackrange][force=yes,rscale=1.03][modern-text]
-  \definefontfallbackgoodies[fallback-monoboldslanted] [name:lmmonolt10boldoblique]           [fallbackrange][force=yes,rscale=1.03][modern-text]
-  \definefontfallbackgoodies[fallback-monocaps]        [name:lmmonocaps10]                    [fallbackrange][force=yes,rscale=1.03][modern-text]
+  \definefontfallbackgoodies[fallback-mono]            [name:lmmono10regular]                 [fallbackrange][force=yes,rscale=\monorscale][modern-text]
+  \definefontfallbackgoodies[fallback-monobold]        [name:lmmonolt10bold]                  [fallbackrange][force=yes,rscale=\monorscale][modern-text]
+  \definefontfallbackgoodies[fallback-monoitalic]      [name:lmmonoslant10regular]            [fallbackrange][force=yes,rscale=\monorscale][modern-text]
+  \definefontfallbackgoodies[fallback-monobolditalic]  [name:lmmonolt10boldoblique]           [fallbackrange][force=yes,rscale=\monorscale][modern-text]
+  \definefontfallbackgoodies[fallback-monoslanted]     [name:lmmonoslant10regular]            [fallbackrange][force=yes,rscale=\monorscale][modern-text]
+  \definefontfallbackgoodies[fallback-monoboldslanted] [name:lmmonolt10boldoblique]           [fallbackrange][force=yes,rscale=\monorscale][modern-text]
+  \definefontfallbackgoodies[fallback-monocaps]        [name:lmmonocaps10]                    [fallbackrange][force=yes,rscale=\monorscale][modern-text]
 \stopsetups
 
 \startsetups fallback:handw:modern
-  \definefontfallbackgoodies[fallback-handw]           [name:lmroman10regular*fbk-default]    [fallbackrange][force=yes]
-  \definefontfallbackgoodies[fallback-handwbold]       [name:lmroman10bold*fbk-default]       [fallbackrange][force=yes]
-  \definefontfallbackgoodies[fallback-handwitalic]     [name:lmroman10italic*fbk-default]     [fallbackrange][force=yes]
-  \definefontfallbackgoodies[fallback-handwbolditalic] [name:lmroman10bolditalic*fbk-default] [fallbackrange][force=yes]
-  \definefontfallbackgoodies[fallback-handwslanted]    [name:lmromanslant10regular]           [fallbackrange][force=yes]
-  \definefontfallbackgoodies[fallback-handwboldslanted][name:lmromanslant10bold]              [fallbackrange][force=yes]
-  \definefontfallbackgoodies[fallback-handwcaps]       [name:lmromancaps10regular]            [fallbackrange][force=yes]
+  \definefontfallbackgoodies[fallback-handw]           [name:lmroman10regular*fbk-default]    [fallbackrange][force=yes,rscale=\handwrscale][modern-text]
+  \definefontfallbackgoodies[fallback-handwbold]       [name:lmroman10bold*fbk-default]       [fallbackrange][force=yes,rscale=\handwrscale][modern-text]
+  \definefontfallbackgoodies[fallback-handwitalic]     [name:lmroman10italic*fbk-default]     [fallbackrange][force=yes,rscale=\handwrscale][modern-text]
+  \definefontfallbackgoodies[fallback-handwbolditalic] [name:lmroman10bolditalic*fbk-default] [fallbackrange][force=yes,rscale=\handwrscale][modern-text]
+  \definefontfallbackgoodies[fallback-handwslanted]    [name:lmromanslant10regular]           [fallbackrange][force=yes,rscale=\handwrscale][modern-text]
+  \definefontfallbackgoodies[fallback-handwboldslanted][name:lmromanslant10bold]              [fallbackrange][force=yes,rscale=\handwrscale][modern-text]
+  \definefontfallbackgoodies[fallback-handwcaps]       [name:lmromancaps10regular]            [fallbackrange][force=yes,rscale=\handwrscale][modern-text]
 \stopsetups
 
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -2122,32 +2127,6 @@
   \setups{fallback:mono:ibmplexvar}
   \setups{fallback:handw:pagella}
 \stopsetups
-
-\tolerant\def\zihao#*[#1]{\ifhastoks{-}{#1}\__ZIHAOMINUS{#1}\else\__ZIHAOPLUS{#1}\fi}
-
-\def\__ZIHAOPLUS#1{%
-  \ifcase\numexpr#1\relax
-    \switchtobodyfont[42bp]\or
-    \switchtobodyfont[26bp]\or
-    \switchtobodyfont[22bp]\or
-    \switchtobodyfont[16bp]\or
-    \switchtobodyfont[14bp]\or
-    \switchtobodyfont[10.5bp]\or
-    \switchtobodyfont[7.5bp]\or
-    \switchtobodyfont[5.5bp]\or
-    \switchtobodyfont[5bp]\else
-    \switchtobodyfont[11bp]\fi}
-
-\def\__ZIHAOMINUS#1{%
-  \ifcase\numexpr0-(#1)\relax
-    \switchtobodyfont[36bp]\or
-    \switchtobodyfont[24bp]\or
-    \switchtobodyfont[18bp]\or
-    \switchtobodyfont[15bp]\or
-    \switchtobodyfont[12bp]\or
-    \switchtobodyfont[9bp]\or
-    \switchtobodyfont[6.5bp]\else
-    \switchtobodyfont[11bp]\fi}
 
 %\loadtypescriptfile [adobe]
 \definefilesynonym [type-imp-adobehans.mkiv]          [type-imp-adobe.mkiv]

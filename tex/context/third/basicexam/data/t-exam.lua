@@ -102,6 +102,21 @@ local MISSING_INFO = {
 
 job.register("basicexam.fingerprint", fp_tobesaved, nil, nil)
 
+
+local function is_true(s)
+  return s == true or s == "true" or s == "yes" or s == "1"
+end
+
+-- 稳定的字符串散列：同一份内容每次编译都得到同一个随机顺序
+local function bem_hash(s)
+  local h = 5381
+  s = tostring(s or "")
+  for i = 1, #s do
+    h = (h * 33 + s:byte(i)) % 2147483647
+  end
+  return h
+end
+
 -- =====================================================================
 -- 1. 私有数据文件
 -- =====================================================================
@@ -244,7 +259,7 @@ local function save_ordered(out, target)
   if BEM.check_mode then
     local chunk, err = load(content, "=save_ordered", "t", {})
     if not chunk then
-      _report("ERROR: save_ordered: %s", tostring(err))
+      report("error","save_ordered: %s", tostring(err))
       return false, "syntax error"
     end
   end
@@ -385,12 +400,8 @@ function BEM.save_data()
   local content = f:read("*a")
   f:close()
 
-  local h = 5381
-  for i = 1, #content do
-    h = (h * 33 + content:byte(i)) & 0x7FFFFFFF
-  end
   fp_tobesaved["missing"] = "no"
-  fp_tobesaved["current"] = tostring(h)
+  fp_tobesaved["current"] = tostring(bem_hash(content))
   return true
 end
 
@@ -616,20 +627,25 @@ TeX接口: UnlimitedSetExtraData(key, value)
   value - 数据值
 功能: 为当前节点存储额外的元数据（如选择题排版信息）
 ]]
+local function register_uid(uid, node)
+  if not uid or uid == "" then return end
+  BEM.uid_index = BEM.uid_index or {}
+  local existing = BEM.uid_index[uid]
+  if existing and existing ~= node.id then
+    report("warning", "重复的 uid '%s'：已存在 %s，新节点 %s",
+      uid, existing, node.id)
+  else
+    BEM.uid_index[uid] = node.id
+  end
+end
+
 function BEM.set_extra_data(key, value)
   if BEM.current_node then
     BEM.current_node.extra_data[key] = value
 
-    -- 新增：登记 uid → node.id，支持通过 uid 查找
-    if key == "uid" and value ~= "" then
-      BEM.uid_index = BEM.uid_index or {}
-      local existing = BEM.uid_index[value]
-      if existing and existing ~= BEM.current_node.id then
-        report("warning", "重复的 uid '%s'：已存在 %s，新节点 %s",
-          value, existing, BEM.current_node.id)
-      else
-        BEM.uid_index[value] = BEM.current_node.id
-      end
+    -- 登记 uid → node.id，支持通过 uid 查找
+    if key == "uid" then
+      register_uid(value, BEM.current_node)
     end
 
     if BEM.check_mode then
@@ -649,16 +665,7 @@ function BEM.set_extra_data_list(ns, keys)
     if v ~= "" then
       BEM.current_node.extra_data[k] = v
 
-      if k == "uid" then
-        BEM.uid_index = BEM.uid_index or {}
-        local existing = BEM.uid_index[v]
-        if existing and existing ~= BEM.current_node.id then
-          report("warning", "重复的 uid '%s'：已存在 %s，新节点 %s",
-            v, existing, BEM.current_node.id)
-        else
-          BEM.uid_index[v] = BEM.current_node.id
-        end
-      end
+      register_uid(v, BEM.current_node)
 
       if BEM.check_mode then
         report("info", "Set extra data: %s = %s", k, v)
@@ -774,9 +781,7 @@ function BEM.pop_level(env_type)
 
   if #node.children > 0 and node.is_leaf then
     local pt = node.currentpoint
-    node.is_leaf = false
-    node.currentpoint = 0
-    node.answer = ""
+    node.is_leaf, node.currentpoint, node.answer = false, 0, ""
     
     local new_total, new_num = 0, 0
     for _, child in ipairs(node.children) do
@@ -795,6 +800,7 @@ function BEM.pop_level(env_type)
   table.remove(BEM.level_stack)
 
   if node.depth == 1 then
+      BEM.last_top_id = node.id
       report("info",  "Popped to level 0")
       BEM.log_indent = 0
       report("info",  "└%s", string.rep("─", 76))
@@ -808,6 +814,30 @@ function BEM.pop_level(env_type)
 
     BEM.current_node = BEM.level_stack[#BEM.level_stack]
 end
+
+local function solution_target()
+  local n = BEM.current_node
+  while n and n.depth > 0 do
+    if n.depth == 1 then return n end
+    n = n.parent
+  end
+  return BEM.last_top_id and BEM.find_node_by_id(BEM.last_top_id) or nil
+end
+
+interfaces.implement {
+  name      = "UnlimitedSaveSolutionID",
+  public    = true,
+  arguments = { "csname" },
+  actions   = function(cs)
+    local n = BEM.current_node
+    while n and n.depth > 0 do
+      if n.depth == 1 then break end
+      n = n.parent
+    end
+    local id = (n and n.depth == 1) and n.id or (BEM.last_top_id or "")
+    token.setmacro(cs, id)
+  end,
+}
 
 --[[
 检查是否有未闭合的环境
@@ -1228,16 +1258,6 @@ end
 -- 3. Partio 收集器：partio 只负责收集题目 id，不负责排版
 -- =====================================================================
 
--- 稳定的字符串散列：同一份内容每次编译都得到同一个随机顺序
-local function bem_hash(s)
-  local h = 5381
-  s = tostring(s or "")
-  for i = 1, #s do
-    h = (h * 33 + s:byte(i)) % 2147483647
-  end
-  return h
-end
-
 -- 独立的 Fisher-Yates 洗牌，不污染全局 math.random 状态
 local function bem_shuffle(t, seed)
   local state = seed % 2147483647
@@ -1271,7 +1291,7 @@ local function bem_seed(...)
 end
 
 function BEM.partio_set_enabled(v)
-  BEM.partio_enabled = (v == true or v == "true" or v == "yes" or v == "1")
+  BEM.partio_enabled = is_true(v)
 end
 
 function BEM.partio_begin(uid)
@@ -1349,15 +1369,32 @@ end
 -- =====================================================================
 
 -- 解析 filter：先保护 {...} 里的逗号，再按逗号切 key=value
+
+local function split_top_level(s)
+  local items, cur, depth = {}, {}, 0
+  for c in tostring(s or ""):gmatch(".") do
+    if c == "{" then
+      depth = depth + 1
+      cur[#cur + 1] = c
+    elseif c == "}" then
+      depth = depth - 1
+      cur[#cur + 1] = c
+    elseif c == "," and depth == 0 then
+      items[#items + 1] = table.concat(cur)
+      cur = {}
+    else
+      cur[#cur + 1] = c
+    end
+  end
+  items[#items + 1] = table.concat(cur)
+  return items
+end
+
 local function parse_filter(filter)
-  local prot = filter:gsub("({[^}]*})", function(m)
-    return (m:gsub(",", "\1"))
-  end)
   local parts = {}
-  for pair in prot:gmatch("[^,]+") do
+  for _, pair in ipairs(split_top_level(filter)) do
     local k, v = pair:match("^%s*(%w+)%s*=%s*(.-)%s*$")
     if k then
-      v = v:gsub("\1", ",")
       parts[#parts + 1] = { key = k, value = v }
     end
   end
@@ -2128,10 +2165,6 @@ function BEM.typegrade_render()
     return v ~= "" and v or (default or "")
   end
 
-  local function is_true(s)
-    return s == "true" or s == "yes" or s == "1"
-  end
-
   local mode_showanswer = (token.getexpansion("\\ifmode_showanswer 1\\else 0\\fi") == "1")
 
   local spec   = get_param("partios")
@@ -2309,56 +2342,33 @@ local function emit_citems(str)
   if not str or str == "" then return "" end
 
   local function trim(s) return s:match("^%s*(.-)%s*$") or s end
-  local function has_content(s) return s and s:find("%S") ~= nil end
   local function strip_braces(s)
     s = trim(s)
-    if s:sub(1, 1) == "{" and s:sub(-1, -1) == "}" then
+    if s:sub(1, 1) == "{" and s:sub(-1) == "}" then
       return s:sub(2, -2)
     end
     return s
   end
 
-  local items = {}
-  local current = {}
-  local brace_depth = 0
-
-  for c in str:gmatch(".") do
-    if c == "{" then
-      brace_depth = brace_depth + 1
-      current[#current + 1] = c
-    elseif c == "}" then
-      brace_depth = brace_depth - 1
-      current[#current + 1] = c
-    elseif c == "," and brace_depth == 0 then
-      local item = table.concat(current)
-      if has_content(item) then items[#items + 1] = item end
-      current = {}
-    else
-      current[#current + 1] = c
-    end
-  end
-
-  local last_item = table.concat(current)
-  if has_content(last_item) then items[#items + 1] = last_item end
-
   local result = {}
-  for i = 1, #items do
-    local item = items[i]
-    local stripped = strip_braces(item)
-    local trimmed = trim(stripped)
-
-    if trimmed:sub(1, 3) == "[*]" then
-      local rest = trim(trimmed:sub(4))
-      result[#result + 1] = "\\startcitem[*] " .. rest .. "\\stopcitem"
-    else
-      result[#result + 1] = "\\startcitem " .. item .. "\\stopcitem"
+  for _, item in ipairs(split_top_level(str)) do
+    if item:find("%S") then
+      local trimmed = trim(strip_braces(item))
+      if trimmed:sub(1, 3) == "[*]" then
+        local rest = trim(trimmed:sub(4))
+        result[#result + 1] = "\\startcitem[*] " .. rest .. "\\stopcitem"
+      else
+        result[#result + 1] = "\\startcitem " .. item .. "\\stopcitem"
+      end
     end
   end
   return table.concat(result)
 end
 
-local function bem_read_macro(name)
-  return tokens.getters.macro(name) or ""
+local function read_macro(name, default)
+  local v = tokens.getters.macro(name)
+  if v == nil or v == "" then return default or "" end
+  return v
 end
 
 -- 计算自动列数：宽度能放 cap 列时，n 个选项怎么排最平衡
@@ -2396,10 +2406,11 @@ function BEM.choice_prepare()
   local n = #collected
   bem_choice_serial = bem_choice_serial + 1
 
-  local category = bem_read_macro("bem_choice_category")
+  local category = read_macro("bem_choice_category")
 
-  -- 抽离 random, 避免传递给 itemgroup 
-  local opts_str = bem_read_macro("bem_choice_options") or ""
+  -- 抽离 random, 避免传递给 itemgroup 的 option 导致和模块的乱序冲突
+  local opts_str = (token.getexpansion("\\choiceparameter{option}") or "")
+                    .. "," .. (read_macro("bem_choice_options") or "")
   local has_random = false
   local new_opts = {}
   local layout = nil  -- "horizontal" | "vertical" | nil，最后一次生效
@@ -2417,7 +2428,7 @@ function BEM.choice_prepare()
   end
 
   local rp = token.getexpansion("\\choiceparameter{random}")
-  if rp == "yes" or rp == "true" or rp == "1" then
+  if is_true(rp) then
     has_random = true
   end
 
@@ -2439,8 +2450,16 @@ function BEM.choice_prepare()
   BEM.choice_collect = { items = {} }
 
   local inline_p = token.getexpansion("\\choiceparameter{inlinechoice}")
-  local inline = (inline_p == "true") or (inline_p == "yes")
+  local inline = is_true(inline_p)
   d.inline = inline
+
+  if inline then
+    local found = false
+    for _, v in ipairs(new_opts) do
+      if v == "text" then found = true; break end
+    end
+    if not found then table.insert(new_opts, 1, "text") end
+  end
 
   local maxi  = tex.dimen["d_bem_maxiwidth"] or 0
   local avail = tex.dimen["d_bem_extralabelwidth"] or 0
@@ -2484,7 +2503,7 @@ function BEM.choice_finish(showanswer_param)
   local conversion_param = token.getexpansion("\\choiceparameter{numberconversion}")
 
   local n = #d.items
-  d.inline = (inline_param == "true") or (inline_param == "yes")
+  d.inline = is_true(inline_param)
   if inline_param ~= "false" then
     d.inline = d.inline or d.category == "inlinechoice"
   end
@@ -2591,7 +2610,7 @@ function BEM.choice_finish(showanswer_param)
     n_desc, cap_desc, store_desc,
     avail / 65536, maxi / 65536,
     table.concat(d.order, ","),
-    bem_read_macro("bem_choice_options"))
+    read_macro("bem_choice_options"))
 
   BEM.set_extra_data("availablecolumns", tostring(tex.count["c_availablecolumns"]))
 
@@ -2650,57 +2669,15 @@ local O = M.order
 -- ---------------------------------------------------------------
 -- 1) 工具函数
 -- ---------------------------------------------------------------
-
--- 与 bem_shuffle 用同一个 Park–Miller 算法，
--- 同一 seed 在不同模块里得到同一置换。
-local function shuffle_inplace(t, seed)
-  local state = math.floor(math.abs(tonumber(seed) or 123)) % 2147483647
-  if state <= 0 then state = 1 end
-  local function rnd()
-    state = (state * 48271) % 2147483647
-    return state
-  end
-  for i = #t, 2, -1 do
-    local j = (rnd() % i) + 1
-    t[i], t[j] = t[j], t[i]
-  end
-  return t
-end
-
 -- 逗号分割，保护 {...} 内部的逗号，去首尾空白，丢弃空段
 local function split_list(s)
-  local items, cur = {}, {}
-  local depth = 0
-  for c in tostring(s or ""):gmatch(".") do
-    if c == "{" then
-      depth = depth + 1
-      cur[#cur + 1] = c
-    elseif c == "}" then
-      depth = depth - 1
-      cur[#cur + 1] = c
-    elseif c == "," and depth == 0 then
-      local item = table.concat(cur):match("^%s*(.-)%s*$")
-      if item ~= "" then items[#items + 1] = item end
-      cur = {}
-    else
-      cur[#cur + 1] = c
-    end
+  local items = {}
+  for _, raw in ipairs(split_top_level(s)) do
+    local item = raw:match("^%s*(.-)%s*$")
+    if item ~= "" then items[#items + 1] = item end
   end
-  local tail = table.concat(cur):match("^%s*(.-)%s*$")
-  if tail ~= "" then items[#items + 1] = tail end
   return items
 end
-
-local function macro(name, default)
-  local v = tokens.getters.macro(name)
-  if not v or v == "" then return default end
-  return v
-end
-
-local function truthy(s)
-  return s == "true" or s == "yes" or s == "1"
-end
-
 -- ---------------------------------------------------------------
 -- 2) 渲染 + 收集
 -- ---------------------------------------------------------------
@@ -2718,7 +2695,7 @@ function O.render(seed, list, numbering, answermode)
   for i, text in ipairs(items) do
     tagged[i] = { orig = i, text = text }
   end
-  shuffle_inplace(tagged, seed)
+  bem_shuffle(tagged, seed)
 
   local shuffled, pos_of_orig = {}, {}
   for pos, item in ipairs(tagged) do
@@ -2751,12 +2728,11 @@ end
 -- ---------------------------------------------------------------
 -- 3) 答案输出（供 \collectd_orderanswer 调用）
 -- ---------------------------------------------------------------
-
 function O.collect_answers()
-  local show_number = truthy(macro("pxordershow_number", "true"))
-  local separator   = macro("pxorderseparator", ", ")
-  local numbering   = macro("pxordernumbering", "numbers")
-  local mode        = macro("pxorderanswermode", "correct")
+  local show_number = is_true(read_macro("PXORDERshownumber", "true"))
+  local separator   = read_macro("PXORDERseparator", ", ")
+  local numbering   = read_macro("PXORDERnumbering", "numbers")
+  local mode        = read_macro("PXORDERanswermode", "correct")
 
   for i, entry in ipairs(M.MultiAnswerCollector) do
     if i > 1 then context("\\par") end
@@ -2893,6 +2869,15 @@ interfaces.implement {
   end,
 }
 
+interfaces.implement {
+  name      = "UnlimitedSaveCurrentIDGlobal",
+  public    = true,
+  arguments = { "csname" },
+  actions   = function(cs)
+    token.setmacro(cs, BEM.get_current_id(), "global")   -- 全局
+  end,
+}
+
 -- =========================================================
 -- 3. 按 ID 查询单个节点属性
 -- =========================================================
@@ -2948,13 +2933,13 @@ define_id_getter("UnlimitedTotalAnswer",   "answer")
 -- 4. Structure 统计（指定 level + number）
 -- =========================================================
 
-local function define_structure_getter(name, key)
+local function define_structure_getter(name, key, is_current)
   interfaces.implement {
     name      = name,
     public    = true,
-    arguments = { "string", "string" },
+    arguments = is_current and { "string" } or { "string", "string" },
     actions   = function(level, number)
-      BEM.tex_get_structure(level, number, key)
+      BEM.tex_get_structure(level, is_current and "" or number, key)
     end,
   }
 end
@@ -2983,36 +2968,25 @@ define_structure_getter("UnlimitedStructureAllLeafNumber", "allleafnumber")
 -- 5. Structure 统计（仅 level，取当前 structure）
 -- =========================================================
 
-local function define_current_structure_getter(name, key)
-  interfaces.implement {
-    name      = name,
-    public    = true,
-    arguments = { "string" },
-    actions   = function(level)
-      BEM.tex_get_structure(level, "", key)
-    end,
-  }
-end
-
 -- \UnlimitedCurrentStructureTotalNumber
 -- 作用：输出当前 structure 下指定 level 的题目总数
 -- 用法：\UnlimitedCurrentStructureTotalNumber{1}
-define_current_structure_getter("UnlimitedCurrentStructureTotalNumber",   "totalnumber")
+define_structure_getter("UnlimitedCurrentStructureTotalNumber",   "totalnumber",   true)
 
 -- \UnlimitedCurrentStructureTotalPoint
 -- 作用：输出当前 structure 下指定 level 的总分
 -- 用法：\UnlimitedCurrentStructureTotalPoint{1}
-define_current_structure_getter("UnlimitedCurrentStructureTotalPoint",    "totalpoint")
+define_structure_getter("UnlimitedCurrentStructureTotalPoint",    "totalpoint",    true)
 
 -- \UnlimitedCurrentStructureLeafNumber
 -- 作用：输出当前 structure 下指定 level 的顶层叶子数
 -- 用法：\UnlimitedCurrentStructureLeafNumber{1}
-define_current_structure_getter("UnlimitedCurrentStructureLeafNumber",    "leafnumber")
+define_structure_getter("UnlimitedCurrentStructureLeafNumber",    "leafnumber",    true)
 
 -- \UnlimitedCurrentStructureAllLeafNumber
 -- 作用：输出当前 structure 下指定 level 的所有叶子节点数
 -- 用法：\UnlimitedCurrentStructureAllLeafNumber{1}
-define_current_structure_getter("UnlimitedCurrentStructureAllLeafNumber", "allleafnumber")
+define_structure_getter("UnlimitedCurrentStructureAllLeafNumber", "allleafnumber", true)
 
 -- =========================================================
 -- 6. Question level 统计

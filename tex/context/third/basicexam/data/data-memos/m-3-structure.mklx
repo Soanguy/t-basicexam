@@ -1,4 +1,3 @@
-
 \setupinteractionscreen [option=bookmark]
 \placebookmarks         [part,chapter,section][chapter]
 \setupinteraction       [state=start,
@@ -15,7 +14,7 @@
 \setupsectionblock    [bodypart]  [page=right,\c!number=\v!yes,before=\setcounter [userpage] [1]\setuplayout[default]]
 \setupsectionblock    [appendix]  [page=right,before={\setuphead[part][number=no,numbercommand=,placehead=yes,]}]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%                            標題相關設置                               %%%%%
+%%%%%%                            標題相關設置                             %%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \definepagebreak[emptyright][yes,header,footer,right]
 \setupheads
@@ -24,7 +23,7 @@
            [indentnext=yes,interlinespace=auto,]
 \setuphead [part,chapter]        [page=emptyright]
 \setuphead [part,chapter,title]  [header=empty,footer=empty,color=titlecolor]
-\setuphead [title,subject]       [incrementnumber=list,page=no]
+\setuphead [title,subject]       [incrementnumber=list]
 \setuphead [part]                [placehead=yes,
                                   numbercommand=\groupedcommand{\feature[+][f:caps] Part\ }{},
                                   commandbefore=\blank,
@@ -55,19 +54,19 @@
 %%%%%%                           數字式標籤                                %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \definelayout [part] [moderate]
-\definemakeup [part] [doublesided=yes%
-                     ,pagestate=start%
-                     ,page=right%
-                     ,headerstate=stop%
-                     ,footerstate=stop%
-                     ,topstate=stop%
-                     ,bottomstate=stop%
-                     ,textstate=stop%
-                     ,top=\pseudostrut\ignorespaces%
-                     ,bottom=\obeydepth\vss%
-                     ,height=\paperheight%
-                     ,align=flushright%
-                     ,after=]
+\definemakeup [part] [\c!doublesided=yes%
+                     ,\c!pagestate  =start%
+                     ,\c!page       =right%
+                     ,\c!headerstate=stop%
+                     ,\c!footerstate=stop%
+                     ,\c!topstate   =stop%
+                     ,\c!bottomstate=stop%
+                     ,\c!textstate  =stop%
+                     ,\c!top        =\pseudostrut\ignorespaces%
+                     ,\c!bottom     =\obeydepth\vss%
+                     ,\c!height     =\paperheight%
+                     ,\c!align      =flushright%
+                     ,\c!after      =,]
 
 %characters(a),romannumerals(i),numbers(1),
 %chinesenumerals(四十二) chinesecapnumerals(肆拾二) chineseallnumerals(廿二)
@@ -1005,6 +1004,7 @@
 
 \def\__gyoudori_linegap{\dimexpr\__gyoudori_bs-\__gyoudori_ht-\__gyoudori_dp\relax}
 \def\__gyoudori_areaheight#1{\dimexpr\__gyoudori_bs*(#1-1)+\__gyoudori_ht+\__gyoudori_dp\relax}
+\def\setnoflineheight#1{\dimexpr\__gyoudori_bs*(#1-1)+\__gyoudori_ht+\__gyoudori_dp\relax}
 
 \__gyoudori_metrics
 
@@ -1151,10 +1151,10 @@
     textstyle=bf,]
 \stopsetups
 
-\def\VL{\blackrule[width=0.8pt, height=\__gyoudori_areaheight{7}, depth=0cm]\kern1mm}
-\define[2]\MyChapterCommand{%
+\def\VerticalLine{\blackrules[width=0.8pt, height=\__gyoudori_areaheight{7}, depth=0cm, color=darkthemecolor, n=7, distance=1mm]\kern1mm}
+\define[2]\VerticalLineChapterCommand{%
   \dontleavehmode
-  \hbox{\dorecurse{7}{\VL}}\kern-5mm
+  \hbox{{\VerticalLine}}\kern-7mm
   \vbox to \__gyoudori_areaheight{7}{\hsize 2em
       \vfill
       \ifempty{#1}%
@@ -1180,7 +1180,7 @@
       style=\tfc,
       numbercolor=white,
       interlinespace=2\bodyfontsize,
-      command=\MyChapterCommand,]
+      command=\VerticalLineChapterCommand,]
 \stopsetups
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1769,6 +1769,7 @@
   \setupheadertexts  [\donetrue\setups [hdr:even:chaptermark]][][]
                      [\donetrue\setups [hdr:odd:sectionmark]]
 \fi
+
 \ifhdr_sty_rocket
   \newdimen\pos_xi_hdr_margin
   \newdimen\pos_xii_hdr_margin

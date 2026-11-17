@@ -1,3 +1,125 @@
+%D \module
+%D   [     file=t-zhpunc,
+%D      version=2022-10-29,
+%D        title=zhpunc,
+%D     subtitle=Chinese punctuation support,
+%D       author=黄复雄(Huang Fusyong),
+%D         date=2022-10-29,
+%D    copyright=黄复雄(Huang Fusyong),
+%D      license=GNU GPL 2.0,
+%D          url=https://github.com/Fusyong/zhpunc]
+% 设置模块
+% pattern: quanjiao, kaiming, banjiao, yuanyang
+% spacequad: 加空的角数基准（0.5）
+% hangjian: false, true
+% debug: false, true (调试标点处理)
+\ctxlua{require("t-zhpunc.lua")}
+
+% 行左专名号和书名号
+\startuseMPgraphic{rules:under:zhuanming}
+    numeric head; head := 2; 
+    draw ((0,RuleDepth) -- (RuleWidth-head*2,RuleDepth))
+        shifted (head,RuleFactor*RuleOffset)
+        % dashed dashpattern(on RuleFactor/2 off RuleFactor/2)
+        withpen pencircle scaled RuleThickness
+        withcolor RuleColor ;
+    setbounds currentpicture to unitsquare xysized(RuleWidth,RuleHeight) ;
+\stopuseMPgraphic
+
+\startuseMPgraphic{rules:under:shuming}
+    numeric head; head := 2; 
+    draw curvedfunction("x","0.4sin(2x)",0,RuleWidth-head*2,pi/100)
+        shifted (head,RuleFactor*RuleOffset)
+        % dashed dashpattern(on RuleFactor/2 off RuleFactor/2)
+        withpen pencircle scaled RuleThickness
+        withcolor RuleColor ;
+    setbounds currentpicture to unitsquare xysized(RuleWidth,RuleHeight) ;
+\stopuseMPgraphic
+
+\definebar[zhuanmh] [mp=rules:under:zhuanming, offset=-.3, order=background, continue=yes] % method=0,
+\definebar[shumh]   [zhuanmh][mp=rules:under:shuming, offset=-.1]
+
+% 用户扩展符号类别接口
+
+% 定义新的符号类别
+% #1: 类别名
+% #2: 参数（布尔可用 yes/no/true/false）
+%     - spacebefore:   前加空角数（0, 0.5, 1 等）
+%     - spaceafter:    后加空角数（0, 0.5, 1 等）
+%     - protrudeleft:  行首凸排
+%     - protruderight: 行尾凸排
+%     - forbidstart:   行首禁排
+%     - forbidend:     行尾禁排
+%     - quad:          占位角数：如果是西文标点，建议设置为 0
+%                        0   = 原样输出，不做 kern 压缩，保留字体原始宽度
+%                        0.5 = 半角占位（默认标点行为）
+%                        1   = 全角占位
+%                        2   = 双倍角宽（以此类推）
+\unexpanded\def\definepuncs[#1][#2]{\ctxlua{thirddata.zhpunc.define_class([==[#1]==], [==[#2]==])}}
+
+% 添加符号到类别
+% #1: 类别名
+%     预定义类别:
+%       - left:    左半标号（禁止行尾，行首凸排）
+%       - right:   右半标号（禁止行首，行尾凸排）
+%       - inner:   句内点号（禁止行首）
+%       - ending:  句末点号（禁止行首）
+%     用户定义类别:  使用 \definepuncs 定义的类别名
+% #2（花括号）: 符号字符串（如 ☆★☆○）
+\unexpanded\def\addtopuncs[#1]#2{\ctxlua{thirddata.zhpunc.add_to_class([==[#1]==], [==[#2]==])}}
+
+% 从所有类别移除符号（凸排、行间、旋转、加空等一并移除）
+% #1（花括号）: 符号字符串
+\unexpanded\def\removefrompuncs#1{\ctxlua{thirddata.zhpunc.remove_from_class([==[#1]==])}}
+
+% 设置符号的特殊行为
+% #1（方括号参数；布尔可用 yes/no/true/false）:
+%     - class:         归类为指定类别（left/right/…，或自定义类别）
+%     - hangjian:      行间标点
+%     - rotate:        竖排旋转
+%     - protrudeleft:  行首凸排
+%     - protruderight: 行尾凸排
+%     - forbidstart:   行首禁排
+%     - forbidend:     行尾禁排
+%     - quad:          占位角数：如果是西文标点，建议设置为 0
+%                        0   = 原样输出，不做 kern 压缩，保留字体原始宽度
+%                        0.5 = 半角占位（默认标点行为）
+%                        1   = 全角占位
+%                        2   = 双倍角宽（以此类推）
+%     - spacebefore:   前加空角数（0.5, 1 等）
+%     - spaceafter:    后加空角数（0.5, 1 等）
+% #2（花括号）: 符号字符串
+\unexpanded\def\setuppunc[#1]#2{\ctxlua{thirddata.zhpunc.setup_chars([==[#2]==], [==[#1]==])}}
+
+\unexpanded\def\enablezhpunc {\par\ctxlua{thirddata.zhpunc.enable()}}
+\unexpanded\def\disablezhpunc{\par\ctxlua{thirddata.zhpunc.disable()}}
+
+% 键值设置命令：\setupzhpunc[pattern=..., spacequad=..., hangjianshift=..., hangjian=..., debug=...]
+% 可在加载后随时调用覆盖；模块加载时亦支持 \usemodule[zhpunc][key=value] 指定。
+\unexpanded\def\setupzhpunc[#1]{\ctxlua{thirddata.zhpunc.set([==[#1]==])}}
+
+\setupzhpunc[%用于支持可以通过 module 直接设置
+      pattern=\currentmoduleparameter{pattern},
+    spacequad=\currentmoduleparameter{spacequad},
+hangjianshift=\currentmoduleparameter{hangjianshift},
+     hangjian=\currentmoduleparameter{hangjian},
+        debug=\currentmoduleparameter{debug},
+]
+
+% 在指定位置（\everystarttext）插入/应用命令
+\appendtoks 
+  \ctxlua{thirddata.zhpunc.append()}%
+\to \everystarttext
+
+% 示例: 让 · 行首禁排、行尾禁排以及不凸排。
+\definepuncs[center][forbidstart=true, forbidend=true, quad=0]
+\addtopuncs [center]{·}
+
+\definepuncs[forbidstartnotpunc][forbidstart=true, quad=0, punc=false]
+\addtopuncs [forbidstartnotpunc]{,:;.!?/°′″℃¢‰ℓぁぃぅぇぉっゃゅょゎゕゖァィゥェォッャュョヮヵヶ}
+
+\definescript [custom] [method=hanzi, preset=custom]
+\def\setupkanjiskip[#1]{\ctxlua{thirddata.zhpunc.setdataset("hanzi", "custom", {#1})}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                             本地化設置                              %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -15,7 +137,7 @@
          leftsubsentence=——,    rightsubsentence=——,
            leftquotation=『,      rightquotation=』,
                leftquote=「,          rightquote=」,
-             leftnotemark=〔,       rightnotemark=〕,]
+             leftnotemark=(,       rightnotemark=),]
 \setuplabeltext [hans]
                 [content={目录},            page={第,页},
                    index={索引},        appendix={附录},
@@ -53,7 +175,7 @@
          leftsubsentence=——,   rightsubsentence=——,
            leftquotation=『,     rightquotation=』,
                leftquote=「,         rightquote=」,
-            leftnotemark=〔,      rightnotemark=〕,]
+            leftnotemark=(,      rightnotemark=),]
 \setuplabeltext [hant]
                 [content={目錄},            page={第,頁},
                    index={索引},        appendix={附錄},
@@ -91,7 +213,7 @@
                leftsubsentence=——, rightsubsentence=——,
                  leftquotation=『,   rightquotation=』,
                      leftquote=「,       rightquote=」,
-                  leftnotemark=〔,    rightnotemark=〕,]
+                  leftnotemark=(,    rightnotemark=),]
 \setuplabeltext [ja]  [content={目次},         page={第,ページ},
                          index={索引},     appendix={付録},
                          table={表},        tables={表},
@@ -122,22 +244,6 @@
               reference:remark={Remark~,\refsymbol},
              reference:example={Example~,\refsymbol},]
 
-\startluacode
-scripts.installdataset {
-    method  = "hanzi",
-    name    = "custom",
-    dataset = {
-        inter_char_shrink_factor          = 0.01,
-        inter_char_stretch_factor         = 0.10,
-        inter_char_half_shrink_factor     = 0.10,
-        inter_char_half_stretch_factor    = 0.15,
-        inter_char_quarter_shrink_factor  = 0.05,
-        inter_char_quarter_stretch_factor = 0.05,
-        inter_char_hangul_penalty         = 50,
-    }
-}
-\stopluacode
-\definescript [custom] [method=hanzi, preset=custom]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{Multilingual support}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -145,12 +251,8 @@ scripts.installdataset {
 %% 但是需要注意必须要预先定义好字体才可以正常切换。
 %% 因为修改了 language 的 setups，导致会修改全局的字体设置，因此 basicexam 应该放在 最开始加载
 %% 这样后续如果使用 修改字体的 模块的话，才会生效
-
-\defineinterlinespace[CJK][
-  line=\dimexpr1.5\bodyfontsize\relax,
-  height=0.7,
-  depth=0.3,
-]
+\installwhitespacemethod{miniflex}{\s_spac_whitespace_parskip 0pt plus 1pt minus 1pt}
+\defineinterlinespace[CJK][line=\dimexpr1.5\bodyfontsize\relax,height=0.7,depth=0.3,]
 
 \tolerant\def\out_optional[#1]{#1}
 
@@ -176,17 +278,17 @@ scripts.installdataset {
    {\getparameters[lang:#1][#2]%
     \lang_set_if_provided{#1}{before}\out_optional
     \startsetups[lang:#1:setup]%
-      \lang_set_if_provided{#1}{script}\setlocalscript
-      \ifvmode
+      \ifvmode 
+        \lang_set_if_provided{#1}{script}\setscript
         \ifcsname lang:#1fallbackfont\endcsname\setups[fallback:\lastnamedcs]\fi
         \lang_set_if_provided{#1}{bodyfont}\setupbodyfont
+        \lang_set_if_provided{#1}{interlinespace}\setuplocalinterlinespace
+        \lang_set_if_provided{#1}{align}\setupalign
+        \lang_set_if_provided{#1}{indenting}\setupindenting
+        \lang_set_if_provided{#1}{whitespace}\setupwhitespace
       \else
         \lang_set_if_provided{#1}{bodyfont}\switchtobodyfont
       \fi
-      \lang_set_if_provided{#1}{interlinespace}\setuplocalinterlinespace
-      \lang_set_if_provided{#1}{align}\setupalign
-      \lang_set_if_provided{#1}{indenting}\setupindenting
-      \lang_set_if_provided{#1}{whitespace}\setupwhitespace
     \stopsetups
     \lang_set_if_provided{#1}{after}\out_optional
     \setuplanguage[#1][setups=lang:#1:setup,#2]}
@@ -209,7 +311,7 @@ scripts.installdataset {
   patterns=us,
   script=hanzi,
   interlinespace=CJK,
-  whitespace=none,
+  whitespace=miniflex,
   align={granular,lesswidows,lessclubs,lessorphans},
   indenting={first,always,2em},]
 
@@ -219,7 +321,7 @@ scripts.installdataset {
   patterns=us,
   script=custom,
   interlinespace=CJK,
-  whitespace=none,
+  whitespace=miniflex,
   align={granular,lesswidows,lessclubs,lessorphans},
   indenting={first,always,2em},]
 
@@ -229,7 +331,7 @@ scripts.installdataset {
   patterns=us,
   script=custom,
   interlinespace=CJK,
-  whitespace=none,
+  whitespace=miniflex,
   align={granular,lesswidows,lessclubs,lessorphans},
   indenting={first,always,2em},]
 
@@ -239,7 +341,7 @@ scripts.installdataset {
   patterns=us,
   script=custom,
   interlinespace=CJK,
-  whitespace=none,
+  whitespace=miniflex,
   align={granular,lesswidows,lessclubs,lessorphans},
   indenting={first,always,1em},]
 
@@ -247,49 +349,41 @@ scripts.installdataset {
 \language            [\moduleparameter{memos}{language}]
 \setupbodyfont       [\moduleparameter{memos}{bodyfont},\moduleparameter{memos}{fontstyle},\moduleparameter{memos}{fontsize}]
 \setupinterlinespace [\moduleparameter{memos}{lineheight}]% 必须先于 layout 进行定义。否则 hermes 无法获取 baselineskip
-% \setupinterlinespace [stretch=0.03]%设置一个比较小的值来合理的拉伸页面。避免过于空白的分页出现。height的align 必须设置该参数。
-\registerctxluafile{t-cjkskip}{}
-% ---------------------------------------------------------
-%    kanjiwidth / xkanjiwidth 走 tex.setglue
-%    stretch / shrink / halfstretch / halfshrink 走 dataset
-% ---------------------------------------------------------
-\def\setupkanjiskip[#1]{%
-    \ctxlua{thirddata.memos.setdataset("hanzi", "custom", {#1})}%
-}
+% \setupinterlinespace [stretch=0.03, shrink=0.03]%设置一个比较小的值来合理的拉伸页面。避免过于空白的分页出现。height 的 align 必须设置该参数。
 
-\def\disablepangu {\ctxlua{thirddata.memos.disablepangu()}}
-\def\enablepangu  {\ctxlua{thirddata.memos.enablepangu()}}
-\def\debugpangu   {\ctxlua{thirddata.memos.setdebugpangu(true)}}
-\def\nodebugpangu {\ctxlua{thirddata.memos.setdebugpangu(false)}}
-\def\debugshift   {\ctxlua{thirddata.memos.setdebugshift(true)}}
-\def\nodebugshift {\ctxlua{thirddata.memos.setdebugshift(false)}}
-\def\debugglue    {\ctxlua{thirddata.memos.enablegluedebug()}}
-\def\nodebugglue  {\ctxlua{thirddata.memos.disablegluedebug()}}
-\setupkanjiskip[% 应该先定义字体，然后在进行伸缩设置。
-    width       = 0.00,
+\setupkanjiskip[
+    % zhpunc 盘古之白（CJK-西文）
     halfwidth   = 0.25,
+    halfstretch = 0.10, % 最大拉伸到 0.35em
+    halfshrink  = 0.10, % 最小压缩到 0.15em
+    % zhpunc kanjiskip（CJK-CJK 备用，width=0 时 stretch/shrink 不生效）
+    width       = 0.00,
     stretch     = 0.10,
-    halfstretch = 0.15,
-    shrink      = 0.01,
-    halfshrink  = 0.10,
+    shrink      = 0.10,
+    %% scrp-cjk 汉字间距（CJK-CJK 主路）
+    % intercharhalfstretch    = 0.10,
+    % intercharhalfshrink     = 0.10,
+    % intercharquarterstretch = 0.05,
+    % intercharquartershrink  = 0.05,
+    % intercharhangulpenalty  = 50,
 ]
 
 \definedelimitedtext [paren]       [location=text]
-\setupdelimitedtext  [paren:1]     [left={\,\offset[y=-0.1em]{(}\nobreak}, right={\nobreak\offset[y=-0.1em]{)}\,}]
-\setupdelimitedtext  [paren:2]     [left={\,[\nobreak}, right={\nobreak]\,}]
-\setupdelimitedtext  [paren:3]     [left={\,\{\nobreak}, right={\nobreak\}\,}]
+\setupdelimitedtext  [paren:1]     [left={\,\offset[y=-0.1em]{(}}, right={\offset[y=-0.1em]{)}\,}]
+\setupdelimitedtext  [paren:2]     [left={\,[}, right={]\,}]
+\setupdelimitedtext  [paren:3]     [left={\,\{}, right={\}\,}]
 
 \setupdelimitedtext  [quotation]   [language=local,repeat=yes,location=paragraph]
-\setupdelimitedtext  [quotation:1] [left=\penalty0\symbol[leftquotation]\nobreak,
-                                    middle=\symbol[leftquotation]\nobreak,
-                                    right=\nobreak\symbol[rightquotation]]
-\setupdelimitedtext  [quotation:2] [left=\penalty0\symbol[leftquote]\nobreak,
-                                    middle=\symbol[leftquotation]\nobreak,
-                                    right=\nobreak\symbol[rightquote]]
+\setupdelimitedtext  [quotation:1] [left=\symbol[leftquotation],
+                                    middle=\symbol[leftquotation],
+                                    right=\symbol[rightquotation]]
+\setupdelimitedtext  [quotation:2] [left=\symbol[leftquote],
+                                    middle=\symbol[leftquotation],
+                                    right=\symbol[rightquote]]
 
 \definedelimitedtext [book]        [location=text,language=local,repeat=yes]
-\setupdelimitedtext  [book:1]      [left=\penalty0《,middle=《,right=》]
-\setupdelimitedtext  [book:2]      [left=\penalty0〈,middle=〈,right=〉]
+\setupdelimitedtext  [book:1]      [left=《,middle=《,right=》]
+\setupdelimitedtext  [book:2]      [left=〈,middle=〈,right=〉]
 
 % 链接断行规则
 \enabledirectives[hyphenators.urls.packslashes] % 避免连续斜杠分到不同行
@@ -313,6 +407,21 @@ scripts.installdataset {
 %D \stoptyping
 
 % \definebreakpoint [compound] [、] [nleft=1,nright=1,type=1]
-% \definebreakpoint [compound] [（] [nleft=3,nright=3,type=1]%% 会导致禁则失效
-% \definebreakpoint [compound] [）] [nleft=2,nright=2,type=1]
 % \setbreakpoints   [compound]
+
+\tolerant\def\zihao#*[#1]{\ifhastoks{-}{#1}\__ZIHAOMINUS{#1}\else\__ZIHAOPLUS{#1}\fi}
+
+\def\__ZIHAOPLUS#1{%
+  \ifcase\numexpr#1\relax
+    \switchtobodyfont[42bp]\or\switchtobodyfont[26bp]\or
+    \switchtobodyfont[22bp]\or\switchtobodyfont[16bp]\or
+    \switchtobodyfont[14bp]\or\switchtobodyfont[10.5bp]\or
+    \switchtobodyfont[7.5bp]\or\switchtobodyfont[5.5bp]\or
+    \switchtobodyfont[5bp]\else\switchtobodyfont[11bp]\fi}
+
+\def\__ZIHAOMINUS#1{%
+  \ifcase\numexpr0-(#1)\relax
+    \switchtobodyfont[36bp]\or\switchtobodyfont[24bp]\or
+    \switchtobodyfont[18bp]\or\switchtobodyfont[15bp]\or
+    \switchtobodyfont[12bp]\or\switchtobodyfont[9bp]\or
+    \switchtobodyfont[6.5bp]\else\switchtobodyfont[11bp]\fi}

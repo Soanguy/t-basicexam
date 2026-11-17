@@ -1,19 +1,21 @@
 \usemodule[memos][layout=hermes]
+\usemodule[zhpunc]
 \usemodule[basicexam]
 \usemodule[setups]
 \enablemode[no-setup-main]
 \loadsetups[i-basicexam.xml]
 
 \setuptextrules[style=\tf\ss,before=,after=,rulethickness=.5pt]
-\setupquestion[point=1]
-\setuptyping[style=\ttx\setuplocalinterlinespace[line=2ex],
-             option={context},
-             before={\blank[halfline]\vbox{\hrule height .5pt\par
-                     \textrule{代码示例}%
-                     \hrule height .5pt\vrule width0pt depth 4pt}\par},
-              after={\vbox{\hrule height .5pt\strut}},
-             ]
+\setuptyping   [style=\ttx\setuplocalinterlinespace[line=2ex],
+                option={context},
+                lines=hyphenated,
+                before={\blank[halfline]\vbox{\hrule height 1pt\par
+                        \textrule{代码示例}%
+                        \hrule height .5pt\vrule width0pt depth 4pt}\par},
+                after={\offinterlineskip\hrule height 1pt\par},
+               ]
 
+\setupquestion[point=1]
 \starttext
 
 \title{basicexam 模块使用说明书}
@@ -26,22 +28,79 @@
 
 \section{简介}
 
-basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完整的试卷排版解决方案。
-该模块支持多种题型，包括选择题、填空题、简答题、完形填空等，并具有答案管理、分数统计等功能。
+basicexam 是一个面向 \ConTeXt\ \LMTX\ 的试卷模块。它在 \ConTeXt\ 原生的
+\type{itemgroup}之上增加了：题目层级的自动管理、答案与分数的统一收集、
+教师/学生模式的切换。因此，用惯了 \ConTeXt\ 列表环境的用户可以直接上手，
+而需要出卷、配答案、统计分数的用户则不必自己拼装计数器与答案表。
+
+模块的目标用户是命题者与排版者：一份试卷的题干、选项、答案、解析、分值、
+答题区域、成绩表，都可以在同一个源文件中完成，并通过模块参数或模式开关
+输出教师版或学生版。
+
+\section{核心设计}
+
+理解 basicexam 只需要：
+
+\startpoints
+\item {\bf question 骨架}：几乎所有题目都是通过 \type{question} 环境进行拓展，
+      \type{problem}、\type{choice}、\allowbreak\type{close}、\type{writing} 等环境
+      都是它的特例或组合。题目可以进行近乎无限层级嵌套，层级关系由模块自动维护。
+      对应本手册的题目环境章节：第 5--12 章。
+\item {\bf 答案树}：每道题在编译时都会在答案树中注册一个节点，记录题号、分值、
+      答案、子题关系。答案的显示、分数的统计、成绩表的生成，都从这棵树读取，
+      无须手工维护计数器。对应本手册的答案与分数章节：第 6、8、9 章
+\item {\bf 模式切换}：教师模式、学生模式、检查模式控制答案与分数的可见性。
+      模式可以在模块加载时全局设定，也可以在题目中通过\type{showanswer} / 
+      \type{showpoint} 单独设置。对应本手册的加载与模式章节：第 2--3 章
+\stoppoints
 
 \section{主要特性}
 
+\subsection{题目组织}
+
 \startpoints
-\item 多种题型支持：选择题、填空题、判断题、选词填空、简答题、完形填空等
-\item 教师/学生模式切换，控制答案显示
-\item 无限层级嵌套题目支持
-\item 自动分数统计与答案收集
+\item 无限层级嵌套的 \type{question} 环境，以及用于子问题的 \type{problem}
+\item 选择题 \type{choice}（含内联选择题 \type{inlinechoice}）
+\item 填空题 \type{fillin}，支持下划线、编号、答案三种显示方式
+\item 判断题 \type{truefalse}，正确答案与错误答案使用不同符号
+\item 完形填空 \type{close}，选项随文放置，自动收集
+\item 选项式填空 \type{optclose}
+\item 写作题 \type{writing} / \type{subwriting}，配套作文格与方格纸
+\item 材料阅读 \type{material}，配合 \type{\indicator} 建立材料与题目的关联
+\stoppoints
+
+\subsection{答案与分数}
+
+\startpoints
+\item 教师 / 学生 / 检查三种模式，控制答案、分数、答题区域的显示
+\item 题目级 \type{showanswer}、\type{showpoint}、\type{showscript} 覆盖全局设置
+\item 答案树自动收集答案与分值，支持无限层级子题的汇总
 \item \type{\partio} / \type{\typegrade} 成绩表收集与输出
-\item \type{\ORDER} 选项乱序与自动编号[experimental]
-\item 灵活的样式定制选项
-\item 内置多种符号标记与徽章，全部由 MetaFun 绘制
-\item 作文格与写作区域
-\item 材料阅读与引用系统
+\item \type{\score} 在解析中标注得分点，配合 \type{\resetscore} 累计
+\item 答案数据持久化到 \type{<jobname>-examdata.lua}，二次编译可读取
+\stoppoints
+
+\subsection{排版与样式}
+
+\startpoints
+\item 试卷标题 \type{\definepapertitle} / \type{\makepapertitle}，
+      支持密级、主标题、科目、考试信息、签名区、注意事项等元素
+\item 双页排版 \type{layout=twoup}，适合 A3 对折输出
+\item 诗词排版 \type{verse}，按样本文本自动计算缩进
+\item 词典条目 \type{lexicalentry}，支持词性、重音、释义、例句、反义词等
+\item 选择、填空、答案、分数可通过对应的设置命令单独定制样式与颜色：
+      \type{\setupchoice}、\allowbreak\type{\setupfillin}、\type{\setupsolution}、
+      \type{\setupquestion}  
+\stoppoints
+
+\subsection{扩展与实验}
+
+\startpoints
+\item \type{\ORDER} 选项乱序与自动编号（实验性）
+\item 内置符号与徽章，全部由 MetaFun 绘制，不依赖外部符号字体
+\item 答案树 API：\type{\UnlimitedDisplayAnswer}、\type{\UnlimitedTotalPoint}
+      等，可在文档中直接查询题目信息
+\item check 模式下的调试输出与 \type{\UnlimitedExport} 导出
 \stoppoints
 
 \section{系统要求}
@@ -56,6 +115,9 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 
 \starttyping
 \usemodule[basicexam]
+
+% 带有设置的加载模块
+\usemodule[basicexam][mode=teacher]
 \stoptyping
 
 \section{模块参数}
@@ -79,29 +141,11 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 \NC        \NC default \NC 显示科目和页码 \NC\NR
 \NC        \NC none    \NC 无页脚 \NC\NR
 \HL
-\NC libpath \NC 路径 \NC SQLite 库文件路径（用于数据存储）\NC\NR
-\HL
-\NC showanswer \NC showanswer \NC 显示答案 \NC\NR
-\NC showpoint  \NC showpoint  \NC 显示分数 \NC\NR
-\NC showscript \NC showscript \NC 显示答题区域 \NC\NR
+\NC showanswer \NC yes/no \NC 显示答案 \NC\NR
+\NC showpoint  \NC yes/no \NC 显示分数 \NC\NR
+\NC showscript \NC yes/no \NC 显示答题区域 \NC\NR
 \HL
 \stoptabulate
-
-\subsection{示例}
-
-\starttyping
-% 教师模式，显示答案
-\usemodule[basicexam][mode=teacher]
-
-% 学生模式，隐藏答案
-\usemodule[basicexam][mode=student]
-
-% 检查模式，调试输出
-\usemodule[basicexam][mode={teacher,check}]
-
-% 双页排版
-\usemodule[basicexam][layout=twoup]
-\stoptyping
 
 \section{模式控制}
 
@@ -119,10 +163,11 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 在文档中动态切换：
 
 \starttyping
-\showanswer   % 显示答案
-\hideanswer   % 隐藏答案
-\showpoint    % 显示分数
-\hidepoint    % 隐藏分数
+\enableexammode [answer]  % 显示答案
+\disableexammode[answer]  % 隐藏答案
+\enableexammode [point]   % 显示分数
+\disableexammode[point]   % 隐藏分数
+\enableexammode [answer,point]% 同时开启显示答案和分数
 \stoptyping
 
 \subsection{单个题目控制}
@@ -130,61 +175,14 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 在题目级别控制显示：
 
 \starttyping
-\startquestion[showanswer=true,showpoint=true]
+\startquestion[showanswer=yes,showpoint=yes]
   这道题会显示答案和分数。
 \stopquestion
 
-\startquestion[showanswer=false,showpoint=false]
+\startquestion[showanswer=no,showpoint=no]
   这道题会隐藏答案和分数。
 \stopquestion
 \stoptyping
-
-\section{样式定制}
-
-\subsection{全局设置}
-
-使用 \type{\setupquestion} 进行全局设置：
-
-\startbuffer
-\setupquestion[
-  answer={默认答案},
-  point=1,
-  showanswer=true,
-  showpoint=true,
-  style=\ss,
-  color=black,
-]
-\stopbuffer
-
-\typebuffer
-
-\subsection{选择题样式}
-
-\startbuffer
-\setupchoice[
-  answerstyle=\ss,
-  answercolor=red,
-  numberconversion=A,
-  option={A,packed,joinedup,nowhite},
-]
-\stopbuffer
-
-\typebuffer
-
-\subsection{答案样式}
-
-\startbuffer
-\setupanswer[
-  style=\ss\it,
-  color=darkblue,
-  answerlabel={{答案}},
-  pointlabel={，分},
-  before=\blank[halfline]\startnarrower,
-  after=\blank[halfline]\stopnarrower,
-]
-\stopbuffer
-
-\typebuffer
 
 \chapter{试卷标题}
 
@@ -209,7 +207,12 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 
 \typebuffer
 
-\getbuffer
+\begingroup
+\setuppapertitle[myexam][enabletitle=no]
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
+\endgroup
 
 \subsection{标题元素}
 
@@ -252,13 +255,18 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 
 \startbuffer
 \definepapertitle[mytitle][myexam]
-\setuppapertitle[mytitle][title={我的试卷},style=\ssa\bf]
+\setuppapertitle[mytitle][title={我的试卷},style=\ss]
 \makepapertitle[mytitle]
 \stopbuffer
 
 \typebuffer
 
-\start\getbuffer\stop
+\start
+\setuppapertitle[mytitle][enabletitle=no]
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
+\stop
 
 \chapter{选择题}
 
@@ -271,30 +279,39 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 使用 \type{\startquestion}...\type{\stopquestion} 和 \type{\startchoice}...\type{\stopchoice} 环境：
 
 \startbuffer
-\startquestion
-  这是选择题的题干内容。
+\startquestion[showanswer=yes]
+  这是选择题的题干内容。我们通过 \type{[*]} 标记正确答案。默认并没有显示命令，此处为演示额外显示。
   \startchoice
     \startcitem 选项一 \stopcitem
-    \startcitem 选项二 \stopcitem
+    \startcitem[*] 选项二 \stopcitem
     \startcitem 选项三 \stopcitem
     \startcitem 选项四 \stopcitem
   \stopchoice
 \stopquestion
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \subsection{快捷格式}
 
 使用 \type{\question} 和 \type{\choice} 命令：
 
 \startbuffer
-\question{这是选择题的题干内容。
-  \choice{选项一,选项二,选项三,选项四}
+\question[showanswer=yes]{这是选择题的题干内容。
+          我们通过 \type{[*]} 标记正确答案。默认并没有显示命令，此处为演示额外显示。
+  \choice{选项一,[*]选项二,选项三,选项四}
 }
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \section{参数说明}
 
@@ -305,19 +322,19 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 \NC 参数 \NC 默认值 \NC 说明 \NC\NR
 \HL
 \NC inlinechoice \NC false \NC 是否为内联选择题 \NC\NR
-\NC inlineleft \NC \NC 内联选项左侧内容 \NC\NR
-\NC inlineright \NC \NC 内联选项右侧内容 \NC\NR
-\NC correctsymbol \NC \NC 正确答案标记符号 \NC\NR
+\NC inlineleft   \NC \NC 内联选项左侧内容 \NC\NR
+\NC inlineright  \NC \NC 内联选项右侧内容 \NC\NR
+\NC correctsymbol\NC \NC 正确答案标记符号 \NC\NR
 \NC separator \NC \NC 选项分隔符 \NC\NR
-\NC textstyle \NC \NC 选项文本样式 \NC\NR
-\NC textcolor \NC \NC 选项文本颜色 \NC\NR
+\NC textstyle \NC \NC 文本样式 \NC\NR
+\NC textcolor \NC \NC 文本颜色 \NC\NR
 \NC showanswer \NC \NC 是否显示答案 \NC\NR
 \NC showpoint \NC \NC 是否显示分数 \NC\NR
-\NC answer \NC \NC 答案内容 \NC\NR
+\NC answer      \NC \NC 答案内容 \NC\NR
 \NC answerstyle \NC \NC 答案样式 \NC\NR
 \NC answercolor \NC \NC 答案颜色 \NC\NR
 \NC answerlabel \NC \NC 答案标签 \NC\NR
-\NC point \NC \NC 题目分数 \NC\NR
+\NC point      \NC \NC 题目分数 \NC\NR
 \NC pointstyle \NC \NC 分数样式 \NC\NR
 \NC pointcolor \NC \NC 分数颜色 \NC\NR
 \NC pointlabel \NC \NC 分数标签 \NC\NR
@@ -346,7 +363,11 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 }
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \subsection{多选题}
 
@@ -364,7 +385,11 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 \stopquestion
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \subsection{选项列数控制}
 
@@ -390,7 +415,11 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 }
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \subsection{内联选择题}
 
@@ -412,7 +441,39 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 }
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
+
+\subsection{随机排序}
+
+我们增加了选项的随机排序。但是，需要注意，为了保证编译的一致性，使用了系统的随机种子。
+并且每次每次编译的结果都是一致的（在打乱顺序的基础之上）。可以通过 \type{\setrandomseed{NUMBER}}
+设置您的随机种子来打乱预设的随机排序。
+
+\startbuffer
+\startquestion[showanswer=true]
+  这是选择题的题干内容。
+  \startchoice[random]
+    \startcitem    选项一 \stopcitem
+    \startcitem    选项二 \stopcitem
+    \startcitem[*] 选项三 \stopcitem
+    \startcitem    选项四 \stopcitem
+  \stopchoice
+\stopquestion
+
+\question[showanswer=true]{这是选择题的题干内容。
+  \choice[random]{选项一,选项二,{[*]选项三},选项四}
+}
+\stopbuffer
+
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \section{自定义样式}
 
@@ -440,13 +501,17 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 \stopquestion
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \chapter{题目与问题}
 
 \section{question 环境}
 
-\type{question} 环境用于创建独立题目：
+\type{question} 环境用于创建独立题目，同样的，也具有环境格式和快捷格式：
 
 \startbuffer
 \startquestion[option={n,packed,joinedup,nowhite}]
@@ -456,30 +521,38 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 \question{这是题目的主要内容。}
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \section{problem 环境}
 
 \type{problem} 环境用于创建子问题列表：
 
 \startbuffer
-\startquestion
+\startquestion[showanswer=yes, showpoint=yes]
 这是大题的题干。
   \startproblem
-  \startpitem 这是第一个小题。\stoppitem
-  \startpitem 这是第二个小题。\stoppitem
+    \startpitem[answer=这将是答案1,point=5] 这是第一个小题。\stoppitem
+    \startpitem[answer=这将是答案2,point=3] 这是第二个小题。\stoppitem
   \stopproblem
 \stopquestion
 
 \question{这是大题的题干。
-  \problem[textstyle=ss]
-    {\pitem{这是第一个小题。}
-     \pitem{这是第二个小题。}
+  \problem[textstyle=ss]{
+    \pitem{这是第一个小题。}
+    \pitem{这是第二个小题。}
   }
 }
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \section{题目嵌套}
 
@@ -497,7 +570,11 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 \stopquestion
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \section{question 参数}
 
@@ -507,10 +584,10 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 
 \section{基本用法}
 
-\type{answer} 环境用于添加答案和解析：
+\type{solution} 环境用于添加答案和解析：
 
 \startbuffer
-\startquestion[point=4,showpoint=true,answer=A]
+\startquestion[point=4,showpoint=true]
 这是选择题的题干。
   \startchoice
     \startcitem[*] 选项A \stopcitem
@@ -518,14 +595,18 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
     \startcitem    选项C \stopcitem
     \startcitem    选项D \stopcitem
   \stopchoice
-  \startanswer
+  \startsolution
     这是对该题目的详细解析说明。
     答案选择A的原因是……
-  \stopanswer
+  \stopsolution
 \stopquestion
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \section{参数说明}
 
@@ -553,14 +634,18 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 \startbuffer
 \startquestion[point=4,showpoint=true]
 这是需要书写答案的题目。
-\startanswer[showscript=true,frame=off,
+\startsolution[showscript=true,frame=off,
              scriptcontent={\centerline{\lightgray\ss 请在此处书写答案}\par
-                            \null\vskip3\baselineskip\relax}]
-\stopanswer
+                            \blank[force,3*line]\null\relax}]
+\stopsolution
 \stopquestion
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \subsection{分数设置}
 
@@ -579,7 +664,11 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 \stopquestion
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \subsection{score 命令}
 
@@ -589,16 +678,20 @@ basicexam 是一个为 ConTeXt LMTX 设计的试卷制作模块，提供了完�
 在答案中使用 \type{\score{分数}} 标注得分点：
 
 \startbuffer
-\startanswer
+\startsolution[showsolution=yes,showpoint=no]
   答案要点一 \score{3}
   答案要点二 \score{4}
   答案要点三 \score{3}
   \resetscore
   总分 \score[type=dotfills]{10}
-\stopanswer
+\stopsolution
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 score 命令参数：
 
@@ -628,7 +721,11 @@ score 命令参数：
 \stopquestion
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \section{参数说明}
 
@@ -675,7 +772,11 @@ score 命令参数：
 \stopquestion
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \subsection{判断题}
 
@@ -690,7 +791,11 @@ score 命令参数：
 \stoptruefalse
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 在 teacher 模式下，\type{\titem[*]} 显示 \symbol{marksquarecheck}，
 普通 \type{\titem} 显示 \symbol{marksquarecross}；在 student 模式下，
@@ -699,7 +804,7 @@ score 命令参数：
 也可以用填空环境实现判断题：
 
 \startbuffer
-\setupfillin[empty=none,style=\tta]
+\setupfillin[empty=none,style=\tt]
 \startquestion
 判断下列说法是否正确。
   \startproblem
@@ -711,7 +816,11 @@ score 命令参数：
 \stopquestion
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \chapter{材料阅读}
 
@@ -721,8 +830,8 @@ score 命令参数：
 \type{material} 环境用于放置阅读材料，支持设置标题、作者、来源等信息。
 
 \startbuffer
-\setupmaterial[title][style=\ssa]
-\setupmaterial[author][style=\tta]
+\setupmaterial[title][style=\ss]
+\setupmaterial[author][style=\tt]
 \setupmaterial[source][style=ss]
 
 \startmaterial[title={材料标题},author={作者名},source={来源}]
@@ -743,7 +852,11 @@ score 命令参数：
 \stopquestion
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \section{参数说明}
 
@@ -783,7 +896,11 @@ score 命令参数：
 \stopmaterial
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \chapter{诗词排版}
 
@@ -802,7 +919,11 @@ score 命令参数：
 \stopverse
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \section{参数说明}
 
@@ -855,7 +976,11 @@ across the finish line.
 \stopclose
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \section{参数说明}
 
@@ -903,7 +1028,11 @@ this protective \oitem[answer=functional]{function} structure.
 \stopoptclose
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \chapter{写作区域}
 
@@ -925,7 +1054,11 @@ this protective \oitem[answer=functional]{function} structure.
    width=\textwidth]{}
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \subsection{方格纸}
 
@@ -941,7 +1074,11 @@ this protective \oitem[answer=functional]{function} structure.
    width=\textwidth]{}
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \section{参数说明}
 
@@ -999,13 +1136,17 @@ this protective \oitem[answer=functional]{function} structure.
 %  \item 要求二
 %  \stoppoints
 %  
-%  \startanswer
+%  \startsolution
 %  范文内容...
-%  \stopanswer
+%  \stopsolution
 %\stopwriting
 %\stopbuffer
 %
-%\typebuffer \getbuffer
+%\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \subsection{subwriting 环境}
 
@@ -1017,21 +1158,25 @@ this protective \oitem[answer=functional]{function} structure.
   
   \startsubwriting[point=50]
     子作文题目一
-    \startanswer
+    \startsolution
     范文一...
-    \stopanswer
+    \stopsolution
   \stopsubwriting
   
   \startsubwriting[point=50]
     子作文题目二
-    \startanswer
+    \startsolution
     范文二...
-    \stopanswer
+    \stopsolution
   \stopsubwriting
 \stopwriting
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \subsection{writing 参数}
 
@@ -1102,7 +1247,11 @@ this protective \oitem[answer=functional]{function} structure.
 \circledtext[radius=2pt]{C}
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \subsection{circledtext 参数}
 
@@ -1148,7 +1297,11 @@ this protective \oitem[answer=functional]{function} structure.
   textbg=darkred, numbg=darkred]{10}
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \subsection{圆圈编号转换}
 
@@ -1168,7 +1321,11 @@ this protective \oitem[answer=functional]{function} structure.
 \stoppoints
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \starttabulate[|l|l|]
 \HL
@@ -1204,7 +1361,11 @@ this protective \oitem[answer=functional]{function} structure.
 \stoplexicalentry
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \section{参数说明}
 
@@ -1243,7 +1404,11 @@ this protective \oitem[answer=functional]{function} structure.
 \stoplexicalentry
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \subsection{词典枚举}
 
@@ -1279,7 +1444,11 @@ this protective \oitem[answer=functional]{function} structure.
 \stoplexicalentry
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \subsection{关联命令}
 
@@ -1374,7 +1543,11 @@ this protective \oitem[answer=functional]{function} structure.
 \stopquestion
 \stopbuffer
 
-\typebuffer \getbuffer
+\typebuffer 
+
+\startframedtext[width=1tw,before=,after=]
+  \getbuffer
+\stopframedtext
 
 \section{数据持久化}
 
