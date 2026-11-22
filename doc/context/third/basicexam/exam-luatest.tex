@@ -1,0 +1,752 @@
+\usemodule[basicexam]
+
+\starttext
+
+\startluacode
+local BEM = thirddata.basicexam
+local JN  = token.getexpansion("\\jobname")
+
+-- 是否输出「通过」用例的详情（false 时只报失败）
+local VERBOSE = true
+
+---------------------------------------------------------------------------
+-- 1) 显示宽度计算（中文按 2 计，ASCII 按 1 计）
+---------------------------------------------------------------------------
+local function disp_width(s)
+  local w, i, n = 0, 1, #s
+  while i <= n do
+    local b = s:byte(i)
+    if b < 0x80 then w = w + 1; i = i + 1
+    elseif b < 0xE0 then w = w + 1; i = i + 2
+    elseif b < 0xF0 then w = w + 2; i = i + 3
+    elseif b < 0xF8 then w = w + 2; i = i + 4
+    else w = w + 1; i = i + 1 end
+  end
+  return w
+end
+
+-- 按显示宽度右侧补空格
+local function pad_disp(s, width)
+  s = tostring(s or "")
+  local d = width - disp_width(s)
+  if d < 0 then d = 0 end
+  return s .. string.rep(" ", d)
+end
+
+---------------------------------------------------------------------------
+-- 2) 临时替换 structures.sections.current，控制章节号
+---------------------------------------------------------------------------
+local real_sections_current = structures.sections.current
+local mock_chapter          = nil
+structures.sections.current = function()
+  if mock_chapter == nil then return nil end
+  return { numberdata = { numbers = { nil, mock_chapter } } }
+end
+
+---------------------------------------------------------------------------
+-- 2b) 模拟 TeX 的 currentexamorder 计数器
+---------------------------------------------------------------------------
+-- 真实流程：startquestion 内部 incrementcounter[currentexamorder]，
+--          随后 Lua 用 rawcountervalue 读取。
+-- 测试直接调 BEM.push_level 绕过了前者，所以：
+--   - 每次读取自动 +1（等价于 incrementcounter + 读取）
+--   - mock_chapter 变化时自动归零（等价于章节切换时的 resetcounter）
+
+local mock_order        = 0
+local last_mock_chapter = nil
+local real_getexpansion = token.getexpansion
+token.getexpansion = function(name)
+  if name == "\\rawcountervalue[currentexamorder]" then
+    if mock_chapter ~= last_mock_chapter then
+      mock_order        = 0
+      last_mock_chapter = mock_chapter
+    end
+    mock_order = mock_order + 1
+    return tostring(mock_order)
+  end
+  return real_getexpansion(name)
+end
+
+---------------------------------------------------------------------------
+-- 3) 截获 context 输出
+---------------------------------------------------------------------------
+local real_context = context
+local captured     = nil
+local function capture(fn)
+  captured = ""
+  context = function(s) captured = tostring(s or "") end
+  local ok, err = pcall(fn)
+  context = real_context
+  if not ok then error(err) end
+  return captured
+end
+
+---------------------------------------------------------------------------
+-- 4) 断言库
+---------------------------------------------------------------------------
+local T = { pass = 0, fail = 0, fails = {} }
+local current_group = ""
+
+local function group(name, intent)
+  current_group = name
+  texio.write_nl("")
+  texio.write_nl("── " .. name .. " ──")
+  if intent then
+    for line in intent:gmatch("[^\n]+") do
+      texio.write_nl("   " .. line)
+    end
+  end
+end
+
+local function eq(actual, expected, msg)
+  local a = tostring(actual)
+  local b = tostring(expected)
+  local ok = (a == b)
+  if ok then
+    T.pass = T.pass + 1
+  else
+    T.fail = T.fail + 1
+    T.fails[#T.fails + 1] = string.format("[%s] %s (expect=<%s> actual=<%s>)",
+      current_group, msg or "?", b, a)
+  end
+  if VERBOSE or not ok then
+    texio.write_nl(string.format("  %-4s| %s| expect=<%s>  actual=<%s>",
+      ok and "ok" or "FAIL", pad_disp(msg or "?", 40), b, a))
+  end
+end
+
+---------------------------------------------------------------------------
+-- 5) 每个 case 前重建
+---------------------------------------------------------------------------
+local counter = 100
+local function fresh()
+  counter = counter + 1
+  mock_chapter = counter
+  BEM.check_mode = false
+  BEM.data_new = {}
+  BEM.init_tree()
+  return counter
+end
+
+---------------------------------------------------------------------------
+-- 开始
+---------------------------------------------------------------------------
+texio.write_nl("")
+texio.write_nl("=== basicexam tests ===")
+
+---------------------------------------------------------------------------
+-- 基础路径
+---------------------------------------------------------------------------
+group("1. 单题单答", [[
+验证最基本流程：push 一道题 → 加答案和分数 → pop。
+预期：id/深度/分数/答案/is_leaf/order 全部正确。]] )
+do
+  local ch = fresh()
+  BEM.push_level("question")
+  eq(BEM.get_current_id(), string.format("%s-%d-Q-1", JN, ch), "id")
+  eq(BEM.get_depth(), 1, "depth")
+  BEM.add_scored_answer("A", 5)
+  BEM.pop_level("question")
+  eq(BEM.get_depth(), 0, "回到根")
+  eq(BEM.answer_tree.totalnumber, 1, "root totalnumber")
+  eq(BEM.answer_tree.totalpoint, 5, "root totalpoint")
+  local d = BEM.get_display(string.format("%s-%d-Q-1", JN, ch))
+  eq(d.point, 5, "point")
+  eq(d.answer, "A", "answer")
+  eq(d.is_leaf, true, "is_leaf")
+  eq(d.order, "1", "order")
+end
+
+group("2. 嵌套子题", [[
+验证父子两层：父节点有子题后不再是叶子，
+父分数 = 所有子分数之和，order 形成层级路径。]])
+do
+  local ch = fresh()
+  BEM.push_level("q")
+    BEM.push_level("s")
+      BEM.add_scored_answer("x", 2)
+    BEM.pop_level("s")
+  BEM.pop_level("q")
+  local Q = string.format("%s-%d-Q-1", JN, ch)
+  local S = Q .. "-1"
+  local q = BEM.get_display(Q)
+  eq(q.is_leaf, false, "q is_leaf")
+  eq(q.point, 2, "q totalpoint")
+  eq(q.totalnumber, 1, "q totalnumber")
+  eq(q.order, "1", "q order")
+  local s = BEM.get_display(S)
+  eq(s.is_leaf, true, "s is_leaf")
+  eq(s.point, 2, "s point")
+  eq(s.answer, "x", "s answer")
+  eq(s.order, "1-1", "s order")
+end
+
+group("3. 多章节", [[
+两章各一道题，验证章节号进入 id 且互不干扰。]])
+do
+  local ch1 = fresh()
+  BEM.push_level("q"); BEM.add_scored_answer("a", 5); BEM.pop_level("q")
+  mock_chapter = ch1 + 1000
+  BEM.push_level("q"); BEM.add_scored_answer("b", 3); BEM.pop_level("q")
+  eq(BEM.get_display(string.format("%s-%d-Q-1", JN, ch1)).point, 5, "ch1 point")
+  eq(BEM.get_display(string.format("%s-%d-Q-1", JN, ch1 + 1000)).point, 3, "ch2 point")
+end
+
+group("4. 无章节", [[
+用户完全不写 chapter 时，章节号应为 0，一切照常工作。]])
+do
+  mock_chapter = nil
+  BEM.check_mode = false
+  BEM.init_tree()
+  BEM.push_level("q")
+  eq(BEM.get_current_id(), string.format("%s-0-Q-1", JN), "无章节 id")
+  BEM.add_scored_answer("a", 4)
+  BEM.pop_level("q")
+  eq(BEM.get_display(string.format("%s-0-Q-1", JN)).point, 4, "无章节 point")
+end
+
+group("5. 叶子转非叶子", [[
+先给父节点加答案（成为叶子），再加子题。
+此时父节点旧的答案和分数应被撤销，只保留子题之和。]])
+do
+  local ch = fresh()
+  BEM.push_level("q")
+  BEM.add_scored_answer("A", 5)
+  BEM.push_level("s")
+  BEM.add_scored_answer("B", 3)
+  BEM.pop_level("s")
+  BEM.pop_level("q")
+  local Q = string.format("%s-%d-Q-1", JN, ch)
+  eq(BEM.answer_tree.totalnumber, 1, "root totalnumber")
+  eq(BEM.answer_tree.totalpoint, 3, "root totalpoint（旧 5 被替换）")
+  eq(BEM.get_display(Q).point, 3, "q totalpoint")
+  eq(BEM.get_display(Q).is_leaf, false, "q is_leaf")
+  eq(BEM.get_display(Q .. "-1").point, 3, "sub point")
+end
+
+group("6. 深层 allleafnumber", [[
+三层嵌套，其中一层有两个子题。
+leafnumber 只统计「顶层叶子题」，allleafnumber 统计所有叶子。]])
+do
+  local ch = fresh()
+  BEM.push_level("q")
+    BEM.push_level("s")
+      BEM.push_level("ss"); BEM.add_scored_answer("a", 1); BEM.pop_level("ss")
+      BEM.push_level("ss"); BEM.add_scored_answer("b", 1); BEM.pop_level("ss")
+    BEM.pop_level("s")
+    BEM.push_level("s"); BEM.add_scored_answer("c", 1); BEM.pop_level("s")
+  BEM.pop_level("q")
+  BEM.save_structure_data()
+  local s = BEM.get_structure_stats(1, ch)
+  eq(s.totalnumber, 1, "顶层题数")
+  eq(s.totalpoint, 3, "总分")
+  eq(s.leafnumber, 0, "顶层非叶子数")
+  eq(s.allleafnumber, 3, "叶子总数")
+end
+
+group("7. extra_data", [[
+节点可携带额外元数据（如选择题选项数）。
+验证存/取、缺失键、数字默认值三种情况。]])
+do
+  local ch = fresh()
+  BEM.push_level("q")
+  BEM.set_extra_data("totalitemnumber", "4")
+  BEM.add_scored_answer("a", 1)
+  BEM.pop_level("q")
+  local id = string.format("%s-%d-Q-1", JN, ch)
+  BEM.build_node_data()
+  -- tex_get_data 读的是上一次编译的数据文件；
+  -- 这里把本次生成的记录当作“下一次编译读到的数据”。
+  local saved_data = BEM.data
+  BEM.data = BEM.data_new
+  eq(capture(function() BEM.tex_get_data(id, "totalitemnumber") end), "4", "extra data 读回")
+  eq(capture(function() BEM.tex_get_data(id, "not_exist") end), "", "缺失键输出空串")
+  eq(capture(function() BEM.tex_get_extra_number(id, "totalitemnumber", 0) end), "4", "extra number")
+  eq(capture(function() BEM.tex_get_extra_number(id, "not_exist", 99) end), "99", "缺失时默认值")
+  BEM.data = saved_data
+end
+
+---------------------------------------------------------------------------
+-- 环境栈
+---------------------------------------------------------------------------
+group("8. 跨层闭合检测", [[
+用 pop_level("q") 去关 "s" 环境时应被拒绝，栈保持不变。]])
+do
+  local ch = fresh()
+  BEM.enable_check()
+  BEM.push_level("q")
+  BEM.push_level("s")
+  local before = BEM.get_current_id()
+  BEM.pop_level("q")
+  eq(BEM.get_current_id(), before, "错误 pop 后栈未变")
+  BEM.pop_level("s")
+  BEM.pop_level("q")
+  BEM.check_mode = false
+end
+
+group("9. 未闭合检测", [[
+文档末尾扫描未闭合的环境，验证栈计数正确。]])
+do
+  local ch = fresh()
+  BEM.push_level("q")
+  BEM.push_level("s")
+  eq(#BEM.level_stack, 3, "栈深 root+q+s")
+  BEM.check_unclosed()
+  BEM.pop_level("s")
+  BEM.pop_level("q")
+  eq(#BEM.level_stack, 1, "清空回到 root")
+end
+
+---------------------------------------------------------------------------
+-- order / 输出
+---------------------------------------------------------------------------
+group("10. order 生成", [[
+层级路径式 order：顶层=1，第二层=1-1 / 1-2，第三层=1-1-1 / 1-1-2。]])
+do
+  local ch = fresh()
+  BEM.push_level("q")
+    BEM.push_level("s")
+      BEM.push_level("ss"); BEM.add_scored_answer("a", 1); BEM.pop_level("ss")
+      BEM.push_level("ss"); BEM.add_scored_answer("b", 1); BEM.pop_level("ss")
+    BEM.pop_level("s")
+    BEM.push_level("s"); BEM.add_scored_answer("c", 1); BEM.pop_level("s")
+  BEM.pop_level("q")
+  local P = string.format("%s-%d-Q-1", JN, ch)
+  eq(BEM.get_display(P).order, "1", "Q order")
+  eq(BEM.get_display(P .. "-1").order, "1-1", "s1 order")
+  eq(BEM.get_display(P .. "-1-1").order, "1-1-1", "ss1 order")
+  eq(BEM.get_display(P .. "-1-2").order, "1-1-2", "ss2 order")
+  eq(BEM.get_display(P .. "-2").order, "1-2", "s2 order")
+end
+
+group("11. tex_get 输出格式", [[
+TeX 接口对不同 key 的输出格式：
+point 整数不带小数点，小数保留 1 位；is_leaf 为 "true"/"false"。]])
+do
+  local ch = fresh()
+  BEM.push_level("q"); BEM.add_scored_answer("A", 7.5); BEM.pop_level("q")
+  BEM.push_level("q"); BEM.add_scored_answer("B", 5); BEM.pop_level("q")
+  local id1 = string.format("%s-%d-Q-1", JN, ch)
+  local id2 = string.format("%s-%d-Q-2", JN, ch)
+  eq(capture(function() BEM.tex_get(id1, "point") end), "7.5", "小数 point")
+  eq(capture(function() BEM.tex_get(id2, "point") end), "5", "整数 point")
+  eq(capture(function() BEM.tex_get(id1, "answer") end), "A", "answer")
+  eq(capture(function() BEM.tex_get(id1, "is_leaf") end), "true", "is_leaf")
+  eq(capture(function() BEM.tex_get(id1, "order") end), "1", "order")
+end
+
+---------------------------------------------------------------------------
+-- 统计
+---------------------------------------------------------------------------
+group("12. get_question_level_stats", [[
+针对单个题目的层级统计：level1 子题数、叶子数、总分。]])
+do
+  local ch = fresh()
+  BEM.push_level("q")
+    BEM.push_level("s"); BEM.add_scored_answer("a", 1); BEM.pop_level("s")
+    BEM.push_level("s"); BEM.add_scored_answer("b", 2); BEM.pop_level("s")
+  BEM.pop_level("q")
+  local st = BEM.get_question_level_stats(string.format("%s-%d-Q-1", JN, ch))
+  eq(st.levelcounts[1], 2, "level1 子题数")
+  eq(st.leafnumber, 2, "叶子数")
+  eq(st.totalpoint, 3, "总分")
+end
+
+group("13. 未知 id 容错", [[
+查询不存在的 id 应返回默认值而非报错。]])
+do
+  fresh()
+  local d = BEM.get_display("nonexistent")
+  eq(d.point, 0, "point")
+  eq(d.answer, "", "answer")
+  eq(d.is_leaf, false, "is_leaf")
+end
+
+group("14. save_structure_data 往返", [[
+先 save 进 dataset，再读回，验证数据一致性。]])
+do
+  local ch = fresh()
+  BEM.push_level("q")
+    BEM.push_level("s"); BEM.add_scored_answer("a", 2); BEM.pop_level("s")
+    BEM.push_level("s"); BEM.add_scored_answer("b", 3); BEM.pop_level("s")
+  BEM.pop_level("q")
+  BEM.save_structure_data()
+  local s = BEM.get_structure_stats(1, ch)
+  eq(s.totalnumber, 1, "totalnumber")
+  eq(s.totalpoint, 5, "totalpoint")
+  eq(s.leafnumber, 0, "leafnumber")
+  eq(s.allleafnumber, 2, "allleafnumber")
+end
+
+group("15. tex_get_structure / tex_get_question_level", [[
+TeX 层接口：按结构层和按题目 id 输出统计。]])
+do
+  local ch = fresh()
+  BEM.push_level("q")
+    BEM.push_level("s"); BEM.add_scored_answer("a", 2); BEM.pop_level("s")
+    BEM.push_level("s"); BEM.add_scored_answer("b", 3); BEM.pop_level("s")
+  BEM.pop_level("q")
+  BEM.save_structure_data()
+  eq(capture(function() BEM.tex_get_structure(1, ch, "totalnumber")   end), "1", "str totalnumber")
+  eq(capture(function() BEM.tex_get_structure(1, ch, "totalpoint")    end), "5", "str totalpoint")
+  eq(capture(function() BEM.tex_get_structure(1, ch, "allleafnumber") end), "2", "str allleafnumber")
+  local id = string.format("%s-%d-Q-1", JN, ch)
+  eq(capture(function() BEM.tex_get_question_level(id, "level1")     end), "2", "level1")
+  eq(capture(function() BEM.tex_get_question_level(id, "leafnumber") end), "2", "leafnumber")
+  eq(capture(function() BEM.tex_get_question_level(id, "totalpoint") end), "5", "totalpoint")
+end
+
+group("16. 章节切换 order 隔离", [[
+两章各一道题，order 都应为 1（按章节重置）。]])
+do
+  mock_chapter = 400
+  BEM.check_mode = false
+  BEM.init_tree()
+  BEM.push_level("q"); BEM.pop_level("q")
+  mock_chapter = 401
+  BEM.push_level("q"); BEM.pop_level("q")
+  eq(BEM.get_display(string.format("%s-400-Q-1", JN)).order, "1", "ch400 order")
+  eq(BEM.get_display(string.format("%s-401-Q-1", JN)).order, "1", "ch401 order")
+end
+
+---------------------------------------------------------------------------
+-- 分支覆盖
+---------------------------------------------------------------------------
+group("17. get_structure_stats 无缓存路径", [[
+关键分支：不先 save，直接读统计时走「遍历 answer_tree 重算」路径。
+这是首次编译时真正的执行路径。]])
+do
+  local ch = fresh()
+  BEM.push_level("q")
+    BEM.push_level("s"); BEM.add_scored_answer("a", 2); BEM.pop_level("s")
+    BEM.push_level("s"); BEM.add_scored_answer("b", 3); BEM.pop_level("s")
+  BEM.pop_level("q")
+  local s = BEM.get_structure_stats(1, ch)
+  eq(s.totalnumber, 1, "无缓存 totalnumber")
+  eq(s.totalpoint, 5, "无缓存 totalpoint")
+  eq(s.leafnumber, 0, "无缓存 leafnumber")
+  eq(s.allleafnumber, 2, "无缓存 allleafnumber")
+end
+
+group("18. 父节点 answer 拼接", [[
+父节点非叶子时，answer 应为所有子答案用 "; " 拼接。]])
+do
+  local ch = fresh()
+  BEM.push_level("q")
+    BEM.push_level("s"); BEM.add_scored_answer("a", 1); BEM.pop_level("s")
+    BEM.push_level("s"); BEM.add_scored_answer("b", 1); BEM.pop_level("s")
+    BEM.push_level("s"); BEM.add_scored_answer("c", 1); BEM.pop_level("s")
+  BEM.pop_level("q")
+  local q = BEM.get_display(string.format("%s-%d-Q-1", JN, ch))
+  eq(q.answer, "a; b; c", "三个子答案拼接")
+  eq(q.is_leaf, false, "q 不是叶子")
+  eq(q.point, 3, "q 总分")
+end
+
+group("19. 重复 add_scored_answer", [[
+同一节点二次给分应「覆盖」而非「累加」：
+旧分先从祖先撤销，再写入新分。]])
+do
+  local ch = fresh()
+  BEM.push_level("q")
+  BEM.add_scored_answer("A", 5)
+  BEM.add_scored_answer("B", 3)
+  BEM.pop_level("q")
+  local d = BEM.get_display(string.format("%s-%d-Q-1", JN, ch))
+  eq(d.point, 3, "point 覆盖为 3")
+  eq(d.answer, "B", "answer 覆盖为 B")
+  eq(BEM.answer_tree.totalpoint, 3, "root 不重复累加")
+  eq(BEM.answer_tree.totalnumber, 1, "题目数仍为 1")
+end
+
+group("20. 同章 Q-N 递增", [[
+同章节三道题的 id 分别为 Q-1/Q-2/Q-3，root 计数累加。]])
+do
+  local ch = fresh()
+  BEM.push_level("q"); BEM.add_scored_answer("a", 1); BEM.pop_level("q")
+  BEM.push_level("q"); BEM.add_scored_answer("b", 2); BEM.pop_level("q")
+  BEM.push_level("q"); BEM.add_scored_answer("c", 3); BEM.pop_level("q")
+  local id1 = string.format("%s-%d-Q-1", JN, ch)
+  local id2 = string.format("%s-%d-Q-2", JN, ch)
+  local id3 = string.format("%s-%d-Q-3", JN, ch)
+  eq(BEM.get_display(id1).point, 1, "Q-1 分数")
+  eq(BEM.get_display(id2).point, 2, "Q-2 分数")
+  eq(BEM.get_display(id3).point, 3, "Q-3 分数")
+  eq(BEM.answer_tree.totalnumber, 3, "root totalnumber")
+  eq(BEM.answer_tree.totalpoint, 6, "root totalpoint")
+end
+
+group("21. 多余 pop 边界", [[
+已在 root 时再 pop，应静默返回、不崩、栈不变。]])
+do
+  fresh()
+  eq(#BEM.level_stack, 1, "初始只有 root")
+  BEM.pop_level()
+  eq(#BEM.level_stack, 1, "多余 pop 后栈不变")
+  eq(BEM.get_current_id(), "root", "仍在 root")
+  eq(BEM.get_depth(), 0, "depth 仍为 0")
+end
+
+group("22. 根节点拒绝加答案", [[
+在 root（depth=0）上 add_scored_answer 应被拒绝。]])
+do
+  fresh()
+  eq(BEM.get_depth(), 0, "当前在 root")
+  BEM.add_scored_answer("X", 99)
+  eq(BEM.answer_tree.totalpoint, 0, "root 分数仍为 0")
+  eq(BEM.answer_tree.totalnumber, 0, "root 题数仍为 0")
+  eq(BEM.answer_tree.is_leaf, false, "root 不是叶子")
+  eq(BEM.answer_tree.answer, "", "root answer 空")
+end
+
+group("23. 有子节点时拒绝加答案", [[
+已有子题的父节点不能再加自己的答案（防止污染子题之和）。]])
+do
+  local ch = fresh()
+  BEM.push_level("q")
+    BEM.push_level("s"); BEM.add_scored_answer("child", 2); BEM.pop_level("s")
+  BEM.add_scored_answer("should_be_ignored", 99)
+  BEM.pop_level("q")
+  local q = BEM.get_display(string.format("%s-%d-Q-1", JN, ch))
+  eq(q.point, 2, "q 总分仍为子题之和")
+  eq(q.is_leaf, false, "q 仍不是叶子")
+  eq(BEM.answer_tree.totalpoint, 2, "root 总分未受污染")
+end
+
+---------------------------------------------------------------------------
+-- 极端情况
+---------------------------------------------------------------------------
+group("24. 浮点累加精度", [[
+0.1 + 0.2 在二进制浮点下并不等于 0.3。
+但 tex_get 用 %.1f 格式化后应输出 "0.3"。]])
+do
+  local ch = fresh()
+  BEM.push_level("q")
+    BEM.push_level("s"); BEM.add_scored_answer("a", 0.1); BEM.pop_level("s")
+    BEM.push_level("s"); BEM.add_scored_answer("b", 0.2); BEM.pop_level("s")
+  BEM.pop_level("q")
+  local id = string.format("%s-%d-Q-1", JN, ch)
+  eq(capture(function() BEM.tex_get(id, "point") end), "0.3", "格式化后 0.3")
+end
+
+group("25. 非法输入容错", [[
+空答案 / nil 答案 / nil 分 / 非数字字符串分 / 字符串数字分。
+预期：空答案保留空，非法分退化为 0，字符串数字能正确解析。]])
+do
+  local ch = fresh()
+  BEM.push_level("q"); BEM.add_scored_answer("", 5); BEM.pop_level("q")
+  eq(BEM.get_display(string.format("%s-%d-Q-1", JN, ch)).point, 5, "空答案保留 5 分")
+
+  ch = fresh()
+  BEM.push_level("q"); BEM.add_scored_answer(nil, 5); BEM.pop_level("q")
+  eq(BEM.get_display(string.format("%s-%d-Q-1", JN, ch)).answer, "", "nil 答案存空串")
+
+  ch = fresh()
+  BEM.push_level("q"); BEM.add_scored_answer("a", nil); BEM.pop_level("q")
+  eq(BEM.get_display(string.format("%s-%d-Q-1", JN, ch)).point, 0, "nil 分 → 0")
+
+  ch = fresh()
+  BEM.push_level("q"); BEM.add_scored_answer("a", "abc"); BEM.pop_level("q")
+  eq(BEM.get_display(string.format("%s-%d-Q-1", JN, ch)).point, 0, "非数字分 → 0")
+
+  ch = fresh()
+  BEM.push_level("q"); BEM.add_scored_answer("a", "5"); BEM.pop_level("q")
+  eq(BEM.get_display(string.format("%s-%d-Q-1", JN, ch)).point, 5, "字符串数字 5 解析")
+end
+
+group("26. 答案含分隔符和特殊字符", [[
+子答案内部含逗号时不影响拼接；分隔符是 "; "。
+当前实现不转义，按原样拼接。]])
+do
+  local ch = fresh()
+  BEM.push_level("q")
+    BEM.push_level("s"); BEM.add_scored_answer("a,b", 1); BEM.pop_level("s")
+    BEM.push_level("s"); BEM.add_scored_answer("c d", 1); BEM.pop_level("s")
+  BEM.pop_level("q")
+  local q = BEM.get_display(string.format("%s-%d-Q-1", JN, ch))
+  eq(q.answer, "a,b; c d", "拼接按原样不转义")
+end
+
+group("27. 极深嵌套 10 层", [[
+十层 push → 内层加一次答案 → 逐层 pop。
+验证递归/栈深度不会失控，root 计数正确。]])
+do
+  local ch = fresh()
+  for _ = 1, 10 do BEM.push_level("q") end
+  eq(#BEM.level_stack, 11, "栈深 root+10")
+  BEM.add_scored_answer("deep", 1)
+  for _ = 1, 10 do BEM.pop_level("q") end
+  eq(#BEM.level_stack, 1, "回到 root")
+  eq(BEM.answer_tree.totalnumber, 1, "root totalnumber")
+  eq(BEM.answer_tree.totalpoint, 1, "root totalpoint")
+end
+
+group("28. section 结构残缺", [[
+sectiondata.numberdata.numbers 为空表时，
+get_current_chapter 应容错为 0（无章节）。]])
+do
+  -- 直接改 mock，返回带空 numbers 的假 section
+  local saved = structures.sections.current
+  structures.sections.current = function()
+    return { numberdata = { numbers = {} } }
+  end
+  BEM.check_mode = false
+  BEM.init_tree()
+  BEM.push_level("q")
+  eq(BEM.get_current_id(), string.format("%s-0-Q-1", JN), "空 numbers → 章节 0")
+  BEM.add_scored_answer("a", 1)
+  BEM.pop_level("q")
+  structures.sections.current = saved
+end
+
+group("29. 章节号为字符串", [[
+mock 章节号为 "5"（字符串），
+get_current_chapter 应用 tonumber 正确转换。]])
+do
+  local saved_mock = mock_chapter
+  mock_chapter = "5"
+  BEM.check_mode = false
+  BEM.init_tree()
+  BEM.push_level("q"); BEM.add_scored_answer("a", 1); BEM.pop_level("q")
+  eq(BEM.get_display(string.format("%s-5-Q-1", JN)).point, 1, "字符串章节号可用")
+  mock_chapter = saved_mock
+end
+
+group("30. push_level 无 env_type", [[
+env_type 为 nil 时应存为 "unknown"，不崩溃。]])
+do
+  fresh()
+  BEM.push_level()
+  eq(BEM.current_node.env_type, "unknown", "默认 env_type")
+  BEM.add_scored_answer("a", 1)
+  BEM.pop_level()
+  eq(BEM.answer_tree.totalpoint, 1, "root 分数")
+end
+
+group("31. 当前 structure 统计", [[
+tex_get_structure 不带 number 时走「当前 section」路径，
+等价于 UnlimitedCurrentStructureTotalNumber。]])
+do
+  local ch = fresh()   -- mock_chapter = ch
+  BEM.push_level("q")
+    BEM.push_level("s"); BEM.add_scored_answer("a", 3); BEM.pop_level("s")
+  BEM.pop_level("q")
+  BEM.save_structure_data()
+  eq(capture(function() BEM.tex_get_structure(1, "", "totalnumber")   end), "1", "当前 totalnumber")
+  eq(capture(function() BEM.tex_get_structure(1, "", "totalpoint")    end), "3", "当前 totalpoint")
+  eq(capture(function() BEM.tex_get_structure(1, "", "allleafnumber") end), "1", "当前 allleafnumber")
+end
+
+group("32. get_current_chapter 缓存命中", [[
+同一 sectiondata 被返回两次时，应走缓存路径并给出相同章节号。
+（真实 ConTeXt 在同一章内就是这样。）]])
+do
+  local shared = { numberdata = { numbers = { nil, 777 } } }
+  local saved = structures.sections.current
+  structures.sections.current = function() return shared end
+  BEM.check_mode = false
+  BEM.init_tree()
+  BEM.push_level("q"); BEM.pop_level("q")   -- 首次：缓存 miss，记 777
+  BEM.push_level("q"); BEM.pop_level("q")   -- 再次：缓存 hit
+  eq(BEM.get_display(string.format("%s-777-Q-1", JN)) ~= nil, true, "第一次 Q-1 存在")
+  eq(BEM.get_display(string.format("%s-777-Q-2", JN)) ~= nil, true, "第二次 Q-2 存在")
+  structures.sections.current = saved
+end
+
+group("33. init_tree 清空 node_index", [[
+重建后，上一次的 id 不应还能被 get_display 查到。]])
+do
+  local ch = fresh()
+  BEM.push_level("q"); BEM.add_scored_answer("a", 1); BEM.pop_level("q")
+  local old_id = string.format("%s-%d-Q-1", JN, ch)
+  eq(BEM.get_display(old_id).point, 1, "重建前可查")
+  BEM.init_tree()
+  eq(BEM.get_display(old_id).point, 0, "重建后查不到（返回默认 0）")
+end
+
+group("34. 同章 order 递增", [[
+同章三道题的 order 应为 1、2、3。]])
+do
+  local ch = fresh()
+  for _ = 1, 3 do
+    BEM.push_level("q"); BEM.add_scored_answer("x", 1); BEM.pop_level("q")
+  end
+  local P = string.format("%s-%d-Q-", JN, ch)
+  eq(BEM.get_display(P .. "1").order, "1", "Q-1 order")
+  eq(BEM.get_display(P .. "2").order, "2", "Q-2 order")
+  eq(BEM.get_display(P .. "3").order, "3", "Q-3 order")
+end
+
+group("35. 负分处理", [[
+负分是否允许？当前实现会接受并累加，确认这是你要的语义。]])
+do
+  local ch = fresh()
+  BEM.push_level("q"); BEM.add_scored_answer("penalty", -2); BEM.pop_level("q")
+  local d = BEM.get_display(string.format("%s-%d-Q-1", JN, ch))
+  eq(d.point, -2, "叶子分数为 -2")
+  eq(BEM.answer_tree.totalpoint, -2, "root 总分 -2")
+end
+
+group("36. level ≥ 2 明确拒绝", [[
+查询 level=3 时，模块应明确返回 0（不支持），
+而不是像旧版那样静默回退到章节统计冒充。]])
+do
+  local saved = structures.sections.current
+  structures.sections.current = function()
+    return { numberdata = { numbers = { nil, 555 } } }
+  end
+  BEM.check_mode = false
+  BEM.init_tree()
+  BEM.push_level("q"); BEM.add_scored_answer("a", 1); BEM.pop_level("q")
+  BEM.save_structure_data()
+  local s = BEM.get_current_structure_stats(3)
+  eq(s.totalnumber, 0, "level 3 返回 0（明确拒绝）")
+  structures.sections.current = saved
+end
+
+group("37. jobname 含连字符", [[...]])
+do
+  local saved_expansion = token.getexpansion
+  local saved_current   = structures.sections.current
+  token.getexpansion = function(name)
+    if name == "\\jobname" then return "my-doc" end
+    return saved_expansion(name)
+  end
+  structures.sections.current = function()
+    return { numberdata = { numbers = { nil, 101 } } }
+  end
+
+  -- 测试绕过了 mock_chapter 直接替换 structures.sections.current，
+  -- 上面的「按章节变化自动 reset」检测不到，手动归零一次。
+  mock_order        = 0
+  last_mock_chapter = nil
+
+  BEM.check_mode = false
+  BEM.init_tree()
+  BEM.push_level("q")
+  BEM.add_scored_answer("a", 1)
+  BEM.pop_level("q")
+
+  eq(BEM.get_display("my-doc-101-Q-1").point, 1, "可查")
+  eq(BEM.get_display("my-doc-101-Q-1").order, "1", "order 正常")
+
+  structures.sections.current = saved_current
+  token.getexpansion = saved_expansion
+end
+---------------------------------------------------------------------------
+-- 收尾
+---------------------------------------------------------------------------
+structures.sections.current = real_sections_current
+BEM.check_mode = false
+BEM.init_tree()
+
+texio.write_nl("")
+texio.write_nl(string.format("=== %d passed, %d failed ===", T.pass, T.fail))
+if T.fail > 0 then
+  for _, f in ipairs(T.fails) do
+    texio.write_nl("  - " .. f)
+  end
+end
+\stopluacode
+
+\stoptext

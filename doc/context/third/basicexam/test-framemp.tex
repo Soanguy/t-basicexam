@@ -1,0 +1,318 @@
+\usemodule[memos][fontstyle=ss]
+
+\starttext
+
+\chapter{MP 背景验证（DualBodyframe overlay 模式）}
+
+\section{simple 白底}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=lightthemecolor, rulethickness=1.5pt, radius=0pt,
+]{simple white}
+
+% 【预期】白底 + lightthemecolor 完整边框
+
+\section{simple 自定义背景色}
+
+\DualBodyframe[
+  backgroundcolor=softthemecolor,
+  framecolor=themecolor, rulethickness=2pt, radius=0pt,
+]{softthemecolor}
+
+% 【预期】softthemecolor 背景 + themecolor 边框（2pt）
+
+\section{圆角 radius=5pt}
+
+\DualBodyframe[
+  backgroundcolor=softblue,
+  framecolor=blue, rulethickness=2pt, radius=5pt,
+]{radius=5pt}
+
+% 【预期】圆角矩形，浅蓝底 + 蓝框
+
+\section{仅左边框}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=red, rulethickness=2pt, radius=0pt,
+  leftframe=1, rightframe=0, topframe=0, bottomframe=0,
+]{left only}
+
+% 【预期】仅左侧红线，无其他边框
+
+\section{无边框}
+
+\DualBodyframe[
+  backgroundcolor=palethemecolor,
+  framecolor=themecolor, rulethickness=1.5pt, radius=0pt,
+  leftframe=0, rightframe=0, topframe=0, bottomframe=0,
+]{no frame}
+
+% 【预期】只有 palethemecolor 色块，无边框线
+
+\section{仅左右边框}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=blue, rulethickness=1.5pt, radius=0pt,
+  leftframe=1, rightframe=1, topframe=0, bottomframe=0,
+]{left+right}
+
+% 【预期】左右竖线，无上下横线
+
+\section{symbolbox}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=themecolor, rulethickness=1.5pt, radius=0pt,
+  symbol=※,
+]{symbolbox ※}
+
+% 【预期】右下角符号，边框 themecolor
+
+\section{symbolbox 空 symbol（none）}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=themecolor, rulethickness=1.5pt, radius=0pt,
+  symbol=none,
+]{symbolbox empty}
+
+% 【预期】无符号，仅背景+边框，不报错
+
+\section{charbox}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=orange, rulethickness=1.5pt, radius=0pt,
+  character={$\star$},
+]{charbox star}
+
+% 【预期】45° 星号水印（半透明橙色）
+
+\section{charbox 自定义字符 + 背景色}
+
+\DualBodyframe[
+  backgroundcolor=softyellow,
+  framecolor=orange, rulethickness=1.5pt, radius=0pt,
+  character={※},
+]{charbox ※}
+
+% 【预期】浅黄底 + 橙色 ※ 水印
+
+\section{charbox 空 character（none）}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=orange, rulethickness=1.5pt, radius=0pt,
+  character=none,
+]{charbox empty}
+
+% 【预期】无水印，仅背景+边框
+
+\section{framebox}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=themecolor, rulethickness=1.5pt, radius=0pt,
+  framebox=yes,
+]{framebox}
+
+% 【预期】点状/棋盘图案背景
+
+\section{shadowbox}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=lightthemecolor, rulethickness=1.5pt, radius=0pt,
+  shadow=yes, shadowcolor=lightthemecolor,
+]{shadowbox}
+
+% 【预期】右下角投影
+
+\section{shadowbox 自定义阴影色 + 粗线}
+
+\DualBodyframe[
+  backgroundcolor=softblue,
+  framecolor=blue, rulethickness=2pt, radius=0pt,
+  shadow=yes, shadowcolor=darkblue,
+]{shadowbox dark}
+
+% 【预期】深蓝阴影更明显
+
+\section{barbox}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=themecolor, rulethickness=1.5pt, radius=0pt,
+  bar=yes,
+]{barbox}
+
+% 【预期】左侧色条 + 三边细框
+
+\section{barbox + 圆角}
+
+\DualBodyframe[
+  backgroundcolor=softthemecolor,
+  framecolor=themecolor, rulethickness=2pt, radius=5pt,
+  bar=yes,
+]{barbox rounded}
+
+% 【预期】左侧色条外轮廓与主体圆角对齐，无畸形
+
+\section{bar=yes + leftframe=0}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=themecolor, rulethickness=1.5pt, radius=0pt,
+  bar=yes,
+  leftframe=0, rightframe=1, topframe=1, bottomframe=1,
+]{bar no bar}
+
+% 【预期】bar=yes 仍画左色条（自动启用），不因 leftframe=0 消失
+
+\section{圆角 + symbolbox}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=themecolor, rulethickness=1.5pt, radius=5pt,
+  symbol=※,
+]{symbolbox rounded}
+
+% 【预期】圆角框 + 右下角符号
+
+\section{圆角 + charbox}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=red, rulethickness=1.5pt, radius=5pt,
+  character={$\heartsuit$},
+]{charbox rounded}
+
+% 【预期】圆角 + 爱心水印
+
+\section{圆角 + shadowbox}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=lightthemecolor, rulethickness=1.5pt, radius=8pt,
+  shadow=yes, shadowcolor=lightthemecolor,
+]{shadowbox rounded}
+
+% 【预期】圆角 + 阴影轮廓也带圆角
+
+\section{圆角 + framebox}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=themecolor, rulethickness=1.5pt, radius=5pt,
+  framebox=yes,
+]{framebox rounded}
+
+% 【预期】圆角 + 点状图案
+
+\section{粗线 rulethickness=3pt}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=red, rulethickness=3pt, radius=0pt,
+]{thick 3pt}
+
+% 【预期】明显更粗的红框
+
+\section{细线 rulethickness=0.5pt}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=blue, rulethickness=0.5pt, radius=0pt,
+]{thin 0.5pt}
+
+% 【预期】很细的蓝框
+
+\section{frameoffset=-2pt（线居中跃出）}
+
+\DualBodyframe[
+  backgroundcolor=softthemecolor,
+  framecolor=themecolor, rulethickness=2pt, radius=0pt,
+  frameoffset=-2pt,
+]{frameoffset -2pt}
+
+% 【预期】边框线中心落在背景边界，左右跃出 th/2
+
+\section{frameoffset=+2pt（线更靠内）}
+
+\DualBodyframe[
+  backgroundcolor=softthemecolor,
+  framecolor=themecolor, rulethickness=2pt, radius=0pt,
+  frameoffset=2pt,
+]{frameoffset +2pt}
+
+% 【预期】边框线向内缩进，底色外缘露出一圈
+
+\section{backgroundoffset=4pt（底色外扩）}
+
+\DualBodyframe[
+  backgroundcolor=softthemecolor,
+  framecolor=themecolor, rulethickness=1.5pt, radius=0pt,
+  backgroundoffset=4pt,
+]{bgoffset 4pt}
+
+% 【预期】底色比边框向外扩约 4pt，且不被裁切
+
+% ============================================================
+\section{混合样式（DualBodyframe）}
+
+\subsection{shadow + bar}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=themecolor, rulethickness=1.5pt, radius=0pt,
+  shadow=yes, bar=yes, shadowcolor=lightthemecolor,
+]{shadow+bar}
+
+% 【预期】阴影 + 左色条 + 边框
+
+\subsection{shadow + character}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=red, rulethickness=1.5pt, radius=0pt,
+  shadow=yes, character={$\heartsuit$}, shadowcolor=lightthemecolor,
+]{shadow+char}
+
+% 【预期】阴影 + 爱心水印
+
+\subsection{bar + framebox}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=themecolor, rulethickness=1.5pt, radius=0pt,
+  bar=yes, framebox=yes,
+]{bar+frame}
+
+% 【预期】左色条覆盖在棋盘格之上
+
+\subsection{shadow + bar + character}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=themecolor, rulethickness=1.5pt, radius=0pt,
+  shadow=yes, bar=yes, character={$\heartsuit$}, shadowcolor=lightthemecolor,
+]{shadow+bar+char}
+
+% 【预期】阴影 + 色条 + 水印共存
+
+\subsection{全套组合}
+
+\DualBodyframe[
+  backgroundcolor=white,
+  framecolor=themecolor, rulethickness=1.5pt, radius=6pt,
+  shadow=yes, bar=yes, framebox=yes,
+  character={$\heartsuit$}, symbol=※,
+  shadowcolor=lightthemecolor,
+]{full combo}
+
+% 【预期】阴影 + 色条 + 棋盘 + 水印 + 角标 + 圆角共存
+
+\stoptext

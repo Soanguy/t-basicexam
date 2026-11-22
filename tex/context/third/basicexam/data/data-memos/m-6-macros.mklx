@@ -1,0 +1,120 @@
+\permanent\tolerant\protected\def\fixedquad[#1]% we do robust checking
+  {\dontleavehmode
+   \begingroup
+   \scratchcounter\ifchknumber#1\or\lastchknumber\else\plusthree\fi
+   \zwj\dorecurse\scratchcounter{\kern\emwidth\zwj}%
+   \endgroup}
+
+%% 没有用了，我们可以直接使用 stretched 这个命令
+\newdimen\autojustify_width
+\def\addhfil#1{#1\hfill}
+\tolerant\def\autojustify[#1]#:#2{%
+ \doifsomethingelse{#1}{\autojustify_width=#1}{\autojustify_width=3em}\relax
+       {\processisolatedchars{#2}\addhfil\unskip}%
+}
+
+%https://tex.stackexchange.com/questions/159118/how-to-iterate-over-a-comma-separated-list?noredirect=1
+\def\applys#1#2{\applyA#1#2,\applyA,}
+\def\applyA#1#2,{\ifx\applyA#2\empty\else #1{#2}\afterfi{\applyA#1}\fi}
+\def\afterfi#1#2\fi{\fi#1}% #2 似乎没有必要
+
+%%test:
+%\def\p#1{(#1,}\removeunwantedspaces\removepunctuation
+%\applys\p{1,2,3}  % expands to (1)(2)(3)
+%%test if empty:\expandafter\doifemptyelse\expandafter{\@author}{\@authora}{\@author}
+
+\def\dimtonum #1{\number\numexpr \dimexpr #1\relax*635/65536\relax }
+\newcount\cnt_floor
+\def\floor#1{\floorhelper#1.\relax}
+\def\floorhelper#1.#2\relax{\ifx\relax#2\relax#1%
+    \else\if.#2#1\else\floorhelphelper{#1}#2\fi\fi}
+\def\floorhelphelper#1#2.{\ifnum#2>0%
+    \floorhelphelphelper#1\relax\relax\relax\else#1\fi}
+\def\floorhelphelphelper#1#2\relax{%
+  \if-#1\relax-\cnt_floor=0#2\relax%
+  \advance\cnt_floor by 1\relax%
+  \number\cnt_floor\relax%
+  \else\cnt_floor=0#1#2\relax%
+  \number\cnt_floor\relax\fi%
+}
+
+% 定义一个命令 \addvspace，它接受一个长度作为参数
+\def\addvspace[#1]{%
+  \par% \par 确保我们处于垂直模式，这样 \lastskip 才有效
+  \ifdim\lastskip=\z@% 检查上一个垂直间距是否为零
+    \vskip#1\relax% 如果为零，直接添加指定的间距
+  \else
+  % 如果已有间距不为零，则进入更复杂的判断
+    \ifdim\lastskip<#1\relax% 如果已有间距小于指定的新间距
+      \vskip-\lastskip% 则先移除已有间距，再添加新间距
+      \vskip#1\relax
+    \else
+      \ifdim#1<\z@% 如果已有间距大于或等于新间距
+        \ifdim\lastskip<\z@% 并且新间距是负数，而旧间距是非负数
+        \else
+          \vskip#1\relax% 则直接添加这个负间距（实现减少空间的效果）
+        \fi
+      \fi
+    \fi
+  \fi
+}
+
+% \def\boxit#1{\vbox{\hrule\hbox{\vrule\kern3pt\vbox{\kern3pt #1\hrule width 0pt depth 1pt height 0pt\kern3pt}\kern3pt\vrule}\hrule}}
+% \def\cstok#1{\leavevmode\removeunwantedspaces\thinspace\hbox{\vrule\vtop{\vbox{\hrule\kern1pt\hbox{\vphantom{/}#1}}\kern1pt\hrule}\vrule}}
+% \boxit{\boxit{\input lipsum }}
+
+\startluacode
+  thirddata        = thirddata or {}
+  thirddata.memos  = thirddata.memos or {}
+  local memos      = thirddata.memos
+
+  memos.fullwidthmap = {
+      ["0"]="０",["1"]="１",["2"]="２",["3"]="３",["4"]="４",
+      ["5"]="５",["6"]="６",["7"]="７",["8"]="８",["9"]="９",
+      ["A"]="Ａ",["B"]="Ｂ",["C"]="Ｃ",["D"]="Ｄ",["E"]="Ｅ",
+      ["F"]="Ｆ",["G"]="Ｇ",["H"]="Ｈ",["I"]="Ｉ",["J"]="Ｊ",
+      ["K"]="Ｋ",["L"]="Ｌ",["M"]="Ｍ",["N"]="Ｎ",["O"]="Ｏ",
+      ["P"]="Ｐ",["Q"]="Ｑ",["R"]="Ｒ",["S"]="Ｓ",["T"]="Ｔ",
+      ["U"]="Ｕ",["V"]="Ｖ",["W"]="Ｗ",["X"]="Ｘ",["Y"]="Ｙ",["Z"]="Ｚ",
+      ["a"]="ａ",["b"]="ｂ",["c"]="ｃ",["d"]="ｄ",["e"]="ｅ",
+      ["f"]="ｆ",["g"]="ｇ",["h"]="ｈ",["i"]="ｉ",["j"]="ｊ",
+      ["k"]="ｋ",["l"]="ｌ",["m"]="ｍ",["n"]="ｎ",["o"]="ｏ",
+      ["p"]="ｐ",["q"]="ｑ",["r"]="ｒ",["s"]="ｓ",["t"]="ｔ",
+      ["u"]="ｕ",["v"]="ｖ",["w"]="ｗ",["x"]="ｘ",["y"]="ｙ",["z"]="ｚ",
+      [" "]="　",["!"]="！",["?"]="？",[","]="，",["."]="．",
+      [":"]="：",[";"]="；",["("]="（",[")"]="）",["["]="［",["]"]="］",
+      ["{"]="｛",["}"]="｝",["<"]="＜",[">"]="＞",["@"]="＠",["#"]="＃",
+      ["$"]="＄",["%"]="％",["&"]="＆",["*"]="＊",["+"]="＋",["="]="＝",
+      ["-"]="－",["_"]="＿",["/"]="／",["|"]="｜",["'"]="＇",['"']="＂",
+      ["\\"]="＼",["~"]="～",["^"]="＾",
+  }
+
+  function memos.fullwidthconvert(s)
+      local out = {}
+      for _, c in utf8.codes(s) do
+          local ch = utf8.char(c)
+          out[#out+1] = memos.fullwidthmap[ch] or ch
+      end
+      return table.concat(out)
+  end
+\stopluacode
+
+\def\fullwidth#1{\ctxlua{context(thirddata.memos.fullwidthconvert([==[#1]==]))}}
+
+\startluacode
+-- 1. 拦截 HTML 生成：覆盖原生指令
+directives.register("system.showerror", function(v)
+    -- 留空，彻底阻止生成 -status.html
+end)
+
+-- 2. 拦截 -error.log 生成：劫持 table.save
+local original_save = table.save
+table.save = function(filename, data)
+    -- 如果文件名包含 "-error.log"，我们就假装保存了，直接 return
+    if filename and string.find(filename, "%-error%.log$") then
+        return
+    end
+    -- 其他正常的 table.save 调用继续执行
+    return original_save(filename, data)
+end
+\stopluacode

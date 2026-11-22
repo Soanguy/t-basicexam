@@ -181,7 +181,7 @@
 \definevisualcounter
   [visualprogressbar]
   [progressbar]
-  [counter=userpage,width=\the\dimexpr\textwidth + 5ex\relax,height=.5ExHeight]
+  [counter=userpage,width=\the\dimexpr\textwidth + 7ex\relax,height=.5ExHeight]
 }{}
 
 \startinteractionmenu[bottom]
@@ -451,11 +451,11 @@
 
 \definelist
   [MySubjects]
-  [criterium=all,
-  interaction=all,
-  maxwidth=\the\dimexpr.9\rightedgewidth\relax,
-  alternative=command,
-  command=\TopicEntry]
+  [criterium=chapter,
+   interaction=all,
+   maxwidth=\the\dimexpr.9\rightedgewidth\relax,
+   alternative=command,
+   command=\TopicEntry]
    
 \setuplist
   [Topic,Subject]
@@ -502,20 +502,21 @@
               width=\scratchdimen,frame=overlay,height=1.2em,
               loffset=.5em,roffset=.5em,
               corner=round,
+              radius=2.5pt,
               background=color,
               backgroundcolor=BackgroundColor:1,
               foregroundcolor=ContrastColor
               ]
             {\expand\t_lists_every_renderingtext
-            \expand\t_lists_every_renderingsynchronize
-            \ttxx\strc_lists_limitated_text{#1}}%
+             \expand\t_lists_every_renderingsynchronize
+             \ttxx\strc_lists_limitated_text{#1}}%
     }{%
       \framed[width=\scratchdimen,height=1em,strut=no,frame=off,
               % background=color,backgroundcolor=,
               foregroundcolor=BackgroundColor:2]
             {\expand\t_lists_every_renderingtext
-            \expand\t_lists_every_renderingsynchronize
-            \ttxx\strc_lists_limitated_text{#1}}%
+             \expand\t_lists_every_renderingsynchronize
+             \ttxx\strc_lists_limitated_text{#1}}%
     }}\par}
 
 \setupinteractionmenu

@@ -1,0 +1,1823 @@
+\setupinteractionscreen [option=bookmark]
+\placebookmarks         [part,chapter,section][chapter]
+\setupinteraction       [state=start,
+                         color=linkcolor,
+                         contrastcolor=themecolor,
+                         ]
+\setupcombinedlist      [content] [interaction=all,color=toccolor]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                                結構相關設置                         %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\defineconversionset  [frontpart:pagenumber] [] [Romannumerals]
+\defineconversionset  [bodypart:pagenumber]  [] [n]
+\setupsectionblock    [frontpart] [page=right,\c!number=\v!yes,before=\setcounter [userpage] [1]\setuplayout[reset]]
+\setupsectionblock    [bodypart]  [page=right,\c!number=\v!yes,before=\setcounter [userpage] [1]\setuplayout[default]]
+\setupsectionblock    [appendix]  [page=right,before={\setuphead[part][number=no,numbercommand=,placehead=yes,]}]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                            標題相關設置                             %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definepagebreak[emptyright][yes,header,footer,right]
+\setupheads
+           [part,chapter,section,subsection,subsubsection,
+            subsubsubsection,subsubsubsubsection]
+           [indentnext=yes,interlinespace=auto,]
+\setuphead [part,chapter]        [page=emptyright]
+\setuphead [part,chapter,title]  [header=empty,footer=empty,color=titlecolor]
+\setuphead [title,subject]       [incrementnumber=list]
+\setuphead [part]                [placehead=yes,
+                                  numbercommand=\groupedcommand{\feature[+][f:caps] Part\ }{},
+                                  commandbefore=\blank,
+                                  before={\null\vfill},
+                                  after={\vfill}]
+\setuphead [chapter]             [frontpartlabel=preface,
+                                  bodypartlabel=chapter,
+                                  appendixlabel=appendix,
+                                  backpartlabel=backpart,
+                                  interlinespace=3\bodyfontsize,
+                                  before={\null\vskip3\baselineskip\relax},
+                                  after={\vskip\baselineskip\relax}]
+\setuphead [part]                [style=\definedfont[Sans sa 2.488]]
+\setuphead [chapter]             [style=\ssd]
+\setuphead [section]             [before=\vskip1.\lineheight,after=\vskip1.\lineheight,style=\rm\bfb]
+\setuphead [subsection]          [before=\vskip.7\lineheight,after=\vskip.3\lineheight,style=\rm\bfa]
+\setuphead [subsubsection]       [before=\vskip.7\lineheight,after=\vskip.3\lineheight,style=\rm\bf]
+\setuphead [subsubsubsection]    [before=\vskip.7\lineheight,after=\vskip.3\lineheight,style=\rm\bf]
+\setuphead [subsubsubsubsection] [before=\vskip.7\lineheight,after=\vskip.3\lineheight,style=\rm\bf]
+\setuphead [chapter]             [sectionsegments=chapter]
+\setuphead [section]             [sectionsegments=section]
+\setuphead [subsection]          [sectionsegments=subsection]
+\setuphead [subsubsection]       [sectionsegments=subsubsection]
+\setuphead [subsubsubsection]    [sectionsegments=subsubsubsection]
+\setuphead [subsubsubsubsection] [sectionsegments=subsubsubsubsection]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                          標題相關設置                               %%%%%%
+%%%%%%                           數字式標籤                                %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definelayout [part] [moderate]
+\definemakeup [part] [\c!doublesided=yes%
+                     ,\c!pagestate  =start%
+                     ,\c!page       =right%
+                     ,\c!headerstate=stop%
+                     ,\c!footerstate=stop%
+                     ,\c!topstate   =stop%
+                     ,\c!bottomstate=stop%
+                     ,\c!textstate  =stop%
+                     ,\c!top        =\pseudostrut\ignorespaces%
+                     ,\c!bottom     =\obeydepth\vss%
+                     ,\c!height     =\paperheight%
+                     ,\c!align      =flushright%
+                     ,\c!after      =,]
+
+%characters(a),romannumerals(i),numbers(1),
+%chinesenumerals(四十二) chinesecapnumerals(肆拾二) chineseallnumerals(廿二)
+%% 1          --- chapter
+%% 1 XXXX     --- section
+%% 1.1 XXXX   --- subsection
+%% (1) XXXX   --- subsubsection
+%% (1.1) XXXX --- subsubsubsection
+\startsetups memos:chap:simple
+  \setuplabeltext [en]             [chapter={{\sc Chapter\ \tf\definedfont[SansBold sa 2.488]},}]
+  \setuplabeltext [hans]           [chapter={{\sc Chapter\ \tf\definedfont[SansBold sa 2.488]},}]
+  \setuplabeltext [hant]           [chapter={{\sc Chapter\ \tf\definedfont[SansBold sa 2.488]},}]
+  \setupheads[chapter]             [commandbefore=\blank[1ex],]
+  \setupheads[subsection]          [sectionsegments=section:*]
+  \setupheads[subsubsection]       [numbercommand=\paren]
+  \setupheads[subsubsubsection]    [sectionsegments=subsubsection:*]
+  \setupheads[subsubsubsubsection] [sectionsegments=subsubsection:*]
+\stopsetups
+%% 第 1 章          --- chapter
+%% 第 1 節 XXXX     --- section
+%% 1.1 XXXX         --- subsection
+%% 1.1.1 XXXX       --- subsubsection
+%% 1.1.1.1 XXXX       --- subsubsubsection
+
+\define[2]\part_default_framed{%
+  \vbox to 1th{\localheadsetup
+  \dontleavehmode
+  \ifconditional\headshownumber
+    \vbox{\hbox to 6em{%
+          \framed[frame=off,corner=rounded,width=4em,
+            background=color,backgroundcolor=themecolor,
+            ]{#1}\hfil}}%
+            #2\par\vfill%
+    \hfill\vbox {\hsize .55tw\vfill\hw
+    \setuplist[chapter][margin=0pt,width=fit,frame=off,distance=.5em,
+                        align=flushleft,numbercommand=,
+                        style=\setuplocalinterlinespace[line=1em]\hw,]%
+    \placecontent[list=chapter]}%
+  \fi
+}}
+
+\startsetups memos:chap:default
+  \edef\currentchapterstyle{default}
+
+  \setupmakeup[part] [before=\setupbackgrounds[page][background=color,backgroundcolor=palethemecolor],
+                       after=\setupbackgrounds[page][background=color,backgroundcolor=transparentcolor]]
+  \setuphead  [part] [placehead=yes,
+                      align=flushleft,
+                      page=no,
+                      numbercolor=white,
+                      numberstyle=ssd,
+                      numbercommand=\groupedcommand{\feature[+][f:caps] Part\ \definedfont[Sans sa 3.583]}{},
+                      command=\part_default_framed,
+                      before=\startmakeup[part],
+                      after=\stopmakeup,
+                      ]
+  \setupheads[chapter][align=center,distance=\widthofstring{\ssd 章}]
+  \setupheads[section,
+              subsection,
+              subsubsection,
+              subsubsubsection,
+              subsubsubsubsection] [sectionsegments=section:*]
+  \setupheads[subsection,
+              subsubsection,
+              subsubsubsection,
+              subsubsubsubsection] [numbercommand=,]
+  \setuplabeltext [hans]  [part={第,部},        appendix=附录,
+                           chapter={第,章},     section={第,节},
+                           subsection={},      subsubsection={},
+                           subsubsubsection={},subsubsubsubsection={}]
+  \setuplabeltext [hant]  [part={第,部},        appendix=附録,
+                           chapter={第,章},     section={第,節},
+                           subsection={},      subsubsection={},
+                           subsubsubsection={},subsubsubsubsection={}]
+\stopsetups
+%%                   1.1 Subsection
+%%  1 Chapter        (1) Subsubsection
+%% ------------      (1.1) Subsubsubsection
+%% 1 Section         (1.1.1) Subsubsubsubsection
+%%%%%%
+\define[2]\partlineframe{
+  \vbox to 1th{\localheadsetup
+  \dontleavehmode
+  \ifconditional\headshownumber
+    \vfill
+    \setbox0=\hbox{%
+      \hbox to 2em{\hfill #1\hfill}\hskip .5em%
+      \setuptextrules[rulecolor=white]%
+      \vbox to 4em{\hsize\dimexpr\textwidth-2em\relax\vfill\textrule[top]{#2}\vfill}%
+    }%
+    \dp0\zeropoint\box0
+    \vfill
+  \fi
+}}
+
+\startsetups memos:chap:line
+  \setupmakeup[part] [before=\setupbackgrounds[page][background=color,backgroundcolor=softthemecolor],
+                       after=\setupbackgrounds[page][background=color,backgroundcolor=transparentcolor]]
+  \setuphead  [part] [placehead=yes,
+                      align=flushright,
+                      page=no,
+                      numbercolor=white,
+                      numberstyle=\definedfont[Sans at 5em],
+                      numbercommand=,
+                      textcolor=white,
+                      textstyle=ssb,
+                      command=\partlineframe,
+                      before=\startmakeup[part],
+                      after=\stopmakeup,]
+  \setuphead [chapter]             [before=\mbox{}\vskip2\lineheight\relax,
+                                    after=\vskip\lineheight\hfil\blackrule[color=titlecolor,height=2pt,width=4em]\hfil\par\vskip3\lineheight\relax,
+                                    interlinespace=medium,
+                                    align=center,
+                                    style=\definedfont[Sans sa 2.488]]
+  \setuphead [section,subsection]  [numbercolor=lightthemecolor,numberwidth=2em]
+  \setuphead [section]             [style=\ss\bfb,   numberstyle=\ss\bid,]
+  \setuphead [subsection]          [style=\ss\tfa,   numberstyle=\ss\itc,]
+  \setupheads[subsection]          [numbercommand=,  sectionsegments=section:*]
+  \setupheads[subsubsection]       [numbercommand=\paren]
+  \setupheads[subsubsubsection]    [numbercommand=\paren,sectionsegments=subsubsection:*]
+  \setupheads[subsubsubsubsection] [numbercommand=\paren,sectionsegments=subsubsection:*]
+\stopsetups
+%%%%%%
+%% chapter 1 XXXX    --- chapter
+%% 1 XXXX            --- section
+%% 1.1 XXXX          --- subsection
+%% 1.1.1 XXXX        --- subsubsection
+%% 1.1.1.1 XXXX      --- subsubsubsection
+\startsetups memos:chap:madsentoc
+  \startlocalheadsetup
+  \headsetupspacing
+  \starttabulate[|ck{0}|]
+  \setuplocalinterlinespace[1pt]
+  \NC\startframed[background=color,backgroundcolor=softthemecolor,
+              foreground=color,foregroundcolor=white,
+              corner=03,frame=off,location=bottom,
+              width=\textwidth,height=5em,align={lohi,center}]%
+              \headtextcontent
+  \stopframed\NC\NR\NC
+  \startframed[height=\baselineskip,width=\textwidth,corner=01,
+              background=color,backgroundcolor=themecolor,
+              toffset=-\baselineskip,location=bottom,
+              align=right,frame=off,]
+  \stopframed\NC\NR
+  \stoptabulate
+  \stoplocalheadsetup
+\stopsetups
+
+\startsetups memos:chap:madsenchapter
+  \startlocalheadsetup
+  \headsetupspacing
+  \startframed[height=fit,width=\headparameter\c!width,
+              %background=chapback,
+              align=flushright,location=hanging,
+              frame=off,bottomframe=on,topframe=on]
+    \startframed[frame=off,]%
+      \startframed[frame=off,foregroundcolor=lightthemecolor]%
+        \ifconditional\headshownumber
+          \rotate[rotation=90]{\tf \setcharactercasing[Word]%
+                              \sc \currentstructurelabel}%
+        \else\strut\fi
+      \stopframed
+      \startframed[backgroundcolor=themecolor, background=color,
+                  foregroundcolor=white,       foreground=color,
+                  corner=round,frame=off,
+                  backgroundoffset=-4pt,
+                  width=5em,height=5em,align={lohi,center}]%
+                \setuplocalinterlinespace[0pt]
+                \switchtobodyfont[40pt]
+                \headnumber[chapter]%
+      \stopframed%
+    \stopframed\endgraf
+    \startframed[height=fit,width=0.65\headparameter\c!width,
+                location=hanging,align=right,frame=off,]
+                \headtextcontent
+    \stopframed
+  \stopframed
+  \stoplocalheadsetup
+\stopsetups
+
+\define[2]\part_madsen_frame{%
+  \vbox xoffset 1pt to 1th{
+  \vskip 50pt\relax
+  \localheadsetup
+  \dontleavehmode
+  \ifconditional\headshownumber
+    \framed[frame=off,
+            background=color,backgroundcolor=lightthemecolor,
+            width=100pt,height=100pt,
+            corner=02,]
+    {#1}
+    #2\vfil\hw
+    \hfill\vbox xoffset -1em {\hsize .5tw\vfill
+    \setuplist[chapter][margin=0pt,width=fit,frame=on,
+                    align=flushleft,numbercommand=,
+                    style=\setuplocalinterlinespace[line=0em]\hw,]
+      \placecontent[list=chapter]}%
+  \fi
+}}
+
+\definelayer[part:madsen:left][width=\paperwidth,height=\paperheight,preset=lefttop]
+\definelayer[part:madsen:right][width=\cutspace,height=\paperheight,x=\dimexpr\paperwidth-\cutspace\relax]
+
+\startsetups memos:chap:madsen
+  \definebodyfontenvironment [40pt]
+  \defineoverlay[chapback][{\externalfigure[][width=0.8\paperwidth,height=6cm]}]
+
+  \defineheadalternative[madsentoc][renderingsetup=memos:chap:madsentoc]
+  \defineheadalternative[madsen][renderingsetup=memos:chap:madsenchapter]
+
+  \setupmakeup[part] [before=%
+                            \setlayer   [part:madsen:left] {\framed[frame=off,background=color,backgroundcolor=palethemecolor,width=1pw,height=1ph]{}}%
+                            \setlayer   [part:madsen:right]{\framed[frame=off,background=color,backgroundcolor=lightthemecolor,width=\cutspace,height=1ph]{}}%
+                            \setupbackgrounds[page][background={part:madsen:left,part:madsen:right}]]
+  \setuphead  [part] [placehead=yes,
+                      align=flushright,
+                      page=no,
+                      numbercolor=white,
+                      numberstyle=ssd,
+                      numbercommand=\groupedcommand{\feature[+][f:caps] Part\ \definedfont[Sans sa 3.583]}{},
+                      textcommand=\groupedcommand{}{\hbox to 1em{}},
+                      command=\part_madsen_frame,
+                      before=\startmakeup[part],
+                      after=\stopmakeup,]
+
+  \setuphead[chapter][before=,width=\textwidth,%\spanmarginwidth,
+                      alternative=madsen,
+                      textstyle=\definedfont[Sans sa 2.488]]
+  \setupheads[subsection]          [sectionsegments=section:*]
+  \setupheads[subsubsection]       [sectionsegments=section:*]
+  \setupheads[subsubsubsection]    [sectionsegments=section:*]
+  \setupheads[subsubsubsubsection] [sectionsegments=section:*]
+\stopsetups
+%%%%%%
+%% 第 一 回 XXXX
+\startsetups memos:chap:classicnovel
+  \definestructureconversionset[classicnovelconversionset]
+                        [chineseallnumerals][chineseallnumerals]
+  \setupheads[part,chapter,section,subsection,
+              subsubsection,subsubsubsection,
+              subsubsubsubsection]
+            [sectionconversionset=classicnovelconversionset]
+  \setuplabeltext [hans] [part={部},chapter={第,回},]
+  \setuplabeltext [hant] [part={部},chapter={第,回},]
+  \setuplist [chapter] [width=4em,distance=1em,numberalign=inner,style=\bf]
+  \defineheadalternative[classicnovel]
+                        [alternative=vertical,
+                        renderingsetup=classicnovel]
+
+  \setwidthof{\headnumbercontent}\to\HeadNumberWidth
+  \newdimen\MaxHeadNumberWidth
+  \MaxHeadNumberWidth=82pt
+  \startsetups[classicnovel]
+    \vbox {
+          \headsetupspacing
+          \veryraggedcenter
+          \let\\\endgraf\let\crlf\endgraf
+          \setupTABLE[c][each][align={\p_align},frame=off]
+          \ifdim\HeadNumberWidth>\MaxHeadNumberWidth
+              \bTABLE\bTR\bTD
+              \ifconditional\headshownumber%
+              \begstrut\headnumbercontent\endstrut%
+              \else\fakeheadnumbercontent\fi%
+              \eTD\eTR\bTR\bTD%
+              \begstrut\headtextcontent\endstrut%
+              \eTD\eTR\eTABLE
+          \else
+              \bTABLE\bTR\bTD[roffset=\headparameter\c!roffset]
+              \ifconditional\headshownumber%
+                  \strut\headnumbercontent\quad%
+              \else\fakeheadnumbercontent\fi%
+              \eTD\bTD%
+              \begstrut\headtextcontent\endstrut%
+              \eTD\eTR\eTABLE%
+        \fi
+    }
+  \stopsetups
+  \setupheads[chapter][roffset=1em,% control space between number and title
+                      alternative=classicnovel,align={center,lohi}]
+\stopsetups
+%%%%%%
+%% XX 第一
+\startsetups memos:chap:classics
+  \definestructureconversionset[classicsconversionset]
+                        [chineseallnumerals][chineseallnumerals]
+  \setupheads[part,chapter,section,subsection,
+              subsubsection,subsubsubsection,
+              subsubsubsubsection]
+            [sectionconversionset=classicsconversionset]
+  \setuplabeltext [hans][part={部},chapter={第},]
+  \defineheadalternative[classics]
+                        [alternative=horizontal,
+                        renderingsetup=classics]
+  \startsetups[classics]
+    \vbox {
+          \headsetupspacing
+          \veryraggedcenter
+          \let\\\endgraf\let\crlf\endgraf
+          \begstrut
+          \headtextcontent
+          \ifconditional\headshownumber
+          \headnumbercontent
+          \else\fakeheadnumbercontent\fi
+          \endstrut\blank
+    }
+  \stopsetups
+  \setupheads[chapter][alternative=classics,align={center}]
+\stopsetups
+%%%%%%
+
+\startuseMPgraphic{crosspart}
+  StartPage ;
+      numeric edgewidth     ; edgewidth     := \the\rightedgedistance  ;
+      numeric marginwidth   ; marginwidth   := \the\rightmarginwidth   ;
+      numeric paperwidth    ; paperwidth    := \the\paperwidth         ;
+      numeric paperheight   ; paperheight   := \the\paperheight        ;
+      numeric shifttomargin ; shifttomargin := \the\shifttomargin      ;
+    path VertBox ; path VertBoxi ;
+    VertBox   := lrcorner Field[Bottom]  [OuterEdge] --
+                lrcorner Field[OuterEdge]     [Top] --
+                urcorner Field[Top]   [OuterMargin] --
+                urcorner Field[Bottom][OuterMargin] -- cycle ;
+    VertBoxi := lrcorner Field[Bottom]  [RightEdgeSeparator] --
+                lrcorner Field[RightEdgeSeparator]     [Top] --
+                urcorner Field[Top]            [RightMargin] --
+                urcorner Field[Bottom]         [RightMargin] -- cycle ;
+      path HorizBox ; path HorizBoxi ; path HorizBoxii ;
+      HorizBox  := fullsquare xysized (  paperwidth,.06paperheight)
+                              shifted (.5paperwidth, .7paperheight);
+      HorizBoxi := fullsquare xysized (  paperwidth,.08paperheight)
+                              shifted (.5paperwidth, .7paperheight);
+    HorizBoxii := fullsquare xysized (  marginwidth,.06paperheight)
+                              shifted (shifttomargin, .7paperheight);
+      pickup pencircle scaled 2pt ;
+      fill Page        withcolor \MPcolor{softthemecolor}   ;
+      fill VertBox     withcolor \MPcolor{lightthemecolor}  ;
+      fill VertBoxi    shifted(-edgewidth,0) withcolor white ;
+      fill HorizBoxi   withcolor white ;
+      fill HorizBox    withcolor \MPcolor{lightthemecolor}  ;
+      fill HorizBoxii  withcolor \MPcolor{softthemecolor}  ;
+  StopPage ;
+\stopuseMPgraphic
+
+\startuseMPgraphic{MP:all}
+    numeric width , height ;
+    width  = \overlaywidth ;
+    height = \overlayheight ;
+    numeric textwidth ,              textheight ;
+    textwidth  := .9*\overlaywidth ; textheight := .92*\overlayheight ;
+    path paper_back ;%%% i
+    paper_back  := fullsquare xscaled width yscaled height ;
+    fill paper_back withcolor \MPcolor{softthemecolor} ;
+    path text_back ;%%% ii
+    text_back := fullsquare xscaled textwidth yscaled textheight cornered .5cm;
+    fill text_back withcolor white ;
+\stopuseMPgraphic
+
+\startuseMPgraphic{MP:chapter}
+    numeric width , height ;
+    width  = \overlaywidth ;
+    height = \overlayheight ;
+    numeric textwidth , textheight ;
+    textwidth  := .9*\overlaywidth  ;
+    textheight := .65*\overlayheight ;
+    path paper_back ;%%% i
+    paper_back  := fullsquare xscaled width yscaled height ;
+    fill paper_back withcolor \MPcolor{softthemecolor} ;
+    path text_back ;%%% ii
+    text_back := fullsquare xscaled textwidth yscaled textheight cornered .5cm;
+    fill text_back shifted(0,-.15textheight) withcolor white ;
+\stopuseMPgraphic
+
+\startsetups chapter:pagebackground
+  \doifelsemode {colorful:chapterpage} {
+    \setlayer[lay:chapter][preset=lefttop]{\useMPgraphic{MP:chapter}}
+    \globaldisablemode[colorful:chapterpage]
+  }{
+    \setlayer[lay:chapter][preset=lefttop]{\useMPgraphic{MP:all}}
+  }
+  \placelayer[lay:chapter]
+\stopsetups
+
+\define[2]\left_margin_placement{%
+  \vbox{\localheadsetup
+  \dontleavehmode
+  \ifconditional\headshownumber
+    \vskip\dimexpr.1\paperwidth\relax
+    \rightskip = -.85\rightmarginwidth #1
+    \vskip\dimexpr3\baselineskip\relax
+      #2
+    \vskip2.5\baselineskip
+  \fi
+}}
+
+\newdimen\shifttomargin
+\shifttomargin=\dimexpr\paperwidth-%
+            2\rightedgedistance-\rightedgewidth-%
+           .5\rightmarginwidth\relax%
+
+\startsetups memos:chap:colorful
+  \definelayer      [lay:all]     [repeat=yes,width=\paperwidth, height=\paperheight]
+  \definelayer      [lay:chapter] [width=\paperwidth, height=\paperheight]
+  \defineoverlay    [olay:all]    [\useMPgraphic{MP:all}]
+  \defineoverlay    [partoverlay] [\useMPgraphic{crosspart}]
+  \defineoverlay    [olay:chapter][\directsetup{chapter:pagebackground}]
+% \setupbackgrounds [page]        [background=olay:all,state=repeat]
+  \setupbackgrounds [page]        [background=olay:chapter]
+  \setupmakeup      [part]        [before=\setupbackgrounds[page][background=partoverlay],
+                                    after=\setupbackgrounds[page][background=transparentcolor]]
+  \setuphead        [part]        [placehead=yes,align=flushright,page=no,
+                                   alternative=\v!command,
+                                   \c!command=\left_margin_placement,
+                                   before=\startmakeup[part],
+                                   after=\stopmakeup,
+  %%                                 alternative=paragraph,
+  %%                                 location=outermargin,
+  %%                               numbercommand=\groupedcommand
+  %%                                 {\vskip\dimexpr.06\paperwidth\relax}
+  %%                                 {\blank},
+                                  ]
+  % startpartmakeup \part{} \stoppartmakeup
+  % ------------- only set for chapter
+  \setuphead[chapter][before={\globaldisablemode[rocket:chapterpage]
+                              \globaldisablemode[hexa:chapterpage]
+                              \globalenablemode[colorful:chapterpage]
+                              \null\vskip2\baselineskip\relax},
+                      after={\null\vskip2\baselineskip\relax},]
+         
+\stopsetups
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 一种 chapter 样式
+% Chapter            ｜   ｜
+% -------            ｜ 1 ｜
+%                     \  /
+%    Chapter Title     \/
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\startuseMPgraphic{style:chapter:rocket:number}
+  fill fullsquare   xysized (75pt , 150pt)
+                    shifted (0,     10pt)
+                    withcolor \MPcolor{lightthemecolor};
+  fill downtriangle xysized (75pt ,  40pt)
+                    shifted (0,   -78.4pt)
+                    withcolor \MPcolor{lightthemecolor};
+  label("\definedfont[Sans sa 4]
+          \ifnum{\somenamedheadnumber{chapter}{current}}>0
+            \somenamedheadnumber{chapter}{current}\fi",
+        origin shifted (0, -35pt)) withcolor white;
+\stopuseMPgraphic
+
+\startsetups memos:chap:rocket:background
+  \doifelsemode {rocket:chapterpage} {
+      \setlayer
+        [layer:chapter:rocket:number]
+        [preset=righttop,hoffset=\rightedgewidth,]
+        {\useMPgraphic{style:chapter:rocket:number}}
+      \globaldisablemode[rocket:chapterpage]
+  } {
+      \setlayer
+        [layer:chapter:rocket:number]
+        [preset=middle]
+        {}
+  }
+  \placelayer[layer:chapter:rocket:number]
+\stopsetups
+
+\startsetups[memos:chap:rocketdown]
+  \globaldisablemode[colorful:chapterpage]
+  \globaldisablemode[hexa:chapterpage]
+  \globalenablemode[rocket:chapterpage]
+  \vbox{
+    \headsetupspacing\hfill
+    \let\\\endgraf\let\crlf\endgraf
+    \ifnum{\somenamedheadnumber{chapter}{current}}>0
+      \framed[frame=off,bottomframe=on,offset=0pt,
+              framecolor=titlecolor,rulethickness=2pt]
+              {\hfill
+      \ifconditional\headshownumber
+      \strut\headnumbercontent
+      \else\fakeheadnumbercontent\fi}
+    \else
+      \framed[frame=off,offset=0pt]
+              {\hfill
+      \ifconditional\headshownumber
+      \strut\headnumbercontent
+      \else\fakeheadnumbercontent\fi}%
+    \fi\par\hfill
+    \begstrut\headtextcontent\endstrut
+  }
+\stopsetups
+
+\newcount\totalparts
+\totalparts=3
+\defineoverlay[archedbackground][\useMPgraphic{background:arched}]
+
+\startuseMPgraphic{background:arched}
+  StartPage;
+
+  numeric arch_radius, arch_depth, split_position;
+  arch_radius := PaperWidth/6;
+  arch_depth := 60pt;
+  split_position := 0.65 * PaperHeight;
+
+  path bottom_layer, top_layer, arch_path;
+
+  bottom_layer := (0, 0) -- (PaperWidth, 0) -- (PaperWidth, PaperHeight)
+                  -- (0, PaperHeight) -- cycle;
+
+  top_layer := (0, 0) -- (PaperWidth, 0) -- (PaperWidth, split_position)
+               -- (PaperWidth/2 + arch_radius, split_position)
+               .. (PaperWidth/2, split_position - arch_depth) ..
+               (PaperWidth/2 - arch_radius, split_position)
+               -- (0, split_position) -- cycle;
+
+  arch_path := (0, split_position)
+               -- (PaperWidth/2 - arch_radius, split_position)
+               .. (PaperWidth/2, split_position - arch_depth) ..
+               (PaperWidth/2 + arch_radius, split_position)
+               -- (PaperWidth, split_position);
+
+  fill bottom_layer withcolor \MPcolor{themecolor};
+  fill top_layer withcolor \MPcolor{softthemecolor};
+
+  draw arch_path withcolor white withpen pencircle scaled 4pt;
+
+  numeric current_part, total_parts, progress;
+  current_part := \the\numexpr\somenamedheadnumber{part}{current}\relax;
+  total_parts := \the\totalparts;
+  
+  if current_part > 0:
+    progress := current_part / total_parts;
+  else:
+    progress := 0;
+  fi;
+
+  path progress_path;
+  progress_path := subpath (0, progress * length(arch_path)) of arch_path;
+
+  draw progress_path withcolor \MPcolor{optcolor} withpen pencircle scaled 4pt;
+
+  StopPage;
+\stopuseMPgraphic
+
+\define[2]\part_rocket_frame{%
+  \vbox to 1th{
+  \vskip 50pt\relax
+  \localheadsetup
+  \dontleavehmode
+  \ifconditional\headshownumber
+    {\strc_rendering_initialize_style_and_color\relax\c!numbercolor
+     \feature[+][f:caps] Part}\par
+    #1\blank[2*line]
+    #2
+    \vfill
+    \setuplist[chapter]
+              [margin=0pt,width=fit,frame=on,
+              align=flushleft,numbercommand=,
+              style=\ss,color=darkthemecolor]
+    \setuplocalinterlinespace[line=0em]%
+    \raggedright
+      \color[optcolor]{\ssd\labeltext{content}\vskip 4pt
+      \hrule width \hsize height 0pt depth 1pt}
+    \hw\placecontent[list=chapter]
+  \fi
+}}
+
+\startsetups memos:chap:rocket
+  \definelayer  [layer:chapter:rocket:number]
+                [x=0mm, y=0mm,width=\paperwidth,height=\paperheight]
+
+  \defineoverlay   [hexa:background][\setups{memos:chap:rocket:background}]
+  \setupbackgrounds[page]          [background=hexa:background]
+
+  \defineheadalternative[rocketdown]
+                        [alternative=vertical,renderingsetup=memos:chap:rocketdown]
+
+  \setuplabeltext[en]  [chapter=Chapter,preface=Preface,appendix=Appendix]
+  \setuplabeltext[hans][chapter=Chapter,preface=Preface,appendix=Appendix]
+  \setuplabeltext[hant][chapter=Chapter,preface=Preface,appendix=Appendix]
+
+  \setupmakeup[part][before=\setupbackgrounds[page][background=archedbackground],
+                      after=\setupbackgrounds[page][background=color,backgroundcolor=transparentcolor]]
+  \setuphead  [part] [placehead=yes,
+                      align=center,
+                      page=no,
+                      numbercolor=white,
+                      numberstyle=\definedfont[Sans at 4em],
+                      numbercommand=,
+                      textcolor=optcolor,
+                      textcommand=,
+                      command=\part_rocket_frame,
+                      before=\startmakeup[part],
+                      after=\stopmakeup,]
+  \setuphead[chapter][alternative=rocketdown,
+                      numberstyle=\it,
+                      textstyle=\definedfont[Sans sa 2.488],]
+  \setupheads[subsection]          [sectionsegments=section:*]
+  \setupheads[subsubsection]       [sectionsegments=section:*]
+  \setupheads[subsubsubsection]    [sectionsegments=section:*]
+  \setupheads[subsubsubsubsection] [sectionsegments=section:*]
+\stopsetups
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 一种 chapter 样式 hexa
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\let\hexa_MPchaplabel\relax
+\def\hexa_MPchaplabel{\ssa\ifzeronum\namedheadnumber{chapter}\relax%
+                      \else\sc Chapter\fi}
+
+\startuseMPgraphic{style:chapter:hexa:number}
+    fill (dir(0) -- dir(60)  -- dir(120) -- dir(180)
+                  -- dir(240) -- dir(300) -- cycle)
+          scaled 60pt
+          withshademethod "linear"
+          withshadevector (10,-5)
+          withcolor \MPcolor{optcolor} shadedinto \MPcolor{themecolor}
+          withtransparency (1,.6) ;
+    label("\definedfont[SansBold at 30pt]%
+            \somenamedheadnumber{chapter}{current}",
+          origin shifted(0,5pt)) withcolor white;
+    label("\hexa_MPchaplabel",
+          origin shifted(0,-30pt)) withcolor white;
+\stopuseMPgraphic
+
+\startsetups memos:chap:hexa:background
+  \doifelsemode {hexa:chapterpage} {
+      \setlayer
+        [layer:chapter:hexa:number]
+        [preset=righttop,
+         hoffset=\dimexpr\rightedgewidth+\rightedgedistance+35pt\relax,
+         voffset=\dimexpr\topspace+\headerheight+\headnumberdistance\relax]
+        {\useMPgraphic{style:chapter:hexa:number}}
+      \globaldisablemode[hexa:chapterpage]
+  } {
+      \setlayer
+        [layer:chapter:hexa:number]
+        [preset=middle]
+        {}
+  }
+  \placelayer[layer:chapter:hexa:number]
+\stopsetups
+
+\startsetups[memos:chap:hexagradient]
+  \globaldisablemode[rocket:chapterpage]
+  \globaldisablemode[colorful:chapterpage]
+  \globalenablemode[hexa:chapterpage]
+      \vbox{
+          \headsetupspacing\veryraggedleft
+          \let\\\endgraf\let\crlf\endgraf
+          \ifconditional\headshownumber
+              \strut\headnumbercontent\quad%\par % <-- commented out
+          \else\fakeheadnumbercontent\fi
+          \begstrut\headtextcontent\endstrut
+          \vskip\baselineskip\relax
+      }
+\stopsetups
+
+\startsetups memos:chap:hexa
+  \definelayer  [layer:chapter:hexa:number][x=0mm, y=0mm,width=\paperwidth, height=\paperheight]
+  \defineoverlay[hexa:pagebackground][\setups{memos:chap:hexa:background}]
+  \setupbackgrounds     [page][background=hexa:pagebackground]
+  \defineheadalternative[hexagradient][alternative=vertical,renderingsetup=memos:chap:hexagradient]
+  \setuphead [chapter][alternative=hexagradient,numbercolor=white,]
+  \setupheads[subsection,subsubsection,
+              subsubsubsection,subsubsubsubsection]
+              [sectionsegments=section:*]
+\stopsetups
+
+% \starttitle[title=How to write a \tex{placetitle} command,]
+%            [author=Ben Lee User,date=\currentdate\space\currenttime]
+% \structureuservariable\c!author
+% \stoptitle
+
+\startsetups memos:chap:article
+  \defineheadalternative
+    [article]
+    [\c!alternative=\v!vertical,
+    \c!renderingsetup=\??headrenderings:article]
+
+  \startsetups[\??headrenderings:article]
+    \vbox {
+      \headsetupspacing
+      \ifconditional\headshownumber
+          \ifzeropt\headwidth \else
+              \ifzeropt\headnumberwidth
+                  \ifzeropt\headtextwidth \else
+                      \headnumberwidth\dimexpr\headwidth-\headtextwidth\relax
+                  \fi
+              \else
+                  \ifzeropt\headtextwidth
+                      \headtextwidth\dimexpr\headwidth-\headnumberwidth\relax
+                  \fi
+              \fi
+              \hsize\headwidth
+          \fi
+          \ifzeropt\headnumberwidth \else
+              \headnumberdistance\zeropoint
+          \fi
+          \setbox\scratchbox\hbox \ifzeropt\headnumberwidth\else to \headnumberwidth\fi{\headnumbercontent}
+          \scratchdimen\dimexpr\wd\scratchbox+\headnumberdistance\relax
+          \ifzeropt\headtextwidth \else
+              \hsize\dimexpr\scratchdimen+\headtextwidth\relax
+          \fi
+          \hangindent\scratchdimen
+          \hangafter \plusone
+          \noindent
+          \box\scratchbox
+          \hskip\headnumberdistance
+      \else
+          \ifzeropt\headtextwidth
+              \ifzeropt\headwidth \else
+                  \hsize\headwidth
+              \fi
+          \else
+              \hsize\headtextwidth
+          \fi
+          \noindent
+          \fakeheadnumbercontent
+          % will also be done in the other ones (force consistency with numbered)
+      \fi
+      \headtextcontent\par
+      \doifsomethingelse{\structureuservariable{authorbefore}}
+      {\structureuservariable{authorbefore}}
+      {\setupinterlinespace[line=1em]}
+      \doifsomethingelse{\structureuservariable{authoralign}}{%
+        \startalignment[\structureuservariable{authoralign}]%
+          \restoreglobalbodyfont\tfa
+          \structureuservariable{authorstyle}%
+          \switchtocolor[\structureuservariable{authorcolor}]%
+          \structureuservariable\c!author
+        \stopalignment
+      }{{%
+        \startalignment[center]%
+          \rma
+          \structureuservariable{authorstyle}%
+          \switchtocolor[\structureuservariable{authorcolor}]%
+          \structureuservariable\c!author
+        \stopalignment
+      }}%
+      \doifsomethingelse{\structureuservariable{dateafter}}
+      {\structureuservariable{authorafter}}{\par}
+      \doifsomethingelse{\structureuservariable{datebefore}}
+      {\structureuservariable{datebefore}}
+      {}
+      \doifsomethingelse{\structureuservariable{datealign}}{%
+        \startalignment[\structureuservariable{datealign}]%
+          \rma
+          \structureuservariable{datestyle}%
+          \switchtocolor[\structureuservariable{datecolor}]%
+          \structureuservariable\c!date
+        \stopalignment
+      }{{%
+        \startalignment[center]%
+          \rma
+          \structureuservariable{datestyle}
+          \switchtocolor[\structureuservariable{datecolor}]
+          \structureuservariable\c!date
+        \stopalignment
+      }}%
+      \doifsomethingelse{\structureuservariable{dateafter}}
+      {\structureuservariable{dateafter}}{}
+    }
+  \stopsetups
+
+  \setuphead[title][alternative=article]
+\stopsetups
+
+\startsetups memos:chap:publish
+  \defineframed[chappublish]
+  \defineframed[chapissue]
+  \defineframed[chapdate]    [chapissue]
+  \defineframed[chapsubtitle][chapissue]
+  \setupframed [chappublish]
+    [align=\headparameter\c!align,
+     width=\spanmarginwidth,frame=off,
+     background=\headparameter\c!background,
+     backgroundcolor=\headparameter\c!backgroundcolor,]
+  \setupframed [chapissue]
+    [foregroundstyle=\definedfont[Sans at 10pt],
+     foregroundcolor=white,
+     frame=off,]
+  \setupframed [chapsubtitle]
+    [align=center,width=\spanmarginwidth,]
+
+  \defineheadalternative[publish]
+    [alternative=vertical,
+     renderingsetup=chap:publish]
+  \startsetups[chap:publish]
+    \chappublish{
+      \headsetupspacing
+      \let\\\endgraf\let\crlf\endgraf
+      \chapissue{\headparameter{issue}}\hfill
+      \chapdate{\headparameter{date}}\par
+      \ifconditional\headshownumber
+          \strut\headnumbercontent\quad
+      \else\fakeheadnumbercontent\fi
+      \begstrut\headtextcontent\endstrut
+      \blackrule[color=\headparameter\c!color,height=.1ex,width=.8\hsize]\par
+      \chapsubtitle{\headparameter{subtitle}}
+    }
+  \stopsetups
+
+  \definemargindata   [sideframe] [outer]
+  \definemarginframed [sideframe] [outer]
+  \setupmarginframed  [sideframe]
+    [margin=margin,
+    width=\outermarginwidth,
+    offset=1ex,
+    background=color,
+    backgroundcolor=softcyan,
+    foregroundstyle=\restoreglobalbodyfont\ss,
+    foregroundcolor=gray]
+
+  \setuphead[chapter]
+   [alternative=publish,
+    before=,
+    align=center,
+    background=color,
+    backgroundcolor=softthemecolor,
+    issue=第 8 號,
+    date=\currentdate,
+    subtitle={ニュースレターの主要な語句},
+    color=white]
+
+  \setupheads[subsection,subsubsection,
+              subsubsubsection,subsubsubsubsection]
+              [sectionsegments=section:*]
+\stopsetups
+%\chapter{dddd}
+%\sideframe{\input knuth }
+
+
+\startuseMPgraphic{MPchapter:ugent}
+  numeric tw, rmw, h, bx, ruler;
+  h   := \overlayheight;
+  tw  := \the\textwidth;
+  rmw := \the\cutspace;
+  ruler :=2pt;
+  
+  bx := tw ; % 蓝块左边界坐标 (版心宽 + 页边距 - 蓝块宽)
+  fill unitsquare xyscaled (1.5rmw, h) shifted (bx-0.5rmw, 0) withcolor \MPcolor{themecolor};
+  label(textext("\color[white]{\definedfont[SansBold sa 5]\somenamedheadnumber{chapter}{current}}"), (bx, h/2));
+  label(textext("\rotate[rotation=90]{\color[white]{\feature[+][f:caps]\definedfont[Sans sa 1]Chapter }}"), (bx + 0.6rmw, h/2));
+  draw (0, ruler/2) -- (bx, ruler/2) withpen pencircle scaled ruler withcolor \MPcolor{themecolor};
+\stopuseMPgraphic
+
+\defineoverlay[chapter:ugent][\useMPgraphic{MPchapter:ugent}]
+
+\defineheadalternative[chapter:ugent][
+  alternative=vertical,
+  renderingsetup=chapter:ugent,
+]
+
+\startsetups chapter:ugent
+  \localheadsetup
+  \dontleavehmode
+  \framed[
+    frame=off,
+    width=\dimexpr\textwidth+\cutspace\relax, % 总宽度突破版心
+    height=3.5\lineheight,
+    background=chapter:ugent,
+    offset=0pt,
+    roffset=\dimexpr3\cutspace/2\relax,
+  ]{\noindent
+  \framed[frame=off,width=\dimexpr\textwidth-\cutspace/2\relax,align={flushright}]{\headtextcontent}}%
+\stopsetups
+
+\startsetups memos:chap:ugent
+  \setuphead[chapter][
+    alternative=chapter:ugent,
+    interlinespace=3\bodyfontsize,
+    before=\blank[line,force],
+    after=\blank]
+\stopsetups
+
+\definecombinedlist [marginlist]  [section]
+\setupcombinedlist  [marginlist]  [list=section,criterium=current]
+
+\definelistalternative[marginlist]
+  [\c!distance=2em,% minial space between text and pagenumber
+   \c!width=0pt,
+   \c!stretch=10em,
+   \c!filler=\hskip.5em\gleaders\hbox to .5\emwidth{\hss.\hss}\hfill\hskip.5em\relax,
+   \c!renderingsetup=\??listrenderings:abc]
+
+\tolerant\protected\def\marginlist[#1]#:[#2]%
+  {\begingroup
+  \setuplist[section][
+    margin=0em,width=fit,align=inner,
+    alternative=marginlist,
+    distance=.5em,label=no,style=\rm\itx,
+    #1]%
+  \outermargin[#1]{\placecombinedlist[marginlist]}%
+  \endgroup}
+
+\startsetups memos:chap:kaolike
+  \newdimen\d_temp_chapheight
+  \d_temp_chapheight=\dimexpr\topspace
+                            +\headerheight+\headerdistance
+                            +100pt\relax
+  \definelayer[chapvrule][x=\dimexpr+\textwidth+\rightmargindistance / 2\relax,
+                          y=\dimexpr-\d_temp_chapheight+50pt\relax,
+                          width=\paperwidth,height=\paperheight]
+
+  \setuphead[chapter]
+            [align=flushright,
+            alternative=inmargin,
+            location=inoutermargin,
+            numbercommand=\groupedcommand{\ }{},
+            numberstyle=\definedfont[SansBold at 64pt],
+            before=\setlayer[chapvrule][]{
+                    \blackrule[width=2pt,
+                              height=\d_temp_chapheight,
+                              depth=.3\baselineskip,
+                              color=themecolor]}
+                    \placelayer[chapvrule],
+            after=\vskip2\baselineskip\relax
+                    \marginlist[dy=-\baselineskip],
+                    ]
+  \setupheads[section][sectionsegments=chapter:*]
+  \setupheads[subsection,subsubsection,
+              subsubsubsection,subsubsubsubsection]
+              [sectionsegments=section:*]
+\stopsetups
+
+\newdimen\__gyoudori_ht
+\newdimen\__gyoudori_dp
+\newdimen\__gyoudori_bs
+
+\def\__gyoudori_metrics{%
+  \begingroup
+    \setbox\scratchbox=\hbox{永}%
+    \global\__gyoudori_ht\ht\scratchbox      % 「あ」的高度（字符框上缘）
+    \global\__gyoudori_dp\dp\scratchbox      % 「あ」的深度（字符框下缘）
+    \global\__gyoudori_bs\baselineskip % 行送り
+  \endgroup}
+
+\def\__gyoudori_linegap{\dimexpr\__gyoudori_bs-\__gyoudori_ht-\__gyoudori_dp\relax}
+\def\__gyoudori_areaheight#1{\dimexpr\__gyoudori_bs*(#1-1)+\__gyoudori_ht+\__gyoudori_dp\relax}
+\def\setnoflineheight#1{\dimexpr\__gyoudori_bs*(#1-1)+\__gyoudori_ht+\__gyoudori_dp\relax}
+
+\__gyoudori_metrics
+
+\defineheadalternative
+  [\v!grid]
+  [\c!alternative=\v!vertical,
+   \c!renderingsetup=headrenderings:\v!grid]
+
+\startsetups[headrenderings:\v!grid]
+    \vbox to \__gyoudori_areaheight{\headparameter\c!lines}{\null
+       \doifinset{bottom}{\headparameter\c!align}{\vfill}%
+       \doifinset{lohi}  {\headparameter\c!align}{\vfill}%
+       \headparameter{headbefore}%
+        \headsetupspacing
+        \ifconditional\headshownumber
+            \ifzeropt\headwidth \else
+                \ifzeropt\headnumberwidth
+                    \ifzeropt\headtextwidth \else
+                        \headnumberwidth{\headwidth-\headtextwidth}%
+                    \fi
+                \else
+                    \ifzeropt\headtextwidth
+                        \headtextwidth{\headwidth-\headnumberwidth}%
+                    \fi
+                \fi
+                \hsize\headwidth
+            \fi
+            \ifzeropt\headnumberwidth \else
+                \headnumberdistance\zeropoint
+            \fi
+            \setbox\scratchbox\hbox
+                \s!nokerning
+                \ifzeropt\headnumberwidth\else to \headnumberwidth\fi
+                {\headnumbercontent}%
+            \scratchdimen{\wd\scratchbox+\headnumberdistance}%
+            \ifzeropt\headtextwidth \else
+                \hsize{\scratchdimen+\headtextwidth}%
+            \fi
+            \hangindent\scratchdimen
+            \hangafter \plusone
+            \noindent
+            \box\scratchbox
+          % \resetcharacterkerning
+            \kern\headnumberdistance % was \hskip
+            \headparameter{textbefore}%
+        \else
+            \ifzeropt\headtextwidth
+                \ifzeropt\headwidth \else
+                    \hsize\headwidth
+                \fi
+            \else
+                \hsize\headtextwidth
+            \fi
+            \noindent
+            \fakeheadnumbercontent
+        \fi
+       
+       \headtextcontent
+       \headparameter{textafter}%
+       \headparameter{headafter}%
+       \doifinset{top} {\headparameter\c!align}{\vfill}%
+       \doifinset{lohi}{\headparameter\c!align}{\vfill}%
+    }%
+\stopsetups
+
+\startsetups memos:chap:grid
+\setuplabeltext[en][chapter={}]
+\setuplabeltext[hans][chapter={第,章}]
+\setuphead[chapter,section,subsection][
+  headbefore=,headafter=,
+  before=,after=,
+  alternative=grid,
+  align={flushleft,lohi},]
+  \setuphead[chapter][
+    lines=5,
+    style=ssc]
+  \setuphead[section][
+    lines=3,
+    style=ssb]
+  \setuphead[subsection][
+    lines=3,
+    style=ssa,]
+\stopsetups
+
+\startsetups memos:chap:brotherton
+  \setups{memos:chap:grid}
+  \setuphead[chapter][
+    textbefore=\par,
+    interlinespace=2.5\bodyfontsize,]
+\stopsetups
+
+\startsetups memos:chap:dash
+  \setups{memos:chap:grid}
+  \setuplabeltext[chapter={---\ ,\ ---}]
+  \setuphead[chapter][
+    textbefore=\par,
+    interlinespace=2.5\bodyfontsize,
+    align={center,lohi},]
+\stopsetups
+
+\startsetups memos:chap:crosshead
+  \setups{memos:chap:grid}
+  \setuphead[chapter,section][
+    align={center,lohi},]
+\stopsetups
+
+\startsetups memos:chap:verville
+  \setups{memos:chap:grid}
+  \setuphead[chapter][
+    headbefore=\hrule\par,
+    headafter=\par\hrule,
+    align={center,lohi},]
+\stopsetups
+
+\startsetups memos:chap:thatcher
+  \setups{memos:chap:grid}
+  \setuplabeltext[chapter={\sc Chapter\ ,}]
+  \setuphead[chapter][
+    distance=0pt,
+    interlinespace=2\bodyfontsize,
+    textbefore={\offinterlineskip\par\noindent
+      \hbox to \hsize{\offinterlineskip\hss\vrule height .5pt width 2cm depth 0pt\hss}\par},
+    align={center,lohi},]
+\stopsetups
+
+\startsetups memos:chap:bianchi
+  \setups{memos:chap:grid}
+  \setuphead[chapter][
+    textbefore=\par\hrule\par,
+    textafter=\par\hrule,
+    textstyle=bf,
+    align={center,lohi},]
+\stopsetups
+
+\startsetups memos:chap:pedersen
+  \setups{memos:chap:grid}
+  \setuplabeltext[hans][chapter={}]
+  \setuphead[chapter][
+    line=8,
+    numberstyle=\definedfont[Sans sa 5.16],
+    numbercommand=\rightaligned,
+    interlinespace=2\bodyfontsize,
+    textbefore=\par,
+    textstyle=bf,]
+\stopsetups
+
+\def\VerticalLine{\blackrules[width=0.8pt, height=\__gyoudori_areaheight{7}, depth=0cm, color=darkthemecolor, n=7, distance=1mm]\kern1mm}
+\define[2]\VerticalLineChapterCommand{%
+  \dontleavehmode
+  \hbox{{\VerticalLine}}\kern-7mm
+  \vbox to \__gyoudori_areaheight{7}{\hsize 2em
+      \vfill
+      \ifempty{#1}%
+        \hbox to 1cm{}
+      \else
+        \framed[%
+          background=color,
+          backgroundcolor=themecolor,
+          foregroundcolor=white,
+          frame=off,
+          width=1cm, height=1cm,
+          align={center,lohi},
+          offset=0pt,
+        ]{#1}%
+      \fi
+      \vfill}\kern.5em % 数字框和标题之间的间距
+  \vbox to \__gyoudori_areaheight{7}{\hsize=\dimexpr\hsize-2cm\relax\vfill #2\vfill}%
+}
+\startsetups memos:chap:VZ43
+  \setups{memos:chap:grid}
+  \setuplabeltext[hans][chapter={}]
+  \setuphead[chapter][
+      style=\tfc,
+      numbercolor=white,
+      interlinespace=2\bodyfontsize,
+      command=\VerticalLineChapterCommand,]
+\stopsetups
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%                              目錄相關設置                           %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%parameter of aleternative:
+%- a = number – title –          page number
+%- b = number – title – spaces – page number
+%- c = number – title – dots   – page number
+%- d = number – title          – page number (continuing)
+%- e = reserved for interactive purposes
+%- f = reserved for interactive purposes
+\setuplist  [title,subject,subsubject,subsubsubject,
+             part,chapter,section,subsection,subsubsection,
+             subsubsection,subsubsubsection,subsubsubsubsection]
+            [color=toccolor,style={\feature[+][tabularnumbers]}]
+\setuphead  [title,subject][incrementnumber=list]
+\definehead [tochead]      [title]
+            [placehead=yes,page=right,incrementnumber=no,
+             before=\null\vskip2\baselineskip\relax,
+             after=\vskip\baselineskip\relax,
+             header=stop,]
+
+% \section{TOC: style}
+\define[3]\mms_partlabel_default%
+          {\framed[align=center,
+                    width=max,
+                    frame=off,
+                    foregroundstyle=bfa,
+                    foregroundcolor=themecolor]{%
+                      {第\ #1\ 编}\hbox to 1em{ } #2}}
+
+\startsetups memos:toc:default
+  \edef\currenttocstyle{default}
+  \setupcombinedlist[content][
+    list={part,%
+          title,subject,
+          chapter,section,
+          subsubject,subsection,
+          subsubsubject,subsubsection,
+          subsubsubsection,subsubsubsubsection}]
+  \setuplist  [part,chapter,section,
+               subsection,subsubsection,subsubsection,
+               subsubsubsection,subsubsubsubsection]
+              [width=3.5em,distance=.5em,margin=1.0em,
+               alternative=c,align=flushright
+               before=,after=,label=yes,numberalign=flushright]
+  \setuplist  [part]
+              [command=\mms_partlabel_default,alternative=interactive,before=\blank]
+  \setuplist  [title]              [margin=1.0em,style=bf]
+  \setuplist  [subject]            [margin=2.0em]
+  \setuplist  [chapter]            [margin=0.0em,style=bf,before=\blank[quarterline]]
+  \setuplist  [section]            [width=3.5em]
+  \setuplist  [subsection]         [width=4.5em]
+  \setuplist  [subsubsection]      [width=5.5em]
+  \setuplist  [subsubsubsection]   [width=6.5em]
+  \setuplist  [subsubsubsubsection][width=7.5em]
+\stopsetups
+
+\startsetups memos:toc:simple
+  \edef\currenttocstyle{simple}
+  \setupcombinedlist[content][list={part,%
+               title,chapter,subject,section,
+               subsubject,subsection,
+               subsubsubject,subsubsection,
+               subsubsubsection,subsubsubsubsection
+               }]
+  \setuplist  [part,chapter,section]
+              [width=1.0em,margin=0.0em,distance=.5em]
+  \setuplist  [section,subject,subsection,subsubsection,
+               subsubsection,subsubsubsection,subsubsubsubsection]
+              [width=1.0em,distance=.5em,alternative=c,margin=2.0em,]
+  \setuplist  [title]              [margin=1.5em]
+  \setuplist  [subject]            [margin=2.5em]
+  \setuplist  [part]               [width=2.0em,margin=1.0em,
+                                    pagenumber=no,headnumber=no,
+                                    style=ss,after=]
+  \setuplist  [chapter]            [margin=0.0em,before=,]
+  \setuplist  [section]            [width=1.0em]
+  \setuplist  [subsection]         [width=2.0em]
+  \setuplist  [subsubsection]      [width=3.0em]
+  \setuplist  [subsubsubsection]   [width=4.0em]
+  \setuplist  [subsubsubsubsection][width=5.0em]
+\stopsetups
+
+\let\mms_partlabel_line\undefined
+\define[1]\parenpage{\hskip-.5\emwidth\relax(#1)}
+\define[1]\mms_partlabel_line{{\sc\color[themecolor]{\hbox to 2.5em{Part} \ss\tfa #1}\ }}
+\define[1]\mms_chaplabel_line{{\sc\color[themecolor]{\hbox to 2.5em{Chap} \ss\tfa #1}\ }}
+\startsetups memos:toc:line
+  \edef\currenttocstyle{line}
+  \setupcombinedlist[content]
+    [list={part,title,chapter,subject,
+      section,subsubject,subsection,}]
+  \setuplist  [part,chapter]
+              [width=4.5em,margin=0.0em,distance=.0em]
+  \setuplist  [section,subject,subsection]
+              [width=0.0em,distance=.5em,alternative=c,]
+  \setuplist  [part]      [numbercommand=\mms_partlabel_line,after=]
+  \setuplist  [chapter]   [numbercommand=\mms_chaplabel_line,before=]
+  \setuplist  [title]     [margin=4.5em]
+  \setuplist  [subject]   [margin=5.5em]
+  \setuplist  [section]   [margin=3.5em]
+  \setuplist  [subsection][margin=4.5em,alternative=d,pagecommand=\parenpage]
+\stopsetups
+
+\startsetups memos:toc:madsen
+  \edef\currenttocstyle{madsen}
+  \setuphead  [tochead] [alternative=madsentoc]
+  \setupcombinedlist[content][list={part,title,chapter,subject,section}]
+  \setuplist  [chapter,section]
+                          [width=1.0em,distance=.5em,before=]
+  \setuplist  [part,subsection,subsubsection,subsubsection,
+               subsubsubsection,subsubsubsubsection]
+                          [width=0.0em,distance=.5em,headnumber=no]
+  \setuplist  [part]      [margin=1.0em,color=themecolor,style=ss,
+                           headnumber=no,pagenumber=no,after=]
+  \setuplist  [title]     [margin=1.5em,color=themecolor,style=\ss]
+  \setuplist  [chapter]   [margin=0.0em,color=themecolor,style=\ss]
+  \setuplist  [subject]   [margin=3.0em,style=\tt]
+  \setuplist  [section]   [margin=1.5em,style=\tt]
+  \setuplist  [subsection]         [margin=2.5em]
+  \setuplist  [subsubsection]      [margin=3.5em]
+  \setuplist  [subsubsubsection]   [margin=4.5em]
+  \setuplist  [subsubsubsubsection][margin=5.5em]
+\stopsetups
+
+\startsetups memos:toc:colorful
+  \edef\currenttocstyle{colorful}
+  \startuseMPgraphic{MP:toc}
+      numeric width , height ;
+      width  = \overlaywidth ;
+      height = \overlayheight ;
+      numeric textwidth , textheight ;
+      txtwidth  := .3*\overlaywidth  ;
+      txtheight := \overlayheight ;
+      path paper_back ;%%% i
+      paper_back  := fullsquare xscaled width yscaled height ;
+      fill paper_back withcolor \MPcolor{softthemecolor} ;
+      path text_back ;%%% ii
+      text_back := fullsquare xscaled txtwidth yscaled txtheight;
+      fill text_back shifted(-.35width,0) withcolor \MPcolor{lightthemecolor} ;
+  \stopuseMPgraphic
+  \defineoverlay   [olay:toc][\useMPgraphic{MP:toc}]
+  \setuplabeltext  [cn]  [content=Table Of Contents]
+  \setuplabeltext  [hans][content=Table Of Contents]
+  \setuplabeltext  [hant][content=Table Of Contents]
+  \setuphead       [tochead][
+                    before={\setupbackgrounds[page][background=olay:toc]
+                            \null\vskip5\baselineskip\relax},
+                    after=\null\vskip2\baselineskip\relax,
+                    align=center,
+                    style=\definedfont[SansBold at 25pt],
+                    ]
+  \setupcombinedlist[content][list={part,title,chapter,subject,section}]
+  \setuplist  [part,chapter,section,title,subject]
+                          [width=\backspace,distance=0em,,style=\ss,
+                           numbercolor=white,numberalign=flushright]
+  \setuplist  [part]      [numbercommand=\groupedcommand{\sc Part\ \tf}{\hskip4em},after=,color=darkthemecolor]
+  \setuplist  [chapter]   [numbercommand=\groupedcommand{}{\hskip4em},color=themecolor,before=]
+  \setuplist  [title]     [margin=\backspace,color=themecolor,style=it]
+  \setuplist  [subject]   [margin=\dimexpr\backspace+1em\relax,style=it]
+  \setuplist  [section]   [margin=\dimexpr\backspace+1em\relax,headnumber=no]
+\stopsetups
+
+\startsetups memos:toc:classicnovel
+  \edef\currenttocstyle{classicnovel}
+  \setupcombinedlist[content][list={part,title,chapter}]
+  \setuplist        [part,chapter,title,][label=yes,after=,style=]
+  \setuplist        [chapter][before=,]
+  \setuplist        [title]  [margin=5em]
+\stopsetups
+
+\define[3]\mms_chaplabel_classics{\hbox to 1tw{#2第#1\hfill #3}}
+\startsetups memos:toc:classics
+  \edef\currenttocstyle{classics}
+  \setuplist [chapter] [alternative=interactive,command=\mms_chaplabel_classics]
+\stopsetups
+
+\startsetups memos:toc:rocket
+  \edef\currenttocstyle{rocket}
+  \setuphead       [tochead][alternative=middle,before=\null\vskip2\baselineskip\relax]
+  \setupcombinedlist[content][list={part,title,chapter,section,subject}]
+  \setuplist       [part,chapter,title,subject,section]
+                                    [before=,after=,style=ss,distance=.5em,
+                                     numberalign=flushright]
+  \setuplist       [part]           [width=2.5em,numbercommand=,
+                                     color=themecolor,before=\blank]
+  \setuplist       [chapter,title]  [width=2.5em,color=themecolor,
+                                     style=\ssbf,numberconversion=R]
+  \setuplist       [title]          [margin=3.0em,style=\ssbf\sc]
+  \setuplist       [section]        [margin=3.5em,headnumber=no]
+  \setuplist       [subject]        [margin=4.0em]
+\stopsetups
+
+\startsetups memos:toc:hexa
+  \edef\currenttocstyle{hexa}
+  \setupcombinedlist[content][list={part,%
+                     title,chapter,subject,section,
+                     subsubject,subsection,
+                     subsubsubject,subsubsection,
+                     subsubsubsection,subsubsubsubsection}]
+  \setuphead       [tochead][alternative=paragraph,align=flushright,
+                             before=\null\vskip2\baselineskip\relax]
+  \setuplist       [part]   [align=center,,style=bfa,
+                             pagenumber=no,headnumber=no
+                             before=\null\vskip\baselineskip\relax]
+  \setuplist       [title]  [margin=2.0em]
+  \setuplist       [subject][margin=3.0em]
+  \setuplist       [chapter][width=1.5em,distance=0.5em]
+  \setuplist       [section][margin=0.5em,width=1.5em,alternative=c]
+  \setuplist       [subsubject,subsection,
+                    subsubsubject,subsubsection,
+                    subsubsubsection,subsubsubsubsection]
+                            [width=fit,distance=0.5em,alternative=c]
+  \setuplist  [subsection]         [margin=1.0em]
+  \setuplist  [subsubsection]      [margin=1.5em]
+  \setuplist  [subsubsubsection]   [margin=2.0em]
+  \setuplist  [subsubsubsubsection][margin=2.5em]
+\stopsetups
+
+\startsetups memos:toc:kaolike
+  \edef\currenttocstyle{kaolike}
+  \setupcombinedlist[content][list={part,%
+               title,chapter,subject,section,
+               subsubject,subsection,
+               subsubsubject,subsubsection,
+               subsubsubsection,subsubsubsubsection
+               }]
+  \setuplist  [part,chapter,section]
+              [width=1.0em,margin=0.0em,distance=.5em]
+  \setuplist  [section,subject,subsection,subsubsection,
+               subsubsection,subsubsubsection,subsubsubsubsection]
+              [width=1.0em,distance=.5em,alternative=c,margin=2.0em,]
+  \setuplist  [title]              [margin=1.5em,style=bf]
+  \setuplist  [subject]            [margin=2.5em]
+  \setuplist  [part]               [width=2.0em,margin=1.0em,
+                                    headnumber=no,style=\feature[+][f:caps]\bf,
+                                    before=\blank[3*halfline],after=,]
+  \setuplist  [chapter]            [margin=0.0em,before=\blank[halfline],style=bf]
+  \setuplist  [section]            [width=2.0em]
+  \setuplist  [subsection]         [width=3.0em,margin=3.0em]
+  \setuplist  [subsubsection]      [width=3.0em,margin=3.0em]
+  \setuplist  [subsubsubsection]   [width=4.0em,margin=4.0em]
+  \setuplist  [subsubsubsubsection][width=4.0em,margin=4.0em]
+\stopsetups
+
+\startsetups memos:toc:novel
+  \setupheader[state=stop]
+  \setupcombinedlist[content][list={chapter}]
+  \setuplist[chapter][headnumber=no,margin=.25tw,textstyle=\ssa,pagestyle=\tta,color=darkblue]
+  \setupheadtext[content=\hbox to .5tw{I\hfil N\hfil D\hfil E\hfil X}]
+  \setupbackgrounds[paper][background=color,backgroundcolor=softred,state=start]
+  \vbox to 1th{%
+    \leftskip.25tw\rightskip.25tw\relax
+    \leavevmode\vfill
+      \completecontent
+    \vfill}
+\stopsetups
+
+\startsetups memos:toc:novelnew
+  \setupindenting[none]
+  \setupbackgrounds   [paper][background=color,backgroundcolor=softthemecolor,state=start]
+  \setupcombinedlist  [content][list={chapter}]
+  \setuplist[chapter] [headnumber=no,margin=.25tw,
+                      textstyle=\ssa,pagestyle=\tta,
+                      color=darkblue]
+  \setupheadtext      [content=\hbox to .5tw{I\hfil N\hfil D\hfil E\hfil X}]
+  \setupheader        [state=stop]
+  \setuphead          [title] [style=ttd,color=darkblue]
+  \vbox to 1th{%
+    \leftskip.25tw\rightskip.25tw\relax
+    \vskip-6\baselineskip
+    \leavevmode\vfill
+    \completecontent
+    \vfill}
+\stopsetups
+
+  \define[3]\SectionListEntrySimple
+    {\par \leftaligned\bgroup
+      \hbox to 2em{\color[themecolor]{\ttd #3}}%
+          \hskip   1em
+          \vtop{\hsize\dimexpr\textwidth-3em\relax\color[contentchapc]{\ssb #2}}
+    \egroup \par}
+
+\startsetups memos:toc:simplenovel
+  \setupindenting[none]
+  \definecolor[contentcolor][h=262C30]
+  \definecolor[contentchapc][h=F7FCFD]
+  \setupbackgrounds [paper][background=color,backgroundcolor=contentcolor,state=start]
+  \setupcombinedlist[content][list={chapter}]
+  \setupheader  [state=stop]
+  \setuphead    [tochead] [style=ttd,color=darkblue]
+  \setupheadtext[content=\hbox to .5tw{I\hfil N\hfil D\hfil E\hfil X}]
+  \setuplist    [chapter][headnumber=no,alternative=command,command=\SectionListEntrySimple]
+  \vbox to 1th{
+    \leavevmode\vfill
+    \framed[frame=off,foregroundstyle=\ssd,
+            align=flushright,orientation=90,
+            height=1tw]{\vfill\par
+            \color[contentchapc]{TABLE OF}
+            \blank[halfline]
+            \definedfont[SansBold at 60pt]%
+            \color[themecolor]{CONTENTS}}
+    \vskip 2\baselineskip\relax
+    \setupinterlinespace[line=30pt]
+    \placecontent
+  }
+\stopsetups
+
+\define[3]\ChapterListEntryDesign
+  {\par \leftaligned\bgroup
+  \vtop{\hsize\dimexpr\textwidth-3em\relax
+  \framed[foregroundstyle=\rmb\bf,
+          frame=off,bottomframe=on,
+          align=flushleft,
+          width=max,
+          rulethickness=4pt]{#2}}
+  \egroup \par}
+\define[3]\SectionListEntryDesign
+  {\par \leftaligned\bgroup
+    \hbox to 2em{\color[themecolor]{\tta #3}}%
+        \vtop{\hsize\dimexpr\textwidth-3em\relax\color[contentchapc]{\ss #2}}
+  \egroup \par}
+
+\startsetups memos:toc:design
+  \setupindenting[none]
+  \setupbackgrounds [paper][background=color,backgroundcolor=softthemecolor,state=start]
+  \setupcombinedlist[content][list={chapter,section}]
+  \setupheader  [state=stop]
+  \setuphead    [tochead] [style=ttd,color=darkblue]
+  \setupheadtext[content=\hbox to .5tw{I\hfil N\hfil D\hfil E\hfil X}]
+  \setuplist    [chapter][headnumber=no,alternative=command,command=\ChapterListEntryDesign]
+  \setuplist    [section][headnumber=no,alternative=command,command=\SectionListEntryDesign]
+  \framed[frame=off,foregroundstyle=\rmd,
+          align=flushright,]{
+          \definedfont[SerifBoldItalic at 40pt]%
+          \color[darkgray]{TABLE OF}
+          \blank[halfline]
+          \color[themecolor]{CONTENTS}}
+    \vskip 2\baselineskip\relax
+    \setupinterlinespace[line=22pt]
+    \startcolumns[n=2]
+    \placecontent
+    \stopcolumns
+\stopsetups
+
+  \define[3]\ChapterListEntryDesignNew
+    {\par \leftaligned\bgroup
+    \vtop{\hsize\dimexpr\textwidth-3em\relax
+    \framed[foregroundstyle=\rmb\bf,
+            frame=off,bottomframe=on,
+            align=flushleft,
+            width=max,
+            rulethickness=4pt]{#3}\par
+    \framed[foregroundstyle=\rmb\bf,
+            frame=off,
+            align=flushleft]{#2}}
+    \egroup \par}
+  \define[3]\SectionListEntryDesignNew
+    {\par\hbox\bgroup
+      \hbox to 2em{\color[themecolor]{\tta\hfill #3\hfill}}%
+      \vtop{\hsize\dimexpr\textwidth-2em\relax\ss #2}
+    \egroup\par}
+
+\startsetups memos:toc:designnew
+  \setupindenting[none]
+  \setupbackgrounds [paper][background=color,backgroundcolor=softthemecolor,state=start]
+  \setupcombinedlist[content][list={chapter,section}]
+  \setupheader  [state=stop]
+  \setuplist    [chapter][headnumber=no,alternative=command,command=\ChapterListEntryDesignNew]
+  \setuplist    [section][headnumber=no,alternative=command,command=\SectionListEntryDesignNew]
+  \framed[frame=off,foregroundstyle=\rmd,
+          align=flushleft,]{
+          \definedfont[playfairhairlinebolditalic at 40pt]%
+          \color[darkgray]{Table of}
+          \blank[halfline]
+          \definedfont[playfairhairlinebolditalic at 60pt]
+          \color[themecolor]{Contents}}
+    \vskip 2\baselineskip\relax
+    \setupinterlinespace[line=22pt]
+    \startcolumns[n=2]
+    \placecontent
+    \stopcolumns
+\stopsetups
+
+%\section{SCMD:placeTOCs}
+\tolerant\def\setupTOCs[#1]%
+  {\getparameters[??TOCs][#1]}
+
+\setupTOCs[%#1 to set lists,#2 to set tochead
+  alternative=,%
+  interlinespace=1.5em,
+  title=\labeltext{content},
+  placetitle=yes,
+  setups=yes,
+  layout=moderate,]
+
+\tolerant\def\placeTOCs[#1]{\begingroup%
+  \iffirstargument\getparameters[??TOCs][#1]\fi%
+  \edef\currenttocstyle{\ifempty\??TOCsalternative\currenttocstyle\else\??TOCsalternative\fi}%
+  \edef\p_title{\??TOCstitle}%
+  \setups{memos:toc:\currenttocstyle}%
+  \doifinsetelse{\namedheadparameter{tochead}\c!page}{no,disable}%
+     {}{\startlayout[\??TOCslayout]}%
+  \doif{\??TOCsplacetitle}{yes}{%
+    \expandafter\expandafter\expandafter\tochead\expandafter{\p_title}}%
+  \setuplocalinterlinespace[line=\??TOCsinterlinespace]%
+  \doifelse{\??TOCssetups}{yes}{\placecontent}{\setups{\??TOCssetups}}%
+  \stoplayout
+  \page[\namedheadparameter{tochead}\c!page]%
+  \endgroup}
+
+% \placeTOCs[placetitle=no,setups=memos:toc:novel]
+% \placeTOCs[placetitle=no,setups=memos:toc:novelnew]
+% \placeTOCs[placetitle=no,setups=memos:toc:simplenovel]
+% \placeTOCs[placetitle=no,setups=memos:toc:design]
+% \placeTOCs[placetitle=no,setups=memos:toc:designnew]
+
+\definemargindata   [outermargin] [outer]
+\definemarginframed [outermargin] [outer]
+\setupmargindata    [outermargin] [margin=margin,width=\outermarginwidth,align=inner,]
+\setupmarginframed  [outermargin] [margin=margin,width=\outermarginwidth,align=inner,]
+
+
+%%%%%%%%%%%%%%%%%%%%
+% \section {Header and Footer Style}
+% Pair 1: hdr:odd:sectionmark & hdr:even:chaptermark
+%         PageNumber Section 3 : Section Title
+%         Chapter 3 : Chapter Title PageNumber
+\startsetups hdr:odd:sectionmark
+  \framed[frame=off,bottomframe=on,
+          align=low,
+          height=\headerheight,width=max]
+         {\ifdone\rm\userpagenumber  \quad\fi
+          \ifzeronum\namedheadnumber{section}\relax
+          \else%\limitatetext{}{10cm}{...}
+          \hw  \ifdone\else\getmarking[sectionnumber]\quad\fi
+               \getmarking[section]\fi}
+\stopsetups
+\startsetups hdr:even:chaptermark
+  \framed[frame=off,bottomframe=on,
+          align={flushright,low},
+          height=\headerheight,width=max]
+         {\ifzeronum\namedheadnumber{chapter}\relax
+          \else
+          %\limitatetext{}{10cm}{...}
+          \hw \ifdone\else\getmarking[chapternumber]\quad\fi
+                      \getmarking[chapter]
+          \fi\ifdone\quad \rm\userpagenumber\fi}
+\stopsetups
+% Pair 2 : hdr:odd:noveltitlemark & hdr:even:novelchapmark
+\startsetups hdr:odd:noveltitlemark
+  \framed[frame=off,bottomframe=on,
+          align=low,
+          height=\headerheight,width=max]
+         {\let\\\quad\hfill\getmarking[chapter]\quad\userpagenumber\par}
+\stopsetups
+\startsetups hdr:even:novelchaptermark
+  \framed[frame=off,bottomframe=on,
+          align=low,
+          height=\headerheight,width=max]
+         {\userpagenumber\let\\\quad \quad\getmarking[chapter] \hfill\par}
+\stopsetups
+% Pair 3 ：hdr:edge:structuremark
+\startsetups hdr:odd:edgesectionmark
+  \framed[width=max,     height=max,       foregroundstyle=\ss,
+          corner=08,     location=lohi,    frame=off]
+         {\hbox orientation 1 {\fetchmark[section][first]}}
+\stopsetups
+\startsetups hdr:odd:edgechaptermark
+  \framed[width=max,     height=max,       foregroundstyle=\ss,
+          corner=08,     location=lohi,    frame=off]
+        {\hbox orientation 1 {\fetchmark[chapter][first]}}
+\stopsetups
+% Pair 4 ：hdr:edge:pagenumber
+\startsetups ftr:framedpagenumber
+  \vbox{\null\vfil
+  \framed[width=6em,             height=2em,
+          corner=00,             location=lohi,
+          rulethickness=0pt,     radius=10pt,
+          background=color,      backgroundcolor=themecolor,
+          foreground=color,      foregroundcolor=white,]{\completepagenumber}\vfil}%
+\stopsetups
+% Pair 5 ：pagenumber at variant location
+\startsetups hdr:center:pagenumber
+  \framed[width=max,height=max,location=lohi,frame=off]
+         {\completepagenumber}
+\stopsetups
+\startsetups hdr:left:pagenumber
+  \framed[width=max,height=max,location={lohi},align={flushleft},frame=off]
+         {\completepagenumber}
+\stopsetups
+\startsetups hdr:right:pagenumber
+  \framed[width=max,height=max,location={lohi},align={flushright},frame=off]
+         {\completepagenumber}
+\stopsetups
+
+\ifhdr_sty_book%
+  \setupheadertexts  []
+  \setupheadertexts  [\donetrue\setups [hdr:odd:sectionmark]][][]
+                     [\donetrue\setups [hdr:even:chaptermark]]
+\fi
+\ifhdr_sty_novel%
+  \setupheadertexts  []
+  \setupheadertexts  [\setups [hdr:odd:noveltitlemark]][][]
+                     [\setups [hdr:even:novelchaptermark]]
+\fi
+\ifhdr_sty_colorful%
+  \setupheader     [state=stop]
+  \setupheadertexts[]
+  \setuptexttexts  [edge]
+                [][\setups[hdr:odd:edgesectionmark]]
+                  [\setups[hdr:odd:edgechaptermark]][]
+  \setupfootertexts[edge]
+                [][\setups[ftr:framedpagenumber]]
+                  [\setups[ftr:framedpagenumber]][]
+\fi
+%%%%%%%%%%%%%%%%%%%
+\ifhdr_sty_hctext% page number at center of header
+  \setupheader        [state=start]
+  \setupheadertexts
+                  [\setups[hdr:center:pagenumber]][][]
+                  [\setups[hdr:center:pagenumber]]
+\fi
+%%%%%%%%%%%%%%%%%%%
+\ifhdr_sty_fctext% page number at center of footer
+  \setupheader        [state=stop]
+  \setupheadertexts   []
+  \setupfootertexts
+                  [\setups[hdr:center:pagenumber]][][]
+                  [\setups[hdr:center:pagenumber]]
+\fi
+%%%%%%%%%%%%%%%%%%%
+\ifhdr_sty_foemarginalt% doublesided page : in outermargin but closer to text area
+  \setupheadertexts   []% delete middle of header
+  \setupfootertexts[margin] []
+                  [\setups[hdr:left:pagenumber]]
+                  [\setups[hdr:right:pagenumber]][]
+\fi
+%%%%%%%%%%%%%%%%%%%
+\ifhdr_sty_foemargin% doublesided page : page number in outermargin
+  \setupheadertexts    []% delete middle of header
+  \setupfootertexts[margin] []
+                   [\setups[hdr:right:pagenumber]]
+                   [\setups[hdr:left:pagenumber]][]
+\fi
+%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%
+\ifhdr_sty_hoemargin%
+  \setupheader [state=start]
+  \startsetups [header:leftpage]
+       \startalignment[flushouter]\setscript[hanzi]
+       \kern-\leftmarginwidth\relax
+       \color[themecolor]{\prefixedpagenumber}
+       \quad% \undepthed
+       {\blackrule
+           [width=\linewidth,color=themecolor,
+            height=\headerheight,depth=.3\baselineskip,]}%\strutht,
+            %depth=\dimexpr\headerheight+\topspace\relax,
+       \quad
+       \color[themecolor]{\getmarking[chapternumber] \quad {\bi\getmarking[chapter]}} \hss
+       \stopalignment
+  \stopsetups
+  \startsetups [header:rightpage]
+       \startalignment[flushouter]
+       \color[themecolor]{\getmarking[sectionnumber] \quad {\bi\getmarking[section]}}
+       \quad% \undepthed
+       {\blackrule
+           [width=\linewidth,color=themecolor,
+           height=\headerheight,depth=.3\baselineskip,]}%\strutht,
+            %depth=\dimexpr\headerheight+\topspace\relax,
+       \quad
+       \color[themecolor]{\prefixedpagenumber}
+       \kern-\rightmarginwidth\relax
+       \stopalignment
+  \stopsetups
+  \setupheadertexts[]
+  \setupheadertexts[text]
+       [] [\directsetup{header:rightpage}]
+          [\directsetup{header:leftpage}] []
+\fi
+
+\ifhdr_sty_madsen
+  \setupheadertexts  []
+  \setupheadertexts  [\donetrue\setups [hdr:even:chaptermark]][][]
+                     [\donetrue\setups [hdr:odd:sectionmark]]
+\fi
+
+\ifhdr_sty_rocket
+  \newdimen\pos_xi_hdr_margin
+  \newdimen\pos_xii_hdr_margin
+  \pos_xii_hdr_margin=\dimexpr\paperwidth-\textwidth-\backspace-\rightmargindistance\relax
+  \pos_xi_hdr_margin=\dimexpr\textwidth+\rightmargindistance\relax
+  \defineframed
+    [hdrtextframed]
+    [width=\pos_xi_hdr_margin,
+     height=\dimexpr\topspace+\headerheight\relax,
+     frame=off,bottomframe=on,
+     foregroundstyle=ss,]
+  
+  \defineframed
+    [hdrmarginframed]
+    [frame=off,bottomframe=on,
+     align={center,low},
+     width=\pos_xii_hdr_margin,
+     height=\dimexpr\topspace+\headerheight\relax,
+     background=color,
+     foregroundcolor=white,
+     foregroundstyle=ss,]
+    
+  \def\hdrmarginhigh#1{\dontleavehmode\tfd\raise .8\exheight\relax\hbox {\tfx\sc #1}}
+  
+  \setupheadertexts[]
+  
+  \setupheadertexts[text][][%
+     \hbox xoffset \rightmargindistance{%
+      \hdrtextframed[align={outer,low},framecolor=themecolor,]
+     {\hfil\getmarking[chapter]\hbox to \rightmargindistance{}}}]
+     [][%
+     \hbox xoffset -\rightmargindistance{%
+       \hdrtextframed[align={outer,low},framecolor=optcolor,]
+     {\hbox to 2\rightmargindistance{}\getmarking[section]\hfil}}]
+  
+  \setupheadertexts[margin][][%
+     \hdrmarginframed
+     [backgroundcolor=themecolor,framecolor=themecolor,]{\vfil
+        \hdrmarginhigh{Chapter}\ %
+        \tfd\getmarking[chapternumber]}]
+     [%
+     \hdrmarginframed
+     [backgroundcolor=optcolor,framecolor=optcolor,]{\vfil
+        \hdrmarginhigh{Section\ \getmarking[chapternumber].\,}%
+        \tfd\getmarking[sectionnumber]}][]
+
+  \setupfootertexts
+    [margin]
+    [][\framed[frame=off,align={center,lohi},width=\hsize,height=\footerheight]{\userpagenumber}]
+    [\framed[frame=off,align={center,lohi},width=\hsize,height=\footerheight]{\userpagenumber}][]
+\fi
