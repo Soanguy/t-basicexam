@@ -347,12 +347,12 @@
    \font_basics_switch_points\normalizedglobalbodyfontsize
    \reset_every_font_action}
 \def\resetfont[#1]{
-    \edef\currentfontclass{\defaultfontclass}
-    \edef\currentfontbody{\fontbody}
-    \edef\currentfontsize{\fontsize}
-    \edef\currentfontface{\fontface}
-    \edef\currentfontstyle{\defaultfontstyle}
-    \edef\currentfontalternative{\defaultfontalternative}
+    \edef\p_currentfontclass{\defaultfontclass}
+    \edef\p_currentfontbody{\fontbody}
+    \edef\p_currentfontsize{\fontsize}
+    \edef\p_currentfontface{\fontface}
+    \edef\p_currentfontstyle{\defaultfontstyle}
+    \edef\p_currentfontalternative{\defaultfontalternative}
     \doif{#1}{class}{\switchtobodyfont[\currentfontclass]}%???
     \doif{#1}{style}{\csname \currentfontstyle\endcsname}
     \doif{#1}{alternative}{\csname \currentfontalternative\endcsname}

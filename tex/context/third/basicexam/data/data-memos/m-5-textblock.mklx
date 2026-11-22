@@ -381,14 +381,12 @@
               setups={fn:hanzi},
               margin=1em,
               freeregion=no,
-              spacebefore=none,
-              spaceafter=none,
-              sidespacebefore=none,
-              sidespaceafter=none,
+              % spacebefore=none,
+              % spaceafter=none,
+              % sidespacebefore=none,
+              % sidespaceafter=none,
               ]
-\setupcaption[textstyle=\setuplocalinterlinespace[line=1.3em]\hwx,
-              headstyle=\setuplocalinterlinespace[line=1.3em]\ssx,% 图 1.1
-              color=captioncolor,
+\setupcaption[color=captioncolor,
              % width=max,
              % width=\rightmarginwidth,
              % hang=yes,% 将使标题不居中且悬挂

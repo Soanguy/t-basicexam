@@ -1,27 +1,9 @@
 \permanent\tolerant\protected\def\fixedquad[#1]% we do robust checking
   {\dontleavehmode
    \begingroup
-   \restoreglobalbodyfont
    \scratchcounter\ifchknumber#1\or\lastchknumber\else\plusthree\fi
    \zwj\dorecurse\scratchcounter{\kern\emwidth\zwj}%
    \endgroup}
-
-\permanent\tolerant\protected\def\fixedwidth[#1]% we do robust checking
-  {\dontleavehmode
-   \begingroup
-   \scratchcounter\ifchknumber#1\or\lastchknumber\else\plusthree\fi
-   \zwj\dorecurse\scratchcounter{\kern\emwidth\zwj}%
-   \endgroup}
-
-\def\rulefill{\leavevmode\strut\leaders\hrule height .5pt\hfill\kern0pt}
-\def\cdotfill{\cleaders\hbox{$\mathsurround\zeropoint\mkern1.5mu\cdot\mkern1.5mu$}\hfill\kern0pt}
-
-\def\dotbreak {\par\noindent\dotfill \par}
-\def\cdotbreak{\par\noindent\cdotfill\par}
-\def\rulebreak{\par\noindent\rulefill\par}
-\def\divider{\enspace \vrule height .7em depth 1pt width .8pt \enspace}
-\def\Mdot {\hbox to .5em{\hss\scale[s=1.5]{$\cdot$}\hss}}
-\def\mdot {\hbox to .5em{\hss\utf{00B7}\hss}}
 
 %% 没有用了，我们可以直接使用 stretched 这个命令
 \newdimen\autojustify_width

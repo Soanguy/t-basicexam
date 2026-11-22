@@ -2994,13 +2994,13 @@
   shape=rect,
   radius=2pt,
   framecolor=themecolor,
-  dashcolor=gray,
+  dashcolor=themecolor,
   textwidth=0pt,
   textcolor=white,
-  numbercolor=white,
+  numbercolor=themecolor,
   textstyle=,
   numberstyle=,
-  textbackground=red,
+  textbackground=themecolor,
   numberbackground=white,
   scale=0.6,
   helperwidth=0.4pt,
@@ -3010,7 +3010,7 @@
   rulethickness=1pt,
   dashwidth=0pt,
   xshift=0pt,
-  yshift=-\strutdp,
+  yshift=\dimexpr\namedframedparameter{badgeframed}{scale}\strutdp\relax,
   cross=false,
   helper=false,
   seam=1pt,
@@ -3101,11 +3101,11 @@
   \doifelse{\namedframedparameter{badgeframed}{cross}}{true}%
     {\def\badge_cross{1}}{\def\badge_cross{0}}%
   \setupframed[badgeframed][
-    width=\the\dimexpr\badge_bw+\badge_seam\relax,
-    height=\the\dimexpr\badge_bh\relax, % 稍微偏上对应视觉中心
-    depth=\the\dimexpr0\badge_bh\relax,
-    textwidth=\the\badge_wl,
-    radius=\the\badge_rr,
+    \c!width    =\the\dimexpr\badge_bw+\badge_seam\relax,
+    \c!height   =\the\dimexpr.7\badge_bh\relax,
+    \c!depth    =\the\dimexpr.3\badge_bh\relax,
+    \c!textwidth=\the\badge_wl,
+    \c!radius   =\the\badge_rr,
     drawframe=\badge_drawframe,
     filltext=\badge_filltext,
     fillnum=\badge_fillnum,
@@ -3120,8 +3120,8 @@
     \vbox{\vfill
         \scratchdimen\dimexpr\badge_bw-\badge_wl\relax
         \badgeframed{\ifnum\badge_hasleft=1\strut
-          \kern-\dimexpr\badge_rule\relax\hbox to \badge_wl{\hss\useframedstyleandcolor\c!textstyle\c!textcolor\badge_texttmp\hss}\fi
-          \kern-\dimexpr\badge_rule\relax\hbox to \scratchdimen{\hss\useframedstyleandcolor{numberstyle}{numbercolor}{\vphantom{Mg国}#2}\hss}%
+          \kern-\dimexpr\badge_rule/2\relax\hbox to \badge_wl{\hss\useframedstyleandcolor\c!textstyle\c!textcolor\badge_texttmp\hss}\fi
+          \hbox to \scratchdimen{\hss\useframedstyleandcolor{numberstyle}{numbercolor}{\vphantom{Mg国}#2}\hss}%
           }
         \vfill}%
   }%
