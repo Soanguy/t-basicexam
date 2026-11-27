@@ -249,28 +249,11 @@
    \penalty0
   \endgroup}
 
-
-\definemode [memos:extra:zhnumber][keep]
-\definemode [memos:extra:pinyin]  [keep]
-\definemode [memos:extra:index]   [keep]
-\definemode [memos:extra:bihua]   [keep]
-
-\processallactionsinset[\currentmoduleparameter{extra}][
-        pinyin=>{\enablemode[memos:extra:pinyin]},
-      zhnumber=>{\enablemode[memos:extra:zhnumber]},
-         index=>{\enablemode[memos:extra:index]},
-         bihua=>{\enablemode[memos:extra:bihua]},
-           all=>{\enablemode[memos:extra:pinyin,memos:extra:zhnumber,memos:extra:index,memos:extra:bihua]},
-          none=>\relax,
-    \v!default=>\relax,
-    \v!unknown=>\errorparameter{extra},
-]
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%                               zhnumber                              %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\startmode[memos:extra:zhnumber]
+\startmode[mm@extra:zhnumber]
   \registerctxluafile{t-zhnumber}{}
 
   \installnamespace {zhnumber}
@@ -346,7 +329,7 @@
 %%%%%%                               zhpinyin                              %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\startmode[memos:extra:pinyin]
+\startmode[mm@extra:pinyin]
   \registerctxluafile{t-pinyin}{}
 
   \newdimen\pinyinvsep \pinyinvsep=1em
@@ -441,7 +424,7 @@
 %%%%%%                               zhindex                               %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\startmode[memos:extra:index]
+\startmode[mm@extra:index]
   \registerctxluafile{t-zhindex}{}
 \stopmode
 
@@ -453,7 +436,7 @@
 
 %% bihua data: https://github.com/skishore/makemeahanzi and https://github.com/chanind/hanzi-writer-data
 
-\startmode[memos:extra:bihua]
+\startmode[mm@extra:bihua]
 \registerctxluafile{t-bihua}{}
 
 \installnamespace {bihua}

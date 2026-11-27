@@ -5,6 +5,7 @@ thirddata.zhpunc.debug               = false
 thirddata.zhpunc.hangjian            = false
 thirddata.zhpunc.model               = thirddata.zhpunc.model or "kaiming"   -- 默认开明
 thirddata.zhpunc.space_quad          = thirddata.zhpunc.space_quad or 0.5
+thirddata.zhpunc.ybaselineshift      = thirddata.zhpunc.ybaselineshift or 0 
 thirddata.zhpunc.hangjian_shift      = thirddata.zhpunc.hangjian_shift or 0.4
 thirddata.zhpunc.debug_pangu         = thirddata.zhpunc.debug_pangu or false
 thirddata.zhpunc.debug_shift         = thirddata.zhpunc.debug_shift or false
@@ -22,31 +23,31 @@ function thirddata.zhpunc.setdebugshift(flag)
 end
 
 -- 用户扩展符号类别存储
-thirddata.zhpunc.user_classes        = {}  -- 用户定义的类别
-thirddata.zhpunc.user_char_class     = {}  -- 用户定义的符号类别映射：{char=class_name}
-thirddata.zhpunc.user_hangjian       = {}  -- 用户定义的行间标点：{char=true}
-thirddata.zhpunc.user_rotate         = {}  -- 用户定义的旋转标点：{char=true}
-thirddata.zhpunc.user_protrude_left  = {}  -- 用户定义的行首凸排符号：{char=true}
-thirddata.zhpunc.user_protrude_right = {}  -- 用户定义的行尾凸排符号：{char=true}
-thirddata.zhpunc.user_forbid_start   = {}  -- 用户定义的行首禁排符号：{char=true}
-thirddata.zhpunc.user_forbid_end     = {}  -- 用户定义的行尾禁排符号：{char=true}
-thirddata.zhpunc.user_quad           = {}  -- 用户定义的占位角数：{char=1/0.5/2}
-thirddata.zhpunc.user_space          = {}  -- 用户定义的前、后加空角数：{char={before=,after=}}
+thirddata.zhpunc.user_classes          = {}  -- 用户定义的类别
+thirddata.zhpunc.user_char_class       = {}  -- 用户定义的符号类别映射：{char=class_name}
+thirddata.zhpunc.user_hangjian         = {}  -- 用户定义的行间标点：{char=true}
+thirddata.zhpunc.user_rotate           = {}  -- 用户定义的旋转标点：{char=true}
+thirddata.zhpunc.user_protrude_left    = {}  -- 用户定义的行首凸排符号：{char=true}
+thirddata.zhpunc.user_protrude_right   = {}  -- 用户定义的行尾凸排符号：{char=true}
+thirddata.zhpunc.user_prohibited_start = {}  -- 用户定义的行首禁排符号：{char=true}
+thirddata.zhpunc.user_prohibited_end   = {}  -- 用户定义的行尾禁排符号：{char=true}
+thirddata.zhpunc.user_quad             = {}  -- 用户定义的占位角数：{char=1/0.5/2}
+thirddata.zhpunc.user_space            = {}  -- 用户定义的前、后加空角数：{char={before=,after=}}
 
 local zhpunc = thirddata.zhpunc
-local user_space_ref      = zhpunc.user_space
-local user_quad_ref       = zhpunc.user_quad
-local user_char_class     = zhpunc.user_char_class
-local user_hangjian       = zhpunc.user_hangjian
-local user_rotate         = zhpunc.user_rotate
-local user_protrude_left  = zhpunc.user_protrude_left
-local user_protrude_right = zhpunc.user_protrude_right
-local user_forbid_start   = zhpunc.user_forbid_start
-local user_forbid_end     = zhpunc.user_forbid_end
+local user_space_ref        = zhpunc.user_space
+local user_quad_ref         = zhpunc.user_quad
+local user_char_class       = zhpunc.user_char_class
+local user_hangjian         = zhpunc.user_hangjian
+local user_rotate           = zhpunc.user_rotate
+local user_protrude_left    = zhpunc.user_protrude_left
+local user_protrude_right   = zhpunc.user_protrude_right
+local user_prohibited_start = zhpunc.user_prohibited_start
+local user_prohibited_end   = zhpunc.user_prohibited_end
 
 local _
 
--- 标点模式配置，默认全角
+-- 标点模式配置
 local quanjiao, kaiming, banjiao, yuanyang = "quanjiao", "kaiming", "banjiao","yuanyang"
 
 local hlist_id   = nodes.nodecodes.hlist
@@ -388,7 +389,7 @@ local protrude_right_classes = {
 thirddata.zhpunc._cache_stats = {
     access_count = 0,
     last_cleanup = 0,
-    interval = 10000   -- 每 10000 次访问清理一次，可配置
+        interval = 10000   -- 每 10000 次访问清理一次，可配置
 }
 
 -- =========================================================
@@ -743,8 +744,8 @@ local function is_protrude_right_punc(char)
     return protrude_right_classes[get_punc_class(char)] or false
 end
 
-local function is_forbid_start_punc(char)
-    local v = user_forbid_start[char]
+local function is_prohibited_start_punc(char)
+    local v = user_prohibited_start[char]
     if v ~= nil then return v end
     local class = get_punc_class(char)
     return class == puncs_right_sign
@@ -754,8 +755,8 @@ local function is_forbid_start_punc(char)
         or class == puncs_dakuten
 end
 
-local function is_forbid_end_punc(char)
-    local v = user_forbid_end[char]
+local function is_prohibited_end_punc(char)
+    local v = user_prohibited_end[char]
     if v ~= nil then return v end
     return get_punc_class(char) == puncs_left_sign
 end
@@ -1153,8 +1154,8 @@ function thirddata.zhpunc.punc_data(n)
                 mark(thirddata.zhpunc.user_protrude_left,  char, is_protrude_left_punc(char)),
                 mark(thirddata.zhpunc.user_protrude_right, char, is_protrude_right_punc(char))))
             print(string.format("  禁排: 行首=%s 行尾=%s",
-                mark(thirddata.zhpunc.user_forbid_start, char, is_forbid_start_punc(char)),
-                mark(thirddata.zhpunc.user_forbid_end,   char, is_forbid_end_punc(char))))
+                mark(thirddata.zhpunc.user_prohibited_start, char, is_prohibited_start_punc(char)),
+                mark(thirddata.zhpunc.user_prohibited_end,   char, is_prohibited_end_punc(char))))
             print(string.format("  raw: desc.width=%d, quad=%d, bbox={%d,%d,%d,%d}",
                 desc_width, quad,
                 boundingbox[1], boundingbox[2], boundingbox[3], boundingbox[4]))
@@ -1199,19 +1200,19 @@ local function insert_space(head, ref_node, before, angle, quad, label)
 end
 
 -- 通用禁排惩罚：为任何符合条件的字形节点（标点或非标点）补 penalty
-local function apply_forbid_penalty(head, n, char, char_class)
+local function apply_prohibited_penalty(head, n, char, char_class)
     if not char then return head end
 
     -- 行尾禁排：用户值优先（含 false），否则按 char_class 判断
-    local ufe = user_forbid_end[char]
-    local forbid_end
+    local ufe = user_prohibited_end[char]
+    local prohibited_end
     if ufe ~= nil then
-        forbid_end = ufe
+        prohibited_end = ufe
     else
-        forbid_end = (char_class ~= nil) and (char_class == puncs_left_sign)
+        prohibited_end = (char_class ~= nil) and (char_class == puncs_left_sign)
     end
 
-    if forbid_end then
+    if prohibited_end then
         local g = n.next
         while g and g.id == kern_id do
             g = g.next
@@ -1227,12 +1228,12 @@ local function apply_forbid_penalty(head, n, char, char_class)
     end
 
     -- 行首禁排：用户值优先（含 false），否则按 char_class 判断
-    local ufs = user_forbid_start[char]
-    local forbid_start
+    local ufs = user_prohibited_start[char]
+    local prohibited_start
     if ufs ~= nil then
-        forbid_start = ufs
+        prohibited_start = ufs
     else
-        forbid_start = (char_class ~= nil)
+        prohibited_start = (char_class ~= nil)
             and (char_class == puncs_right_sign
                 or char_class == puncs_inner_point
                 or char_class == puncs_ending_point
@@ -1240,7 +1241,7 @@ local function apply_forbid_penalty(head, n, char, char_class)
                 or char_class == puncs_dakuten)
     end
 
-    if forbid_start then
+    if prohibited_start then
         local break_glue
         local g = n.prev
         while g and (g.id == glue_id or g.id == kern_id) do
@@ -1485,8 +1486,8 @@ end
 function thirddata.zhpunc.process_all(head)
     local handler = scripts.handlers and scripts.handlers.hanzi
     local d = handler and handler.datasets and handler.datasets.custom
-    local amount   = tex.dimen["ybaselineshift"]
-    local do_shift = amount and amount ~= 0
+    local shift_em  = thirddata.zhpunc.ybaselineshift or 0
+    local do_shift  = shift_em ~= 0
     local do_insert = d ~= nil
 
     if not do_insert and not do_shift and not thirddata.zhpunc.enabled then
@@ -1516,8 +1517,8 @@ function thirddata.zhpunc.process_all(head)
 
     if thirddata.zhpunc.debug_pangu then
         print("[Pangu] =====================================")
-        print(string.format("[Pangu] process START | k_em=%.4f x_em=%.4f xs=%.4f xh=%.4f shift=%s",
-            cfg.k.width, cfg.x.width, cfg.x.stretch, cfg.x.shrink, tostring(do_shift)))
+        print(string.format("[Pangu] process START | k_em=%.4f x_em=%.4f xs=%.4f xh=%.4f yshift=%.4fem",
+            cfg.k.width, cfg.x.width, cfg.x.stretch, cfg.x.shrink, shift_em))
     end
 
     while n do
@@ -1536,7 +1537,7 @@ function thirddata.zhpunc.process_all(head)
         if cur_char then
             -- 2. Shift
             if do_shift then
-                apply_shift(n, cur_char, amount)
+                apply_shift(n, cur_char, em_to_sp(shift_em, cur_font))
             end
 
             -- 3. 盘古
@@ -1598,21 +1599,21 @@ function thirddata.zhpunc.process_all(head)
                     is_p = is_punc_of_char(cur_char)
                 end
 
-                local ufs = user_forbid_start[cur_char]
-                local ufe = user_forbid_end[cur_char]
-                local need_forbid = is_p or ufs ~= nil or ufe ~= nil
+                local ufs = user_prohibited_start[cur_char]
+                local ufe = user_prohibited_end[cur_char]
+                local need_prohibited = is_p or ufs ~= nil or ufe ~= nil
 
-                -- 只在需要时算一次 char_class，process_punc 和 apply_forbid_penalty 共用
+                -- 只在需要时算一次 char_class，process_punc 和 apply_prohibited_penalty 共用
                 local char_class
-                if need_forbid then
+                if need_prohibited then
                     char_class = get_punc_class(cur_char)
                 end
 
                 if is_p then
                     head = process_punc(head, n, cur_char, char_class)
                 end
-                if need_forbid then
-                    head = apply_forbid_penalty(head, n, cur_char, char_class)
+                if need_prohibited then
+                    head = apply_prohibited_penalty(head, n, cur_char, char_class)
                 end
             end
         end
@@ -1800,14 +1801,14 @@ function thirddata.zhpunc.define_class(class_name, params)
     local parsed = utilities.parsers.settings_to_hash(params) or {}
 
     thirddata.zhpunc.user_classes[resolved] = {
-        punc           = opt_bool(parsed.punc),
-        protrude_left  = opt_bool(parsed.protrudeleft),
-        protrude_right = opt_bool(parsed.protruderight),
-        forbid_start   = opt_bool(parsed.forbidstart),
-        forbid_end     = opt_bool(parsed.forbidend),
-        quad           = tonumber(parsed.quad),
-        space_before   = tonumber(parsed.spacebefore) or 0,
-        space_after    = tonumber(parsed.spaceafter) or 0,
+        punc             = opt_bool(parsed.punc),
+        protrude_left    = opt_bool(parsed.protrudeleft),
+        protrude_right   = opt_bool(parsed.protruderight),
+        prohibited_start = opt_bool(parsed.prohibitedstart),
+        prohibited_end   = opt_bool(parsed.prohibitedend),
+        quad             = tonumber(parsed.quad),
+        space_before     = tonumber(parsed.spacebefore) or 0,
+        space_after      = tonumber(parsed.spaceafter) or 0,
     }
 
     -- 将新类别添加到 inserting_space 表中（供默认半角压缩逻辑沿用）
@@ -1870,11 +1871,11 @@ function thirddata.zhpunc.add_to_class(class_name, chars_str)
         if class_props.protrude_right ~= nil then
             thirddata.zhpunc.user_protrude_right[char] = class_props.protrude_right
         end
-        if class_props.forbid_start ~= nil then
-            thirddata.zhpunc.user_forbid_start[char] = class_props.forbid_start
+        if class_props.prohibited_start ~= nil then
+            thirddata.zhpunc.user_prohibited_start[char] = class_props.prohibited_start
         end
-        if class_props.forbid_end ~= nil then
-            thirddata.zhpunc.user_forbid_end[char] = class_props.forbid_end
+        if class_props.prohibited_end ~= nil then
+            thirddata.zhpunc.user_prohibited_end[char] = class_props.prohibited_end
         end
         if class_props.quad ~= nil then
             thirddata.zhpunc.user_quad[char] = class_props.quad
@@ -1911,8 +1912,8 @@ function thirddata.zhpunc.remove_from_class(chars_str)
         thirddata.zhpunc.user_rotate,
         thirddata.zhpunc.user_protrude_left,
         thirddata.zhpunc.user_protrude_right,
-        thirddata.zhpunc.user_forbid_start,
-        thirddata.zhpunc.user_forbid_end,
+        thirddata.zhpunc.user_prohibited_start,
+        thirddata.zhpunc.user_prohibited_end,
         thirddata.zhpunc.user_quad,
         thirddata.zhpunc.user_space,
         -- puncs,
@@ -1943,16 +1944,16 @@ function thirddata.zhpunc.setup_chars(chars_str, params)
 
     -- 循环外一次性解析（parsed 与 char 无关）
     local p = {
-        class         = parsed.class and resolve_class(parsed.class) or nil,
-        hangjian      = opt_bool(parsed.hangjian),
-        rotate        = opt_bool(parsed.rotate),
-        protrudeleft  = opt_bool(parsed.protrudeleft),
-        protruderight = opt_bool(parsed.protruderight),
-        forbidstart   = opt_bool(parsed.forbidstart),
-        forbidend     = opt_bool(parsed.forbidend),
-        quad          = tonumber(parsed.quad),
-        spacebefore   = tonumber(parsed.spacebefore),
-        spaceafter    = tonumber(parsed.spaceafter),
+        class           = parsed.class and resolve_class(parsed.class) or nil,
+        hangjian        = opt_bool(parsed.hangjian),
+        rotate          = opt_bool(parsed.rotate),
+        protrudeleft    = opt_bool(parsed.protrudeleft),
+        protruderight   = opt_bool(parsed.protruderight),
+        prohibitedstart = opt_bool(parsed.prohibitedstart),
+        prohibitedend   = opt_bool(parsed.prohibitedend),
+        quad            = tonumber(parsed.quad),
+        spacebefore     = tonumber(parsed.spacebefore),
+        spaceafter      = tonumber(parsed.spaceafter),
     }
 
     for _, char in ipairs(chars) do
@@ -1971,11 +1972,11 @@ function thirddata.zhpunc.setup_chars(chars_str, params)
         if p.protruderight ~= nil then
             thirddata.zhpunc.user_protrude_right[char] = p.protruderight
         end
-        if p.forbidstart ~= nil then
-            thirddata.zhpunc.user_forbid_start[char] = p.forbidstart
+        if p.prohibitedstart ~= nil then
+            thirddata.zhpunc.user_prohibited_start[char] = p.prohibitedstart
         end
-        if p.forbidend ~= nil then
-            thirddata.zhpunc.user_forbid_end[char] = p.forbidend
+        if p.prohibitedend ~= nil then
+            thirddata.zhpunc.user_prohibited_end[char] = p.prohibitedend
         end
         if p.quad ~= nil then
             thirddata.zhpunc.user_quad[char] = p.quad
@@ -2066,6 +2067,16 @@ function zhpunc.setdataset(method, name, kv)
     if kv.halfshrink ~= nil then
         d.fixed_xkanji_shrink_factor = tonumber(kv.halfshrink)
         templates_dirty = true
+    end
+    -- 基线偏移：\setupkanjiskip[yshift=0.08] 表示 0.08em，0 关闭
+    if kv.yshift ~= nil then
+        local n = tonumber(kv.yshift)
+        if n then
+            thirddata.zhpunc.ybaselineshift = n
+        else
+            logs.report("pangu", "invalid yshift value (expect em factor, e.g. 0.08): %s",
+                tostring(kv.yshift))
+        end
     end
 end
 

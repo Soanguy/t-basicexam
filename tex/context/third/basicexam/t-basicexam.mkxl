@@ -66,8 +66,8 @@
 \doifnot\contextmark
   {LMTX}
   {\writestatus{modules         }
-  {This module requires ConTeXt LMTX (LuaMetaTeX). 
-   Please upgrade your ConTeXt installation or 
+  {This module requires ConTeXt LMTX (LuaMetaTeX).
+   Please upgrade your ConTeXt installation or
    use the LMTX version to run this module.}\wait\end}
 
 %D 定义关键词
@@ -90,7 +90,7 @@
 \definesystemconstant{papertitle}
 
 \startinterface all
-\setinterfaceconstant {uid}            {uid} 
+\setinterfaceconstant {uid}            {uid}
 \setinterfaceconstant {class}          {class}
 
 \setinterfaceconstant {score}          {score}
@@ -271,8 +271,8 @@
   \definecolor [paleblue]    [x=eff9ff]  \definecolor [softblue]    [x=b9e6ff]  \definecolor [lightblue]   [x=6cc3f0]
   \definecolor [darkblue]    [x=15559a]  \definecolor [deepblue]    [x=1c2938]  \definecolor [blackblue]   [x=012030]
   \definepalet [serene]    [
-    palethemecolor=paleblue,  softthemecolor=softblue,  lightthemecolor=lightblue,  
-        themecolor=blue,      darkthemecolor=darkblue,   deepthemecolor=deepblue,   
+    palethemecolor=paleblue,  softthemecolor=softblue,  lightthemecolor=lightblue,
+        themecolor=blue,      darkthemecolor=darkblue,   deepthemecolor=deepblue,
                               softbackground=softblue,    lightoptcolor=lightred,
                                     optcolor=red,        darkbackground=deepblue,
         titlecolor=blue,           textcolor=black,           codecolor=deepblue,
@@ -967,7 +967,7 @@
 
 \setupproblem
   [\c!class=\s!problem,
-    \c!left=\__CapLparen, 
+    \c!left=\__CapLparen,
  \c!lefttext=\__CapLparen,
     \c!right=\__CapRparen,
 \c!righttext=\__CapRparen,
@@ -1162,7 +1162,7 @@
     \setupchoice[#settings]%
   \fi
   \edef\p_inlinechoice {\choiceparameter\c!inlinechoice}%
-  \edef\p_answerstyle  {\choiceparameter\c!answerstyle}% 
+  \edef\p_answerstyle  {\choiceparameter\c!answerstyle}%
   \edef\p_answercolor  {\choiceparameter\c!answercolor}%
   \edef\p_correctsymbol{\choiceparameter{correctsymbol}}%
 }
@@ -1178,7 +1178,6 @@
   \else
     \edef\bem_choice_settings{n=\the\c_availablecolumns,\bem_choice_settings}%
   \fi% 我们必须要完全展开 itemgroup 的三个参数
-  \par ==？[\bem_choice_category][\bem_choice_options][\bem_choice_settings]
   \expanded{\noexpand\startitemgroup[\bem_choice_category][\bem_choice_options][\bem_choice_settings]}
     \ifmode_showanswer\else\doiftrueelse\s!choice\c!showanswer\mode_showanswertrue\mode_showanswerfalse\fi
     \usechoicestyleandcolor\c!textstyle\c!textcolor
@@ -1242,7 +1241,7 @@
 
 \setupchoice [\c!answerstyle=\ss,
               \c!answercolor=red,
-             \c!inlinechoice=false, 
+             \c!inlinechoice=false,
          \c!numberconversion=A,
                    \c!option={A,packed,joinedup,},
                    \c!before=,
@@ -1481,7 +1480,7 @@
 {\begingroup\nofarguments\lastarguments
   \edef\currentexamitem{#category}%
   \ifcase\nofarguments
-     \edef\p_answer{}%0 
+     \edef\p_answer{}%0
   \or\edef\p_answer{}%1
   \or\edef\p_answer{#options}%2
      \setupexamitem[#category][#options]%
@@ -1541,7 +1540,7 @@
     \dousestyleparameter{\questionparameter\c!answerstyle}\else
     \dousestyleparameter{\p_answerstyle}\fi
   \ifempty\p_answercolor
-    \dousecolorparameter{\questionparameter\c!answercolor}\else 
+    \dousecolorparameter{\questionparameter\c!answercolor}\else
     \dousecolorparameter{\p_answercolor}\fi
 }
 
@@ -1664,7 +1663,7 @@
         \else
           \UnlimitedGetExtraData{\SavedCurrentID}{answer}%
         \fi
-      \else 
+      \else
         \temp_fillinanswer
       \fi}% 如果 #3 为空，就使用前一個答案
     \edef\p_number{\number\c_fillinnumber}%
@@ -1923,7 +1922,7 @@
   \edef\p_class{#1}%
   \ifparameter#2\or
     \setupmaterial[\currentmaterial][#2]%
-  \else 
+  \else
     \ifhastok={#1}
       \setupmaterial[\currentmaterial][#1]%
     \fi
@@ -2114,7 +2113,7 @@
   \ctxlua{thirddata.basicexam.close_reset()}%
   \edef\p_continue{\closeparameter\c!continue}%
   \scratchcounterone\rawcountervalue[currentexamorder]%抓取之前的题号
-  % \c_closetest_temp   内部的序号 
+  % \c_closetest_temp   内部的序号
   \doiftrueelse\s!close\c!continue
     {\c_closetest_temp\rawcountervalue[currentexamorder]}%
     {\c_closetest_temp\zerocount}%
@@ -2139,7 +2138,7 @@
   foregroundstyle=\closeparameter\c!liststyle]{%
     \global\advance\c_closetest_temp by 1\relax
     \convertnumber{n}{\number\c_closetest_temp}% 选择题目区域的标记序号
-    \closeparameter\c!stopper}% 
+    \closeparameter\c!stopper}%
   \hskip\closeparameter\c!distance\relax
   \unskip}
 
@@ -2286,7 +2285,7 @@
 \to \everydefinegrade
 
 \setupgrade
-  [% 
+  [%
    partios=,% 指定要渲染的 Partio 序号。
              % 留空：自动读取当前最新（正在收集）的 partio。
              % 数字：如 1，只渲染第 1 个 partio。
@@ -2526,9 +2525,9 @@
 
 \startMPdefinitions
   % 手绘随机化宏
-  numeric sketch_amount;  
+  numeric sketch_amount;
   numeric sketch_segments;
-  numeric sketch_passes; 
+  numeric sketch_passes;
 
   primarydef p sketchrandomized s =
     ( if path p :
@@ -2593,7 +2592,7 @@
 
   def draw_mark_notcheck(expr hd, c, bfs, ms) =
     draw_thin(mark_path_check, hd, c, bfs, ms, 1.2) ;
-    draw_thin(mark_path_notcheck_slash, hd, c, bfs, ms, 1.0) ;  
+    draw_thin(mark_path_notcheck_slash, hd, c, bfs, ms, 1.0) ;
   enddef ;
 
   % 组合符号 (外框 1.0 倍，内芯 0.65 倍)
@@ -2646,11 +2645,11 @@
     h := 0.7 * bfs;                     % 匹配标准文本高度
     d := 0.3 * bfs;                     % 匹配标准文本深度
     pad := mark_heavy * bfs * ms;       % 加上线宽作为缓冲，防止撑破边界
-    
+
     % 强制所有符号的宽度和高度绝对一致，解决间距忽大忽小的问题
     setbounds currentpicture to
       (unitsquare xscaled (s + pad) yscaled (h + d + pad))
-        shifted (-(s+pad)/2, -d - pad/2) ;       
+        shifted (-(s+pad)/2, -d - pad/2) ;
   enddef ;
 \stopMPdefinitions
 
@@ -2805,7 +2804,7 @@
       draw p withcolor c dashed dashpattern(on don off doff) withpen po;
     fi;
   enddef;
-  
+
   vardef addto_styled(suffix pic)(expr p, mode, don, doff, penw, ps, c) =
     save po; pen po;
     if ps = 2: po := pensquare scaled penw; else: po := pencircle scaled penw; fi;
@@ -2830,7 +2829,7 @@
     boolean has_clip;
     picture pic_clip;
     nrec := 0;
-    
+
     if helper_v:
       rec_p[nrec]    := (ox + bW/2, oy) -- (ox + bW/2, oy + bH);
       rec_mode[nrec] := hmode; rec_on[nrec] := hon; rec_off[nrec] := hoff;
@@ -2843,7 +2842,7 @@
       rec_clip[nrec] := true;  rec_z[nrec] := 10;
       nrec := nrec + 1;
     fi;
-    
+
     if cross_v:
       rec_p[nrec]    := (ox, oy) -- (ox + bW, oy + bH);
       rec_mode[nrec] := cmode; rec_on[nrec] := con; rec_off[nrec] := coff;
@@ -2856,15 +2855,15 @@
       rec_clip[nrec] := true;  rec_z[nrec] := 10;
       nrec := nrec + 1;
     fi;
-    
+
     if has_seam:
       rec_p[nrec]    := (ox + wL, oy) -- (ox + wL, oy + bH);
       rec_mode[nrec] := fmode; rec_on[nrec] := fon; rec_off[nrec] := foff;
       rec_pen[nrec]  := spen;  rec_col[nrec] := fcol;
-      rec_clip[nrec] := false; rec_z[nrec] := 20;
+      rec_clip[nrec] := true; rec_z[nrec] := 20;
       nrec := nrec + 1;
     fi;
-    
+
     if frame_enabled:
       rec_p[nrec]    := outer_path;
       rec_mode[nrec] := fmode; rec_on[nrec] := fon; rec_off[nrec] := foff;
@@ -2872,18 +2871,18 @@
       rec_clip[nrec] := false; rec_z[nrec] := 30;
       nrec := nrec + 1;
     fi;
-    
+
     has_clip := false;
     for i = 0 upto nrec - 1:
       if rec_clip[i]: has_clip := true; fi;
     endfor;
-  
+
     for i = 0 upto nrec - 1:
       if not rec_clip[i]:
         stroke_styled(rec_p[i], rec_mode[i], rec_on[i], rec_off[i], rec_pen[i], pen_style, rec_col[i]);
       fi;
     endfor;
-  
+
     if has_clip:
       pic_clip := nullpicture;
       for i = 0 upto nrec - 1:
@@ -2905,7 +2904,7 @@
   save hmode, hon, hoff, cmode, con, coff, fmode, fon, foff;
   save hpen, hdash, cpen, cdash, fpen, fdash;
   save pen_style;
-  
+
   numeric pen_style;
   numeric bW, bH, wL, rr, s_thick;
   numeric hmode, hon, hoff, cmode, con, coff, fmode, fon, foff;
@@ -2913,12 +2912,12 @@
   boolean has_seam, frame_enabled, helper_v, cross_v, filltext_v, fillnum_v, seam_v;
   color c_textbg, c_numbg, c_frame, c_dash;
   path p_outer, pL, pR;
-  
+
   bW := OverlayWidth;
   bH := OverlayHeight;
   pen_style := \namedframedparameter{badgeframed}{penstyle};
   wL := \namedframedparameter{badgeframed}{textwidth};
-  s_thick := \namedframedparameter{badgeframed}{seam};
+  s_thick := \badge_seam;
   rr := \namedframedparameter{badgeframed}{radius};
   thick := \namedframedparameter{badgeframed}{rulethickness};
   hpen := \namedframedparameter{badgeframed}{helperwidth};
@@ -2929,7 +2928,7 @@
   fdash := \namedframedparameter{badgeframed}{dashwidth};
   helper_v := (\namedframedparameter{badgeframed}{helper} > 0);
   cross_v := (\namedframedparameter{badgeframed}{cross} > 0);
-  frame_enabled := (\namedframedparameter{badgeframed}{drawframe} > 0);
+  frame_enabled := (\badge_drawframe > 0);
   filltext_v := (\namedframedparameter{badgeframed}{filltext} > 0);
   fillnum_v := (\namedframedparameter{badgeframed}{fillnum} > 0);
   c_textbg := \MPcolor{\namedframedparameter{badgeframed}{textbackground}};
@@ -2981,17 +2980,17 @@
 \defineframed[badgeframed][
   penstyle=1,
   frame=off,
-  offset=0pt,
+  offset=overlay,
   leftoffset=.5ex,
   rightoffset=.5ex,
   topoffset=0pt,
   bottomoffset=0pt,
   frameoffset=0pt,
-  align={center,lohi},
+  align=center,
   background=badgebg,
   strut=yes,
   text=,
-  shape=rect,
+  shape=rect,%circle square
   radius=2pt,
   framecolor=themecolor,
   dashcolor=themecolor,
@@ -3002,7 +3001,7 @@
   numberstyle=,
   textbackground=themecolor,
   numberbackground=white,
-  scale=0.6,
+  scale=0.5,
   helperwidth=0.4pt,
   helperdashwidth=0pt,
   crosswidth=0.4pt,
@@ -3010,11 +3009,10 @@
   rulethickness=1pt,
   dashwidth=0pt,
   xshift=0pt,
-  yshift=\dimexpr\namedframedparameter{badgeframed}{scale}\strutdp\relax,
+  yshift=\scratchdimen,
   cross=false,
   helper=false,
   seam=1pt,
-  drawframe=0,
   filltext=0,
   fillnum=0,
 ]
@@ -3045,19 +3043,20 @@
   \edef\badge_foffset{\namedframedparameter{badgeframed}{frameoffset}}%
   \edef\badge_poffset{\namedframedparameter{badgeframed}{backgroundoffset}}%
   \edef\badge_rule{\namedframedparameter{badgeframed}{rulethickness}}%
-  \scratchdimen\badge_rule 
+  \scratchdimen\dimexpr\badge_rule + \badge_rule + \badge_seam\relax
   \scratchdimenone\badge_loffset   \scratchdimentwo\badge_roffset
   \scratchdimenthree\badge_poffset \scratchdimenfour\badge_foffset
-  \scratchdimenone\dimexpr2\scratchdimen + 2\scratchdimenone + 2\scratchdimenthree\relax
-  \scratchdimentwo\dimexpr2\scratchdimen + 2\scratchdimentwo + 2\scratchdimenthree\relax
+  \scratchdimenone\dimexpr\scratchdimen + 2\scratchdimenone + 2\scratchdimenthree\relax%左侧总多余度量
+  \scratchdimentwo\dimexpr\scratchdimen + 2\scratchdimentwo + 2\scratchdimenthree\relax%右侧总多余度量
   \setbox\badge_Lbox\hbox{\strut\vphantom{Mg国}\kern\scratchdimenone\useframedstyleandcolor{}{textstyle}\badge_texttmp}%
   \setbox\badge_Rbox\hbox{\strut\vphantom{Mg国}\kern\scratchdimentwo\useframedstyleandcolor{}{numberstyle}#2}%
   % bh = max(htL+dpL, htR+dpR)
+  \scratchdimen\dimexpr\badge_rule\relax
   \scratchdimenone\badge_toffset   \scratchdimentwo\badge_boffset
-  \scratchdimen\dimexpr2\scratchdimen +\scratchdimenone + \scratchdimentwo + \scratchdimenthree + \scratchdimenfour\relax
-  \scratchdimenone\dimexpr\ht\badge_Lbox+\dp\badge_Lbox + \scratchdimen\relax
-  \scratchdimentwo\dimexpr\ht\badge_Rbox+\dp\badge_Rbox + \scratchdimen\relax
-  \ifdim\scratchdimentwo>\scratchdimenone\badge_bh\scratchdimentwo\else\badge_bh\scratchdimenone\fi
+  \scratchdimen\dimexpr2\scratchdimen +\scratchdimenone + \scratchdimentwo + \scratchdimenthree + \scratchdimenfour\relax%顶部底部多余度量
+  \scratchdimenone\dimexpr\ht\badge_Lbox+\dp\badge_Lbox + \scratchdimen\relax%左侧盒子实际高度
+  \scratchdimentwo\dimexpr\ht\badge_Rbox+\dp\badge_Rbox + \scratchdimen\relax%右侧盒子实际高度
+  \ifdim\scratchdimentwo>\scratchdimenone\badge_bh\scratchdimentwo\else\badge_bh\scratchdimenone\fi%赋值到最高高度
   \ifx\badge_texttmp\empty
     \def\badge_hasleft{0}\badge_wl=\zeropoint
     \badge_bw=\dimexpr\wd\badge_Rbox\relax
@@ -3069,62 +3068,58 @@
   \ifx\badge_shape\badge_circle \def\badge_isosym{1}\fi
   \ifx\badge_shape\badge_square \def\badge_isosym{1}\fi
   \ifnum\badge_isosym=1
-    \ifdim\badge_bw<\badge_bh \badge_bw=\badge_bh \fi
-    \badge_bh=\badge_bw
-    \ifnum\badge_hasleft=1 \badge_wl=\dimexpr\badge_bw/2\relax \else \badge_wl=\zeropoint \fi
+    \ifdim\badge_bw<\badge_bh    \badge_bw\badge_bh                  \else \badge_bh\badge_bw \fi
+    \ifnum\badge_hasleft=\plusone\badge_wl=\dimexpr\badge_bw/2\relax \else \badge_wl\zeropoint \fi
   \fi
-  \ifx\badge_shape\badge_circle
-    \badge_rr=\dimexpr\badge_bw/2\relax
-  \else\ifx\badge_shape\badge_square
-    \badge_rr=\dimexpr\badge_radius\relax
+  \ifx\badge_shape\badge_circle      \badge_rr=\dimexpr\badge_bw/2\relax
+  \else\ifx\badge_shape\badge_square \badge_rr=\dimexpr\badge_radius\relax
   \else\ifx\badge_shape\badge_capsule
-    \ifdim\badge_bw<\badge_bh \badge_rr=\dimexpr\badge_bw/2\relax \else \badge_rr=\dimexpr\badge_bh/2\relax \fi
-  \else
-    \badge_rr=\dimexpr\badge_radius\relax
+    \ifdim\badge_bw<\badge_bh        \badge_rr=\dimexpr\badge_bw/2\relax
+    \else                            \badge_rr=\dimexpr\badge_bh/2\relax \fi
+  \else                              \badge_rr=\dimexpr\badge_radius\relax
   \fi\fi\fi
   \ifdim\badge_rr>\dimexpr\badge_bh/2\relax \badge_rr=\dimexpr\badge_bh/2\relax \fi
   \ifdim\badge_rr>\dimexpr\badge_bw/2\relax \badge_rr=\dimexpr\badge_bw/2\relax \fi
   \ifdim\badge_rr<\zeropoint \badge_rr=\zeropoint \fi
-  \doifelse{\namedframedparameter{badgeframed}{framecolor}}{transparent}%
-    {\def\badge_drawframe{0}}{\def\badge_drawframe{1}}%
+  \doifelse{\namedframedparameter{badgeframed}{framecolor}}{transparent}{\def\badge_drawframe{0}}{\def\badge_drawframe{1}}%
   \ifdim\dimexpr\namedframedparameter{badgeframed}{rulethickness}\relax<\zeropoint
     \def\badge_drawframe{0}%
   \fi
-  \doifelse{\namedframedparameter{badgeframed}{penstyle}}{square}
-    {\def\badge_pstyle{2}}{\def\badge_pstyle{1}}%
-  \doifelse{\namedframedparameter{badgeframed}{textbackground}}{transparent}%
-    {\def\badge_filltext{0}}{\def\badge_filltext{1}}%
-  \doifelse{\namedframedparameter{badgeframed}{numberbackground}}{transparent}%
-    {\def\badge_fillnum{0}}{\def\badge_fillnum{1}}%
-  \doifelse{\namedframedparameter{badgeframed}{helper}}{true}%
-    {\def\badge_helper{1}}{\def\badge_helper{0}}%
-  \doifelse{\namedframedparameter{badgeframed}{cross}}{true}%
-    {\def\badge_cross{1}}{\def\badge_cross{0}}%
+  \doifelse{\namedframedparameter{badgeframed}{penstyle}}{square}{\def\badge_pstyle{2}}{\def\badge_pstyle{1}}%
+  \doifelse{\namedframedparameter{badgeframed}{textbackground}}{transparent}{\def\badge_filltext{0}}{\def\badge_filltext{1}}%
+  \doifelse{\namedframedparameter{badgeframed}{numberbackground}}{transparent}{\def\badge_fillnum{0}}{\def\badge_fillnum{1}}%
+  \doifelse{\namedframedparameter{badgeframed}{helper}}{true}{\def\badge_helper{1}}{\def\badge_helper{0}}%
+  \doifelse{\namedframedparameter{badgeframed}{cross}}{true}{\def\badge_cross{1}}{\def\badge_cross{0}}%
   \setupframed[badgeframed][
-    \c!width    =\the\dimexpr\badge_bw+\badge_seam\relax,
-    \c!height   =\the\dimexpr.7\badge_bh\relax,
-    \c!depth    =\the\dimexpr.3\badge_bh\relax,
+    \c!width    =\the\dimexpr\badge_bw\relax,
+    \c!height   =\the\dimexpr.5\badge_bh\relax,
+    \c!depth    =\the\dimexpr.5\badge_bh\relax,
     \c!textwidth=\the\badge_wl,
     \c!radius   =\the\badge_rr,
-    drawframe=\badge_drawframe,
     filltext=\badge_filltext,
     fillnum=\badge_fillnum,
     helper=\badge_helper,
     cross=\badge_cross,
     penstyle=\badge_pstyle,
   ]%
+  \setupindenting[none]%
   \dontleavehmode
-  \scale[s=\namedframedparameter{badgeframed}{scale},]{%
-    \kern\dimexpr\namedframedparameter{badgeframed}{xshift}\relax
-    \raise\dimexpr\namedframedparameter{badgeframed}{yshift}\relax
-    \vbox{\vfill
+  \scratchdimen\dimexpr(\badge_bh-\bodyfontsize)/2\relax
+  \scratchdimen-\dimexpr\namedframedparameter{badgeframed}{scale}\scratchdimen\relax
+  \scale[s=\namedframedparameter{badgeframed}{scale}]{
+  \kern\dimexpr\namedframedparameter{badgeframed}{xshift}\relax
+  \raise\dimexpr\namedframedparameter{badgeframed}{yshift}\relax
+  \vbox to \badge_bh{\unskip
+      \badgeframed{%
         \scratchdimen\dimexpr\badge_bw-\badge_wl\relax
-        \badgeframed{\ifnum\badge_hasleft=1\strut
-          \kern-\dimexpr\badge_rule/2\relax\hbox to \badge_wl{\hss\useframedstyleandcolor\c!textstyle\c!textcolor\badge_texttmp\hss}\fi
-          \hbox to \scratchdimen{\hss\useframedstyleandcolor{numberstyle}{numbercolor}{\vphantom{Mg国}#2}\hss}%
-          }
-        \vfill}%
-  }%
+        \ifnum\badge_hasleft=1
+          \kern-\dimexpr\badge_rule/2\relax
+          \vbox to \badge_bh{\hsize\badge_wl\useframedstyleandcolor\c!textstyle\c!textcolor{\vfill\badge_texttmp\vfill}}%
+        \fi
+        \vbox to \badge_bh{\hsize\scratchdimen\useframedstyleandcolor{numberstyle}{numbercolor}{\vfill#2\vfill}}%
+        }%
+      }%
+    }
   \endgroup
 }
 
@@ -3223,30 +3218,22 @@
 \defineconversion[Cs:kata][\csname circlednum:Cs:kata\endcsname]
 \defineconversion[CS:kata][\csname circlednum:CS:kata\endcsname]
 
-\defcsname EgNum:I\endcsname#1{%
-  \DrawBadge[text=Z, radius=1pt,
-             textbackground=themecolor, textcolor=white, 
-             numberbackground=white, numbercolor=themecolor, 
+\defcsname EgNum:I\endcsname#1{\begingroup
+  \DrawBadge[text=题, radius=50pt,
+             textbackground=themecolor, textcolor=white,
+             numberbackground=white, numbercolor=themecolor,
              framecolor=themecolor, rulethickness=0.5pt]{#1}%
-}
+\endgroup}
 
 \defcsname EgNum:II\endcsname#1{%
-  \DrawBadge[text=Y, radius=1pt,
-             textbackground=themecolor, textcolor=white, 
-             numberbackground=white, numbercolor=themecolor, 
+  \DrawBadge[text=题, radius=1pt,
+             textbackground=themecolor, textcolor=white,
+             numberbackground=white, numbercolor=themecolor,
              framecolor=themecolor, rulethickness=0.5pt]{#1}%
 }
 
-\defcsname EgNum:III\endcsname#1{%
-  \DrawBadge[text=X, radius=1pt, 
-             textbackground=themecolor, textcolor=white, 
-             numberbackground=white, numbercolor=themecolor, 
-             framecolor=themecolor, rulethickness=0.5pt]{#1}%
-}
-
-\defineconversion [EgNumI]   [\csname EgNum:I  \endcsname]
-\defineconversion [EgNumII]  [\csname EgNum:II \endcsname]
-\defineconversion [EgNumIII] [\csname EgNum:III\endcsname]
+\defineconversion [EgNumI]   [\csname EgNum:I\endcsname]
+\defineconversion [EgNumII]  [\csname EgNum:II\endcsname]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D \section{Extra Command}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -3257,7 +3244,7 @@
 \def\definelexicalinfocommand#1#2{%
   \defcsname #1\endcsname##1%
     {\dontleavehmode
-     \thinspace\hbox{\DrawBadge[numberstyle=tfx,leftoffset=0pt,rightoffset=0pt]{#2} 
+     \thinspace\hbox{\DrawBadge[numberstyle=tfx,leftoffset=0pt,rightoffset=0pt]{#2}
      \uselexicalentrystyleandcolor\c!inforstyle\c!inforcolor
      ##1}\thinspace\allowbreak}}
 
@@ -3418,7 +3405,7 @@
 %        \item 私はワインは飲みますが、ビールは飲みません。
 %      \stoplexicallists
 %    \stoplexicalexample
-  
+
 %    \startlexicalmeaning{Aの状態ではなくなるまでにBを完了する}\\
 %      \junction{動詞辞書形・テイル形・ナイ形}\\
 %      \junction{形容詞・形容動詞の連体形（現在肯定形・現在否定形）}\\
@@ -3447,23 +3434,22 @@
 \definemode[check]  [keep]
 \definemode[random]  [keep]
 \startmode[teacher]
-  \mode_showpointtrue   
-  \mode_showanswertrue  
+  \mode_showpointtrue
+  \mode_showanswertrue
   \mode_showsolutiontrue
-  \setupfillin[empty=none,n=8]
+  \setupfillin[empty=none]
 \stopmode
 \startmode[student]
-  \mode_showpointtrue  
-  \mode_showanswerfalse 
+  \mode_showpointtrue
+  \mode_showanswerfalse
   \mode_showsolutionfalse
-  \setupfillin[n=8]
 \stopmode
 
 \startmode[check]
   \mode_showpointtrue
   \mode_showanswertrue
   \mode_showsolutiontrue
-  \setupfillin[empty=none,n=8]
+  \setupfillin[empty=none]
   \mode_showchecktrue
   \ctxlua{thirddata.basicexam.enable_check()}
 \stopmode
