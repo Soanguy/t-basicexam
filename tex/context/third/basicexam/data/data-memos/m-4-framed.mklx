@@ -641,9 +641,14 @@
    symbol=\usersymbolparameter{Frame},
    shadowcolor=lightthemecolor]
 
+\startuseMPgraphic{mpos:region:sidelines}
+    draw_multi_pars;
+    draw_multi_side;
+\stopuseMPgraphic
+
 \definetextbackground[blockbox]
 \setuptextbackground [blockbox][
-                      location=always,   mp=mpos:region:sideline,
+                      location=always,   mp=mpos:region:sidelines,
                       frame=off,         framecolor=lightthemecolor,
                       width=broad,
                       topoffset=1ex,     bottomoffset=1ex,

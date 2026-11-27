@@ -38,7 +38,7 @@
                                   after={\vskip\baselineskip\relax}]
 \setuphead [part]                [style=\definedfont[Sans sa 2.488]]
 \setuphead [chapter]             [style=\ssd]
-\setuphead [section]             [before=\vskip1.\lineheight,after=\vskip1.\lineheight,style=\rm\bfb]
+\setuphead [section]             [before=\vskip1.\lineheight,after=\vskip.3\lineheight,style=\rm\bfb]
 \setuphead [subsection]          [before=\vskip.7\lineheight,after=\vskip.3\lineheight,style=\rm\bfa]
 \setuphead [subsubsection]       [before=\vskip.7\lineheight,after=\vskip.3\lineheight,style=\rm\bf]
 \setuphead [subsubsubsection]    [before=\vskip.7\lineheight,after=\vskip.3\lineheight,style=\rm\bf]
@@ -75,7 +75,7 @@
 %% 1.1 XXXX   --- subsection
 %% (1) XXXX   --- subsubsection
 %% (1.1) XXXX --- subsubsubsection
-\startsetups memos:chap:simple
+\startsetups mm@chap:simple
   \setuplabeltext [en]             [chapter={{\sc Chapter\ \tf\definedfont[SansBold sa 2.488]},}]
   \setuplabeltext [hans]           [chapter={{\sc Chapter\ \tf\definedfont[SansBold sa 2.488]},}]
   \setuplabeltext [hant]           [chapter={{\sc Chapter\ \tf\definedfont[SansBold sa 2.488]},}]
@@ -108,7 +108,7 @@
   \fi
 }}
 
-\startsetups memos:chap:default
+\startsetups mm@chap:default
   \edef\currentchapterstyle{default}
 
   \setupmakeup[part] [before=\setupbackgrounds[page][background=color,backgroundcolor=palethemecolor],
@@ -162,7 +162,7 @@
   \fi
 }}
 
-\startsetups memos:chap:line
+\startsetups mm@chap:line
   \setupmakeup[part] [before=\setupbackgrounds[page][background=color,backgroundcolor=softthemecolor],
                        after=\setupbackgrounds[page][background=color,backgroundcolor=transparentcolor]]
   \setuphead  [part] [placehead=yes,
@@ -195,7 +195,7 @@
 %% 1.1 XXXX          --- subsection
 %% 1.1.1 XXXX        --- subsubsection
 %% 1.1.1.1 XXXX      --- subsubsubsection
-\startsetups memos:chap:madsentoc
+\startsetups mm@chap:madsentoc
   \startlocalheadsetup
   \headsetupspacing
   \starttabulate[|ck{0}|]
@@ -215,7 +215,7 @@
   \stoplocalheadsetup
 \stopsetups
 
-\startsetups memos:chap:madsenchapter
+\startsetups mm@chap:madsenchapter
   \startlocalheadsetup
   \headsetupspacing
   \startframed[height=fit,width=\headparameter\c!width,
@@ -270,12 +270,12 @@
 \definelayer[part:madsen:left][width=\paperwidth,height=\paperheight,preset=lefttop]
 \definelayer[part:madsen:right][width=\cutspace,height=\paperheight,x=\dimexpr\paperwidth-\cutspace\relax]
 
-\startsetups memos:chap:madsen
+\startsetups mm@chap:madsen
   \definebodyfontenvironment [40pt]
   \defineoverlay[chapback][{\externalfigure[][width=0.8\paperwidth,height=6cm]}]
 
-  \defineheadalternative[madsentoc][renderingsetup=memos:chap:madsentoc]
-  \defineheadalternative[madsen][renderingsetup=memos:chap:madsenchapter]
+  \defineheadalternative[madsentoc][renderingsetup=mm@chap:madsentoc]
+  \defineheadalternative[madsen][renderingsetup=mm@chap:madsenchapter]
 
   \setupmakeup[part] [before=%
                             \setlayer   [part:madsen:left] {\framed[frame=off,background=color,backgroundcolor=palethemecolor,width=1pw,height=1ph]{}}%
@@ -302,7 +302,7 @@
 \stopsetups
 %%%%%%
 %% 第 一 回 XXXX
-\startsetups memos:chap:classicnovel
+\startsetups mm@chap:classicnovel
   \definestructureconversionset[classicnovelconversionset]
                         [chineseallnumerals][chineseallnumerals]
   \setupheads[part,chapter,section,subsection,
@@ -349,7 +349,7 @@
 \stopsetups
 %%%%%%
 %% XX 第一
-\startsetups memos:chap:classics
+\startsetups mm@chap:classics
   \definestructureconversionset[classicsconversionset]
                         [chineseallnumerals][chineseallnumerals]
   \setupheads[part,chapter,section,subsection,
@@ -410,7 +410,7 @@
   StopPage ;
 \stopuseMPgraphic
 
-\startuseMPgraphic{MP:all}
+\startuseMPgraphic{mm@all}
     numeric width , height ;
     width  = \overlaywidth ;
     height = \overlayheight ;
@@ -424,7 +424,7 @@
     fill text_back withcolor white ;
 \stopuseMPgraphic
 
-\startuseMPgraphic{MP:chapter}
+\startuseMPgraphic{mm@chapter}
     numeric width , height ;
     width  = \overlaywidth ;
     height = \overlayheight ;
@@ -441,10 +441,10 @@
 
 \startsetups chapter:pagebackground
   \doifelsemode {colorful:chapterpage} {
-    \setlayer[lay:chapter][preset=lefttop]{\useMPgraphic{MP:chapter}}
+    \setlayer[lay:chapter][preset=lefttop]{\useMPgraphic{mm@chapter}}
     \globaldisablemode[colorful:chapterpage]
   }{
-    \setlayer[lay:chapter][preset=lefttop]{\useMPgraphic{MP:all}}
+    \setlayer[lay:chapter][preset=lefttop]{\useMPgraphic{mm@all}}
   }
   \placelayer[lay:chapter]
 \stopsetups
@@ -466,10 +466,10 @@
             2\rightedgedistance-\rightedgewidth-%
            .5\rightmarginwidth\relax%
 
-\startsetups memos:chap:colorful
+\startsetups mm@chap:colorful
   \definelayer      [lay:all]     [repeat=yes,width=\paperwidth, height=\paperheight]
   \definelayer      [lay:chapter] [width=\paperwidth, height=\paperheight]
-  \defineoverlay    [olay:all]    [\useMPgraphic{MP:all}]
+  \defineoverlay    [olay:all]    [\useMPgraphic{mm@all}]
   \defineoverlay    [partoverlay] [\useMPgraphic{crosspart}]
   \defineoverlay    [olay:chapter][\directsetup{chapter:pagebackground}]
 % \setupbackgrounds [page]        [background=olay:all,state=repeat]
@@ -516,7 +516,7 @@
         origin shifted (0, -35pt)) withcolor white;
 \stopuseMPgraphic
 
-\startsetups memos:chap:rocket:background
+\startsetups mm@chap:rocket:background
   \doifelsemode {rocket:chapterpage} {
       \setlayer
         [layer:chapter:rocket:number]
@@ -532,7 +532,7 @@
   \placelayer[layer:chapter:rocket:number]
 \stopsetups
 
-\startsetups[memos:chap:rocketdown]
+\startsetups[mm@chap:rocketdown]
   \globaldisablemode[colorful:chapterpage]
   \globaldisablemode[hexa:chapterpage]
   \globalenablemode[rocket:chapterpage]
@@ -632,15 +632,15 @@
   \fi
 }}
 
-\startsetups memos:chap:rocket
+\startsetups mm@chap:rocket
   \definelayer  [layer:chapter:rocket:number]
                 [x=0mm, y=0mm,width=\paperwidth,height=\paperheight]
 
-  \defineoverlay   [hexa:background][\setups{memos:chap:rocket:background}]
+  \defineoverlay   [hexa:background][\setups{mm@chap:rocket:background}]
   \setupbackgrounds[page]          [background=hexa:background]
 
   \defineheadalternative[rocketdown]
-                        [alternative=vertical,renderingsetup=memos:chap:rocketdown]
+                        [alternative=vertical,renderingsetup=mm@chap:rocketdown]
 
   \setuplabeltext[en]  [chapter=Chapter,preface=Preface,appendix=Appendix]
   \setuplabeltext[hans][chapter=Chapter,preface=Preface,appendix=Appendix]
@@ -689,7 +689,7 @@
           origin shifted(0,-30pt)) withcolor white;
 \stopuseMPgraphic
 
-\startsetups memos:chap:hexa:background
+\startsetups mm@chap:hexa:background
   \doifelsemode {hexa:chapterpage} {
       \setlayer
         [layer:chapter:hexa:number]
@@ -707,7 +707,7 @@
   \placelayer[layer:chapter:hexa:number]
 \stopsetups
 
-\startsetups[memos:chap:hexagradient]
+\startsetups[mm@chap:hexagradient]
   \globaldisablemode[rocket:chapterpage]
   \globaldisablemode[colorful:chapterpage]
   \globalenablemode[hexa:chapterpage]
@@ -722,11 +722,11 @@
       }
 \stopsetups
 
-\startsetups memos:chap:hexa
+\startsetups mm@chap:hexa
   \definelayer  [layer:chapter:hexa:number][x=0mm, y=0mm,width=\paperwidth, height=\paperheight]
-  \defineoverlay[hexa:pagebackground][\setups{memos:chap:hexa:background}]
+  \defineoverlay[hexa:pagebackground][\setups{mm@chap:hexa:background}]
   \setupbackgrounds     [page][background=hexa:pagebackground]
-  \defineheadalternative[hexagradient][alternative=vertical,renderingsetup=memos:chap:hexagradient]
+  \defineheadalternative[hexagradient][alternative=vertical,renderingsetup=mm@chap:hexagradient]
   \setuphead [chapter][alternative=hexagradient,numbercolor=white,]
   \setupheads[subsection,subsubsection,
               subsubsubsection,subsubsubsubsection]
@@ -738,7 +738,7 @@
 % \structureuservariable\c!author
 % \stoptitle
 
-\startsetups memos:chap:article
+\startsetups mm@chap:article
   \defineheadalternative
     [article]
     [\c!alternative=\v!vertical,
@@ -832,7 +832,7 @@
   \setuphead[title][alternative=article]
 \stopsetups
 
-\startsetups memos:chap:publish
+\startsetups mm@chap:publish
   \defineframed[chappublish]
   \defineframed[chapissue]
   \defineframed[chapdate]    [chapissue]
@@ -932,7 +932,7 @@
   \framed[frame=off,width=\dimexpr\textwidth-\cutspace/2\relax,align={flushright}]{\headtextcontent}}%
 \stopsetups
 
-\startsetups memos:chap:ugent
+\startsetups mm@chap:ugent
   \setuphead[chapter][
     alternative=chapter:ugent,
     interlinespace=3\bodyfontsize,
@@ -960,7 +960,7 @@
   \outermargin[#1]{\placecombinedlist[marginlist]}%
   \endgroup}
 
-\startsetups memos:chap:kaolike
+\startsetups mm@chap:kaolike
   \newdimen\d_temp_chapheight
   \d_temp_chapheight=\dimexpr\topspace
                             +\headerheight+\headerdistance
@@ -1070,7 +1070,7 @@
     }%
 \stopsetups
 
-\startsetups memos:chap:grid
+\startsetups mm@chap:grid
 \setuplabeltext[en][chapter={}]
 \setuplabeltext[hans][chapter={第,章}]
 \setuphead[chapter,section,subsection][
@@ -1089,15 +1089,15 @@
     style=ssa,]
 \stopsetups
 
-\startsetups memos:chap:brotherton
-  \setups{memos:chap:grid}
+\startsetups mm@chap:brotherton
+  \setups{mm@chap:grid}
   \setuphead[chapter][
     textbefore=\par,
     interlinespace=2.5\bodyfontsize,]
 \stopsetups
 
-\startsetups memos:chap:dash
-  \setups{memos:chap:grid}
+\startsetups mm@chap:dash
+  \setups{mm@chap:grid}
   \setuplabeltext[chapter={---\ ,\ ---}]
   \setuphead[chapter][
     textbefore=\par,
@@ -1105,22 +1105,22 @@
     align={center,lohi},]
 \stopsetups
 
-\startsetups memos:chap:crosshead
-  \setups{memos:chap:grid}
+\startsetups mm@chap:crosshead
+  \setups{mm@chap:grid}
   \setuphead[chapter,section][
     align={center,lohi},]
 \stopsetups
 
-\startsetups memos:chap:verville
-  \setups{memos:chap:grid}
+\startsetups mm@chap:verville
+  \setups{mm@chap:grid}
   \setuphead[chapter][
     headbefore=\hrule\par,
     headafter=\par\hrule,
     align={center,lohi},]
 \stopsetups
 
-\startsetups memos:chap:thatcher
-  \setups{memos:chap:grid}
+\startsetups mm@chap:thatcher
+  \setups{mm@chap:grid}
   \setuplabeltext[chapter={\sc Chapter\ ,}]
   \setuphead[chapter][
     distance=0pt,
@@ -1130,8 +1130,8 @@
     align={center,lohi},]
 \stopsetups
 
-\startsetups memos:chap:bianchi
-  \setups{memos:chap:grid}
+\startsetups mm@chap:bianchi
+  \setups{mm@chap:grid}
   \setuphead[chapter][
     textbefore=\par\hrule\par,
     textafter=\par\hrule,
@@ -1139,8 +1139,8 @@
     align={center,lohi},]
 \stopsetups
 
-\startsetups memos:chap:pedersen
-  \setups{memos:chap:grid}
+\startsetups mm@chap:pedersen
+  \setups{mm@chap:grid}
   \setuplabeltext[hans][chapter={}]
   \setuphead[chapter][
     line=8,
@@ -1173,8 +1173,8 @@
       \vfill}\kern.5em % 数字框和标题之间的间距
   \vbox to \__gyoudori_areaheight{7}{\hsize=\dimexpr\hsize-2cm\relax\vfill #2\vfill}%
 }
-\startsetups memos:chap:VZ43
-  \setups{memos:chap:grid}
+\startsetups mm@chap:VZ43
+  \setups{mm@chap:grid}
   \setuplabeltext[hans][chapter={}]
   \setuphead[chapter][
       style=\tfc,
@@ -1213,7 +1213,7 @@
                     foregroundcolor=themecolor]{%
                       {第\ #1\ 编}\hbox to 1em{ } #2}}
 
-\startsetups memos:toc:default
+\startsetups mm@toc:default
   \edef\currenttocstyle{default}
   \setupcombinedlist[content][
     list={part,%
@@ -1240,7 +1240,7 @@
   \setuplist  [subsubsubsubsection][width=7.5em]
 \stopsetups
 
-\startsetups memos:toc:simple
+\startsetups mm@toc:simple
   \edef\currenttocstyle{simple}
   \setupcombinedlist[content][list={part,%
                title,chapter,subject,section,
@@ -1270,7 +1270,7 @@
 \define[1]\parenpage{\hskip-.5\emwidth\relax(#1)}
 \define[1]\mms_partlabel_line{{\sc\color[themecolor]{\hbox to 2.5em{Part} \ss\tfa #1}\ }}
 \define[1]\mms_chaplabel_line{{\sc\color[themecolor]{\hbox to 2.5em{Chap} \ss\tfa #1}\ }}
-\startsetups memos:toc:line
+\startsetups mm@toc:line
   \edef\currenttocstyle{line}
   \setupcombinedlist[content]
     [list={part,title,chapter,subject,
@@ -1287,7 +1287,7 @@
   \setuplist  [subsection][margin=4.5em,alternative=d,pagecommand=\parenpage]
 \stopsetups
 
-\startsetups memos:toc:madsen
+\startsetups mm@toc:madsen
   \edef\currenttocstyle{madsen}
   \setuphead  [tochead] [alternative=madsentoc]
   \setupcombinedlist[content][list={part,title,chapter,subject,section}]
@@ -1308,9 +1308,9 @@
   \setuplist  [subsubsubsubsection][margin=5.5em]
 \stopsetups
 
-\startsetups memos:toc:colorful
+\startsetups mm@toc:colorful
   \edef\currenttocstyle{colorful}
-  \startuseMPgraphic{MP:toc}
+  \startuseMPgraphic{mm@toc}
       numeric width , height ;
       width  = \overlaywidth ;
       height = \overlayheight ;
@@ -1324,7 +1324,7 @@
       text_back := fullsquare xscaled txtwidth yscaled txtheight;
       fill text_back shifted(-.35width,0) withcolor \MPcolor{lightthemecolor} ;
   \stopuseMPgraphic
-  \defineoverlay   [olay:toc][\useMPgraphic{MP:toc}]
+  \defineoverlay   [olay:toc][\useMPgraphic{mm@toc}]
   \setuplabeltext  [cn]  [content=Table Of Contents]
   \setuplabeltext  [hans][content=Table Of Contents]
   \setuplabeltext  [hant][content=Table Of Contents]
@@ -1346,7 +1346,7 @@
   \setuplist  [section]   [margin=\dimexpr\backspace+1em\relax,headnumber=no]
 \stopsetups
 
-\startsetups memos:toc:classicnovel
+\startsetups mm@toc:classicnovel
   \edef\currenttocstyle{classicnovel}
   \setupcombinedlist[content][list={part,title,chapter}]
   \setuplist        [part,chapter,title,][label=yes,after=,style=]
@@ -1355,12 +1355,12 @@
 \stopsetups
 
 \define[3]\mms_chaplabel_classics{\hbox to 1tw{#2第#1\hfill #3}}
-\startsetups memos:toc:classics
+\startsetups mm@toc:classics
   \edef\currenttocstyle{classics}
   \setuplist [chapter] [alternative=interactive,command=\mms_chaplabel_classics]
 \stopsetups
 
-\startsetups memos:toc:rocket
+\startsetups mm@toc:rocket
   \edef\currenttocstyle{rocket}
   \setuphead       [tochead][alternative=middle,before=\null\vskip2\baselineskip\relax]
   \setupcombinedlist[content][list={part,title,chapter,section,subject}]
@@ -1376,7 +1376,7 @@
   \setuplist       [subject]        [margin=4.0em]
 \stopsetups
 
-\startsetups memos:toc:hexa
+\startsetups mm@toc:hexa
   \edef\currenttocstyle{hexa}
   \setupcombinedlist[content][list={part,%
                      title,chapter,subject,section,
@@ -1402,7 +1402,7 @@
   \setuplist  [subsubsubsubsection][margin=2.5em]
 \stopsetups
 
-\startsetups memos:toc:kaolike
+\startsetups mm@toc:kaolike
   \edef\currenttocstyle{kaolike}
   \setupcombinedlist[content][list={part,%
                title,chapter,subject,section,
@@ -1428,7 +1428,7 @@
   \setuplist  [subsubsubsubsection][width=4.0em,margin=4.0em]
 \stopsetups
 
-\startsetups memos:toc:novel
+\startsetups mm@toc:novel
   \setupheader[state=stop]
   \setupcombinedlist[content][list={chapter}]
   \setuplist[chapter][headnumber=no,margin=.25tw,textstyle=\ssa,pagestyle=\tta,color=darkblue]
@@ -1441,7 +1441,7 @@
     \vfill}
 \stopsetups
 
-\startsetups memos:toc:novelnew
+\startsetups mm@toc:novelnew
   \setupindenting[none]
   \setupbackgrounds   [paper][background=color,backgroundcolor=softthemecolor,state=start]
   \setupcombinedlist  [content][list={chapter}]
@@ -1466,7 +1466,7 @@
           \vtop{\hsize\dimexpr\textwidth-3em\relax\color[contentchapc]{\ssb #2}}
     \egroup \par}
 
-\startsetups memos:toc:simplenovel
+\startsetups mm@toc:simplenovel
   \setupindenting[none]
   \definecolor[contentcolor][h=262C30]
   \definecolor[contentchapc][h=F7FCFD]
@@ -1506,7 +1506,7 @@
         \vtop{\hsize\dimexpr\textwidth-3em\relax\color[contentchapc]{\ss #2}}
   \egroup \par}
 
-\startsetups memos:toc:design
+\startsetups mm@toc:design
   \setupindenting[none]
   \setupbackgrounds [paper][background=color,backgroundcolor=softthemecolor,state=start]
   \setupcombinedlist[content][list={chapter,section}]
@@ -1546,7 +1546,7 @@
       \vtop{\hsize\dimexpr\textwidth-2em\relax\ss #2}
     \egroup\par}
 
-\startsetups memos:toc:designnew
+\startsetups mm@toc:designnew
   \setupindenting[none]
   \setupbackgrounds [paper][background=color,backgroundcolor=softthemecolor,state=start]
   \setupcombinedlist[content][list={chapter,section}]
@@ -1583,7 +1583,7 @@
   \iffirstargument\getparameters[??TOCs][#1]\fi%
   \edef\currenttocstyle{\ifempty\??TOCsalternative\currenttocstyle\else\??TOCsalternative\fi}%
   \edef\p_title{\??TOCstitle}%
-  \setups{memos:toc:\currenttocstyle}%
+  \setups{mm@toc:\currenttocstyle}%
   \doifinsetelse{\namedheadparameter{tochead}\c!page}{no,disable}%
      {}{\startlayout[\??TOCslayout]}%
   \doif{\??TOCsplacetitle}{yes}{%
@@ -1594,11 +1594,11 @@
   \page[\namedheadparameter{tochead}\c!page]%
   \endgroup}
 
-% \placeTOCs[placetitle=no,setups=memos:toc:novel]
-% \placeTOCs[placetitle=no,setups=memos:toc:novelnew]
-% \placeTOCs[placetitle=no,setups=memos:toc:simplenovel]
-% \placeTOCs[placetitle=no,setups=memos:toc:design]
-% \placeTOCs[placetitle=no,setups=memos:toc:designnew]
+% \placeTOCs[placetitle=no,setups=mm@toc:novel]
+% \placeTOCs[placetitle=no,setups=mm@toc:novelnew]
+% \placeTOCs[placetitle=no,setups=mm@toc:simplenovel]
+% \placeTOCs[placetitle=no,setups=mm@toc:design]
+% \placeTOCs[placetitle=no,setups=mm@toc:designnew]
 
 \definemargindata   [outermargin] [outer]
 \definemarginframed [outermargin] [outer]
@@ -1679,17 +1679,17 @@
          {\completepagenumber}
 \stopsetups
 
-\ifhdr_sty_book%
+\ifmm@header_book%
   \setupheadertexts  []
   \setupheadertexts  [\donetrue\setups [hdr:odd:sectionmark]][][]
                      [\donetrue\setups [hdr:even:chaptermark]]
 \fi
-\ifhdr_sty_novel%
+\ifmm@header_novel%
   \setupheadertexts  []
   \setupheadertexts  [\setups [hdr:odd:noveltitlemark]][][]
                      [\setups [hdr:even:novelchaptermark]]
 \fi
-\ifhdr_sty_colorful%
+\ifmm@header_colorful%
   \setupheader     [state=stop]
   \setupheadertexts[]
   \setuptexttexts  [edge]
@@ -1700,14 +1700,14 @@
                   [\setups[ftr:framedpagenumber]][]
 \fi
 %%%%%%%%%%%%%%%%%%%
-\ifhdr_sty_hctext% page number at center of header
+\ifmm@header_hctext% page number at center of header
   \setupheader        [state=start]
   \setupheadertexts
                   [\setups[hdr:center:pagenumber]][][]
                   [\setups[hdr:center:pagenumber]]
 \fi
 %%%%%%%%%%%%%%%%%%%
-\ifhdr_sty_fctext% page number at center of footer
+\ifmm@header_fctext% page number at center of footer
   \setupheader        [state=stop]
   \setupheadertexts   []
   \setupfootertexts
@@ -1715,14 +1715,14 @@
                   [\setups[hdr:center:pagenumber]]
 \fi
 %%%%%%%%%%%%%%%%%%%
-\ifhdr_sty_foemarginalt% doublesided page : in outermargin but closer to text area
+\ifmm@header_foemarginalt% doublesided page : in outermargin but closer to text area
   \setupheadertexts   []% delete middle of header
   \setupfootertexts[margin] []
                   [\setups[hdr:left:pagenumber]]
                   [\setups[hdr:right:pagenumber]][]
 \fi
 %%%%%%%%%%%%%%%%%%%
-\ifhdr_sty_foemargin% doublesided page : page number in outermargin
+\ifmm@header_foemargin% doublesided page : page number in outermargin
   \setupheadertexts    []% delete middle of header
   \setupfootertexts[margin] []
                    [\setups[hdr:right:pagenumber]]
@@ -1730,7 +1730,7 @@
 \fi
 %%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%
-\ifhdr_sty_hoemargin%
+\ifmm@header_hoemargin%
   \setupheader [state=start]
   \startsetups [header:leftpage]
        \startalignment[flushouter]\setscript[hanzi]
@@ -1764,13 +1764,13 @@
           [\directsetup{header:leftpage}] []
 \fi
 
-\ifhdr_sty_madsen
+\ifmm@header_madsen
   \setupheadertexts  []
   \setupheadertexts  [\donetrue\setups [hdr:even:chaptermark]][][]
                      [\donetrue\setups [hdr:odd:sectionmark]]
 \fi
 
-\ifhdr_sty_rocket
+\ifmm@header_rocket
   \newdimen\pos_xi_hdr_margin
   \newdimen\pos_xii_hdr_margin
   \pos_xii_hdr_margin=\dimexpr\paperwidth-\textwidth-\backspace-\rightmargindistance\relax

@@ -12,123 +12,115 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \startmodule[memos]
 \unprotect
-\def\userlanguageparameter#1#2{\ifcsname lang:\currentmainlanguage #1\endcsname\lastnamedcs\else#2\fi}
+\def\userlanguageparameter#1#2{\ifcsname mm@lang_\currentmainlanguage setup_#1\endcsname\lastnamedcs\else#2\fi}
 
-\def\s!memos{memos}
+\def\s!memos{memos:}
 
 \setupmodule [
-              papersize=A4,
-                 layout=moderate,
-           mainlanguage=hans,
-               language=\currentmoduleparameter{memos}{mainlanguage},
-             lineheight=\userlanguageparameter{interlinespace}{2.8ex},
-           fallbackfont=modern,
-               bodyfont=\userlanguageparameter{bodyfont}{modern},
-                 script=\userlanguageparameter{script}{},
-              fontstyle=rm,
-               fontsize=11pt,
-                   mode=,
-             themecolor=,
-               hdrstyle=,
-               tocstyle=,
-           chapterstyle=,
-            doublesided=no,
-              textcount=40, 
-            heightcount=40, 
-            margincount=0,
-    margindistancecount=1,
-            serifrscale=1,
-            handwrscale=1,
-             sansrscale=1,
-             monorscale=1,
-             mathrscale=1,
-                  ratio=1.414,
-                pattern=kaiming, 
-              spacequad=0.5, 
-               hangjian=no, 
-                  debug=no]
+        % 这些参数无须预先设置， 他们都被设置在 对应的语言中。
+        % 目前只设置了 中 日 两种。英语无须设置， 默认即可
+        %    fallbackfont=,        bodyfont=,
+        %    fallbackfont=,          script=,
+        %  interlinespace=,      whitespace=,
+        %           align=,       indenting=,
+              papersize=A4,             layout=moderate,    doublesided=no,
+           mainlanguage=hans,         language=,
+        % 这些参数无须设置，他们都已经预设好了默认值
+                   mode=,           themecolor=,
+               hdrstyle=,             tocstyle=,           chapterstyle=,
+        % 这些参数只在 hermes 布局中才会生效
+                  ratio=1.414,       textcount=40,          heightcount=40,                
+            margincount=0, margindistancecount=1,
+        % 这些参数只在回退字体中生效， 用于设置回退字体的缩放比例
+            serifrscale=1,         handwrscale=1,
+             sansrscale=1,          monorscale=1,  
+        % 这些参数是用于设置标点         
+                pattern=kaiming,     spacequad=0.5, 
+               hangjian=no,              debug=no]
 
-\setupmetadata[
-     \c!title=,
-  \c!subtitle=,
-    \c!author=,
-   \c!keyword=,
-      \c!date=,
-]
+% \setupmetadata [
+%   \c!title=,   \c!subtitle=,
+%  \c!author=,    \c!keyword=,
+%    \c!date=,]
 
-\def\serifrscale{\moduleparameter{memos}{serifrscale}}
-\def\handwrscale{\moduleparameter{memos}{handwrscale}}
-\def\sansrscale{\moduleparameter{memos}{sansrscale}}
-\def\monorscale{\moduleparameter{memos}{monorscale}}
-\def\mathrscale{\moduleparameter{memos}{mathrscale}}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\def\__errorparameter#1{%
+\def\mm@serifrscale{\moduleparameter{memos}{serifrscale}}
+\def\mm@handwrscale{\moduleparameter{memos}{handwrscale}}
+\def\mm@sansrscale {\moduleparameter{memos}{sansrscale}}
+\def\mm@monorscale {\moduleparameter{memos}{monorscale}}
+\def\mm@errorparameter#1{%
     \writestatus{module error}{!! Something Wrong happened at #1}
     \writestatus{module error}{!! #1 is \moduleparameter{memos}{#1}}
     \writestatus{module error}{!! if the value is valid,please ignore the message.}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\definemode[kindle]   [keep]
-\definemode[draft]    [keep]
-\definemode[print]    [keep]
-\definemode[moresize] [keep]
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definemode [mm@mode:kindle]    [keep]
+\definemode [mm@mode:draft]     [keep]
+\definemode [mm@mode:print]     [keep]
+\definemode [mm@extra:zhnumber] [keep]
+\definemode [mm@extra:pinyin]   [keep]
+\definemode [mm@extra:index]    [keep]
+\definemode [mm@extra:bihua]    [keep]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % h / f + ltext / ctext / rtext / oemargin
-\newif\ifhdr_sty_book         \hdr_sty_bookfalse
-\newif\ifhdr_sty_novel        \hdr_sty_novelfalse
-\newif\ifhdr_sty_colorful     \hdr_sty_colorfulfalse
-\newif\ifhdr_sty_madsen       \hdr_sty_madsenfalse
-\newif\ifhdr_sty_rocket       \hdr_sty_rocketfalse
-\newif\ifhdr_sty_hctext       \hdr_sty_hctextfalse
-\newif\ifhdr_sty_fctext       \hdr_sty_fctextfalse
-\newif\ifhdr_sty_foemargin    \hdr_sty_foemarginfalse
-\newif\ifhdr_sty_foemarginalt \hdr_sty_foemarginaltfalse
-\newif\ifhdr_sty_hoemargin    \hdr_sty_hoemarginfalse
-\newif\ifpage_doublesided
-\newif\ifLatinPunct
-
-\newdimen\ybaselineshift
-\ybaselineshift = 0pt
+\newif\ifmm@header_book         \mm@header_bookfalse
+\newif\ifmm@header_novel        \mm@header_novelfalse
+\newif\ifmm@header_colorful     \mm@header_colorfulfalse
+\newif\ifmm@header_madsen       \mm@header_madsenfalse
+\newif\ifmm@header_rocket       \mm@header_rocketfalse
+\newif\ifmm@header_hctext       \mm@header_hctextfalse
+\newif\ifmm@header_fctext       \mm@header_fctextfalse
+\newif\ifmm@header_foemargin    \mm@header_foemarginfalse
+\newif\ifmm@header_foemarginalt \mm@header_foemarginaltfalse
+\newif\ifmm@header_hoemargin    \mm@header_hoemarginfalse
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \processaction[\currentmoduleparameter{hdrstyle}]%
-   [       book=>\hdr_sty_booktrue,
-          novel=>\hdr_sty_noveltrue,
-           line=>\hdr_sty_booktrue,
-       colorful=>\hdr_sty_colorfultrue,
-         madsen=>\hdr_sty_madsentrue,
-        kaolike=>\hdr_sty_hoemargintrue,
-         rocket=>\hdr_sty_rockettrue,
-         hctext=>\hdr_sty_hctexttrue,
-         fctext=>\hdr_sty_fctexttrue,
-      foemargin=>\hdr_sty_foemargintrue,
-   foemarginalt=>\hdr_sty_foemarginalttrue,
-      hoemargin=>\hdr_sty_hoemargintrue,
+   [       book=>\mm@header_booktrue,
+          novel=>\mm@header_noveltrue,
+           line=>\mm@header_booktrue,
+       colorful=>\mm@header_colorfultrue,
+         madsen=>\mm@header_madsentrue,
+        kaolike=>\mm@header_hoemargintrue,
+         rocket=>\mm@header_rockettrue,
+         hctext=>\mm@header_hctexttrue,
+         fctext=>\mm@header_fctexttrue,
+      foemargin=>\mm@header_foemargintrue,
+   foemarginalt=>\mm@header_foemarginalttrue,
+      hoemargin=>\mm@header_hoemargintrue,
            none=>\relax,
-     \v!default=>\hdr_sty_fctexttrue,
-     \v!unknown=>\__errorparameter{hdrstyle},]
+     \v!default=>\mm@header_fctexttrue,
+     \v!unknown=>\mm@errorparameter{hdrstyle},]
      
 \processaction[\currentmoduleparameter{doublesided}]%
-   [        yes=>{\setuppagenumbering[alternative=doublesided,]\page_doublesidedtrue},
+   [        yes=>{\setuppagenumbering[alternative=doublesided,]},% \ifdoublesided
              no=>\relax,
      \v!default=>\relax,
-     \v!unknown=>\__errorparameter{doublesided},]
+     \v!unknown=>\mm@errorparameter{doublesided},]
 
 \processallactionsinset[\currentmoduleparameter{mode}][
-         print=>{\enablemode[print]},
-        kindle=>{\enablemode[kindle]},
-         draft=>{\enablemode[draft]},
+         print=>{\enablemode[mm@mode:print]},
+        kindle=>{\enablemode[mm@mode:kindle]},
+         draft=>{\enablemode[mm@mode:draft]},
     \v!default=>\relax,
-    \v!unknown=>\__errorparameter{mode},
+    \v!unknown=>\mm@errorparameter{mode},
+]
+
+\processallactionsinset[\currentmoduleparameter{extra}][
+        pinyin=>{\enablemode[mm@extra:pinyin]},
+      zhnumber=>{\enablemode[mm@extra:zhnumber]},
+         index=>{\enablemode[mm@extra:index]},
+         bihua=>{\enablemode[mm@extra:bihua]},
+           all=>{\enablemode[mm@extra:pinyin,mm@extra:zhnumber,mm@extra:index,mm@extra:bihua]},
+          none=>\relax,
+    \v!default=>\relax,
+    \v!unknown=>\errorparameter{extra},
 ]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %D 特別的，draft 模式下會開啟字符缺失檢查。但可能會導致未知錯誤，包括目錄、引用等無法生成
 %D \type{\enabledirectives[logs.errors=missing characters]}
 %D 命令檢查字符是否缺失，如果有則停止繼續打印。
-%D 需要注意的是，開啟 draft 和 moresize 模式會拖慢生成文件的速度。
-\startmode[draft]
+%D 需要注意的是，開啟 draft 模式會拖慢生成文件的速度。
+\startmode[mm@mode:draft]
   \overfullrule=10pt%
   \version[temporary]
-  \let\infofont\ttx
   \enabletrackers[builders.hpack.quality]
   \enabletrackers[builders.hpack.overflow]
   \enabletrackers[fonts.missing]
@@ -136,7 +128,7 @@
   \showjustification
 \stopmode
 
-\startmode[kindle]
+\startmode[mm@mode:kindle]
   \setupmodule   [fontsize=14pt,papersize=kindle,layout=kindle]
 \stopmode
 
@@ -167,47 +159,47 @@
           gray=>{\setuppalet[reliable]},
           none=>\relax,
     \v!default=>{\setuppalet[creativity]},
-    \v!unknown=>\__errorparameter{themecolor},]
+    \v!unknown=>\mm@errorparameter{themecolor},]
 
 \processaction[\currentmoduleparameter{chapterstyle}]%
-   [      line=>\setups{memos:chap:line},
-      colorful=>\setups{memos:chap:colorful},
-        madsen=>\setups{memos:chap:madsen},
-        rocket=>\setups{memos:chap:rocket},
-          hexa=>\setups{memos:chap:hexa},
-        simple=>\setups{memos:chap:simple},
-      classics=>\setups{memos:chap:classics},
-  classicnovel=>\setups{memos:chap:classicnovel},
-       kaolike=>\setups{memos:chap:kaolike},
-       article=>\setups{memos:chap:article},
-       publish=>\setups{memos:chap:publish},
-         ugent=>\setups{memos:chap:ugent},
-          grid=>\setups{memos:chap:grid},
-    brotherton=>\setups{memos:chap:brotherton},
-          dash=>\setups{memos:chap:dash},
-     crosshead=>\setups{memos:chap:crosshead},
-      verville=>\setups{memos:chap:verville},
-      thatcher=>\setups{memos:chap:thatcher},
-       bianchi=>\setups{memos:chap:bianchi},
-      pedersen=>\setups{memos:chap:pedersen},
-          VZ43=>\setups{memos:chap:VZ43},
+   [      line=>\setups{mm@chap:line},
+      colorful=>\setups{mm@chap:colorful},
+        madsen=>\setups{mm@chap:madsen},
+        rocket=>\setups{mm@chap:rocket},
+          hexa=>\setups{mm@chap:hexa},
+        simple=>\setups{mm@chap:simple},
+      classics=>\setups{mm@chap:classics},
+  classicnovel=>\setups{mm@chap:classicnovel},
+       kaolike=>\setups{mm@chap:kaolike},
+       article=>\setups{mm@chap:article},
+       publish=>\setups{mm@chap:publish},
+         ugent=>\setups{mm@chap:ugent},
+          grid=>\setups{mm@chap:grid},
+    brotherton=>\setups{mm@chap:brotherton},
+          dash=>\setups{mm@chap:dash},
+     crosshead=>\setups{mm@chap:crosshead},
+      verville=>\setups{mm@chap:verville},
+      thatcher=>\setups{mm@chap:thatcher},
+       bianchi=>\setups{mm@chap:bianchi},
+      pedersen=>\setups{mm@chap:pedersen},
+          VZ43=>\setups{mm@chap:VZ43},
           none=>\relax,
-    \v!default=>\setups{memos:chap:default},
-    \v!unknown=>\__errorparameter{chapterstyle},]
+    \v!default=>\setups{mm@chap:default},
+    \v!unknown=>\mm@errorparameter{chapterstyle},]
 
 \processaction[\currentmoduleparameter{tocstyle}][
-          line=>\setups{memos:toc:line},
-      colorful=>\setups{memos:toc:colorful},
-        madsen=>\setups{memos:toc:madsen},
-        rocket=>\setups{memos:toc:rocket},
-          hexa=>\setups{memos:toc:hexa},
-        simple=>\setups{memos:toc:simple},
-      classics=>\setups{memos:toc:classics},
-  classicnovel=>\setups{memos:toc:classicnovel},
-       kaolike=>\setups{memos:toc:kaolike},
+          line=>\setups{mm@toc:line},
+      colorful=>\setups{mm@toc:colorful},
+        madsen=>\setups{mm@toc:madsen},
+        rocket=>\setups{mm@toc:rocket},
+          hexa=>\setups{mm@toc:hexa},
+        simple=>\setups{mm@toc:simple},
+      classics=>\setups{mm@toc:classics},
+  classicnovel=>\setups{mm@toc:classicnovel},
+       kaolike=>\setups{mm@toc:kaolike},
           none=>\relax,
-    \v!default=>\setups{memos:toc:default},
-    \v!unknown=>\__errorparameter{tocstyle},]
+    \v!default=>\setups{mm@toc:default},
+    \v!unknown=>\mm@errorparameter{tocstyle},]
 
 \protect
 \stopmodule

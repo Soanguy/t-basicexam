@@ -1,6 +1,6 @@
 % \enabledirectives[backend.pdf.nounicode=當前非有效版本，請聯繫作者]
 
-\startuseMPgraphic{mp:itemgroup:squares}
+\startuseMPgraphic{mm@itemgroup:squares}
   numeric us; path ps;
   us := BodyFontSize;
   ps := fullsquare scaled .5us;
@@ -8,7 +8,7 @@
   draw ps shifted (.4us, -.0us) withcolor \MPcolor{lightthemecolor}  withpen pencircle scaled 1pt;
 \stopuseMPgraphic
 
-\startuseMPgraphic{mp:itemgroup:circles}
+\startuseMPgraphic{mm@itemgroup:circles}
   numeric uc; path pc;
   uc := BodyFontSize;
   pc := fullcircle scaled .55uc;
@@ -16,7 +16,7 @@
   draw pc       withcolor \MPcolor{lightthemecolor}  withpen pencircle scaled 1pt;
 \stopuseMPgraphic
 
-\startuseMPgraphic{mp:itemgroup:square}
+\startuseMPgraphic{mm@itemgroup:square}
   numeric us; path ps;
   us := BodyFontSize;
   ps := fullsquare scaled .6us;
@@ -24,7 +24,7 @@
   fill ps withcolor \MPcolor{lightthemecolor};
 \stopuseMPgraphic
 
-\startuseMPgraphic{mp:itemgroup:circle}
+\startuseMPgraphic{mm@itemgroup:circle}
   numeric uc; path pc;
   uc := BodyFontSize;
   pc := fullcircle scaled .65uc;
@@ -88,12 +88,10 @@
 \definesymbol [mp:circle]       [{\lower.3ex\vbox{\uniqueMPgraphic{sym:circle}}}]
 \definesymbol [mp:bullet]       [{\lower.3ex\vbox{\uniqueMPgraphic{sym:bullet}}}]
 
-\definesymbol [shadowedsquare]  [{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:square}}}]
-\definesymbol [shadowedcircle]  [{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:circle}}}]
-\definesymbol [shadowedsquares] [{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:squares}}}]
-\definesymbol [shadowedcircles] [{\lower.1\bodyfontsize\hbox{\useMPgraphic{mp:itemgroup:circles}}}]
-
-\definesymbol[blankdiamond][{\tfx ⬥}]
+\definesymbol [shadowedsquare]  [{\lower.1\bodyfontsize\hbox{\useMPgraphic{mm@itemgroup:square}}}]
+\definesymbol [shadowedcircle]  [{\lower.1\bodyfontsize\hbox{\useMPgraphic{mm@itemgroup:circle}}}]
+\definesymbol [shadowedsquares] [{\lower.1\bodyfontsize\hbox{\useMPgraphic{mm@itemgroup:squares}}}]
+\definesymbol [shadowedcircles] [{\lower.1\bodyfontsize\hbox{\useMPgraphic{mm@itemgroup:circles}}}]
 
 \defineitemgroup    [ordinals] [levels=4]
 \setupitemgroup     [ordinals] [each]
@@ -122,26 +120,26 @@
                      headstyle=bold, align={flushleft},
                      text={\raise 1pt \hbox to 1em{$\bullet$}},%hang=99,
                      alternative=hanging,]
-\definedescription  [topdescr][
-                     before=\par,  after=\par,  inbetween=,
-                     width=fit, indenting=2em, indentnext=yes,
-                     headstyle=bold, align={flushleft},
-                     text={\raise 1pt \hbox to 1em{$\bullet$}},
-                     alternative=top,]
-\definedescription  [description][
-                     before=\blank[halfline],  after=\blank[halfline],  inbetween=,
-                     width=fit, indenting=2em, indentnext=yes,
-                     headstyle=bold, align={flushleft},
+\definedescription  [topdescr]   [hangdescr] [alternative=top,]
+\definedescription  [description][hangdescr] [
+                     text=, 
+                     before=\blank[halfline],  after=\blank[halfline],            
                      alternative=serried,]
 
-\defineenumeration[theorem]     [alternative=hanging, width=fit, before=\blank[halfline]\leftskip1em\rightskip\leftskip, after=\blank[halfline], inbetween=, text=\labeltext{reference:theorem},    way=bychapter, prefix=yes, prefixsegments=chapter]
-\defineenumeration[lemma]       [alternative=hanging, width=fit, before=\blank[halfline]\leftskip1em\rightskip\leftskip, after=\blank[halfline], inbetween=, text=\labeltext{reference:lemma},      way=bychapter, prefix=yes, prefixsegments=chapter]
-\defineenumeration[corollary]   [alternative=hanging, width=fit, before=\blank[halfline]\leftskip1em\rightskip\leftskip, after=\blank[halfline], inbetween=, text=\labeltext{reference:corollary},  way=bychapter, prefix=yes, prefixsegments=chapter]
-\defineenumeration[proposition] [alternative=hanging, width=fit, before=\blank[halfline]\leftskip1em\rightskip\leftskip, after=\blank[halfline], inbetween=, text=\labeltext{reference:proposition},way=bychapter, prefix=yes, prefixsegments=chapter]
-\defineenumeration[definition]  [alternative=hanging, width=fit, before=\blank[halfline]\leftskip1em\rightskip\leftskip, after=\blank[halfline], inbetween=, text=\labeltext{reference:definition}, way=bychapter, prefix=yes, prefixsegments=chapter]
-\defineenumeration[proof]       [alternative=hanging, width=fit, before=\blank[halfline]\leftskip1em\rightskip\leftskip, after=\blank[halfline], inbetween=, text=\labeltext{reference:proof},      way=bychapter, prefix=yes, prefixsegments=chapter]
-\defineenumeration[remark]      [alternative=hanging, width=fit, before=\blank[halfline]\leftskip1em\rightskip\leftskip, after=\blank[halfline], inbetween=, text=\labeltext{reference:remark},     way=bychapter, prefix=yes, prefixsegments=chapter]
-\defineenumeration[examples]    [alternative=hanging, width=fit, before=\blank[halfline]\leftskip1em\rightskip\leftskip, after=\blank[halfline], inbetween=, text=\labeltext{reference:example},    way=bychapter, prefix=yes, prefixsegments=chapter]
+\defineenumeration[mm@math]     [alternative=hanging, width=fit, 
+                                 before=\blank[halfline]\leftskip1em\rightskip\leftskip, 
+                                 after=\blank[halfline], 
+                                 inbetween=, 
+                                 way=bychapter, prefix=yes, prefixsegments=chapter]
+\defineenumeration[theorem]     [mm@math] [text=\labeltext{reference:theorem},    ]
+\defineenumeration[lemma]       [mm@math] [text=\labeltext{reference:lemma},      ]
+\defineenumeration[corollary]   [mm@math] [text=\labeltext{reference:corollary},  ]
+\defineenumeration[proposition] [mm@math] [text=\labeltext{reference:proposition},]
+\defineenumeration[definition]  [mm@math] [text=\labeltext{reference:definition}, ]
+\defineenumeration[proof]       [mm@math] [text=\labeltext{reference:proof},      ]
+\defineenumeration[remark]      [mm@math] [text=\labeltext{reference:remark},     ]
+\defineenumeration[examples]    [mm@math] [text=\labeltext{reference:example},    ]
+
 \defineenumeration[tips]        [text=Tips,inbetween=,width=fit,right={.~},
                                   headcommand=\setuptextrules[color=themecolor,rulecolor=themecolor,rulethickness=1.5\linewidth,before=\blank[halfline]]\textrule[top],
                                   before=\vskip-\baselineskip\relax,
@@ -151,8 +149,7 @@
 \setupcounter       [tips]       [way=bysection]
 \defineenumeration  [mainpoint]
 \setupenumeration   [mainpoint] [text=,
-                                 title=yes,
-                                 titleleft=,titleright=,
+                                 title=yes, titleleft=, titleright=,
                                  titlestyle=sstf,
                                  numberstyle=sstf,
                                  numberconversion=cn,stopper=、,
@@ -162,6 +159,104 @@
                                  inbetween=\blank[halfline],
                                  ]
 
+\def\mm@article_comma_command#1{%
+  \advance\scratchcountertwo\plusone
+  \ifnum\scratchcountertwo=\plusone
+  \else
+    ,\space
+  \fi
+  #1}
+  
+\def\setupauthor{\getparameters[mm@article_author_]}
+
+\setupauthor[
+  \c!command=\mm@article_comma_command,
+  \c!align  =center,
+  \c!style  =,
+  \c!color  =,
+]
+
+\tolerant\def\author[#S#1]#:#2%
+  {\begingroup
+   \getparameters[mm@article_author_][#1]%
+   \getcommacommandsize[#1]%
+   \scratchcounterone\commalistsize
+   \scratchcountertwo\zerocount
+   \dousealignparameter\mm@article_author_align
+   \dousestyleparameter\mm@article_author_style
+   \dousecolorparameter\mm@article_author_color
+   \processcommalist[#2]\mm@article_comma_command
+  \endgroup}
+
+\def\setupkeywords{\getparameters[mm@article_keywords_]}
+
+\setupkeywords[
+  \c!before        =\startnarrow[middle=2em]\noindent,
+  \c!after         =\stopnarrow,
+  \c!command       =\mm@article_comma_command,
+  \c!title         =\labeltext{keywords},
+  \c!title\c!align =,
+  \c!title\c!style =it,
+  \c!title\c!color =,
+  \c!inbetween     =,
+  \c!align         =,
+  \c!style         =,
+  \c!color         =,
+]
+
+\tolerant\def\keywords[#S#1]#:#2%
+  {\begingroup
+   \getparameters[mm@article_keywords_][#1]%
+   \getcommacommandsize[#1]%
+   \scratchcounterone\commalistsize
+   \scratchcountertwo\zerocount
+   \mm@article_keywords_before
+   \bgroup
+     \dousealignparameter\mm@article_keywords_titlealign
+     \dousestyleparameter\mm@article_keywords_titlestyle
+     \dousecolorparameter\mm@article_keywords_titlecolor
+     \mm@article_keywords_title
+   \egroup
+   \mm@article_keywords_inbetween
+   \dousealignparameter\mm@article_keywords_align
+   \dousestyleparameter\mm@article_keywords_style
+   \dousecolorparameter\mm@article_keywords_color
+   \processcommalist[#2]\mm@article_comma_command
+   \mm@article_keywords_after
+  \endgroup}
+
+\def\setupabstract{\getparameters[mm@article_abstract_]}
+
+\setupabstract[
+  \c!before        =\blank\startnarrow[middle=2em],
+  \c!after         =\stopnarrow\blank,
+  \c!title         =\labeltext{abstract},
+  \c!title\c!align =center,
+  \c!title\c!style =bf,
+  \c!title\c!color =,
+  \c!inbetween     =\par,
+  \c!align         =,
+  \c!style         =\setupindenting[none],
+  \c!color         =,
+]
+
+\tolerant\def\startabstract[#S#1]%
+  {\begingroup
+   \getparameters[mm@article_abstract_][#1]%
+   \mm@article_abstract_before
+   \bgroup
+     \dousealignparameter\mm@article_abstract_titlealign
+     \dousestyleparameter\mm@article_abstract_titlestyle
+     \dousecolorparameter\mm@article_abstract_titlecolor
+     \mm@article_abstract_title
+   \egroup
+   \mm@article_abstract_inbetween
+   \dousealignparameter\mm@article_abstract_align
+   \dousestyleparameter\mm@article_abstract_style
+   \dousecolorparameter\mm@article_abstract_color
+  }
+  
+\def\stopabstract{\mm@article_abstract_after\endgroup}
 %%%%% only for compatiblility
 \let\startlists\startordinals
 \let\stoplists\stopordinals
@@ -178,7 +273,7 @@
 \setuphigh[hanihigh][distance=1pt,up=\exheight]
 
 \def\notesep    {{\useurlstyleandcolor\c!style\c!color\strc_notes_inject_separator}}
-\def\MMS_notecommand#1{\begingroup\nobreak\hanihigh{\languageparameter{leftnotemark}{#1}\languageparameter{rightnotemark}}\endgroup}
+\def\MMS_notecommand#1{\begingroup\nobreak\hbox{\hanihigh{\languageparameter{leftnotemark}{#1}\languageparameter{rightnotemark}}}\endgroup}
 \def\MMS_notationcommand#1{\begingroup{\languageparameter{leftnotemark}{#1}\languageparameter{rightnotemark}}\endgroup}
 \setupnote      [\c!setups       ={fn:hanzi},
                  \c!textseparator=\textcomma,
@@ -210,8 +305,8 @@
     \hbox to 1.0em{{\tfx\hfill\ast}},
     \hbox to 1.0em{{\tfx\hfill\ast\ast}},
     \hbox to 1.0em{\tfx\raise .5em%
-      \hbox to 1.0em{\hfil\ast\hfil}\kern-1.0em
-      \hbox to 1.0em{\hfil\ast\ast\hfil}}]
+    \hbox to 1.0em{\hfil\ast\hfil}\kern-1.0em
+    \hbox to 1.0em{\hfil\ast\ast\hfil}}]
 
 
 \tolerant\def\movesidenote[#1]{\def\move_sidenote{\doifsomethingelse{#1}{#1}{0em}}}
@@ -226,13 +321,8 @@
 \setupnotation [sidenote] [numberconversion=sidenote,width=2mm,left=,right=,]
 %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%
-\def\centerfloat{% it seem not work on doublesided page(even page)
-  \parindent 0pt%\ifodd\realpageno
-  \rightskip 0pt plus 1fil minus \rightmarginwidth
-  \leftskip  0pt plus 1fil minus \rightmarginwidth
-  \parfillskip 0pt plus0pt minus0pt}
 \definenarrower [widersame] [left=\rightmargintotal,
-                             right=\rightmargintotal,middle=1em]
+                            right=\rightmargintotal,middle=1em]
 % ConTeXt has a similar command:starthanging
 %%%%% Note: you can only widen limited type of elements.e.g. normal text.
 %%%%%       it seems in table and figure enviroment ,narrower is not work well
@@ -507,9 +597,9 @@ suggest=\symbol[fontawesome][star]]
   \expanded{\useURL[\p_reference][\p_urlormail][\dummyparameter\c!file][\p_text]}%
   \endgroup}
 
-\def\linkto#1{{\doifmodeelse{print}{\url[#1]}{\from[#1]}}}
+\def\linkto#1{{\doifmodeelse{mm@mode:print}{\url[#1]}{\from[#1]}}}
 
-\def\href#1[#2]{\ifempty{#1}\goto{#2}[fileorurl(#2)]\else\doifmodeelse{print}{\goto{#2}[fileorurl(#2)]}{\goto{#1}[fileorurl(#2)]}\fi\urlsymbol}
+\def\href#1[#2]{\ifempty{#1}\goto{#2}[fileorurl(#2)]\else\doifmodeelse{mm@mode:print}{\goto{#2}[fileorurl(#2)]}{\goto{#1}[fileorurl(#2)]}\fi\urlsymbol}
 
 % \href{baidu}[baidu.com] 无须提前定义，直接使用
 % \href[baidu.com]        无须提前定义，直接使用

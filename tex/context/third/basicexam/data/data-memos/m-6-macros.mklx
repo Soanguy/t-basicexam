@@ -118,3 +118,13 @@ table.save = function(filename, data)
     return original_save(filename, data)
 end
 \stopluacode
+
+%\def\FontAwesomeBrands#1{\getglyphstyled{FontAwesomeBrands}{\tochar{n:#1}}}
+%\def\FontAwesomeRegular#1{\getglyphstyled{FontAwesomeRegular}{\tochar{n:#1}}}
+%\def\FontAwesomeSolid#1{\getglyphstyled{FontAwesomeSolid}{\tochar{n:#1}}}
+%
+%\showsymbolset [fontawesome-brands]
+%
+%\showsymbolset [fontawesome-regular]
+%
+%\showsymbolset [fontawesome-solid]
